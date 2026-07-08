@@ -1,0 +1,193 @@
+.page {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: var(--space-7) var(--space-6) var(--space-8);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-block-end: var(--space-7);
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: var(--weight-demibold);
+  margin-block-end: var(--space-2);
+}
+
+.title {
+  font-size: var(--font-size-display);
+  font-weight: var(--weight-demibold);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+  color: var(--color-text);
+  margin: 0 0 var(--space-2);
+}
+
+:lang(fa) .title {
+  line-height: var(--line-height-display-fa);
+  letter-spacing: normal;
+}
+
+.lede {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--color-text-muted);
+  max-width: 560px;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+:lang(fa) .controls {
+  align-items: flex-start;
+}
+
+.section {
+  margin-block-end: var(--space-7);
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: var(--weight-demibold);
+  color: var(--color-text);
+  margin: 0 0 var(--space-4);
+}
+
+.swatchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.swatch {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.swatchColor {
+  height: 48px;
+}
+
+.swatchLabel {
+  padding: var(--space-2) var(--space-3);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.spacingBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.spacingBarLabel {
+  width: 90px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.spacingBarFill {
+  height: 10px;
+  border-radius: 3px;
+  background: var(--color-accent);
+}
+
+.radiusGrid {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.radiusSample {
+  width: 64px;
+  height: 64px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.radiusLabel {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  margin-block-start: var(--space-2);
+}
+
+.elevationSample {
+  width: 150px;
+  height: 84px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.typeRole {
+  border-block-end: 1px solid var(--color-border);
+  padding-block-end: var(--space-4);
+}
+
+.typeRoleLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-faint);
+  margin-block-end: var(--space-2);
+}
+
+.numericDemo {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.numericColumn {
+  font-size: var(--font-size-numeric);
+  color: var(--color-text);
+}
+
+.numericColumnLabel {
+  font-size: 12px;
+  color: var(--color-text-faint);
+  margin-block-end: var(--space-2);
+}
+
+.listCard {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}

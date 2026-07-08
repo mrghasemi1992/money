@@ -1,0 +1,99 @@
+.button {
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: var(--weight-demibold);
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--btn-primary-bg-hover);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--btn-primary-bg-active);
+}
+
+.primary:disabled {
+  background: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+}
+
+.secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--btn-secondary-bg-hover);
+}
+
+.secondary:active:not(:disabled) {
+  background: var(--btn-secondary-bg-active);
+}
+
+.secondary:disabled {
+  background: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+  border-color: transparent;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--btn-ghost-bg-hover);
+}
+
+.ghost:active:not(:disabled) {
+  background: var(--btn-ghost-bg-active);
+}
+
+.ghost:disabled {
+  color: var(--btn-disabled-text);
+}
+
+.destructive {
+  background: var(--btn-destructive-bg);
+  color: var(--btn-destructive-text);
+}
+
+.destructive:hover:not(:disabled) {
+  background: var(--btn-destructive-bg-hover);
+}
+
+.destructive:active:not(:disabled) {
+  background: var(--btn-destructive-bg-active);
+}
+
+.destructive:focus-visible {
+  outline-color: var(--btn-destructive-focus-ring);
+}
+
+.destructive:disabled {
+  background: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+}

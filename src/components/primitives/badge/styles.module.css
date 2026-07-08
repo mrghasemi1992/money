@@ -1,0 +1,15 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: var(--weight-medium);
+  width: fit-content;
+  background: hsl(
+    var(--badge-hue) var(--badge-bg-saturation) var(--badge-bg-lightness)
+  );
+  color: hsl(
+    var(--badge-hue) var(--badge-text-saturation) var(--badge-text-lightness)
+  );
+}

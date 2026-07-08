@@ -1,0 +1,96 @@
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Neutral scale */
+  --color-bg: #f5f0e6;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #ede6d6;
+  --color-border: #e6decf;
+  --color-border-input: #e6decf;
+  --color-border-hover: #d6cbb4;
+  --color-text: #1c1712;
+  --color-text-muted: #8c8272;
+  --color-text-faint: #79705f;
+  --color-text-disabled: #a79e8c;
+
+  /* Brass — accent, interactive elements only */
+  --color-accent: #9c7830;
+  --color-accent-hover: #8a6a29;
+  --color-accent-active: #785b22;
+  --color-accent-contrast: #fbf8f2;
+
+  /* Rust — negative amounts / errors only */
+  --color-negative: #b04a2e;
+  --color-negative-contrast: #fdeae3;
+
+  /* Elevation — hairline borders carry the weight, shadow is a whisper */
+  --elevation-1: 0 1px 0 rgba(20, 16, 10, 0.06);
+  --elevation-2: 0 4px 16px rgba(20, 16, 10, 0.08);
+  --elevation-3: 0 12px 32px rgba(20, 16, 10, 0.12);
+
+  /* Button — primary (brass) */
+  --btn-primary-bg: var(--color-accent);
+  --btn-primary-bg-hover: var(--color-accent-hover);
+  --btn-primary-bg-active: var(--color-accent-active);
+  --btn-primary-text: var(--color-accent-contrast);
+
+  /* Button — secondary */
+  --btn-secondary-bg: var(--color-surface);
+  --btn-secondary-bg-hover: #fbf8f2;
+  --btn-secondary-bg-active: #f1ebdd;
+  --btn-secondary-text: var(--color-text);
+  --btn-secondary-border: var(--color-border-input);
+
+  /* Button — ghost */
+  --btn-ghost-bg-hover: rgb(20 16 10 / 5%);
+  --btn-ghost-bg-active: rgb(20 16 10 / 9%);
+
+  /* Button — destructive */
+  --btn-destructive-bg: #b04a2e;
+  --btn-destructive-bg-hover: #c05636;
+  --btn-destructive-bg-active: #9c3f26;
+  --btn-destructive-text: var(--color-negative-contrast);
+  --btn-destructive-focus-ring: var(--color-negative);
+
+  /* Button — disabled */
+  --btn-disabled-bg: var(--color-surface-sunken);
+  --btn-disabled-text: var(--color-text-disabled);
+
+  /* Input */
+  --input-bg: var(--color-surface);
+  --input-border: var(--color-border-input);
+  --input-border-hover: var(--color-border-hover);
+  --input-border-focus: var(--color-accent);
+  --input-focus-ring: rgb(156 120 48 / 14%);
+  --input-border-error: var(--color-negative);
+  --input-error-text: var(--color-negative);
+  --input-disabled-bg: var(--color-surface-sunken);
+  --input-disabled-border: #e0d7c4;
+  --input-disabled-text: var(--color-text-disabled);
+  --input-label: #443e32;
+
+  /* Card */
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-border-hover: var(--color-border-hover);
+
+  /* Table row */
+  --row-hover-bg: #fbf8f2;
+
+  /* Toggle / switch */
+  --switch-track-off: #e0d7c4;
+  --switch-track-off-hover: #d6cbb4;
+  --switch-thumb-off: #ffffff;
+  --switch-track-on: var(--color-accent);
+  --switch-track-on-hover: var(--color-accent-hover);
+  --switch-thumb-on: #ffffff;
+  --switch-track-disabled: rgb(237 230 214 / 60%);
+  --switch-thumb-disabled: #ffffff;
+
+  /* Badge — fixed background/text bands; hue comes from the caller's chosen
+     color (see components/primitives/badge), guarded away from Rust */
+  --badge-bg-saturation: 35%;
+  --badge-bg-lightness: 92%;
+  --badge-text-saturation: 45%;
+  --badge-text-lightness: 32%;
+}

@@ -100,7 +100,7 @@ top-level `components/`, `db/`, `styles/`.
 
 ```css
 @font-face {
-  font-family: 'Dana VF';
+  font-family: 'Dana';
   src:
     url('/fonts/DanaVF.woff2') format('woff2-variations'),
     url('/fonts/DanaVF.woff2') format('woff2'),

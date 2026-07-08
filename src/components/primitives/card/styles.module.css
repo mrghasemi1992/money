@@ -1,0 +1,25 @@
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.interactive {
+  cursor: pointer;
+  text-align: start;
+}
+
+.interactive:hover,
+.interactive:focus-visible {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--elevation-2);
+}
+
+.interactive:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}

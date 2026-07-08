@@ -1,0 +1,60 @@
+.root {
+  all: unset;
+  width: 44px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: var(--switch-track-off);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.root:hover:not([data-disabled]) {
+  background: var(--switch-track-off-hover);
+}
+
+.root[data-state='checked'] {
+  background: var(--switch-track-on);
+}
+
+.root[data-state='checked']:hover:not([data-disabled]) {
+  background: var(--switch-track-on-hover);
+}
+
+.root:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.root[data-disabled] {
+  cursor: not-allowed;
+  background: var(--switch-track-disabled);
+}
+
+.thumb {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--switch-thumb-off);
+  transition: transform 0.12s ease;
+  transform: translateX(3px);
+  will-change: transform;
+}
+
+.thumb[data-state='checked'] {
+  background: var(--switch-thumb-on);
+  transform: translateX(21px);
+}
+
+.root[data-disabled] .thumb {
+  background: var(--switch-thumb-disabled);
+}
+
+[dir='rtl'] .thumb {
+  transform: translateX(-3px);
+}
+
+[dir='rtl'] .thumb[data-state='checked'] {
+  transform: translateX(-21px);
+}

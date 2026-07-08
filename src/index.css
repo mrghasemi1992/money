@@ -1,0 +1,53 @@
+@import './styles/fonts.css';
+@import './styles/tokens.css';
+@import './styles/theme-dark.css';
+@import './styles/theme-light.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-latin);
+  font-weight: var(--weight-regular);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:lang(fa) {
+  font-family: var(--font-fa);
+}
+
+:lang(fa) body,
+body:lang(fa) {
+  line-height: var(--line-height-body-fa);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Tabular numerals: Manrope supports the standard `tnum` feature; Dana has no
+   `tnum` in its GSUB table, so tabular Persian numerals need ss03 instead. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings:
+    'tnum' 1,
+    'ss03' 1;
+}
