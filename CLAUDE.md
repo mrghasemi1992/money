@@ -65,6 +65,25 @@ top-level `components/`, `db/`, `styles/`.
 - Never hardcode a color or spacing value in a component's `.module.css` —
   always reference a token.
 
+## Typography & fonts
+
+- **Manrope** (Latin) + **Dana** (Persian, variable font) — self-hosted, no
+  external font CDN.
+- **Dana's default weight is 10 (Hairline), not 400.** Every element using
+  Dana must set weight explicitly — never rely on the unset default, or text
+  renders nearly invisible.
+- **Dana has no standard `tnum` OpenType feature.**
+  `font-variant-numeric: tabular-nums` does nothing on Dana — use
+  `font-feature-settings: "ss03"` instead for tabular Persian numerals.
+  Manrope does support `tnum`, so the numeric/tabular type role needs both
+  mechanisms applied, one per script, not a single shared rule.
+- **Never use Dana's `ss02` feature** (visually reskins Latin digit
+  characters as Persian digit glyphs). It breaks copy-paste and
+  screen-reader semantics. Persian digits must be real Persian digit
+  characters, produced via `Intl.NumberFormat` with the correct locale — see
+  Currency below.
+- Full `@font-face` setup and axis details: `docs/design-specs/foundations.md`.
+
 ## i18n, RTL, calendars, currency
 
 - Supported locales: `en` (LTR, Gregorian, USD/EUR), `fa` (RTL, Jalali, IRR).
@@ -75,7 +94,8 @@ top-level `components/`, `db/`, `styles/`.
   only at the display layer via the Jalali plugin. Never store Jalali dates.
 - Currency: store amounts as integer minor units (cents/rials) in Dexie. Format
   for display via `Intl.NumberFormat` per active locale/currency, never by
-  hand-building strings.
+  hand-building strings. This is also the only correct source of Persian
+  digit characters — never produce them via a font feature (see Typography).
 
 ## State management rules
 
@@ -94,17 +114,27 @@ top-level `components/`, `db/`, `styles/`.
 
 - One feature phase per branch (e.g. `feature/transactions`, `feature/dashboard`).
 - Conventional commit style: `feat:`, `fix:`, `refactor:`, `test:`, `chore:`.
-- Merge only after tests pass and the phase's design spec (see below) is fully
+- Merge only after tests pass and the phase's Claude Design import is fully
   implemented.
 
 ## Design spec workflow (Claude Design ↔ Claude Code sync)
 
-Each feature phase is designed in Claude Design first. Before implementation,
-distill that session into a spec file at `docs/design-specs/<feature>.md`
-covering: components used, all states (empty/loading/error/RTL), breakpoints,
-and any new tokens introduced. Claude Code reads that spec alongside this file
-before implementing. If implementation reveals a gap in the spec, update the
-spec file in the same commit — it should never drift out of sync with the code.
+Each feature phase is designed in Claude Design first, then handed to Claude
+Code via the native "Send to Claude Code" feature (`claude_design` MCP,
+`https://api.anthropic.com/v1/design/mcp`), which imports the live design
+project directly by URL. There is no hand-maintained spec file per feature —
+the imported `.dc.html` project _is_ the spec, so it can't drift out of sync
+with what was actually designed.
+
+If implementation surfaces a decision the design doesn't cover — a technical
+constraint, an accessibility requirement, a correction like the Dana font
+details below — record it directly in the relevant section of this file
+rather than in a separate per-feature doc, so `CLAUDE.md` stays the single
+source of truth for anything not visible in the design itself.
+
+`docs/design-specs/foundations.md` is a one-off exception from before this
+workflow was adopted — kept as-is for its verified font/token details, not a
+pattern to repeat for later phases.
 
 ## Phase order
 
