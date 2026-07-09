@@ -1,6 +1,6 @@
 import type { Locale } from '@/stores';
 
-const BCP47_TAG = { en: 'en-US', fa: 'fa-IR' } as const;
+const INTL_LOCALE_TAG = { en: 'en-US', fa: 'fa-IR' } as const;
 
 /** ISO 4217 minor-unit exponents for the currencies this app supports.
  * Amounts are stored in Dexie as integers in these minor units. */
@@ -20,7 +20,7 @@ export function formatAmount(
 ): string {
   const exponent = CURRENCY_EXPONENT[currency] ?? 2;
   const amount = minorUnits / 10 ** exponent;
-  return new Intl.NumberFormat(BCP47_TAG[locale], {
+  return new Intl.NumberFormat(INTL_LOCALE_TAG[locale], {
     style: 'currency',
     currency,
     signDisplay: 'never',
@@ -30,5 +30,5 @@ export function formatAmount(
 /** Formats a plain number (no currency) with locale-appropriate digits and
  * grouping, e.g. for spacing/radius scale labels or counts. */
 export function formatNumber(value: number, locale: Locale): string {
-  return new Intl.NumberFormat(BCP47_TAG[locale]).format(value);
+  return new Intl.NumberFormat(INTL_LOCALE_TAG[locale]).format(value);
 }
