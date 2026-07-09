@@ -1,15 +1,4 @@
-export interface Dictionary {
-  theme: {
-    light: string;
-    dark: string;
-    system: string;
-  };
-  emptyState: {
-    title: string;
-    body: string;
-    cta: string;
-  };
-}
+import type { Dictionary } from '@/i18n/types';
 
 export const en: Dictionary = {
   theme: {
