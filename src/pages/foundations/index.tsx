@@ -168,31 +168,26 @@ export function FoundationsPage() {
             </div>
           ))}
         </div>
-        <div
-          className={styles.swatchGrid}
-          style={{ marginTop: 'var(--space-3)' }}
-        >
+        <div className={`${styles.swatchGrid} ${styles.swatchGridSecondary}`}>
           <div className={styles.swatch}>
             <div
-              className={styles.swatchColor}
-              style={{ background: 'var(--color-accent)' }}
+              className={`${styles.swatchColor} ${styles.swatchColorAccent}`}
             />
             <div className={styles.swatchLabel}>Brass — accent</div>
           </div>
           <div className={styles.swatch}>
             <div
-              className={styles.swatchColor}
-              style={{ background: 'var(--color-negative)' }}
+              className={`${styles.swatchColor} ${styles.swatchColorNegative}`}
             />
             <div className={styles.swatchLabel}>Rust — negative</div>
           </div>
         </div>
-        <p className={styles.lede} style={{ marginTop: 'var(--space-4)' }}>
+        <p className={`${styles.lede} ${styles.ledeSpaced}`}>
           Positive amounts carry no dedicated hue — body text color plus a "+"
           prefix only. Category badges never reuse the Rust hue, so a category
           tag never reads as "this is a loss".
         </p>
-        <div className={styles.row} style={{ marginTop: 'var(--space-4)' }}>
+        <div className={`${styles.row} ${styles.rowSpaced}`}>
           {categories.map((category) => (
             <Badge key={category.label} color={category.color}>
               {category.label}
@@ -207,14 +202,7 @@ export function FoundationsPage() {
         <div className={styles.stack}>
           <div className={styles.typeRole}>
             <div className={styles.typeRoleLabel}>Display · 600 · 34/1.15</div>
-            <div
-              style={{
-                fontSize: 'var(--font-size-display)',
-                fontWeight: 'var(--weight-demibold)',
-                lineHeight: 'var(--line-height-display)',
-                color: 'var(--color-text)',
-              }}
-            >
+            <div className={styles.displaySample}>
               {locale === 'fa'
                 ? 'هر تراکنش، ثبت‌شده'
                 : 'Every transaction, accounted for'}
@@ -222,13 +210,7 @@ export function FoundationsPage() {
           </div>
           <div className={styles.typeRole}>
             <div className={styles.typeRoleLabel}>Body · 400 · 16/1.55</div>
-            <div
-              style={{
-                fontSize: 'var(--font-size-body)',
-                color: 'var(--color-text-muted)',
-                maxWidth: 520,
-              }}
-            >
+            <div className={styles.bodySample}>
               {locale === 'fa'
                 ? 'سِتل تمام حساب‌ها را روی دستگاه شما نگه می‌دارد. چیزی بدون اجازه شما جایی همگام نمی‌شود.'
                 : "Settle keeps every account on-device. Nothing syncs anywhere you didn't choose."}
@@ -254,8 +236,7 @@ export function FoundationsPage() {
                   with tabular-nums
                 </div>
                 <div
-                  className={`${styles.numericColumn} tabular-nums`}
-                  style={{ fontWeight: 'var(--weight-medium)' }}
+                  className={`${styles.numericColumn} ${styles.numericColumnMedium} tabular-nums`}
                 >
                   <div>1.00</div>
                   <div>11.00</div>
@@ -266,12 +247,7 @@ export function FoundationsPage() {
           </div>
           <div>
             <div className={styles.typeRoleLabel}>Caption · 400 · 13/1.4</div>
-            <div
-              style={{
-                fontSize: 'var(--font-size-caption)',
-                color: 'var(--color-text-faint)',
-              }}
-            >
+            <div className={styles.captionSample}>
               {locale === 'fa'
                 ? 'آخرین همگام‌سازی محلی · ۲ دقیقه پیش'
                 : 'Last synced locally · 2 minutes ago'}
@@ -290,19 +266,13 @@ export function FoundationsPage() {
                 className={styles.spacingBarFill}
                 style={{ width: step.px }}
               />
-              <div
-                className="tabular-nums"
-                style={{ fontSize: 12, color: 'var(--color-text-faint)' }}
-              >
+              <div className={`${styles.spacingBarValue} tabular-nums`}>
                 {step.px}px
               </div>
             </div>
           ))}
         </div>
-        <div
-          className={styles.radiusGrid}
-          style={{ marginTop: 'var(--space-5)' }}
-        >
+        <div className={styles.radiusGrid}>
           {RADIUS_STEPS.map((step) => (
             <div key={step.name}>
               <div
@@ -324,20 +294,17 @@ export function FoundationsPage() {
         <div className={styles.row}>
           <div className={styles.elevationSample}>elevation-0</div>
           <div
-            className={styles.elevationSample}
-            style={{ boxShadow: 'var(--elevation-1)' }}
+            className={`${styles.elevationSample} ${styles.elevationSample1}`}
           >
             elevation-1
           </div>
           <div
-            className={styles.elevationSample}
-            style={{ boxShadow: 'var(--elevation-2)' }}
+            className={`${styles.elevationSample} ${styles.elevationSample2}`}
           >
             elevation-2
           </div>
           <div
-            className={styles.elevationSample}
-            style={{ boxShadow: 'var(--elevation-3)' }}
+            className={`${styles.elevationSample} ${styles.elevationSample3}`}
           >
             elevation-3
           </div>
@@ -360,21 +327,21 @@ export function FoundationsPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Input</h2>
         <div className={styles.row}>
-          <div style={{ minWidth: 260 }}>
+          <div className={styles.inputWrapper}>
             <Input
               label="Account name"
               placeholder="Checking — main"
               hint="Shown on statements and exports."
             />
           </div>
-          <div style={{ minWidth: 260 }}>
+          <div className={styles.inputWrapper}>
             <Input
               label="Opening balance"
               defaultValue="12,4a0"
               error="Enter a valid number."
             />
           </div>
-          <div style={{ minWidth: 260 }}>
+          <div className={styles.inputWrapper}>
             <Input label="Currency" defaultValue="USD" disabled />
           </div>
         </div>
@@ -383,47 +350,15 @@ export function FoundationsPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Card</h2>
         <div className={styles.row}>
-          <Card style={{ flex: 1, minWidth: 220 }}>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--color-text-faint)',
-                marginBottom: 6,
-              }}
-            >
-              Default
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>Monthly rent</div>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--color-text-muted)',
-                marginTop: 4,
-              }}
-            >
-              Auto-paid on the 1st
-            </div>
+          <Card className={styles.cardSample}>
+            <div className={styles.cardLabel}>Default</div>
+            <div className={styles.cardTitle}>Monthly rent</div>
+            <div className={styles.cardBody}>Auto-paid on the 1st</div>
           </Card>
-          <Card interactive style={{ flex: 1, minWidth: 220 }}>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--color-text-faint)',
-                marginBottom: 6,
-              }}
-            >
-              Interactive
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>Monthly rent</div>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--color-text-muted)',
-                marginTop: 4,
-              }}
-            >
-              Auto-paid on the 1st
-            </div>
+          <Card interactive className={styles.cardSample}>
+            <div className={styles.cardLabel}>Interactive</div>
+            <div className={styles.cardTitle}>Monthly rent</div>
+            <div className={styles.cardBody}>Auto-paid on the 1st</div>
           </Card>
         </div>
       </section>
@@ -434,10 +369,7 @@ export function FoundationsPage() {
           The amount column uses <code>text-align: end</code>, not left/right —
           flip the language toggle above and it mirrors for free.
         </p>
-        <div
-          className={styles.listCard}
-          style={{ marginTop: 'var(--space-4)' }}
-        >
+        <div className={styles.listCard}>
           {transactions.map((tx) => (
             <TransactionRow key={tx.date + tx.merchant} {...tx} />
           ))}

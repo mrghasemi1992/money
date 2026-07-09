@@ -126,6 +126,7 @@
   gap: var(--space-4);
   align-items: flex-end;
   flex-wrap: wrap;
+  margin-block-start: var(--space-5);
 }
 
 .radiusSample {
@@ -190,4 +191,90 @@
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  margin-block-start: var(--space-4);
+}
+
+.swatchGridSecondary {
+  margin-block-start: var(--space-3);
+}
+
+.swatchColorAccent {
+  background: var(--color-accent);
+}
+
+.swatchColorNegative {
+  background: var(--color-negative);
+}
+
+.ledeSpaced {
+  margin-block-start: var(--space-4);
+}
+
+.rowSpaced {
+  margin-block-start: var(--space-4);
+}
+
+.displaySample {
+  font-size: var(--font-size-display);
+  font-weight: var(--weight-demibold);
+  line-height: var(--line-height-display);
+  color: var(--color-text);
+}
+
+.bodySample {
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  max-width: 520px;
+}
+
+.captionSample {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-faint);
+}
+
+.numericColumnMedium {
+  font-weight: var(--weight-medium);
+}
+
+.spacingBarValue {
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.elevationSample1 {
+  box-shadow: var(--elevation-1);
+}
+
+.elevationSample2 {
+  box-shadow: var(--elevation-2);
+}
+
+.elevationSample3 {
+  box-shadow: var(--elevation-3);
+}
+
+.inputWrapper {
+  min-width: 260px;
+}
+
+.cardSample {
+  flex: 1;
+  min-width: 220px;
+}
+
+.cardLabel {
+  font-size: 13px;
+  color: var(--color-text-faint);
+  margin-block-end: 6px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cardBody {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-block-start: 4px;
 }

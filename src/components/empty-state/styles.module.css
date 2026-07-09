@@ -21,6 +21,19 @@
   margin-inline: auto;
 }
 
+.iconLineLong {
+  width: 100%;
+}
+
+.iconLineMedium {
+  width: 70%;
+}
+
+.iconLineShort {
+  width: 40%;
+  margin-block-end: 0;
+}
+
 .title {
   font-size: 17px;
   font-weight: var(--weight-demibold);

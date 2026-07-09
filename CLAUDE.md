@@ -125,6 +125,14 @@ imports stay relative.
   override stored in `localStorage` (light/dark/system three-way toggle).
 - Never hardcode a color or spacing value in a component's `.module.css` —
   always reference a token.
+- Don't use the inline `style` prop for values that are the same on every
+  render — give them a class in `styles.module.css` instead (see
+  `pages/foundations` for the pattern: per-item loop values like a token name
+  or a scale's pixel width stay inline since they can't be static classes;
+  everything else, including one-off layout tweaks, becomes a named class).
+  The one standing exception is a CSS custom property computed from a prop at
+  runtime (e.g. `Badge` setting `--badge-hue`) — that's not expressible as a
+  static class either.
 
 **Color semantics — standing rules for every phase, not just Foundations:**
 
