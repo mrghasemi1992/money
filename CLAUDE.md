@@ -232,6 +232,13 @@ fallback. See `styles/fonts.css`.
   key interactions (not implementation details).
 - Every Dexie query/mutation module gets a co-located `.test.ts`.
 - Run the full suite before every commit.
+- `npm run test:coverage` runs Vitest with the `@vitest/coverage-v8`
+  provider (text + HTML reporters; HTML output goes to `coverage/`, which is
+  gitignored). Barrel files (`components/index.ts`,
+  `components/primitives/index.ts`, `stores/index.ts`, `i18n/index.ts`) are
+  excluded by explicit path, not a `**/index.ts` glob — that glob also
+  matches `index.tsx` component entry files and silently drops them from
+  the report.
 
 ## Git & commits
 
