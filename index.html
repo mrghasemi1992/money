@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Settle</title>
+    <!--
+      Sets data-theme/lang/dir on <html> before React mounts, reading the
+      same localStorage keys ('settle-theme', 'settle-locale') that
+      stores/theme-store.ts and stores/locale-store.ts persist to. Without
+      this, the page would render once in the wrong theme/direction (light
+      flash before dark, or LTR before RTL) and then flip once React
+      hydrates and reads the same preference. Falls back to dark/en if
+      localStorage is empty, unavailable, or holds unparseable JSON.
+    -->
     <script>
       (function () {
         try {
