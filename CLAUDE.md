@@ -47,7 +47,7 @@ src/
         styles.module.css
         spec.test.tsx
   pages/
-    foundations/
+    design-system/
       index.tsx      <- exports `<Name>Page`, wired into app.tsx's <Routes>
       styles.module.css
       spec.test.tsx
@@ -127,14 +127,14 @@ imports stay relative.
   always reference a token.
 - Don't use the inline `style` prop for values that are the same on every
   render — give them a class in `styles.module.css` instead (see
-  `pages/foundations` for the pattern: per-item loop values like a token name
+  `pages/design-system` for the pattern: per-item loop values like a token name
   or a scale's pixel width stay inline since they can't be static classes;
   everything else, including one-off layout tweaks, becomes a named class).
   The one standing exception is a CSS custom property computed from a prop at
   runtime (e.g. `Badge` setting `--badge-hue`) — that's not expressible as a
   static class either.
 
-**Color semantics — standing rules for every phase, not just Foundations:**
+**Color semantics — standing rules for every phase, not just Design System:**
 
 - Positive/income amounts carry no dedicated hue — body text color plus a
   "+" prefix only. Only outflow/expense amounts get a color (the accent
@@ -267,11 +267,12 @@ design itself.
 
 ## Phase order
 
-1. Foundations (tokens, theming, i18n/RTL scaffold, base primitives)
+1. Design System (tokens, theming, i18n/RTL scaffold, base primitives)
 2. App shell & navigation (locale + theme switcher wired in) — `react-router-dom`
-   and the `app.tsx` route table already exist from Foundations (a single
-   `/foundations` route hosting the token/primitive showcase); this phase is
-   the actual navigation chrome and additional routes, not initial router setup
+   and the `app.tsx` route table already exist from the Design System phase (a
+   single `/design-system` route hosting the token/primitive reference); this
+   phase is the actual navigation chrome and additional routes, not initial
+   router setup
 3. Transactions (CRUD, list/table)
 4. Dashboard
 5. Reports

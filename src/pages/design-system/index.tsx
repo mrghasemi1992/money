@@ -132,7 +132,7 @@ const TRANSACTIONS_FA = [
   },
 ];
 
-export function FoundationsPage() {
+export function DesignSystemPage() {
   const locale = useLocaleStore((state) => state.locale);
   const [switchOn, setSwitchOn] = useState(true);
   const transactions = locale === 'fa' ? TRANSACTIONS_FA : TRANSACTIONS_EN;
@@ -142,11 +142,11 @@ export function FoundationsPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <div className={styles.eyebrow}>Settle — Phase 1</div>
-          <h1 className={styles.title}>Foundation layer</h1>
+          <div className={styles.eyebrow}>Settle</div>
+          <h1 className={styles.title}>Design system</h1>
           <p className={styles.lede}>
-            Tokens and base primitives for a local-first ledger app — the pieces
-            everything else gets built from.
+            The tokens and base primitives for a local-first ledger app — the
+            single reference every screen is built from.
           </p>
         </div>
         <div className={styles.controls}>

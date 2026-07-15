@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import { FoundationsPage } from './index';
+import { DesignSystemPage } from './index';
 
-describe('FoundationsPage', () => {
+describe('DesignSystemPage', () => {
   it('renders the page title and every token/primitive section', () => {
-    render(<FoundationsPage />);
+    render(<DesignSystemPage />);
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Foundation layer' }),
+      screen.getByRole('heading', { level: 1, name: 'Design system' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: 'Color' }),
