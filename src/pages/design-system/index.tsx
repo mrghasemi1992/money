@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './styles.module.css';
 import { useLocaleStore } from '@/stores';
+import { useTranslation } from '@/i18n';
 import { Button, Input, Card, Badge, Switch } from '@/components/primitives';
 import {
   ThemeToggle,
@@ -10,12 +11,12 @@ import {
 } from '@/components';
 
 const NEUTRAL_STEPS = [
-  { label: 'bg', varName: '--color-bg' },
-  { label: 'surface', varName: '--color-surface' },
-  { label: 'border', varName: '--color-border' },
-  { label: 'muted text', varName: '--color-text-muted' },
-  { label: 'text', varName: '--color-text' },
-];
+  { key: 'bg', varName: '--color-bg' },
+  { key: 'surface', varName: '--color-surface' },
+  { key: 'border', varName: '--color-border' },
+  { key: 'mutedText', varName: '--color-text-muted' },
+  { key: 'text', varName: '--color-text' },
+] as const;
 
 const SPACING_STEPS = [
   { name: 'space-1', px: 4 },
@@ -134,6 +135,7 @@ const TRANSACTIONS_FA = [
 
 export function DesignSystemPage() {
   const locale = useLocaleStore((state) => state.locale);
+  const { t } = useTranslation();
   const [switchOn, setSwitchOn] = useState(true);
   const transactions = locale === 'fa' ? TRANSACTIONS_FA : TRANSACTIONS_EN;
   const categories = locale === 'fa' ? CATEGORIES_FA : CATEGORIES_EN;
@@ -142,12 +144,9 @@ export function DesignSystemPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <div className={styles.eyebrow}>Settle</div>
-          <h1 className={styles.title}>Design system</h1>
-          <p className={styles.lede}>
-            The tokens and base primitives for a local-first ledger app — the
-            single reference every screen is built from.
-          </p>
+          <div className={styles.eyebrow}>{t.designSystem.eyebrow}</div>
+          <h1 className={styles.title}>{t.designSystem.title}</h1>
+          <p className={styles.lede}>{t.designSystem.lede}</p>
         </div>
         <div className={styles.controls}>
           <ThemeToggle />
@@ -156,7 +155,7 @@ export function DesignSystemPage() {
       </header>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Color</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.color.title}</h2>
         <div className={styles.swatchGrid}>
           {NEUTRAL_STEPS.map((step) => (
             <div className={styles.swatch} key={step.varName}>
@@ -164,7 +163,9 @@ export function DesignSystemPage() {
                 className={styles.swatchColor}
                 style={{ background: `var(${step.varName})` }}
               />
-              <div className={styles.swatchLabel}>{step.label}</div>
+              <div className={styles.swatchLabel}>
+                {t.designSystem.color.neutralLabels[step.key]}
+              </div>
             </div>
           ))}
         </div>
@@ -173,19 +174,21 @@ export function DesignSystemPage() {
             <div
               className={`${styles.swatchColor} ${styles.swatchColorAccent}`}
             />
-            <div className={styles.swatchLabel}>Brass — accent</div>
+            <div className={styles.swatchLabel}>
+              {t.designSystem.color.accentLabel}
+            </div>
           </div>
           <div className={styles.swatch}>
             <div
               className={`${styles.swatchColor} ${styles.swatchColorNegative}`}
             />
-            <div className={styles.swatchLabel}>Rust — negative</div>
+            <div className={styles.swatchLabel}>
+              {t.designSystem.color.negativeLabel}
+            </div>
           </div>
         </div>
         <p className={`${styles.lede} ${styles.ledeSpaced}`}>
-          Positive amounts carry no dedicated hue — body text color plus a "+"
-          prefix only. Category badges never reuse the Rust hue, so a category
-          tag never reads as "this is a loss".
+          {t.designSystem.color.description}
         </p>
         <div className={`${styles.row} ${styles.rowSpaced}`}>
           {categories.map((category) => (
@@ -193,15 +196,17 @@ export function DesignSystemPage() {
               {category.label}
             </Badge>
           ))}
-          <Badge color="#3a34eb">Test</Badge>
+          <Badge color="#3a34eb">{t.designSystem.color.testBadge}</Badge>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Type</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.type.title}</h2>
         <div className={styles.stack}>
           <div className={styles.typeRole}>
-            <div className={styles.typeRoleLabel}>Display · 600 · 34/1.15</div>
+            <div className={styles.typeRoleLabel}>
+              {t.designSystem.type.displayLabel}
+            </div>
             <div className={styles.displaySample}>
               {locale === 'fa'
                 ? 'هر تراکنش، ثبت‌شده'
@@ -209,7 +214,9 @@ export function DesignSystemPage() {
             </div>
           </div>
           <div className={styles.typeRole}>
-            <div className={styles.typeRoleLabel}>Body · 400 · 16/1.55</div>
+            <div className={styles.typeRoleLabel}>
+              {t.designSystem.type.bodyLabel}
+            </div>
             <div className={styles.bodySample}>
               {locale === 'fa'
                 ? 'سِتل تمام حساب‌ها را روی دستگاه شما نگه می‌دارد. چیزی بدون اجازه شما جایی همگام نمی‌شود.'
@@ -218,12 +225,12 @@ export function DesignSystemPage() {
           </div>
           <div className={styles.typeRole}>
             <div className={styles.typeRoleLabel}>
-              Numeric · 500 · tabular-nums
+              {t.designSystem.type.numericLabel}
             </div>
             <div className={styles.numericDemo}>
               <div>
                 <div className={styles.numericColumnLabel}>
-                  without tabular-nums
+                  {t.designSystem.type.withoutTabular}
                 </div>
                 <div className={styles.numericColumn}>
                   <div>1.00</div>
@@ -233,7 +240,7 @@ export function DesignSystemPage() {
               </div>
               <div>
                 <div className={styles.numericColumnLabel}>
-                  with tabular-nums
+                  {t.designSystem.type.withTabular}
                 </div>
                 <div
                   className={`${styles.numericColumn} ${styles.numericColumnMedium} tabular-nums`}
@@ -246,7 +253,9 @@ export function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <div className={styles.typeRoleLabel}>Caption · 400 · 13/1.4</div>
+            <div className={styles.typeRoleLabel}>
+              {t.designSystem.type.captionLabel}
+            </div>
             <div className={styles.captionSample}>
               {locale === 'fa'
                 ? 'آخرین همگام‌سازی محلی · ۲ دقیقه پیش'
@@ -257,7 +266,7 @@ export function DesignSystemPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Spacing &amp; radius</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.spacing.title}</h2>
         <div className={styles.stack}>
           {SPACING_STEPS.map((step) => (
             <div className={styles.spacingBar} key={step.name}>
@@ -290,7 +299,9 @@ export function DesignSystemPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Elevation</h2>
+        <h2 className={styles.sectionTitle}>
+          {t.designSystem.elevation.title}
+        </h2>
         <div className={styles.row}>
           <div className={styles.elevationSample}>elevation-0</div>
           <div
@@ -312,75 +323,100 @@ export function DesignSystemPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Button</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.button.title}</h2>
         <div className={styles.stack}>
           <div className={styles.row}>
-            <Button variant="primary">Primary</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="destructive">Destructive</Button>
+            <Button variant="primary">{t.designSystem.button.primary}</Button>
+            <Button variant="secondary">
+              {t.designSystem.button.secondary}
+            </Button>
+            <Button variant="ghost">{t.designSystem.button.ghost}</Button>
+            <Button variant="destructive">
+              {t.designSystem.button.destructive}
+            </Button>
           </div>
           <div className={styles.row}>
             <Button variant="primary" disabled>
-              Primary — disabled
+              {t.designSystem.button.primary}
+              {t.designSystem.button.disabledSuffix}
             </Button>
             <Button variant="secondary" disabled>
-              Secondary — disabled
+              {t.designSystem.button.secondary}
+              {t.designSystem.button.disabledSuffix}
             </Button>
             <Button variant="ghost" disabled>
-              Ghost — disabled
+              {t.designSystem.button.ghost}
+              {t.designSystem.button.disabledSuffix}
             </Button>
             <Button variant="destructive" disabled>
-              Destructive — disabled
+              {t.designSystem.button.destructive}
+              {t.designSystem.button.disabledSuffix}
             </Button>
           </div>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Input</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.input.title}</h2>
         <div className={styles.row}>
           <div className={styles.inputWrapper}>
             <Input
-              label="Account name"
-              placeholder="Checking — main"
-              hint="Shown on statements and exports."
+              label={t.designSystem.input.accountName}
+              placeholder={t.designSystem.input.accountPlaceholder}
+              hint={t.designSystem.input.accountHint}
             />
           </div>
           <div className={styles.inputWrapper}>
             <Input
-              label="Opening balance"
+              label={t.designSystem.input.openingBalance}
               defaultValue="12,4a0"
-              error="Enter a valid number."
+              error={t.designSystem.input.openingError}
             />
           </div>
           <div className={styles.inputWrapper}>
-            <Input label="Currency" defaultValue="USD" disabled />
+            <Input
+              label={t.designSystem.input.currency}
+              defaultValue="USD"
+              disabled
+            />
           </div>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Card</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.card.title}</h2>
         <div className={styles.row}>
           <Card className={styles.cardSample}>
-            <div className={styles.cardLabel}>Default</div>
-            <div className={styles.cardTitle}>Monthly rent</div>
-            <div className={styles.cardBody}>Auto-paid on the 1st</div>
+            <div className={styles.cardLabel}>
+              {t.designSystem.card.defaultLabel}
+            </div>
+            <div className={styles.cardTitle}>
+              {t.designSystem.card.cardTitle}
+            </div>
+            <div className={styles.cardBody}>
+              {t.designSystem.card.cardBody}
+            </div>
           </Card>
           <Card interactive className={styles.cardSample}>
-            <div className={styles.cardLabel}>Interactive</div>
-            <div className={styles.cardTitle}>Monthly rent</div>
-            <div className={styles.cardBody}>Auto-paid on the 1st</div>
+            <div className={styles.cardLabel}>
+              {t.designSystem.card.interactiveLabel}
+            </div>
+            <div className={styles.cardTitle}>
+              {t.designSystem.card.cardTitle}
+            </div>
+            <div className={styles.cardBody}>
+              {t.designSystem.card.cardBody}
+            </div>
           </Card>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Table row — transaction</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.table.title}</h2>
         <p className={styles.lede}>
-          The amount column uses <code>text-align: end</code>, not left/right —
-          flip the language toggle above and it mirrors for free.
+          {t.designSystem.table.descriptionBefore}
+          <code>{t.designSystem.table.descriptionCode}</code>
+          {t.designSystem.table.descriptionAfter}
         </p>
         <div className={styles.listCard}>
           {transactions.map((tx) => (
@@ -390,25 +426,31 @@ export function DesignSystemPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Toggle / switch</h2>
+        <h2 className={styles.sectionTitle}>{t.designSystem.toggle.title}</h2>
         <div className={styles.row}>
           <Switch
-            label="Off example"
+            label={t.designSystem.toggle.offExample}
             checked={false}
             onCheckedChange={() => {}}
           />
           <Switch
-            label="Interactive example"
+            label={t.designSystem.toggle.interactiveExample}
             checked={switchOn}
             onCheckedChange={setSwitchOn}
           />
-          <Switch label="Disabled example" disabled />
-          <Switch label="Disabled — checked example" defaultChecked disabled />
+          <Switch label={t.designSystem.toggle.disabledExample} disabled />
+          <Switch
+            label={t.designSystem.toggle.disabledCheckedExample}
+            defaultChecked
+            disabled
+          />
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Empty state</h2>
+        <h2 className={styles.sectionTitle}>
+          {t.designSystem.emptyStateTitle}
+        </h2>
         <EmptyState />
       </section>
     </div>

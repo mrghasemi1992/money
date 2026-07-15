@@ -17,7 +17,12 @@ export function LocaleToggle() {
       aria-label="Language"
     >
       {LOCALES.map((option) => (
-        <RadioGroup.Item key={option} value={option} className={styles.item}>
+        <RadioGroup.Item
+          key={option}
+          value={option}
+          className={styles.item}
+          lang={option}
+        >
           {LABELS[option]}
         </RadioGroup.Item>
       ))}
