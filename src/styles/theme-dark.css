@@ -74,6 +74,10 @@
   --card-border: var(--color-border);
   --card-border-hover: var(--color-border-hover);
 
+  /* Sidebar nav — one step darker than --color-surface-sunken per design */
+  --sidebar-bg: #17140f;
+  --sidebar-border: var(--color-border);
+
   /* Table row */
   --row-hover-bg: #191510;
 

@@ -226,6 +226,41 @@ fallback. See `styles/fonts.css`.
 2. Reach for Zustand only for state with no natural persisted home (UI-only,
    session-only). Justify each store's existence in a comment at its top.
 
+## App shell & navigation
+
+- Two independent, non-overlapping mechanisms govern the sidebar:
+  a user-toggled `sidebarCollapsed` (Zustand `ui-store`, persisted) that
+  shrinks the desktop sidebar to a 64px icon-only rail, and a
+  `useMobileViewport` (640px) breakpoint in `AppShell` that swaps the
+  sidebar out entirely for a bottom tab bar (`BottomNav`) plus a floating
+  `AddTransactionFab`, matching the Claude Design mock's "bottom nav —
+  mobile breakpoint" frame. These used to be the same mechanism (an
+  auto-forced icon rail below 880px) until the Claude Design source was
+  updated to replace that with the bottom-tab-bar pattern instead — the
+  manual icon-rail collapse is now desktop/tablet-only and always shows its
+  toggle button, since there's no forced-narrow case left that would hide it.
+- The bottom tab bar (`BottomNav`) and the desktop sidebar (`SidebarNav`)
+  share their nav item data (routes, labels, icon paths) from
+  `components/nav-items.ts` rather than duplicating it, since the Claude
+  Design source keeps the same four nav entries (icons included) across both
+  layouts.
+- Neither the mobile bottom-tab-bar nor the desktop icon-rail expose
+  locale/theme controls — the Claude Design mock never shows them in either
+  narrow state (bottom-nav has no room at all; the icon-rail mock omits them
+  despite prose suggesting an "overflow menu" that no frame actually shows).
+  Implementation follows the literal mocks in both cases. Revisit if
+  narrow-viewport access to locale/theme becomes a real need.
+- The brand wordmark is localized (`t.brand`: "Settle" / "پول") per the
+  Claude Design RTL mock, which explicitly re-styles it in Dana at 17px
+  rather than reusing the Latin wordmark's 16px. Only `SidebarNav` renders
+  it — `BottomNav` has no brand mark in the design, matching a typical
+  mobile tab bar.
+- `LocaleMenu`/`ThemeMenu` (compact `DropdownMenu`-based triggers used in the
+  sidebar footer) are intentionally separate components from
+  `LocaleToggle`/`ThemeToggle` (segmented `RadioGroup` controls used on the
+  Design System reference page) — popover-menu and inline-segmented-control
+  are different interaction patterns, not variants of one component.
+
 ## Testing
 
 - Every component gets a co-located `.test.tsx` covering rendered states and

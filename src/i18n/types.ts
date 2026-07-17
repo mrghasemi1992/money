@@ -1,8 +1,24 @@
 export interface Dictionary {
+  brand: string;
   theme: {
     light: string;
     dark: string;
     system: string;
+  };
+  nav: {
+    primaryLabel: string;
+    dashboard: string;
+    transactions: string;
+    reports: string;
+    budgets: string;
+    addTransaction: string;
+    collapseNavigation: string;
+    expandNavigation: string;
+    skipToContent: string;
+    language: string;
+    theme: string;
+    route: string;
+    placeholderText: string;
   };
   emptyState: {
     title: string;

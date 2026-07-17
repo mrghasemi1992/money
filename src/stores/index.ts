@@ -5,3 +5,4 @@ export {
   type ThemeMode,
   type ResolvedTheme,
 } from './theme-store';
+export { useUiStore } from './ui-store';
