@@ -9,7 +9,7 @@ export function RoutePlaceholder({ title }: Props) {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div className={styles.root}>
       <div className={styles.eyebrow}>{t.nav.route}</div>
       <div className={styles.title}>{title}</div>
       <div className={styles.placeholder}>

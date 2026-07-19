@@ -254,7 +254,7 @@ fallback. See `styles/fonts.css`.
   change. The sidebar's nav list now ends with a single "Settings" link
   pinned to the bottom via `margin-top: auto`, styled with the exact same
   `.navItem`/`.navItemActive` classes as Dashboard/Transactions/Reports/
-  Budgets (same active-indicator border, same icon-rail collapse behavior)
+  Budgets (same active-state color treatment, same icon-rail collapse behavior)
   rather than a bespoke style, so it reads as a peer nav entry, not a
   separate footer widget. It is desktop-sidebar-only by request — it is
   deliberately **not** added to `BottomNav`/`nav-items.ts`, so mobile
