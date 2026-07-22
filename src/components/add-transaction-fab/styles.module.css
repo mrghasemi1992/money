@@ -1,7 +1,7 @@
 .fab {
   position: fixed;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
+  inset-inline: 0;
+  margin-inline: auto;
   bottom: 38px;
   width: 52px;
   height: 52px;
