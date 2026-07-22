@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/primitives';
 import { useTranslation } from '@/i18n';
 import styles from './styles.module.css';
@@ -13,18 +14,7 @@ export function AddTransactionFab() {
       aria-label={t.nav.addTransaction}
       title={t.nav.addTransaction}
     >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        aria-hidden="true"
-      >
-        <path d="M10 4v12M4 10h12" />
-      </svg>
+      <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
     </Button>
   );
 }

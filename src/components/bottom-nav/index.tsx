@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { NAV_ICON_PATHS, NAV_ITEMS } from '@/components/nav-items';
+import { NAV_ICONS, NAV_ITEMS } from '@/components/nav-items';
 import { useTranslation } from '@/i18n';
 import styles from './styles.module.css';
 
@@ -8,30 +8,21 @@ export function BottomNav() {
 
   return (
     <nav aria-label={t.nav.primaryLabel} className={styles.nav}>
-      {NAV_ITEMS.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          className={({ isActive }) =>
-            `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-          }
-        >
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+      {NAV_ITEMS.map((item) => {
+        const Icon = NAV_ICONS[item.key];
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+            }
           >
-            <path d={NAV_ICON_PATHS[item.key]} />
-          </svg>
-          <span className={styles.navLabel}>{t.nav[item.key]}</span>
-        </NavLink>
-      ))}
+            <Icon size={17} strokeWidth={1.6} aria-hidden="true" />
+            <span className={styles.navLabel}>{t.nav[item.key]}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

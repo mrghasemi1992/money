@@ -1,4 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { Globe, Check } from 'lucide-react';
 import { Button } from '@/components/primitives';
 import { useLocaleStore, type Locale } from '@/stores';
 import { useTranslation } from '@/i18n';
@@ -22,18 +23,7 @@ export function LocaleMenu() {
           title={t.nav.language}
           aria-label={t.nav.language}
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM2 10h16M10 2c2.2 2.4 2.2 13.6 0 16M10 2c-2.2 2.4-2.2 13.6 0 16" />
-          </svg>
+          <Globe size={14} strokeWidth={1.5} aria-hidden="true" />
           <span>{CODES[locale]}</span>
         </Button>
       </DropdownMenu.Trigger>
@@ -61,19 +51,7 @@ export function LocaleMenu() {
                   {LABELS[option]}
                 </span>
                 <DropdownMenu.ItemIndicator className={styles.indicator}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M4 10l4 4 8-8" />
-                  </svg>
+                  <Check size={14} strokeWidth={2} aria-hidden="true" />
                 </DropdownMenu.ItemIndicator>
               </DropdownMenu.RadioItem>
             ))}

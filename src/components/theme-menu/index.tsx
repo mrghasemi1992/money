@@ -1,4 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { Sun, Moon, Monitor } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/primitives';
 import { useThemeStore, type ThemeMode } from '@/stores';
 import { useTranslation } from '@/i18n';
@@ -6,29 +8,15 @@ import styles from './styles.module.css';
 
 const MODES: ThemeMode[] = ['light', 'dark', 'system'];
 
-const ICON_PATHS: Record<ThemeMode, string> = {
-  light:
-    'M10 6a4 4 0 100 8 4 4 0 000-8zM10 1.5v2M10 16.5v2M3.5 3.5l1.4 1.4M15.1 15.1l1.4 1.4M1.5 10h2M16.5 10h2M3.5 16.5l1.4-1.4M15.1 4.9l1.4-1.4',
-  dark: 'M16 12.5A6.5 6.5 0 118 3a5.2 5.2 0 008 9.5z',
-  system: 'M3 4h14v9H3V4zM7.5 17h5M10 13v4',
+const MODE_ICONS: Record<ThemeMode, LucideIcon> = {
+  light: Sun,
+  dark: Moon,
+  system: Monitor,
 };
 
 function ModeIcon({ mode }: { mode: ThemeMode }) {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={ICON_PATHS[mode]} />
-    </svg>
-  );
+  const Icon = MODE_ICONS[mode];
+  return <Icon size={15} strokeWidth={1.5} aria-hidden="true" />;
 }
 
 export function ThemeMenu() {
