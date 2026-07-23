@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChevronLeft, Settings } from 'lucide-react';
+import { ChevronLeft, Settings, Wallet } from 'lucide-react';
 import { NAV_ICONS, NAV_ITEMS } from '@/components/nav-items';
 import { useUiStore } from '@/stores';
 import { useTranslation } from '@/i18n';
@@ -22,7 +22,12 @@ export function SidebarNav() {
     >
       <div className={styles.brandRow}>
         <div className={styles.brand}>
-          <div className={styles.mark} aria-hidden="true" />
+          <Wallet
+            size={18}
+            strokeWidth={2}
+            className={styles.mark}
+            aria-hidden="true"
+          />
           <span className={styles.wordmark}>{t.brand}</span>
         </div>
         <button
