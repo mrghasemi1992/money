@@ -59,6 +59,9 @@ src/
       transactions.test.ts
   db/
     schema.ts      <- Dexie database + version definitions
+  hooks/
+    index.ts       <- barrel: cross-component hooks with no feature/business logic
+    use-mobile-viewport.ts
   i18n/
     index.ts       <- barrel: useTranslation + re-exports formatAmount/formatNumber
     format.ts
@@ -77,7 +80,17 @@ Component folders use lowercase names with generic, predictable file names
 (`index.tsx`, `styles.module.css`, `spec.test.tsx`) rather than repeating the
 component name in each filename. Co-locate tests, styles, and types next to
 the component/feature that owns them. Shared/cross-feature code only lives in
-top-level `components/`, `db/`, `styles/`.
+top-level `components/`, `db/`, `styles/`, `hooks/`.
+
+Top-level `hooks/` holds generic, reusable hooks with no feature-specific
+business logic (e.g. `useMobileViewport`, a viewport-breakpoint listener
+consumed by `AppShell`) — same bar as `components/primitives/`, just for
+hooks instead of components. Feature-specific hooks stay under their
+feature's own `hooks/` (e.g. `features/transactions/hooks/`) rather than
+here. Follows the `stores/` pattern: flat one-file-per-hook plus a barrel
+`index.ts`, not a folder-per-hook structure — a single hook doesn't warrant
+its own `index.ts`/`styles.module.css`/`spec.test.tsx` trio the way a
+component does.
 
 `components/primitives/` holds generic, reusable, unstyled-in-isolation
 building blocks (Button, Input, Card, Badge, Switch) with no dependency on
