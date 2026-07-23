@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { NAV_ICONS, NAV_ITEMS } from '@/components/nav-items';
+import { NAV_ICONS, NAV_ITEMS } from '@/constants';
 import { useTranslation } from '@/i18n';
 import styles from './styles.module.css';
 
