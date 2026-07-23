@@ -48,4 +48,11 @@
 
   /* Motion */
   --transition-fast: 0.12s ease;
+
+  /* Z-index scale — semantic per-element tokens so stacking order is
+     declared once and relationships (fab above bottom nav, skip link above
+     everything) are visible without grepping every stylesheet. */
+  --z-bottom-nav: 5;
+  --z-fab: 6;
+  --z-skip-link: 10;
 }

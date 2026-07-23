@@ -1,0 +1,49 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 480px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: var(--weight-demibold);
+  color: var(--color-text);
+  margin: 0 0 var(--space-1);
+}
+
+.lede {
+  font-size: var(--font-size-ui);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.card {
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5);
+}
+
+.rowLabel {
+  font-size: var(--font-size-ui);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.rowHint {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-block-start: 2px;
+}
+
+.rowDivider {
+  height: 1px;
+  background: var(--card-border);
+  margin-inline: var(--space-5);
+}

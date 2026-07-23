@@ -1,10 +1,35 @@
 import type { Dictionary } from '@/i18n/types';
 
 export const en: Dictionary = {
+  brand: 'Settle',
   theme: {
     light: 'Light',
     dark: 'Dark',
     system: 'System',
+  },
+  nav: {
+    primaryLabel: 'Primary',
+    dashboard: 'Dashboard',
+    transactions: 'Transactions',
+    reports: 'Reports',
+    budgets: 'Budgets',
+    addTransaction: 'Add transaction',
+    collapseNavigation: 'Collapse navigation',
+    expandNavigation: 'Expand navigation',
+    skipToContent: 'Skip to content',
+    language: 'Language',
+    theme: 'Theme',
+    settings: 'Settings',
+    route: 'Route',
+    placeholderText: 'Page content renders here',
+  },
+  settings: {
+    title: 'Settings',
+    lede: 'Manage how Settle looks and reads.',
+    language: 'Language',
+    languageHint: 'Interface language and text direction.',
+    theme: 'Theme',
+    themeHint: 'Light, dark, or match your system.',
   },
   emptyState: {
     title: 'No transactions yet',

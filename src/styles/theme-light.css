@@ -74,6 +74,10 @@
   --card-border: var(--color-border);
   --card-border-hover: var(--color-border-hover);
 
+  /* Sidebar nav */
+  --sidebar-bg: var(--color-bg);
+  --sidebar-border: var(--color-border);
+
   /* Table row */
   --row-hover-bg: #fbf8f2;
 

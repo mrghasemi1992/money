@@ -1,0 +1,32 @@
+.trigger {
+  all: unset;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  align-self: flex-start;
+  /* Nudges the icon's vertical center to match the sidebar wallet mark's,
+     which sits at a different offset depending on the sidebar's collapsed
+     state (fixed 44px icon rail vs. natural brand-row text height). */
+  margin-block-start: 4px;
+  margin-block-end: var(--space-4);
+}
+
+.trigger[data-collapsed='true'] {
+  margin-block-start: 14px;
+}
+
+.trigger:hover {
+  background: var(--btn-ghost-bg-hover);
+}
+
+.trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: 1px;
+}

@@ -1,10 +1,35 @@
 import type { Dictionary } from '@/i18n/types';
 
 export const fa: Dictionary = {
+  brand: 'پول',
   theme: {
     light: 'روشن',
     dark: 'تیره',
     system: 'سیستم',
+  },
+  nav: {
+    primaryLabel: 'ناوبری اصلی',
+    dashboard: 'داشبورد',
+    transactions: 'تراکنش‌ها',
+    reports: 'گزارش‌ها',
+    budgets: 'بودجه‌ها',
+    addTransaction: 'افزودن تراکنش',
+    collapseNavigation: 'بستن نوار کناری',
+    expandNavigation: 'باز کردن نوار کناری',
+    skipToContent: 'پرش به محتوا',
+    language: 'زبان',
+    theme: 'پوسته',
+    settings: 'تنظیمات',
+    route: 'مسیر',
+    placeholderText: 'محتوای صفحه اینجا نمایش داده می‌شود',
+  },
+  settings: {
+    title: 'تنظیمات',
+    lede: 'ظاهر و نمایش سِتل را مدیریت کنید.',
+    language: 'زبان',
+    languageHint: 'زبان رابط کاربری و جهت متن.',
+    theme: 'پوسته',
+    themeHint: 'روشن، تیره یا هماهنگ با سیستم.',
   },
   emptyState: {
     title: 'هنوز تراکنشی ثبت نشده',

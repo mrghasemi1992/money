@@ -59,6 +59,9 @@ src/
       transactions.test.ts
   db/
     schema.ts      <- Dexie database + version definitions
+  hooks/
+    index.ts       <- barrel: cross-component hooks with no feature/business logic
+    use-mobile-viewport.ts
   i18n/
     index.ts       <- barrel: useTranslation + re-exports formatAmount/formatNumber
     format.ts
@@ -77,7 +80,17 @@ Component folders use lowercase names with generic, predictable file names
 (`index.tsx`, `styles.module.css`, `spec.test.tsx`) rather than repeating the
 component name in each filename. Co-locate tests, styles, and types next to
 the component/feature that owns them. Shared/cross-feature code only lives in
-top-level `components/`, `db/`, `styles/`.
+top-level `components/`, `db/`, `styles/`, `hooks/`.
+
+Top-level `hooks/` holds generic, reusable hooks with no feature-specific
+business logic (e.g. `useMobileViewport`, a viewport-breakpoint listener
+consumed by `AppShell`) — same bar as `components/primitives/`, just for
+hooks instead of components. Feature-specific hooks stay under their
+feature's own `hooks/` (e.g. `features/transactions/hooks/`) rather than
+here. Follows the `stores/` pattern: flat one-file-per-hook plus a barrel
+`index.ts`, not a folder-per-hook structure — a single hook doesn't warrant
+its own `index.ts`/`styles.module.css`/`spec.test.tsx` trio the way a
+component does.
 
 `components/primitives/` holds generic, reusable, unstyled-in-isolation
 building blocks (Button, Input, Card, Badge, Switch) with no dependency on
@@ -225,6 +238,57 @@ fallback. See `styles/fonts.css`.
 1. Default to `useLiveQuery` reading directly from Dexie.
 2. Reach for Zustand only for state with no natural persisted home (UI-only,
    session-only). Justify each store's existence in a comment at its top.
+
+## App shell & navigation
+
+- Two independent, non-overlapping mechanisms govern the sidebar:
+  a user-toggled `sidebarCollapsed` (Zustand `ui-store`, persisted) that
+  shrinks the desktop sidebar to a 64px icon-only rail, and a
+  `useMobileViewport` (640px) breakpoint in `AppShell` that swaps the
+  sidebar out entirely for a bottom tab bar (`BottomNav`) plus a floating
+  `AddTransactionFab`, matching the Claude Design mock's "bottom nav —
+  mobile breakpoint" frame. These used to be the same mechanism (an
+  auto-forced icon rail below 880px) until the Claude Design source was
+  updated to replace that with the bottom-tab-bar pattern instead — the
+  manual icon-rail collapse is now desktop/tablet-only and always shows its
+  toggle button, since there's no forced-narrow case left that would hide it.
+- The bottom tab bar (`BottomNav`) and the desktop sidebar (`SidebarNav`)
+  share their nav item data (routes, labels, icon paths) from
+  `components/nav-items.ts` rather than duplicating it, since the Claude
+  Design source keeps the same four nav entries (icons included) across both
+  layouts.
+- Locale/theme controls live on a dedicated `/settings` page (`LocaleMenu` +
+  `ThemeMenu`, restyled as fixed-size triggers instead of the `flex:1`
+  half-width pair they were as sidebar-footer inhabitants — laid out on the
+  page as label+hint rows inside a `Card`, one per setting), not inline in
+  the sidebar — moved there, and the sidebar's "Add transaction" button
+  removed entirely, per product feedback on the Claude Design preview
+  rather than the design file itself, so there's no mock to match either
+  change. The sidebar's nav list now ends with a single "Settings" link
+  pinned to the bottom via `margin-top: auto`, styled with the exact same
+  `.navItem`/`.navItemActive` classes as Dashboard/Transactions/Reports/
+  Budgets (same active-state color treatment, same icon-rail collapse behavior)
+  rather than a bespoke style, so it reads as a peer nav entry, not a
+  separate footer widget. It is desktop-sidebar-only by request — it is
+  deliberately **not** added to `BottomNav`/`nav-items.ts`, so mobile
+  currently has no way to reach Settings, and the mobile FAB is the only
+  surviving "Add transaction" entry point (the desktop equivalent is gone).
+  Revisit if mobile access to Settings becomes a real need.
+- Neither the mobile bottom-tab-bar nor the desktop icon-rail expose
+  locale/theme controls directly — on the icon rail the Settings link is
+  still reachable (icon-only, same as the other nav items); on mobile
+  there's no Settings entry at all (see above), so locale/theme are
+  currently unreachable from a phone-width viewport.
+- The brand wordmark is localized (`t.brand`: "Settle" / "پول") per the
+  Claude Design RTL mock, which explicitly re-styles it in Dana at 17px
+  rather than reusing the Latin wordmark's 16px. Only `SidebarNav` renders
+  it — `BottomNav` has no brand mark in the design, matching a typical
+  mobile tab bar.
+- `LocaleMenu`/`ThemeMenu` (compact `DropdownMenu`-based triggers, now used
+  on the Settings page) are intentionally separate components from
+  `LocaleToggle`/`ThemeToggle` (segmented `RadioGroup` controls used on the
+  Design System reference page) — popover-menu and inline-segmented-control
+  are different interaction patterns, not variants of one component.
 
 ## Testing
 
