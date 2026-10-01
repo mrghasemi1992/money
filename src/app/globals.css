@@ -1,0 +1,9 @@
+/* Placeholder until the design system (Phase 0b) adds tokens, base and typography styles. */
+html {
+  font-family: var(--font-dana), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+}

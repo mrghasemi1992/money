@@ -1,0 +1,42 @@
+{
+  "name": "money",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H money.localhost",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "storybook": "storybook dev -p 6006 --host money.localhost",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "lucide-react": "^1.49.0",
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@csstools/postcss-global-data": "^4.0.0",
+    "@storybook/nextjs-vite": "^10.6.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-storybook": "^10.6.1",
+    "postcss-custom-media": "^12.0.3",
+    "prettier": "^3.9.9",
+    "storybook": "^10.6.1",
+    "typescript": "^5",
+    "vite": "^8.3.2"
+  },
+  "packageManager": "pnpm@10.27.0"
+}
