@@ -71,16 +71,29 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 ## Design system
 
 - **Brand:** name "Money" (Persian wordmark پول, as in the old `money` project, now `money-old`).
-- **Look:** modern and calm, inspired by the Kanvas design system in Claude Design. Primary color is Kanvas royal blue `#223BB2` (`royal-600`).
+- **Look:** modern and calm, inspired by the Kanvas design system in Claude Design. Primary color is Kanvas royal blue `#223BB2` (`royal-600`), with a cool slate neutral tinted toward it and royal-tinted shadows. Flat stacked surfaces (page → card → raised), no gradients, no illustrations.
+- **Logo:** Lucide's wallet glyph in white on a royal rounded tile, plus the wordmark «پول» at weight 800. `Logo` and `LogoMark` in `src/components/ui/`, favicon in `src/app/icon.svg`, iOS icon in `src/app/apple-icon.tsx`.
+- **Tokens** live in `src/styles/tokens/` and are the only source of colors, type, spacing, radius, shadows and motion:
+  - Colors: raw ramps (`--royal-*`, `--slate-*`, accent hues) plus semantic aliases. Components use only the aliases: `--surface-*`, `--border-*`, `--text-*`, `--brand-*`, `--status-*`, `--amount-*`, `--budget-*`, `--cat-*`. Light on `:root` and `[data-theme="light"]`; `[data-theme="dark"]` re-points the aliases.
+  - Type roles as `font` shorthands: `font: var(--type-body)` (`display`, `title-lg`, `title`, `heading`, `body-md`, `body`, `label`, `control`, `caption`, `eyebrow`, `amount-hero`, `amount-lg`, `amount`). 12px floor; never letter-space Persian.
+  - Categories: 10 hues + slate (`src/constants/category.ts`), each `--cat-<hue>` (dot), `-soft` (fill) and `-text` (label). A category is never shown by color alone.
+  - Focus is a 3px ring drawn with `box-shadow: var(--shadow-focus)` (danger controls: `--shadow-focus-danger`).
 - **Font:** Dana (variable, `dana-variable.woff2`, copied from `daily-transactions`), loaded with `next/font/local`.
   - Dana's default weight is 10 (hairline). Every text style must set a weight. Declare `weight: "10 900"`.
-  - Dana has no `tnum` feature. Use `font-feature-settings: "ss03"` for tabular Persian digits in amounts.
+  - Dana has no `tnum` feature. Use `font-feature-settings: var(--font-features-tabular)` (`"ss03"`) for tabular Persian digits in amounts, dates and columns of numbers (helper class `.tabular`).
   - Never use Dana's `ss02` (it draws Latin digits as Persian glyphs and breaks copy and screen readers). Persian digits come from `Intl.NumberFormat("fa-IR")`.
-- **RTL:** `<html lang="fa" dir="rtl">`. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, …), never `left`/`right`. Directional icons (arrows, chevrons) are mirrored for RTL.
+- **RTL:** `<html lang="fa" dir="rtl">`, and Base UI's `DirectionProvider` (in `src/components/providers`) set to `rtl` for keyboard navigation and popup placement. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, …), never `left`/`right`.
+  - Directional icons (back/forward arrows and chevrons) are written in LTR terms (`ChevronLeftIcon` = back) and get the global `mirror-rtl` class (`mirrorIcon` / `mirrorIcons` props on IconButton and Button), so they point the right way in either direction. Money-direction icons (`ArrowUpIcon`, `ArrowDownIcon`, `ArrowLeftRightIcon`) are direction-neutral and never mirrored.
 - **Themes:** light and dark, both defined as tokens. No flash of the wrong theme on load (inline script in `<head>` sets `data-theme` from the saved choice, otherwise the OS setting), same setup as `orange`.
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
+  - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
+  - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian thousands separator «٬» (U+066C), percent «٪».
+  - Budgets: ok (royal) → near the limit from 85% (amber, ⚠, «نزدیک به سقف») → over (red with diagonal stripes, «… بیش از بودجه»). `getBudgetStatus` in `src/helpers/budget.ts`.
+- **Dates in the UI:** «۹ مهر ۱۴۰۵», with weekday «پنج‌شنبه ۹ مهر ۱۴۰۵», «امروز» / «دیروز» in lists, numeric «۱۴۰۵/۰۷/۰۹» only in dense tables. Weeks start on Saturday (شنبه); Friday is tinted as the weekend. `AmountField` takes and returns a number in rial; `Calendar` and `DatePicker` take and return ISO date strings.
+- **Copy:** calm, short, polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete. No emoji. Claude is written «Claude», in Latin.
+- **Motion:** `--ease-out` for nearly everything, `--ease-lift` only for things that pop (checkbox tick, switch thumb, dialog and toast entry). 120ms color, 180ms position, 260ms overlays. Everything collapses under `prefers-reduced-motion` (in `base.css`).
 - **Icons:** lucide-react, sized with `--icon-size-*` tokens. Import the `*Icon` export (`WalletIcon`, not `Wallet`).
-- **Breakpoints:** `@custom-media` rules in `src/styles/media.css`, injected into every CSS file by PostCSS (`@csstools/postcss-global-data` + `postcss-custom-media`), as in `orange`. JavaScript uses the same values from `src/constants/media.ts`.
+- **Breakpoints:** 480 / 768 / 1024 (`--small-phone`, `--mobile` below 768, `--tablet-up`, `--desktop`). Below 768 is the phone layout: taller controls (40/48/52px), 44px tap targets, bottom sheets instead of dialogs. `@custom-media` rules in `src/styles/media.css`, injected into every CSS file by PostCSS (`@csstools/postcss-global-data` + `postcss-custom-media`), as in `orange`. JavaScript uses the same values from `src/constants/media.ts`.
 - **Accessibility:** WCAG AA contrast in both themes, visible keyboard focus, respect `prefers-reduced-motion`.
 
 ## Conventions
@@ -91,12 +104,43 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
+- **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
+- **Base UI:** interactive design system components wrap Base UI parts and style them with `data-*` state attributes (`[data-checked]`, `[data-highlighted]`, `[data-invalid]`, `[data-starting-style]`, …). `Providers` (`src/components/providers`) wraps the app and every story: `DirectionProvider`, the shared tooltip delay and the toast viewport (`useToast()` from `src/components/ui/toast`).
+- **Forms:** put controls inside `Field` (Base UI Field), which wires the label, hint and error to the control. Controls that aren't Base UI fields (`DatePicker`) take an `id` that you also pass to Field's `htmlFor`.
 - **Server-only code** (`src/db/`, `src/auth/`, `src/mcp/`) imports `server-only`.
 - **Types, constants, utils and helpers** go in their own top-level folders, one file per topic:
   - `src/types/`: shared TypeScript types
   - `src/constants/`: fixed data and config
   - `src/utils/`: generic functions that would work unchanged in another project (for example `cx`, Jalali conversion, digit normalizing)
   - `src/helpers/`: functions specific to Money and its data (for example account balance, Jalali month range for budgets)
+  - `src/hooks/`: React hooks that aren't tied to one component (for example `useControllableState`)
+
+## Project structure
+
+```text
+src/
+  app/                  App Router: layout (theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
+  components/
+    ui/                 Design system: one folder per component (index.tsx, styles.module.css, index.stories.tsx)
+                        logo, logo-mark, button, icon-button, tooltip, field, text-field, textarea, amount-field,
+                        search-field, select, combobox, checkbox, switch, radio-group, segmented-control, calendar,
+                        date-picker, jalali-date, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
+                        badge, tag, category-chip, avatar, divider, amount, progress-bar, foundations (Storybook only)
+    providers/          Base UI direction, tooltip delay group, toast viewport
+    theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
+  constants/            category colors, media queries, theme script, transaction type labels
+  helpers/              budget status, category color style
+  hooks/                useControllableState
+  styles/
+    tokens/             colors, typography, spacing, radius, shadows, motion, components
+    base.css            element defaults, focus ring, mirror-rtl, reduced motion
+    typography.css      type helper classes (.type-*, .tabular, .ltr, .visually-hidden)
+    media.css           @custom-media breakpoints
+    control.module.css, menu.module.css, choice.module.css   shared component styles
+    fonts.ts, fonts/    Dana via next/font/local
+  types/                category, theme, transaction
+  utils/                cx, focus, jalali, number, text, theme
+```
 
 ## Workflow
 
@@ -124,7 +168,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | # | Phase | Status |
 |---|-------|--------|
 | 0a | Project setup (on `main`): Next.js, TypeScript, ESLint, Prettier, packages, Storybook, Dana font | Done |
-| 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Not started |
+| 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Done (Vercel deploy after merge) |
 | 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Not started |
 | 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes | Not started |
 | 3 | User management (admin) | Not started |
