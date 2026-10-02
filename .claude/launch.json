@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "storybook",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["storybook", "--no-open"],
+      "port": 6006,
+      "url": "http://money.localhost:6006"
+    },
+    {
+      "name": "dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3000,
+      "url": "http://money.localhost:3000"
+    }
+  ]
+}
