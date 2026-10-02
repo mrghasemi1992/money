@@ -1,9 +1,10 @@
 /*
- * Creates an admin user: `pnpm user:create-admin`.
+ * Creates a user: `pnpm user:create`.
  *
- * Asks for the username, display name and password at the prompt (the password is not shown),
- * so they never end up in shell history. Use it once to create the first admin; after that,
- * admins create users in the app. Writes to the database in DATABASE_URL from .env.local.
+ * Asks for the username, display name, role and password at the prompt (the password is not
+ * shown), so they never end up in shell history. Use it to create the first admin, and other
+ * users until the user management page exists (Phase 3). Writes to the database in
+ * DATABASE_URL from .env.local.
  *
  * Runs with the "react-server" condition, which makes the `server-only` imports of src/auth and
  * src/db no-ops outside Next.js.
@@ -21,6 +22,7 @@ import {
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
   USERNAME_PATTERN,
+  USER_ROLES,
 } from "@/constants/user";
 import { placeholderEmail } from "@/helpers/user";
 
@@ -32,6 +34,9 @@ const inputSchema = z.object({
     .max(USERNAME_MAX_LENGTH, `At most ${USERNAME_MAX_LENGTH} characters.`)
     .regex(USERNAME_PATTERN, "Only Latin letters, digits, «.» and «_»."),
   name: z.string().trim().min(1, "Enter a display name."),
+  role: z.enum(USER_ROLES, {
+    error: `One of: ${USER_ROLES.join(", ")}.`,
+  }),
   password: z
     .string()
     .min(PASSWORD_MIN_LENGTH, `At least ${PASSWORD_MIN_LENGTH} characters.`)
@@ -80,13 +85,17 @@ async function main() {
   const prompt = createInterface({ input: stdin, output: stdout });
   const username = await prompt.question("Username: ");
   const name = await prompt.question("Display name: ");
+  const role =
+    (
+      await prompt.question(`Role (${USER_ROLES.join(" / ")}) [admin]: `)
+    ).trim() || "admin";
   prompt.close();
 
   const password = await askHidden("Password: ");
   const confirmation = await askHidden("Password again: ");
   if (password !== confirmation) throw new Error("The passwords don't match.");
 
-  const parsed = inputSchema.safeParse({ username, name, password });
+  const parsed = inputSchema.safeParse({ username, name, role, password });
   if (!parsed.success) {
     const messages = parsed.error.issues.map(
       (issue) => `${issue.path.join(".")}: ${issue.message}`,
@@ -100,12 +109,14 @@ async function main() {
       email: placeholderEmail(),
       password: parsed.data.password,
       name: parsed.data.name,
-      role: "admin",
+      role: parsed.data.role,
       data: { username: parsed.data.username },
     },
   });
 
-  console.log(`Created admin "${user.name}" (${parsed.data.username}).`);
+  console.log(
+    `Created ${parsed.data.role} "${user.name}" (${parsed.data.username}).`,
+  );
 }
 
 main().catch((error: unknown) => {

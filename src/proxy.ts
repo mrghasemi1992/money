@@ -7,7 +7,7 @@ import { LOGIN_PATH, PATHNAME_HEADER, RETURN_TO_PARAM } from "@/constants/auth";
  * Sends visitors without a session cookie to /login, remembering the page they asked for.
  *
  * This is only a fast, optimistic check: it looks at the cookie, not the database. Every page
- * and Server Action still checks the session itself (requireUser / requireAdmin in src/auth).
+ * and Server Action still checks the session itself (requireUser / requireWrite / requireAdmin in src/auth).
  */
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

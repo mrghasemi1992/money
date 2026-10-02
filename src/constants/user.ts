@@ -1,5 +1,20 @@
-/** User roles of the Better Auth admin plugin. Admins manage user accounts, never their data. */
-export const USER_ROLES = ["admin", "user"] as const;
+import type { UserRole } from "@/types/user";
+
+/**
+ * User roles of the Better Auth admin plugin, from most to least access. Everyone works on the
+ * same book: admins and editors read and change it, viewers only read it, and only admins
+ * manage users. What each role may do is in `src/helpers/role.ts`.
+ */
+export const USER_ROLES = ["admin", "editor", "viewer"] as const;
+
+/** The role new users get unless an admin picks another one. */
+export const DEFAULT_USER_ROLE: UserRole = "viewer";
+
+export const USER_ROLE_LABELS: Record<UserRole, string> = {
+  admin: "مدیر",
+  editor: "ویرایشگر",
+  viewer: "بیننده",
+};
 
 /** Usernames: Latin letters, digits, «.» and «_», as Better Auth's username plugin accepts them. */
 export const USERNAME_PATTERN = /^[a-zA-Z0-9_.]+$/;

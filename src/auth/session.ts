@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { LOGIN_PATH, PATHNAME_HEADER, RETURN_TO_PARAM } from "@/constants/auth";
+import { canManageUsers, canWrite, toUserRole } from "@/helpers/role";
 import { getSafeRedirect } from "@/utils/url";
 
 import { auth, type Session } from "./index";
@@ -20,9 +21,10 @@ export const getSession = cache(async (): Promise<Session | null> => {
 });
 
 /**
- * The session of the signed-in user. Without one, redirects to /login, which brings the user
- * back to the requested page afterwards. Call it in every page and Server Action that needs a
- * user: the proxy only checks that a session cookie exists.
+ * The session of the signed-in user, whatever their role: enough to read the book and to
+ * change one's own settings. Without a session, redirects to /login, which brings the user
+ * back to the requested page afterwards. Call it (or requireWrite / requireAdmin) in every page
+ * and Server Action: the proxy only checks that a session cookie exists.
  */
 export async function requireUser(): Promise<Session> {
   const session = await getSession();
@@ -37,9 +39,19 @@ export async function requireUser(): Promise<Session> {
   redirect(`${LOGIN_PATH}${query}`);
 }
 
-/** Like requireUser, for admin-only pages and actions. Other users get «not found». */
+/**
+ * Like requireUser, for pages and actions that change the book (editors and admins).
+ * Viewers get «not found»; the UI doesn't offer them write controls in the first place.
+ */
+export async function requireWrite(): Promise<Session> {
+  const session = await requireUser();
+  if (!canWrite(toUserRole(session.user.role))) notFound();
+  return session;
+}
+
+/** Like requireUser, for user management (admins only). Other users get «not found». */
 export async function requireAdmin(): Promise<Session> {
   const session = await requireUser();
-  if (session.user.role !== "admin") notFound();
+  if (!canManageUsers(toUserRole(session.user.role))) notFound();
   return session;
 }
