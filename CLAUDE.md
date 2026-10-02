@@ -7,17 +7,34 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - Persian only. RTL everywhere, Jalali calendar in the UI, Persian digits. No i18n layer and no English locale.
 - Light and dark themes.
 - Several users, by invite only. There is no public sign-up. An admin creates accounts in the app.
-- Each user's data is private to that user. The admin page manages user accounts only and never shows another user's financial data.
+- **One shared book.** All users work on the same accounts, categories, transactions and budgets. There is no per-user data. What a user can do depends on their role (see Roles).
 - Amounts are shown in rial.
+
+## Roles
+
+| Role | Persian label | Read | Write | User management |
+|------|---------------|------|-------|-----------------|
+| `admin` | مدیر | ✓ | ✓ | ✓ |
+| `editor` | ویرایشگر | ✓ | ✓ | ✗ |
+| `viewer` | بیننده | ✓ | ✗ | ✗ |
+
+- **Read:** see every page with the book's data: dashboard, transactions, budgets, reports, accounts, categories. Export CSV.
+- **Write:** create, edit and delete transactions, accounts, categories and budgets, and import CSV. Write includes read.
+- **User management** (admins only): create users, reset passwords, disable and enable users, change roles.
+- Every user can change their own display name, password and theme, and connect Claude.
+- New users get `viewer` unless the admin picks another role.
+- The role is checked on the server for every page, Server Action, Route Handler and MCP tool call, read from the user record at that moment (a role change applies right away, also to already connected Claude sessions). Hiding controls in the UI is only a convenience: a viewer sees no add, edit or delete controls, but the server is what enforces it.
+- Role names, labels and the permission check live in one place (`src/constants/roles.ts` for names and labels, `src/auth/` for `requireRead`, `requireWrite`, `requireAdmin`), so pages, actions and MCP tools share the same rules.
 
 ## Features (full scope)
 
 - Sign in with username and password (invite only)
-- Admin user management: create users, reset passwords, disable accounts
+- Roles: admin, editor, viewer (see Roles)
+- Admin user management: create users, reset passwords, disable accounts, change roles
 - Accounts (bank cards, cash, …) with a starting balance and a live current balance
 - Categories with one optional level of subcategories, separate for income and expense
 - Transactions: income, expense and transfer between own accounts, with category, subcategory, account, tags, description and note
-- Claude connector (MCP) with OAuth sign-in, so Claude can add, find, edit and delete the signed-in user's transactions
+- Claude connector (MCP) with OAuth sign-in. Claude acts as the signed-in user with that user's role: everyone can read, editors and admins can also add, edit and delete transactions
 - Budgets: a monthly limit per category, repeating every Jalali month
 - Reports: charts by category and by month
 - Dashboard: balances, this month's totals, budget progress, recent transactions
@@ -48,7 +65,8 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 ## Data rules
 
-- **Every row belongs to a user.** Every table with user data has `user_id`, and every query filters by the signed-in user's id. The user id always comes from the session (web) or the OAuth token (MCP), never from client input. The database backs this up: references between user tables are composite foreign keys that include `user_id`, so a row can't point at another user's account or category.
+- **One shared book, no `user_id` on financial data.** `accounts`, `categories`, `transactions` and `budgets` belong to the book, not to a user. Queries don't filter by user; access is controlled by role (see Roles).
+- **Who did it.** Transactions record `created_by` and `updated_by` (user ids). The acting user always comes from the session (web) or the OAuth token (MCP), never from client input.
 - **Dates are stored as Gregorian.** A transaction's date is a Postgres `date` (`YYYY-MM-DD`, no time zone). Timestamps (`created_at`, `updated_at`) are `timestamptz`. Never store Jalali dates.
 - **Jalali only at the edges.** Dates travel through the app as ISO strings. Convert to Jalali only:
   - in UI components that show or pick a date (`JalaliDate`, the date picker), and
@@ -62,15 +80,16 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 | Table | Main columns |
 |-------|--------------|
-| Better Auth tables | `user` (with `username`, `display_username`, `role`, `banned`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
-| `accounts` | `id`, `user_id`, `name`, `opening_balance` (rial, may be 0 or negative), `archived`, `sort_order` |
-| `categories` | `id`, `user_id`, `type` (`income` \| `expense`), `name`, `color`, `parent_id` (null for a category, set for a subcategory), `archived` |
-| `transactions` | `id`, `user_id`, `type` (`income` \| `expense` \| `transfer`), `date`, `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers, optional otherwise), `description` and `note` (`''` when empty), `tags` (`text[]`), `source` (`web` \| `mcp` \| `csv`), `created_at`, `updated_at` |
-| `budgets` | `id`, `user_id`, `category_id` (top-level expense category), `amount` (rial per Jalali month) |
+| Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
+| `accounts` | `id`, `name`, `opening_balance` (rial, may be 0 or negative), `archived`, `sort_order` |
+| `categories` | `id`, `type` (`income` \| `expense`), `name`, `color`, `parent_id` (null for a category, set for a subcategory), `archived` |
+| `transactions` | `id`, `type` (`income` \| `expense` \| `transfer`), `date`, `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers, optional otherwise), `description` and `note` (`''` when empty), `tags` (`text[]`), `source` (`web` \| `mcp` \| `csv`), `created_by`, `updated_by` (user ids), `created_at`, `updated_at` |
+| `budgets` | `id`, `category_id` (top-level expense category), `amount` (rial per Jalali month) |
 
 - Subcategories are one level deep: a subcategory's parent must be a top-level category, and it has the same `type` as its parent.
 - A transaction's category must match its type (income categories for income, expense categories for expense). Transfers have no category.
 - Budgets and reports roll subcategory amounts up into their parent category.
+- Users are disabled (banned), never deleted, so `created_by` / `updated_by` always point to a real user.
 - Account balance = opening balance + income − expense − transfers out + transfers in. Transfers never count as income or expense in totals, budgets or reports.
 - **The database enforces these rules too** (constraints in `src/db/schema/`), so a bug in app code can't store bad data. Server code still validates first, to show a clear error:
   - amounts > 0; `type`, `source`, `color` and `role` limited to their constants (CHECK constraints built with `oneOf`);
@@ -215,14 +234,14 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/budgets` | Budgets (بودجه) | 2 (placeholder until 7) |
 | `/reports` | Reports (گزارش‌ها) | 2 (placeholder until 8) |
 | `/settings` | Settings (تنظیمات): profile and password, theme | 2 |
-| `/settings/accounts` | Accounts | 4 |
-| `/settings/categories` | Categories | 4 |
+| `/settings/accounts` | Accounts (viewers read only) | 4 |
+| `/settings/categories` | Categories (viewers read only) | 4 |
 | `/settings/connector` | Claude connector: URL, connected apps | 6 |
 | `/admin/users` | User management (admins only) | 3 |
 | `/api/auth/[...all]` | Better Auth handler | 1 |
 | `/mcp` | MCP endpoint (OAuth bearer token) | 6 |
 
-All pages except `/login` (and the OAuth consent page, if one is needed) require a session.
+All pages except `/login` (and the OAuth consent page, if one is needed) require a session. Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
 
 ## Reference repositories (siblings of this folder)
 
