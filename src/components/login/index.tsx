@@ -184,7 +184,8 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
       </div>
       <div className={cx(styles.spacer, styles.spacerEnd)} aria-hidden="true" />
       <p className={styles.note}>
-        حساب‌ها را مدیر می‌سازد؛ برای دسترسی با مدیر تماس بگیرید.
+        ایجاد حساب کاربری فقط توسط مدیر امکان‌پذیر است؛ برای دسترسی با مدیر
+        هماهنگ کنید.
       </p>
     </main>
   );
