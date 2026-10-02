@@ -1,6 +1,14 @@
 /*
  * Breakpoints. CSS variables don't work inside @media, so they are @custom-media rules.
- * postcss.config.mjs injects this file into every CSS file: use `@media (--name)`.
+ * postcss.config.mjs injects this file into every CSS file: use `@media (--mobile)`.
  * JavaScript (matchMedia) reads the same values from src/constants/media.ts; keep them in sync.
- * The breakpoints come from the design system (Phase 0b).
+ * From the design: 480 / 768 / 1024. Below 768 is the phone layout (top bar, bottom tab bar,
+ * bottom sheets instead of dialogs, taller controls).
  */
+
+@custom-media --small-phone (width < 30rem);
+@custom-media --mobile (width < 48rem);
+@custom-media --tablet-up (width >= 48rem);
+@custom-media --desktop (width >= 64rem);
+
+@custom-media --reduced-motion (prefers-reduced-motion: reduce);

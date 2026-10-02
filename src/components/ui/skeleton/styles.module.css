@@ -1,0 +1,35 @@
+.root {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite alternate;
+}
+
+.text {
+  height: 0.75em;
+  margin-block: 0.35em;
+  border-radius: var(--radius-xs);
+}
+
+.circle {
+  border-radius: var(--radius-pill);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.last {
+  width: 60%;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.5;
+  }
+}

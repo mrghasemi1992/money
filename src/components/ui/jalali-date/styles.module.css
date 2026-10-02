@@ -1,0 +1,8 @@
+.root {
+  font-feature-settings: var(--font-features-tabular);
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-muted);
+}

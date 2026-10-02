@@ -1,0 +1,41 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-primary);
+  line-height: var(--leading-none);
+}
+
+.word {
+  padding-block-end: 0.08em;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-heavy);
+  line-height: var(--leading-none);
+}
+
+.sm {
+  gap: var(--logo-gap-sm);
+  font-size: var(--logo-word-sm);
+}
+
+.md {
+  gap: var(--logo-gap-md);
+  font-size: var(--logo-word-md);
+}
+
+.lg {
+  gap: var(--logo-gap-lg);
+  font-size: var(--logo-word-lg);
+}
+
+.xl {
+  gap: var(--logo-gap-xl);
+  font-size: var(--logo-word-xl);
+}
+
+.inverse {
+  color: var(--text-on-brand);
+}
+
+.mono {
+  color: currentColor;
+}

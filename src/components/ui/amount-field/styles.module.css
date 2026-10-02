@@ -1,0 +1,20 @@
+/* The number reads left to right but sits against the start (right) edge, next to the label. */
+.input {
+  direction: ltr;
+  text-align: right;
+  font-weight: var(--weight-semibold);
+  font-size: var(--amount-input-scale);
+  font-feature-settings: var(--font-features-tabular);
+}
+
+.withToman {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.toman {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}

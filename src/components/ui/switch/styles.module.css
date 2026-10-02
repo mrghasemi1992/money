@@ -1,0 +1,93 @@
+.track {
+  --w: var(--switch-w);
+  --h: var(--switch-h);
+  --thumb: var(--switch-thumb);
+
+  position: relative;
+  flex: none;
+  width: var(--w);
+  height: var(--h);
+  margin-block-start: 1px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  cursor: inherit;
+  outline: 0;
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.sm {
+  --w: var(--switch-w-sm);
+  --h: var(--switch-h-sm);
+  --thumb: var(--switch-thumb-sm);
+
+  margin-block-start: var(--switch-inset);
+}
+
+.track:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.track[data-checked] {
+  background: var(--brand-solid);
+}
+
+.track[data-disabled] {
+  background: var(--border-disabled);
+}
+
+.track[data-disabled][data-checked] {
+  background: color-mix(
+    in oklab,
+    var(--brand-solid) 35%,
+    var(--surface-disabled)
+  );
+}
+
+@media (hover: hover) {
+  .track:hover:not([data-disabled], [data-checked]) {
+    background: var(--text-muted);
+  }
+
+  .track:hover[data-checked]:not([data-disabled]) {
+    background: var(--brand-solid-hover);
+  }
+}
+
+/* inset-inline-start moves the thumb toward the end in either direction (left in RTL). */
+.thumb {
+  position: absolute;
+  inset-block-start: var(--switch-inset);
+  inset-inline-start: var(--switch-inset);
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  transition:
+    inset-inline-start var(--duration-base) var(--ease-lift),
+    width var(--duration-fast) var(--ease-out);
+}
+
+.thumb[data-checked] {
+  inset-inline-start: calc(var(--w) - var(--thumb) - var(--switch-inset));
+}
+
+/* Pressed: the thumb stretches toward where it will go */
+.track:active:not([data-disabled]) .thumb {
+  width: calc(var(--thumb) + var(--switch-thumb-stretch));
+}
+
+.track:active:not([data-disabled]) .thumb[data-checked] {
+  inset-inline-start: calc(
+    var(--w) - var(--thumb) - var(--switch-thumb-stretch) - var(--switch-inset)
+  );
+}
+
+.track[data-disabled] .thumb {
+  background: var(--surface-card);
+  box-shadow: none;
+}

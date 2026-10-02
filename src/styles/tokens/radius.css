@@ -1,0 +1,24 @@
+/* Radii: 8 controls, 12 cards and popovers, 16 dialogs, 24 sheet top corners, pill for badges. */
+
+:root {
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 999px;
+
+  --radius-control: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-panel: var(--radius-lg);
+  --radius-dialog: var(--radius-xl);
+  --radius-sheet: var(--radius-2xl);
+  --radius-badge: var(--radius-pill);
+  --radius-avatar: var(--radius-pill);
+
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+  --ring-width: 3px;
+}

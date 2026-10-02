@@ -1,9 +1,13 @@
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
 
+import { Providers } from "../src/components/providers";
 import { fontVariables } from "../src/styles/fonts";
 import "../src/app/globals.css";
 
-/** Apply the language, direction, fonts and toolbar theme to <html>, the same place the app puts them. */
+/**
+ * Apply the language, direction (RTL), fonts and toolbar theme to <html>, the same place the
+ * app puts them, and wrap every story in the app's Providers.
+ */
 const withAppShell: Decorator = (Story, context) => {
   const root = document.documentElement;
   root.lang = "fa";
@@ -13,7 +17,11 @@ const withAppShell: Decorator = (Story, context) => {
     "data-theme",
     context.globals.theme === "dark" ? "dark" : "light",
   );
-  return <Story />;
+  return (
+    <Providers>
+      <Story />
+    </Providers>
+  );
 };
 
 const preview: Preview = {

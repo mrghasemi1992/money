@@ -1,0 +1,114 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  min-height: 100dvh;
+  background: var(--surface-scrim);
+  -webkit-backdrop-filter: blur(var(--scrim-blur));
+  backdrop-filter: blur(var(--scrim-blur));
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.backdrop[data-swiping] {
+  transition-duration: 0ms;
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--sheet-w);
+  max-height: var(--sheet-max-h);
+  padding-block-end: env(safe-area-inset-bottom, 0px);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-sheet);
+  outline: 0;
+  overscroll-behavior: contain;
+  transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.popup[data-swiping] {
+  transition-duration: 0ms;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  transform: translateY(100%);
+}
+
+.grab {
+  flex: none;
+  width: var(--sheet-grab-w);
+  height: var(--sheet-grab-h);
+  margin: var(--space-2) auto var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4) var(--space-2);
+  padding-inline-end: var(--space-2);
+}
+
+.titles {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-heading);
+  font-size: var(--text-lg);
+}
+
+.description {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-body);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  overflow: auto;
+}
+
+.foot {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.foot > * {
+  flex: 1 1 0;
+}

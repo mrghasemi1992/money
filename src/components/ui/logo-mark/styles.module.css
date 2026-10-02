@@ -1,0 +1,44 @@
+.root {
+  display: block;
+  flex: none;
+}
+
+.sm {
+  width: var(--logo-mark-sm);
+  height: var(--logo-mark-sm);
+}
+
+.md {
+  width: var(--logo-mark-md);
+  height: var(--logo-mark-md);
+}
+
+.lg {
+  width: var(--logo-mark-lg);
+  height: var(--logo-mark-lg);
+}
+
+.xl {
+  width: var(--logo-mark-xl);
+  height: var(--logo-mark-xl);
+}
+
+.brand .tile {
+  fill: var(--brand-solid);
+}
+
+.brand .glyph {
+  stroke: var(--text-on-brand);
+}
+
+.inverse .tile {
+  fill: var(--white);
+}
+
+.inverse .glyph {
+  stroke: var(--surface-brand);
+}
+
+.mono .glyph {
+  stroke: currentColor;
+}
