@@ -39,6 +39,9 @@
   --fab-size: 56px;
   --sheet-max-h: 88dvh;
 
+  /* Sign-in page */
+  --login-max: 400px;
+
   /* Layers */
   --z-popup: 40;
   --z-overlay: 100;

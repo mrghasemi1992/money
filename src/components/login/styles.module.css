@@ -1,0 +1,220 @@
+/*
+ * Larger screens: a card centered on the page with the note under it.
+ * Phones: the whole screen, form a little above the middle, note at the bottom. When the
+ * keyboard is open (a short viewport), the header shrinks to one row and the note hides, so the
+ * button stays above the keyboard.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: 100dvh;
+  padding: var(--space-6);
+  background: var(--surface-page);
+}
+
+.spacer {
+  display: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--login-max);
+  padding: var(--space-8);
+  border: var(--border-width) solid var(--border-card);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3-5);
+  padding-block-end: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-title-lg);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.submit {
+  margin-block-start: var(--space-1);
+}
+
+.note {
+  max-width: var(--login-max);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* Password with the show/hide button inside the box, at the start (right in RTL). */
+
+.password {
+  position: relative;
+}
+
+.password .passwordInput {
+  padding-inline-start: calc(var(--control-h-md) + var(--space-2));
+}
+
+.toggle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--space-1);
+  display: flex;
+  align-items: center;
+}
+
+/* Alerts */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-3-5);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-control);
+  font: var(--type-body);
+  font-weight: var(--weight-medium);
+}
+
+.alert p {
+  margin: 0;
+}
+
+.danger {
+  border-color: var(--status-danger-border);
+  background: var(--status-danger-soft);
+  color: var(--status-danger-text);
+}
+
+.warning {
+  border-color: var(--status-warning-border);
+  background: var(--status-warning-soft);
+  color: var(--status-warning-text);
+}
+
+.success {
+  border-color: var(--status-success-border);
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+}
+
+.alertIcon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  margin-block-start: var(--space-0-5);
+}
+
+.alertBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.alertDetail {
+  font-weight: var(--weight-regular);
+}
+
+.countdown {
+  font-weight: var(--weight-semibold);
+}
+
+@media (--mobile) {
+  .root {
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0 var(--space-4);
+    background: var(--surface-card);
+  }
+
+  .spacer {
+    display: block;
+    flex: 1 1 0;
+    min-height: var(--space-8);
+  }
+
+  .spacerEnd {
+    flex-grow: 1.4;
+    min-height: var(--space-6);
+  }
+
+  .panel {
+    gap: var(--space-7);
+    margin-inline: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .header {
+    padding: 0;
+  }
+
+  .submit {
+    margin-block-end: var(--space-4);
+  }
+
+  .note {
+    align-self: center;
+    padding: 0 var(--space-2) max(var(--space-6), env(safe-area-inset-bottom));
+  }
+
+  .password .passwordInput {
+    padding-inline-start: calc(var(--tap-min) + var(--space-2));
+  }
+
+  .toggle {
+    inset-inline-start: var(--space-0-5);
+  }
+}
+
+@media (--mobile) and (--short-screen) {
+  .spacer,
+  .note {
+    display: none;
+  }
+
+  .panel {
+    gap: 0;
+  }
+
+  .header {
+    flex-direction: row;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+  }
+
+  .header .logo {
+    width: var(--logo-mark-md);
+    height: var(--logo-mark-md);
+  }
+
+  .title {
+    font: var(--type-title);
+  }
+}

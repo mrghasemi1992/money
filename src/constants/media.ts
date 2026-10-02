@@ -6,4 +6,5 @@ export const SMALL_PHONE_QUERY = "(width < 30rem)";
 export const MOBILE_QUERY = "(width < 48rem)";
 export const TABLET_UP_QUERY = "(width >= 48rem)";
 export const DESKTOP_QUERY = "(width >= 64rem)";
+export const SHORT_SCREEN_QUERY = "(height < 37.5rem)";
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
