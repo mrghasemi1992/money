@@ -1,0 +1,93 @@
+.root {
+  display: inline-flex;
+  gap: var(--space-0-5);
+  max-width: 100%;
+  padding: var(--seg-pad);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: calc(var(--radius-control) + var(--seg-pad));
+  background: var(--surface-sunken);
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.option {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  height: calc(var(--control-h-md) - var(--space-2));
+  padding-inline: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-secondary);
+  font: var(--type-control);
+  white-space: nowrap;
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-control), var(--transition-press);
+}
+
+.sm .option {
+  height: calc(var(--control-h-sm) - var(--space-2));
+  padding-inline: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.label {
+  padding-block-end: 1px;
+}
+
+.icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.option:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.option:active:not([data-disabled]) {
+  transform: translateY(1px);
+}
+
+.option[data-checked] {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-sm);
+}
+
+.option[data-checked][data-tone="income"] {
+  color: var(--amount-income);
+}
+
+.option[data-checked][data-tone="expense"] {
+  color: var(--amount-expense);
+}
+
+.option[data-checked][data-tone="transfer"] {
+  color: var(--amount-transfer);
+}
+
+.option[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.option[data-disabled][data-checked] {
+  background: var(--surface-disabled);
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .option:hover:not([data-disabled], [data-checked]) {
+    background: color-mix(in oklab, var(--surface-card) 55%, transparent);
+    color: var(--text-primary);
+  }
+}

@@ -1,0 +1,128 @@
+/* The chip is the outer span; the toggle inside fills it, so the pressed state paints the chip. */
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: var(--tag-h);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font: var(--type-label);
+  line-height: var(--leading-none);
+  white-space: nowrap;
+  transition: var(--transition-control);
+}
+
+.root:has(.toggle[data-pressed]) {
+  border-color: var(--brand-border);
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.root[data-disabled] {
+  border-color: var(--border-disabled);
+  background: var(--surface-disabled);
+  color: var(--text-disabled);
+}
+
+.static,
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 100%;
+  padding-inline: var(--space-3);
+}
+
+.root:has(.remove) .static,
+.root:has(.remove) .toggle {
+  padding-inline-end: var(--space-1);
+}
+
+.toggle {
+  margin: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-press);
+}
+
+.toggle:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.toggle:active:not([data-disabled]) {
+  transform: translateY(1px);
+}
+
+.toggle[data-disabled] {
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .root:has(.toggle:hover:not([data-disabled], [data-pressed])) {
+    border-color: var(--border-input-hover);
+    background: var(--surface-hover);
+  }
+
+  .root:has(.toggle[data-pressed]:hover:not([data-disabled])) {
+    background: var(--brand-soft-hover);
+  }
+}
+
+.label {
+  padding-block-end: 1px;
+}
+
+.dot {
+  flex: none;
+  width: var(--tag-dot);
+  height: var(--tag-dot);
+  border-radius: var(--radius-pill);
+  background: var(--cat);
+}
+
+.icon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tag-x);
+  height: var(--tag-x);
+  margin-inline-end: var(--space-1-5);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-control);
+}
+
+.remove:hover:not(:disabled) {
+  background: var(--surface-active);
+  color: var(--text-primary);
+}
+
+.remove:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.remove:disabled {
+  cursor: not-allowed;
+}
+
+.removeIcon {
+  width: var(--icon-size-2xs);
+  height: var(--icon-size-2xs);
+}

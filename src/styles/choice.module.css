@@ -1,0 +1,33 @@
+/* Label and description next to a Checkbox, Switch or Radio. The whole row is the click target. */
+
+.label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  min-width: 0;
+  cursor: pointer;
+}
+
+.label:has([data-disabled]) {
+  cursor: not-allowed;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  color: var(--text-primary);
+  font: var(--type-body);
+}
+
+.description {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.label:has([data-disabled]) .title {
+  color: var(--text-disabled);
+}

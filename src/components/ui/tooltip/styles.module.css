@@ -1,0 +1,33 @@
+.positioner {
+  z-index: var(--z-toast);
+}
+
+.popup {
+  padding: var(--space-1) var(--space-2-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  background: var(--surface-tooltip);
+  color: var(--tooltip-text);
+  box-shadow: var(--shadow-md);
+  font: var(--type-caption);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+}
+
+.popup[data-side="top"][data-starting-style],
+.popup[data-side="top"][data-ending-style] {
+  transform: translateY(3px);
+}
+
+.popup[data-side="bottom"][data-starting-style],
+.popup[data-side="bottom"][data-ending-style] {
+  transform: translateY(-3px);
+}

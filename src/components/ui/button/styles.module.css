@@ -1,0 +1,188 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--control-h-md);
+  padding-inline: var(--control-pad-x-md);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-control);
+  font: var(--type-control);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: var(--transition-control), var(--transition-press);
+}
+
+.label {
+  /* Dana sits a little low in a 1-line box; this centers it optically. */
+  padding-block-end: 1px;
+}
+
+.icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.root:active:not([data-disabled]) {
+  transform: translateY(1px);
+}
+
+.root[data-disabled] {
+  cursor: not-allowed;
+}
+
+.root[data-loading] {
+  cursor: progress;
+}
+
+.sm {
+  gap: var(--space-1-5);
+  height: var(--control-h-sm);
+  padding-inline: var(--control-pad-x-sm);
+  font-size: var(--text-sm);
+}
+
+.sm .icon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.lg {
+  height: var(--control-h-lg);
+  padding-inline: var(--control-pad-x-lg);
+  font-size: var(--text-md);
+}
+
+.lg .icon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Primary */
+.primary {
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+  box-shadow: var(--shadow-xs);
+}
+
+.primary:active:not([data-disabled]) {
+  background: var(--brand-solid-active);
+  box-shadow: none;
+}
+
+.primary[data-disabled]:not([data-loading]) {
+  background: var(--brand-solid-disabled);
+  color: var(--text-disabled);
+  box-shadow: none;
+}
+
+/* Secondary */
+.secondary {
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-color: var(--border-input);
+  box-shadow: var(--shadow-xs);
+}
+
+.secondary:active:not([data-disabled]) {
+  background: var(--surface-active);
+  box-shadow: none;
+}
+
+.secondary[data-disabled]:not([data-loading]) {
+  background: var(--surface-disabled);
+  color: var(--text-disabled);
+  border-color: var(--border-disabled);
+  box-shadow: none;
+}
+
+/* Ghost */
+.ghost {
+  background: transparent;
+  color: var(--brand-text);
+}
+
+.ghost:active:not([data-disabled]) {
+  background: var(--brand-soft-hover);
+}
+
+.ghost[data-disabled]:not([data-loading]) {
+  color: var(--text-disabled);
+}
+
+/* Danger */
+.danger {
+  background: var(--status-danger);
+  color: var(--text-on-status);
+  box-shadow: var(--shadow-xs);
+}
+
+.danger:focus-visible {
+  box-shadow: var(--shadow-focus-danger);
+}
+
+.danger:active:not([data-disabled]) {
+  background: var(--status-danger-active);
+  box-shadow: none;
+}
+
+.danger[data-disabled]:not([data-loading]) {
+  background: var(--surface-disabled);
+  color: var(--text-disabled);
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .primary:hover:not([data-disabled]) {
+    background: var(--brand-solid-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .secondary:hover:not([data-disabled]) {
+    background: var(--surface-hover);
+    border-color: var(--border-input-hover);
+  }
+
+  .ghost:hover:not([data-disabled]) {
+    background: var(--brand-soft);
+  }
+
+  .danger:hover:not([data-disabled]) {
+    background: var(--status-danger-hover);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* Loading */
+.spinner {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  border: var(--spinner-border) solid currentColor;
+  border-block-start-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spin var(--duration-spin) linear infinite;
+}
+
+.root[data-loading] .label {
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

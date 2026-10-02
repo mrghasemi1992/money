@@ -1,0 +1,17 @@
+.positioner {
+  z-index: var(--z-popup);
+}
+
+.popup {
+  outline: 0;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: translateY(calc(var(--popup-enter-shift) * -1));
+}

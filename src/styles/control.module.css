@@ -1,0 +1,265 @@
+/*
+ * The input box shared by TextField, Textarea, AmountField, SearchField, Select, Combobox and
+ * DatePicker. The box is a wrapper; the real control inside it is `.input`.
+ * State comes from data attributes on the box (set by Base UI or the component) or on the
+ * inner control (set by Base UI's Field), so the box also reacts to an invalid parent Field.
+ */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  height: var(--control-h-md);
+  padding-inline: var(--space-3);
+  border: var(--border-width) solid var(--border-input);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font: var(--type-body);
+  line-height: var(--leading-tight);
+  text-align: start;
+  cursor: text;
+  transition: var(--transition-control);
+}
+
+.sm {
+  height: var(--control-h-sm);
+  padding-inline: var(--space-2-5);
+  font-size: var(--text-sm);
+}
+
+.lg {
+  height: var(--control-h-lg);
+  padding-inline: var(--space-4);
+  font-size: var(--text-md);
+}
+
+@media (hover: hover) {
+  .root:hover:not([data-disabled], [data-invalid]):not(
+      :has(.input[data-disabled], .input[data-invalid])
+    ) {
+    border-color: var(--border-input-hover);
+  }
+}
+
+.root:focus-within,
+.root:focus-visible,
+.root[data-popup-open] {
+  outline: none;
+  border-color: var(--brand-border-strong);
+  box-shadow: var(--shadow-focus);
+}
+
+.root[data-invalid],
+.root:has(.input[data-invalid]) {
+  border-color: var(--status-danger);
+  background: color-mix(
+    in oklab,
+    var(--status-danger-soft) 40%,
+    var(--surface-card)
+  );
+}
+
+.root[data-invalid]:focus-within,
+.root[data-invalid]:focus-visible,
+.root[data-invalid][data-popup-open],
+.root:has(.input[data-invalid]):focus-within {
+  border-color: var(--status-danger);
+  box-shadow: var(--shadow-focus-danger);
+}
+
+.root[data-disabled],
+.root:has(.input[data-disabled]) {
+  border-color: var(--border-disabled);
+  background: var(--surface-disabled);
+  color: var(--text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* The real input / textarea inside the box */
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.input::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
+
+.input:disabled {
+  color: var(--text-disabled);
+  -webkit-text-fill-color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Icons and units around the input */
+.affix {
+  display: flex;
+  flex: none;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.affixIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.unit {
+  flex: none;
+  align-self: center;
+  padding-inline-start: var(--space-2-5);
+  border-inline-start: var(--border-width) solid var(--border-default);
+  color: var(--text-secondary);
+  font: var(--type-label);
+  line-height: var(--leading-snug);
+}
+
+.root[data-disabled] .affix,
+.root[data-disabled] .unit,
+.root:has(.input[data-disabled]) .affix,
+.root:has(.input[data-disabled]) .unit {
+  color: var(--text-disabled);
+}
+
+/* Value text in a button-style control (Select, DatePicker) */
+.value {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.value[data-placeholder] {
+  color: var(--text-placeholder);
+}
+
+.root[data-disabled] .value {
+  color: var(--text-disabled);
+}
+
+.trigger {
+  cursor: pointer;
+}
+
+.trigger[data-disabled] {
+  cursor: not-allowed;
+}
+
+.chevron {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--text-muted);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.root[data-popup-open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* Small round clear button (search) */
+.clear {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--clear-size);
+  height: var(--clear-size);
+  margin-inline-end: calc(var(--space-1) * -1);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+
+.clear:hover {
+  background: var(--surface-active);
+  color: var(--text-primary);
+}
+
+.clearIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+/* Multi-line (Textarea) */
+.multi {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  height: auto;
+  padding: var(--space-2) var(--space-3);
+}
+
+.multi .input {
+  min-height: var(--textarea-min-h);
+  line-height: var(--leading-normal);
+  resize: vertical;
+}
+
+.count {
+  align-self: flex-end;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+/* Phones: 16px text so iOS doesn't zoom into focused inputs */
+@media (--mobile) {
+  .root {
+    font-size: var(--text-md);
+  }
+}
+
+/* Chevron button inside a text box (Combobox) */
+.chevronButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  margin-inline-end: calc(var(--space-1) * -1);
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.chevronButton[data-popup-open] .chevron,
+.root:has(.input[data-popup-open]) .chevron {
+  transform: rotate(180deg);
+}

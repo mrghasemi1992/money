@@ -1,0 +1,199 @@
+/*
+ * Floating list panel shared by Select, Combobox and Menu: the popup, its items, group labels,
+ * separators and the empty message. Items get state from Base UI data attributes.
+ */
+
+.positioner {
+  z-index: var(--z-popup);
+  outline: 0;
+}
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: max(var(--menu-min-w), var(--anchor-width, 0px));
+  max-height: min(
+    var(--menu-max-h),
+    var(--available-height, var(--menu-max-h))
+  );
+  padding: var(--space-1-5);
+  overflow: auto;
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  outline: 0;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: translateY(calc(var(--popup-enter-shift) * -1));
+}
+
+.popup[data-side="top"][data-starting-style],
+.popup[data-side="top"][data-ending-style] {
+  transform: translateY(var(--popup-enter-shift));
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  outline: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.group + .group {
+  margin-block-start: var(--space-1);
+  padding-block-start: var(--space-1);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.groupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2) var(--space-1);
+  color: var(--text-secondary);
+  font: var(--type-eyebrow);
+}
+
+.separator {
+  height: 1px;
+  margin-block: var(--space-1);
+  background: var(--border-subtle);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--menu-item-h);
+  padding: var(--space-1-5) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-primary);
+  font: var(--type-body);
+  line-height: var(--leading-snug);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  outline: 0;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background-color var(--duration-instant) var(--ease-out);
+}
+
+/* Subcategories under a group label line up with the label text, past the dot. */
+.indent {
+  padding-inline-start: calc(var(--space-2) + var(--menu-indent));
+}
+
+.item[data-highlighted] {
+  background: var(--surface-hover);
+}
+
+.item:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.item[data-selected],
+.item[data-checked] {
+  background: var(--surface-selected);
+  color: var(--brand-text);
+  font-weight: var(--weight-medium);
+}
+
+.item[data-selected][data-highlighted],
+.item[data-checked][data-highlighted] {
+  background: var(--brand-soft-hover);
+}
+
+.item[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.danger {
+  color: var(--status-danger-text);
+}
+
+.danger[data-highlighted] {
+  background: var(--status-danger-soft);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--text-muted);
+}
+
+.danger .icon {
+  color: inherit;
+}
+
+.item[data-disabled] .icon {
+  color: var(--text-disabled);
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin-inline-start: auto;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.check {
+  display: flex;
+  margin-inline-start: auto;
+  color: var(--brand-text);
+}
+
+.checkIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+/* Category dot in options and group labels */
+.dot {
+  flex: none;
+  width: var(--cat-dot);
+  height: var(--cat-dot);
+  border-radius: var(--radius-pill);
+  background: var(--cat);
+}
+
+.empty {
+  padding: var(--space-4) var(--space-2);
+  color: var(--text-muted);
+  font: var(--type-body);
+  text-align: center;
+}
+
+.empty:empty {
+  display: none;
+}

@@ -1,0 +1,84 @@
+.root {
+  --badge-bg: var(--surface-sunken);
+  --badge-fg: var(--text-secondary);
+  --badge-solid: var(--badge-neutral-solid);
+  --badge-solid-fg: var(--text-on-status);
+  --badge-border: var(--border-strong);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--badge-h);
+  padding-inline: var(--space-2);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-badge);
+  background: var(--badge-bg);
+  color: var(--badge-fg);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-none);
+  white-space: nowrap;
+}
+
+.sm {
+  height: var(--badge-h-sm);
+  padding-inline: var(--space-1-5);
+}
+
+.brand {
+  --badge-bg: var(--brand-soft);
+  --badge-fg: var(--brand-text);
+  --badge-solid: var(--brand-solid);
+  --badge-border: var(--brand-border);
+}
+
+.info {
+  --badge-bg: var(--status-info-soft);
+  --badge-fg: var(--status-info-text);
+  --badge-solid: var(--status-info);
+  --badge-border: var(--status-info-border);
+}
+
+.success {
+  --badge-bg: var(--status-success-soft);
+  --badge-fg: var(--status-success-text);
+  --badge-solid: var(--status-success);
+  --badge-border: var(--status-success-border);
+}
+
+.warning {
+  --badge-bg: var(--status-warning-soft);
+  --badge-fg: var(--status-warning-text);
+  --badge-solid: var(--status-warning);
+  --badge-solid-fg: var(--text-on-warning);
+  --badge-border: var(--status-warning-border);
+}
+
+.danger {
+  --badge-bg: var(--status-danger-soft);
+  --badge-fg: var(--status-danger-text);
+  --badge-solid: var(--status-danger);
+  --badge-border: var(--status-danger-border);
+}
+
+.solid {
+  background: var(--badge-solid);
+  color: var(--badge-solid-fg);
+}
+
+.outline {
+  border-color: var(--badge-border);
+  background: transparent;
+}
+
+.dot {
+  width: var(--badge-dot);
+  height: var(--badge-dot);
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+.icon {
+  width: var(--icon-size-2xs);
+  height: var(--icon-size-2xs);
+}

@@ -1,0 +1,114 @@
+.root {
+  --progress-fill: var(--budget-ok);
+  --progress-text: var(--text-secondary);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.near {
+  --progress-fill: var(--budget-near);
+  --progress-text: var(--status-warning-text);
+}
+
+.over {
+  --progress-fill: var(--budget-over);
+  --progress-text: var(--status-danger-text);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font: var(--type-label);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.percent {
+  color: var(--progress-text);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+  font-feature-settings: var(--font-features-tabular);
+}
+
+.track {
+  position: relative;
+  height: var(--progress-h);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--budget-track);
+}
+
+.sm .track {
+  height: var(--progress-h-sm);
+}
+
+.lg .track {
+  height: var(--progress-h-lg);
+}
+
+/* Fills from the start edge: from the right in RTL. */
+.fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: inherit;
+  background: var(--progress-fill);
+  transition: inline-size var(--duration-slow) var(--ease-out);
+}
+
+/* Over budget is also striped, so it reads without color. */
+.over .fill {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--budget-over) 0 var(--progress-stripe),
+    color-mix(in oklab, var(--budget-over) 72%, var(--surface-card))
+      var(--progress-stripe) var(--progress-stripe-gap)
+  );
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.near .status,
+.over .status {
+  color: var(--progress-text);
+  font-weight: var(--weight-medium);
+}
+
+.statusIcon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.values {
+  font-feature-settings: var(--font-features-tabular);
+  white-space: nowrap;
+}
