@@ -22,9 +22,9 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Write:** create, edit and delete transactions, accounts, categories and budgets, and import CSV. Write includes read.
 - **User management** (admins only): create users, reset passwords, disable and enable users, change roles.
 - Every user can change their own display name, password and theme, and connect Claude.
-- New users get `viewer` unless the admin picks another role.
+- New users get `viewer` unless the admin picks another role (`DEFAULT_USER_ROLE`).
 - The role is checked on the server for every page, Server Action, Route Handler and MCP tool call, read from the user record at that moment (a role change applies right away, also to already connected Claude sessions). Hiding controls in the UI is only a convenience: a viewer sees no add, edit or delete controls, but the server is what enforces it.
-- Role names, labels and the permission check live in one place (`src/constants/roles.ts` for names and labels, `src/auth/` for `requireRead`, `requireWrite`, `requireAdmin`), so pages, actions and MCP tools share the same rules.
+- Role names and Persian labels are in `src/constants/user.ts` (`USER_ROLES`, `USER_ROLE_LABELS`). What each role may do is in `src/helpers/role.ts` (`canWrite`, `canManageUsers`, and `toUserRole` for the plain string Better Auth stores), shared by the server checks, the MCP tools and the UI. The server checks are `requireUser()` (any role: reading, own settings), `requireWrite()` and `requireAdmin()` in `src/auth/session.ts`.
 
 ## Features (full scope)
 
@@ -48,8 +48,8 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `drizzle-kit migrate` before `next build`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview).
 - **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin. Setup in `src/auth/index.ts`:
   - Drizzle adapter, UUID ids (`generateId: "uuid"`). The Better Auth tables are written by hand in `src/db/schema/auth.ts`; when a plugin adds fields, add them there.
-  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin (admin plugin) or `pnpm user:create-admin`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
-  - Roles `admin` and `user`. Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
+  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin (admin plugin) or `pnpm user:create`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
+  - Roles `admin`, `editor` and `viewer` (admin plugin `roles`: `admin` gets the plugin's user management permissions, `editor` and `viewer` get none; default `viewer`). Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
   - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
   - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
 - **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth.
@@ -94,11 +94,12 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **The database enforces these rules too** (constraints in `src/db/schema/`), so a bug in app code can't store bad data. Server code still validates first, to show a clear error:
   - amounts > 0; `type`, `source`, `color` and `role` limited to their constants (CHECK constraints built with `oneOf`);
   - a transfer has a `to_account_id` different from `account_id` and no category; income and expense have no `to_account_id`;
-  - a transaction's category has the transaction's type and user: foreign key `(category_id, user_id, type)`;
-  - one level of subcategories with the parent's type: foreign key `(parent_id, user_id, type, has_parent)` → `(id, user_id, type, is_top_level)`, using generated columns;
+  - a transaction's category has the transaction's type: foreign key `(category_id, type)`;
+  - one level of subcategories with the parent's type: foreign key `(parent_id, type, has_parent)` → `(id, type, is_top_level)`, using generated columns;
   - a budget's category is a top-level expense category: constant generated columns in the foreign key;
-  - category names are unique per user, type and parent; one budget per category;
-  - an account or category that is in use can't be deleted (foreign keys without cascade). Deleting a user deletes all of their rows.
+  - category names are unique per type and parent; one budget per category;
+  - an account or category that is in use can't be deleted (foreign keys without cascade), and neither can a user who added or edited a transaction (disable them instead).
+  - `role` is one of `USER_ROLES`.
 
 ## Design system
 
@@ -135,7 +136,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Props types:** extend native element props with `ComponentProps<"button">` (React 19). `ref` is a normal prop, so no `forwardRef`.
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
-- **Auth checks:** every page and Server Action calls `requireUser()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
+- **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
 - **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`).
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
@@ -157,7 +158,7 @@ src/
   app/                  App Router: layout (theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
     login/              Sign-in page
     api/auth/[...all]/  Better Auth handler
-  auth/                 Better Auth config (index.ts), getSession / requireUser / requireAdmin (session.ts), signOut (actions.ts)
+  auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts)
   db/                   Drizzle client (index.ts) and schema/ (auth, accounts, categories, transactions, budgets)
   components/
     ui/                 Design system: one folder per component (index.tsx, styles.module.css, index.stories.tsx)
@@ -169,7 +170,7 @@ src/
     providers/          Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
   constants/            auth (sign-in limit, login path), category, media queries, theme script, transaction, user
-  helpers/              budget status, category color style, sign-in request, placeholder email
+  helpers/              budget status, category color style, role permissions, sign-in request, placeholder email
   hooks/                useControllableState
   styles/
     tokens/             colors, typography, spacing, radius, shadows, motion, components
@@ -181,7 +182,7 @@ src/
   types/                category, theme, transaction, user
   utils/                cx, duration, env, focus, jalali, number, text, theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
-scripts/                create-admin.ts (`pnpm user:create-admin`)
+scripts/                create-user.ts (`pnpm user:create`)
 ```
 
 ## Workflow
@@ -252,4 +253,4 @@ All pages except `/login` (and the OAuth consent page, if one is needed) require
 
 Tooling: pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`.
 
-Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create-admin` (asks for username, display name and password at the prompt; run it in a terminal).
+Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create` (asks for username, display name, role and password at the prompt; run it in a terminal).
