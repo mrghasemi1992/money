@@ -1,0 +1,151 @@
+/* Component tokens: sizes the design gives to specific parts, so component CSS uses tokens only. */
+
+:root {
+  /* Controls (buttons, inputs, selects). Phones get taller controls, see below. */
+  --control-h-sm: 32px;
+  --control-h-md: 40px;
+  --control-h-lg: 48px;
+  --control-pad-x-sm: var(--space-3);
+  --control-pad-x-md: var(--space-4);
+  --control-pad-x-lg: var(--space-5);
+  --tap-min: 44px;
+
+  /* Icons (lucide-react). 2px stroke as drawn. */
+  --icon-stroke: 2;
+  --icon-size-2xs: 12px; /* badge, tag remove */
+  --icon-size-xs: 14px; /* small buttons, field errors */
+  --icon-size-sm: 16px; /* buttons, inputs, menus */
+  --icon-size-md: 18px; /* icon buttons */
+  --icon-size-lg: 20px; /* nav, tab bar */
+  --icon-size-xl: 24px; /* empty states, FAB */
+  --icon-size-2xl: 32px;
+
+  /* Avatars */
+  --avatar-sm: 24px;
+  --avatar-md: 32px;
+  --avatar-lg: 40px;
+  --avatar-xl: 56px;
+  --avatar-font-sm: var(--text-xs);
+  --avatar-font-md: var(--text-base);
+  --avatar-font-lg: 1.0625rem;
+  --avatar-font-xl: var(--text-2xl);
+
+  /* Layout (app shell, Phase 2) */
+  --layout-max: 1200px;
+  --layout-prose: 68ch;
+  --sidebar-w: 248px;
+  --topbar-h: 60px;
+  --tabbar-h: 64px;
+  --fab-size: 56px;
+  --sheet-max-h: 88dvh;
+
+  /* Layers */
+  --z-popup: 40;
+  --z-overlay: 100;
+  --z-toast: 200;
+
+  /* Choice controls */
+  --check-size: 18px;
+  --check-offset: 3.5px; /* aligns the box with the first line of the label */
+  --check-icon: 13px;
+  --check-stroke: 3;
+  --radio-dot: 8px;
+  --switch-w: 40px;
+  --switch-h: 24px;
+  --switch-w-sm: 32px;
+  --switch-h-sm: 20px;
+  --switch-inset: 3px;
+  --switch-thumb: 18px;
+  --switch-thumb-sm: 14px;
+  --switch-thumb-stretch: 4px; /* the thumb widens this much while pressed */
+  --seg-pad: 3px;
+
+  /* Field and inputs */
+  --amount-input-scale: 1.07em; /* the number reads a touch larger than other inputs */
+  --clear-size: 24px;
+  --textarea-min-h: 72px;
+
+  /* Menus, popovers, pickers */
+  --menu-min-w: 200px;
+  --menu-max-h: 320px;
+  --menu-item-h: 36px;
+  --menu-indent: 18px;
+  --popover-min-w: 240px;
+  --popover-max-w: 340px;
+  --popup-enter-shift: 4px;
+
+  /* Calendar */
+  --calendar-w: 300px;
+  --calendar-wd-h: 28px;
+  --calendar-day-h: 36px;
+  --calendar-today-ring: 1.5px;
+
+  /* Overlays */
+  --dialog-w-sm: 400px;
+  --dialog-w-md: 480px;
+  --dialog-w-lg: 640px;
+  --dialog-icon: 40px;
+  --dialog-enter-shift: 8px;
+  --sheet-w: 560px;
+  --sheet-grab-w: 36px;
+  --sheet-grab-h: 4px;
+  --scrim-blur: 2px;
+
+  /* Feedback */
+  --toast-w: 360px;
+  --toast-icon: 30px;
+  --spinner-border: 2px;
+  --empty-max-w: 380px;
+  --empty-icon: 56px;
+  --empty-icon-sm: 44px;
+
+  /* Display */
+  --badge-h: 22px;
+  --badge-h-sm: 20px;
+  --badge-dot: 6px;
+  --tag-h: 30px;
+  --tag-dot: 8px;
+  --tag-x: 20px;
+  --cat-dot: 10px;
+  --cat-dot-sm: 8px;
+  --cat-icon: 36px;
+  --cat-icon-sm: 28px;
+  --cat-soft-h: 28px;
+
+  /* Money */
+  --amount-icon: 20px;
+  --amount-icon-sm: 18px;
+  --amount-icon-hero: 32px;
+  --progress-h: 8px;
+  --progress-h-sm: 6px;
+  --progress-h-lg: 12px;
+  --progress-stripe: 6px;
+  --progress-stripe-gap: 10px;
+
+  /* Logo: the wordmark is 0.92× the mark, the gap 0.3× */
+  --logo-mark-sm: 24px;
+  --logo-mark-md: 32px;
+  --logo-mark-lg: 48px;
+  --logo-mark-xl: 64px;
+  --logo-word-sm: 22px;
+  --logo-word-md: 29px;
+  --logo-word-lg: 44px;
+  --logo-word-xl: 59px;
+  --logo-gap-sm: 7px;
+  --logo-gap-md: 10px;
+  --logo-gap-lg: 14px;
+  --logo-gap-xl: 19px;
+}
+
+@media (--mobile) {
+  :root {
+    --control-h-sm: 40px;
+    --control-h-md: 48px;
+    --control-h-lg: 52px;
+    --check-size: 22px;
+    --check-offset: 1.5px;
+    --radio-dot: 10px;
+    --calendar-day-h: 42px;
+    --menu-item-h: var(--tap-min);
+  }
+}

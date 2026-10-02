@@ -1,0 +1,28 @@
+/*
+ * Motion. --ease-out for nearly everything; --ease-lift (one gentle overshoot) only for things
+ * that pop or get picked up: checkbox tick, switch thumb, dialog and toast entry.
+ * 120ms color and hover, 180ms position, 260ms overlays, nothing over 360ms.
+ * base.css collapses all of it under prefers-reduced-motion.
+ */
+
+:root {
+  --duration-instant: 80ms;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --duration-slower: 360ms;
+  --duration-pulse: 1.4s;
+  --duration-spin: 620ms;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.9, 0.3);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.3, 1);
+  --ease-lift: cubic-bezier(0.34, 1.18, 0.64, 1);
+
+  --transition-control:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  --transition-press: transform var(--duration-instant) var(--ease-out);
+}

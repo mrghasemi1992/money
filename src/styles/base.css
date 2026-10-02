@@ -1,0 +1,104 @@
+/* Element defaults built on the tokens. Documents set <html lang="fa" dir="rtl">. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--surface-page);
+}
+
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font: var(--type-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+h1 {
+  font: var(--type-display);
+}
+
+h2 {
+  font: var(--type-title-lg);
+}
+
+h3 {
+  font: var(--type-title);
+}
+
+h4 {
+  font: var(--type-heading);
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Form controls don't inherit the font by default, and Dana would fall back to hairline. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-weight: var(--weight-regular);
+}
+
+a {
+  color: var(--text-link);
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--text-link) 35%, transparent);
+  transition: var(--transition-control);
+}
+
+a:hover {
+  color: var(--text-link-hover);
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--brand-solid) 22%, transparent);
+}
+
+/* lucide-react icons: CSS wins over the stroke-width attribute */
+svg.lucide {
+  flex: none;
+  stroke-width: var(--icon-stroke);
+}
+
+/*
+ * Directional icons (arrows, chevrons that mean back/forward) are written in LTR terms
+ * (ChevronLeftIcon = back) and get this class, so they point the right way in RTL.
+ */
+[dir="rtl"] .mirror-rtl {
+  transform: scaleX(-1);
+}
+
+@media (--reduced-motion) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

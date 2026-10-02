@@ -1,0 +1,30 @@
+/* Shadows tinted with the brand hue in light, true black in dark. The focus ring is a shadow too. */
+
+:root,
+[data-theme="light"] {
+  --shadow-xs: 0 1px 1px rgb(16 27 79 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(16 27 79 / 0.08), 0 1px 3px rgb(16 27 79 / 0.05);
+  --shadow-md: 0 2px 4px rgb(16 27 79 / 0.07), 0 6px 14px rgb(16 27 79 / 0.07);
+  --shadow-lg: 0 4px 8px rgb(16 27 79 / 0.07), 0 14px 32px rgb(16 27 79 / 0.12);
+  --shadow-xl:
+    0 8px 16px rgb(16 27 79 / 0.08), 0 28px 56px rgb(16 27 79 / 0.18);
+  --shadow-sheet:
+    0 -6px 18px rgb(16 27 79 / 0.1), 0 -1px 3px rgb(16 27 79 / 0.06);
+  --shadow-focus: 0 0 0 var(--ring-width)
+    color-mix(in oklab, var(--ring-color) 45%, transparent);
+  --shadow-focus-danger: 0 0 0 var(--ring-width)
+    color-mix(in oklab, var(--status-danger) 30%, transparent);
+}
+
+[data-theme="dark"] {
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 0.4), 0 6px 14px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.4), 0 14px 32px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 8px 16px rgb(0 0 0 / 0.45), 0 28px 56px rgb(0 0 0 / 0.6);
+  --shadow-sheet: 0 -6px 18px rgb(0 0 0 / 0.5), 0 -1px 3px rgb(0 0 0 / 0.4);
+  --shadow-focus: 0 0 0 var(--ring-width)
+    color-mix(in oklab, var(--ring-color) 50%, transparent);
+  --shadow-focus-danger: 0 0 0 var(--ring-width)
+    color-mix(in oklab, var(--status-danger) 40%, transparent);
+}

@@ -1,0 +1,339 @@
+/*
+ * Colors. Raw ramps first, then semantic aliases.
+ * Components use only the aliases (--surface-*, --border-*, --text-*, --brand-*, --status-*,
+ * --amount-*, --budget-*, --cat-*), never the ramps.
+ * Light on :root and [data-theme="light"]; [data-theme="dark"] re-points the aliases.
+ */
+
+:root {
+  /* Royal: Kanvas primary, #223BB2 = royal-600 */
+  --royal-50: #eef1fc;
+  --royal-100: #dce2f8;
+  --royal-200: #b9c5f0;
+  --royal-300: #8e9fe4;
+  --royal-400: #5f73d2;
+  --royal-500: #3a50bf;
+  --royal-600: #223bb2;
+  --royal-700: #1b2f8f;
+  --royal-800: #16256e;
+  --royal-900: #101b4f;
+  --royal-950: #0a1132;
+
+  /* Slate: cool neutral tinted toward royal */
+  --slate-0: #ffffff;
+  --slate-25: #fafbfd;
+  --slate-50: #f4f6fa;
+  --slate-100: #eaedf4;
+  --slate-200: #dce0ea;
+  --slate-300: #c3c9d7;
+  --slate-400: #9aa2b4;
+  --slate-500: #737c8f;
+  --slate-600: #545c6b;
+  --slate-700: #3d4450;
+  --slate-800: #282d37;
+  --slate-900: #1a1e25;
+  --slate-950: #11141a;
+
+  /* Accent ramps for status and categories. 100 soft, 300 border, 500 solid, 600 text, dk = dark soft */
+  --green-100: #dcf5e7;
+  --green-300: #8cd9b0;
+  --green-500: #12855c;
+  --green-600: #0c6d4b;
+  --green-800: #0a4230;
+  --green-dk: #1e3d31;
+  --teal-100: #d6f1f5;
+  --teal-300: #7ed2dd;
+  --teal-500: #0e7f92;
+  --teal-600: #0b6675;
+  --teal-dk: #18383e;
+  --sky-100: #dceffc;
+  --sky-300: #8cc8f2;
+  --sky-500: #1580c9;
+  --sky-600: #0b5f96;
+  --sky-dk: #16324a;
+  --lime-100: #eaf5d3;
+  --lime-300: #b5d778;
+  --lime-500: #5e8a08;
+  --lime-600: #46690a;
+  --lime-dk: #2a3517;
+  --amber-100: #fdf0d2;
+  --amber-300: #f2c462;
+  --amber-500: #c98a00;
+  --amber-600: #7d5300;
+  --amber-800: #4a3200;
+  --amber-dk: #3d3117;
+  --orange-100: #ffe5d4;
+  --orange-300: #f7a876;
+  --orange-500: #c55a12;
+  --orange-600: #96430b;
+  --orange-dk: #3e2818;
+  --red-100: #fde2e6;
+  --red-300: #f29aa8;
+  --red-500: #c1283f;
+  --red-600: #9d1e32;
+  --red-800: #5e121e;
+  --red-dk: #3f1d24;
+  --pink-100: #fce3f0;
+  --pink-300: #ee9bc8;
+  --pink-500: #b32b77;
+  --pink-600: #911f60;
+  --pink-dk: #3d1b2e;
+  --violet-100: #ebe5fd;
+  --violet-300: #b8a3f2;
+  --violet-500: #6a44c9;
+  --violet-600: #5634a8;
+  --violet-dk: #2c2347;
+  --brown-100: #f2e7df;
+  --brown-300: #d3b49d;
+  --brown-500: #8a5a3c;
+  --brown-600: #6e4429;
+  --brown-dk: #36281f;
+
+  /* Fixed colors that don't change with the theme */
+  --white: #ffffff;
+  --tooltip-text: var(--slate-50);
+}
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-page: var(--slate-50);
+  --surface-card: var(--slate-0);
+  --surface-raised: var(--slate-0);
+  --surface-sunken: var(--slate-100);
+  --surface-inset: var(--slate-25);
+  --surface-hover: var(--slate-100);
+  --surface-active: var(--slate-200);
+  --surface-selected: var(--royal-50);
+  --surface-disabled: var(--slate-100);
+  --surface-inverse: var(--slate-900);
+  --surface-scrim: rgb(16 27 79 / 0.44);
+  --surface-tooltip: var(--slate-900);
+  --surface-brand: var(--royal-600);
+
+  --border-subtle: var(--slate-100);
+  --border-default: var(--slate-200);
+  --border-strong: var(--slate-300);
+  --border-input: var(--slate-300);
+  --border-input-hover: var(--slate-400);
+  --border-disabled: var(--slate-200);
+  /* Cards and dividers: subtle in light, one step stronger in dark */
+  --border-card: var(--border-subtle);
+
+  --text-primary: var(--slate-900);
+  --text-secondary: var(--slate-600);
+  --text-muted: var(--slate-500);
+  --text-placeholder: var(--slate-400);
+  --text-disabled: var(--slate-400);
+  --text-inverse: var(--slate-0);
+  --text-on-brand: var(--white);
+  --text-on-brand-muted: var(--royal-100);
+  --text-link: var(--royal-600);
+  --text-link-hover: var(--royal-700);
+
+  --brand-solid: var(--royal-600);
+  --brand-solid-hover: var(--royal-700);
+  --brand-solid-active: var(--royal-800);
+  --brand-solid-disabled: var(--slate-200);
+  --brand-soft: var(--royal-50);
+  --brand-soft-hover: var(--royal-100);
+  --brand-soft-active: var(--royal-200);
+  --brand-text: var(--royal-600);
+  --brand-border: var(--royal-200);
+  --brand-border-strong: var(--royal-600);
+
+  --ring-color: var(--royal-400);
+
+  --status-success: var(--green-500);
+  --status-success-soft: var(--green-100);
+  --status-success-text: var(--green-600);
+  --status-success-border: var(--green-300);
+  --status-warning: var(--amber-500);
+  --status-warning-soft: var(--amber-100);
+  --status-warning-text: var(--amber-600);
+  --status-warning-border: var(--amber-300);
+  --status-danger: var(--red-500);
+  --status-danger-soft: var(--red-100);
+  --status-danger-text: var(--red-600);
+  --status-danger-border: var(--red-300);
+  --status-danger-hover: var(--red-600);
+  --status-danger-active: var(--red-800);
+  --status-info: var(--royal-600);
+  --status-info-soft: var(--royal-50);
+  --status-info-text: var(--royal-700);
+  --status-info-border: var(--royal-200);
+  /* Ink on solid status fills */
+  --text-on-status: var(--white);
+  --text-on-warning: var(--slate-900);
+  --badge-neutral-solid: var(--slate-600);
+
+  /* Money: direction of an amount. Always paired with a sign or a word, never color alone. */
+  --amount-income: var(--green-600);
+  --amount-income-soft: var(--green-100);
+  --amount-expense: var(--red-500);
+  --amount-expense-soft: var(--red-100);
+  --amount-transfer: var(--royal-600);
+  --amount-transfer-soft: var(--royal-50);
+  --amount-neutral: var(--slate-900);
+
+  /* Budget progress */
+  --budget-ok: var(--royal-600);
+  --budget-near: var(--amber-500);
+  --budget-over: var(--red-500);
+  --budget-track: var(--slate-100);
+
+  /* Categories: 10 hues + slate. Base = dot, -soft = fill, -text = label on the fill */
+  --cat-red: var(--red-500);
+  --cat-red-soft: var(--red-100);
+  --cat-red-text: var(--red-600);
+  --cat-orange: var(--orange-500);
+  --cat-orange-soft: var(--orange-100);
+  --cat-orange-text: var(--orange-600);
+  --cat-amber: var(--amber-500);
+  --cat-amber-soft: var(--amber-100);
+  --cat-amber-text: var(--amber-600);
+  --cat-lime: var(--lime-500);
+  --cat-lime-soft: var(--lime-100);
+  --cat-lime-text: var(--lime-600);
+  --cat-green: var(--green-500);
+  --cat-green-soft: var(--green-100);
+  --cat-green-text: var(--green-600);
+  --cat-teal: var(--teal-500);
+  --cat-teal-soft: var(--teal-100);
+  --cat-teal-text: var(--teal-600);
+  --cat-sky: var(--sky-500);
+  --cat-sky-soft: var(--sky-100);
+  --cat-sky-text: var(--sky-600);
+  --cat-violet: var(--violet-500);
+  --cat-violet-soft: var(--violet-100);
+  --cat-violet-text: var(--violet-600);
+  --cat-pink: var(--pink-500);
+  --cat-pink-soft: var(--pink-100);
+  --cat-pink-text: var(--pink-600);
+  --cat-brown: var(--brown-500);
+  --cat-brown-soft: var(--brown-100);
+  --cat-brown-text: var(--brown-600);
+  --cat-slate: var(--slate-500);
+  --cat-slate-soft: var(--slate-100);
+  --cat-slate-text: var(--slate-600);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface-page: var(--slate-950);
+  --surface-card: var(--slate-900);
+  --surface-raised: #222732;
+  --surface-sunken: #0d1015;
+  --surface-inset: #151920;
+  --surface-hover: #242a34;
+  --surface-active: #2d3440;
+  --surface-selected: #1c2547;
+  --surface-disabled: #1f242c;
+  --surface-inverse: var(--slate-100);
+  --surface-scrim: rgb(5 7 12 / 0.66);
+  --surface-tooltip: #2d3440;
+  --surface-brand: #2a40b8;
+
+  --border-subtle: #242a34;
+  --border-default: #333a47;
+  --border-strong: #49525f;
+  --border-input: #3b4351;
+  --border-input-hover: #565f6e;
+  --border-disabled: #2a303a;
+  --border-card: var(--border-default);
+
+  --text-primary: #edeff4;
+  --text-secondary: #b3bbc9;
+  --text-muted: #8a93a3;
+  --text-placeholder: #6b7484;
+  --text-disabled: #5c6474;
+  --text-inverse: var(--slate-950);
+  --text-on-brand: var(--white);
+  --text-on-brand-muted: var(--royal-100);
+  --text-link: #9db0f7;
+  --text-link-hover: #bcc8fa;
+
+  --brand-solid: #3e55cf;
+  --brand-solid-hover: #4f66de;
+  --brand-solid-active: #3346b5;
+  --brand-solid-disabled: #282d37;
+  --brand-soft: #1b2347;
+  --brand-soft-hover: #232d59;
+  --brand-soft-active: #2c386e;
+  --brand-text: #9db0f7;
+  --brand-border: #2e3a6e;
+  --brand-border-strong: #5f73d2;
+
+  --ring-color: #6a80e8;
+
+  --status-success: #2fa877;
+  --status-success-soft: var(--green-dk);
+  --status-success-text: #6fd3a6;
+  --status-success-border: #2c5c47;
+  --status-warning: #d79a2b;
+  --status-warning-soft: var(--amber-dk);
+  --status-warning-text: #eec069;
+  --status-warning-border: #5c4a1e;
+  --status-danger: #e05266;
+  --status-danger-soft: var(--red-dk);
+  --status-danger-text: #f498a5;
+  --status-danger-border: #5e2b34;
+  --status-danger-hover: #ea6577;
+  --status-danger-active: #c13c50;
+  --status-info: #5f73d2;
+  --status-info-soft: #1b2347;
+  --status-info-text: #a9b7f5;
+  --status-info-border: #2e3a6e;
+  --text-on-status: var(--white);
+  --text-on-warning: var(--slate-900);
+  --badge-neutral-solid: var(--slate-600);
+
+  --amount-income: #6fd3a6;
+  --amount-income-soft: var(--green-dk);
+  --amount-expense: #f498a5;
+  --amount-expense-soft: var(--red-dk);
+  --amount-transfer: #a9b7f5;
+  --amount-transfer-soft: #1b2347;
+  --amount-neutral: #edeff4;
+
+  --budget-ok: #5f73d2;
+  --budget-near: #d79a2b;
+  --budget-over: #e05266;
+  --budget-track: #242a34;
+
+  --cat-red: #e05266;
+  --cat-red-soft: var(--red-dk);
+  --cat-red-text: #f498a5;
+  --cat-orange: #db7434;
+  --cat-orange-soft: var(--orange-dk);
+  --cat-orange-text: #f3a876;
+  --cat-amber: #e0a82e;
+  --cat-amber-soft: var(--amber-dk);
+  --cat-amber-text: #eec069;
+  --cat-lime: #8dba2e;
+  --cat-lime-soft: var(--lime-dk);
+  --cat-lime-text: #b8db72;
+  --cat-green: #2fa877;
+  --cat-green-soft: var(--green-dk);
+  --cat-green-text: #6fd3a6;
+  --cat-teal: #1c9eb2;
+  --cat-teal-soft: var(--teal-dk);
+  --cat-teal-text: #6bcedc;
+  --cat-sky: #3ba3ec;
+  --cat-sky-soft: var(--sky-dk);
+  --cat-sky-text: #8ccbf5;
+  --cat-violet: #8a6be0;
+  --cat-violet-soft: var(--violet-dk);
+  --cat-violet-text: #c0aaf5;
+  --cat-pink: #d55196;
+  --cat-pink-soft: var(--pink-dk);
+  --cat-pink-text: #f09cc8;
+  --cat-brown: #b07d5a;
+  --cat-brown-soft: var(--brown-dk);
+  --cat-brown-text: #d9b396;
+  --cat-slate: #8a93a3;
+  --cat-slate-soft: #242a34;
+  --cat-slate-text: #b3bbc9;
+}

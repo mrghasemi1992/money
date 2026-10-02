@@ -1,9 +1,10 @@
-/* Placeholder until the design system (Phase 0b) adds tokens, base and typography styles. */
-html {
-  font-family: var(--font-dana), system-ui, sans-serif;
-  font-weight: 400;
-}
-
-body {
-  margin: 0;
-}
+/* Design system entry point. Order matters: tokens, then element defaults, then helpers. */
+@import "../styles/tokens/colors.css";
+@import "../styles/tokens/typography.css";
+@import "../styles/tokens/spacing.css";
+@import "../styles/tokens/radius.css";
+@import "../styles/tokens/shadows.css";
+@import "../styles/tokens/motion.css";
+@import "../styles/tokens/components.css";
+@import "../styles/base.css";
+@import "../styles/typography.css";
