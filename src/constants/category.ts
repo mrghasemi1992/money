@@ -30,3 +30,6 @@ export const CATEGORY_COLOR_NAMES = {
   brown: "قهوه‌ای",
   slate: "خاکستری",
 } as const;
+
+/** Category types. Stored as text in `categories.type`; a subcategory has its parent's type. */
+export const CATEGORY_TYPES = ["expense", "income"] as const;

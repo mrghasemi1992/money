@@ -11,4 +11,8 @@
 @custom-media --tablet-up (width >= 48rem);
 @custom-media --desktop (width >= 64rem);
 
+/* A short viewport: on phones, usually the on-screen keyboard is open (with the
+   interactive-widget=resizes-content viewport, the keyboard shrinks the layout). */
+@custom-media --short-screen (height < 37.5rem);
+
 @custom-media --reduced-motion (prefers-reduced-motion: reduce);
