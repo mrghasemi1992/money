@@ -27,9 +27,14 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 ## Tech stack
 
 - **Framework:** Next.js with the App Router, React, TypeScript (strict mode). Chosen over Vite because the MCP endpoint, the OAuth server, sign-in and database access all live in the same project as Route Handlers and Server Actions, with no separate backend.
-- **Database:** Postgres on Neon, connected through the Vercel Neon integration (`DATABASE_URL`).
-- **Data access:** Drizzle ORM with the Neon serverless driver. Migrations with drizzle-kit, committed to the repo.
-- **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin.
+- **Database:** Postgres on Neon, connected through the Vercel Neon integration (env prefix `DATABASE`: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`). Production and Development use the main Neon branch, so **local development works on the production database**. Every Preview deployment gets its own Neon branch (copied from main). Local variables come from `vercel env pull .env.local`; `.env.example` lists them all.
+- **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `drizzle-kit migrate` before `next build`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview).
+- **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin. Setup in `src/auth/index.ts`:
+  - Drizzle adapter, UUID ids (`generateId: "uuid"`). The Better Auth tables are written by hand in `src/db/schema/auth.ts`; when a plugin adds fields, add them there.
+  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin (admin plugin) or `pnpm user:create-admin`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
+  - Roles `admin` and `user`. Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
+  - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
+  - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
 - **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth.
 - **Validation:** Zod for every form, Server Action input, MCP tool input and CSV row.
 - **UI primitives:** Base UI (`@base-ui/react`, unstyled). Use it for interactive parts like Dialog, Menu, Popover, Select, Combobox, Tooltip, Tabs, Switch, Checkbox.
@@ -43,7 +48,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 ## Data rules
 
-- **Every row belongs to a user.** Every table with user data has `user_id`, and every query filters by the signed-in user's id. The user id always comes from the session (web) or the OAuth token (MCP), never from client input.
+- **Every row belongs to a user.** Every table with user data has `user_id`, and every query filters by the signed-in user's id. The user id always comes from the session (web) or the OAuth token (MCP), never from client input. The database backs this up: references between user tables are composite foreign keys that include `user_id`, so a row can't point at another user's account or category.
 - **Dates are stored as Gregorian.** A transaction's date is a Postgres `date` (`YYYY-MM-DD`, no time zone). Timestamps (`created_at`, `updated_at`) are `timestamptz`. Never store Jalali dates.
 - **Jalali only at the edges.** Dates travel through the app as ISO strings. Convert to Jalali only:
   - in UI components that show or pick a date (`JalaliDate`, the date picker), and
@@ -57,16 +62,24 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 | Table | Main columns |
 |-------|--------------|
-| Better Auth tables | `user` (with `username`, `role`, `banned`), `session`, `account`, `verification`, and the OAuth provider tables |
-| `accounts` | `id`, `user_id`, `name`, `opening_balance` (rial, may be 0), `archived`, `sort_order` |
+| Better Auth tables | `user` (with `username`, `display_username`, `role`, `banned`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
+| `accounts` | `id`, `user_id`, `name`, `opening_balance` (rial, may be 0 or negative), `archived`, `sort_order` |
 | `categories` | `id`, `user_id`, `type` (`income` \| `expense`), `name`, `color`, `parent_id` (null for a category, set for a subcategory), `archived` |
-| `transactions` | `id`, `user_id`, `type` (`income` \| `expense` \| `transfer`), `date`, `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers), `description`, `note`, `tags` (`text[]`), `source` (`web` \| `mcp` \| `csv`), `created_at`, `updated_at` |
+| `transactions` | `id`, `user_id`, `type` (`income` \| `expense` \| `transfer`), `date`, `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers, optional otherwise), `description` and `note` (`''` when empty), `tags` (`text[]`), `source` (`web` \| `mcp` \| `csv`), `created_at`, `updated_at` |
 | `budgets` | `id`, `user_id`, `category_id` (top-level expense category), `amount` (rial per Jalali month) |
 
 - Subcategories are one level deep: a subcategory's parent must be a top-level category, and it has the same `type` as its parent.
 - A transaction's category must match its type (income categories for income, expense categories for expense). Transfers have no category.
 - Budgets and reports roll subcategory amounts up into their parent category.
 - Account balance = opening balance + income − expense − transfers out + transfers in. Transfers never count as income or expense in totals, budgets or reports.
+- **The database enforces these rules too** (constraints in `src/db/schema/`), so a bug in app code can't store bad data. Server code still validates first, to show a clear error:
+  - amounts > 0; `type`, `source`, `color` and `role` limited to their constants (CHECK constraints built with `oneOf`);
+  - a transfer has a `to_account_id` different from `account_id` and no category; income and expense have no `to_account_id`;
+  - a transaction's category has the transaction's type and user: foreign key `(category_id, user_id, type)`;
+  - one level of subcategories with the parent's type: foreign key `(parent_id, user_id, type, has_parent)` → `(id, user_id, type, is_top_level)`, using generated columns;
+  - a budget's category is a top-level expense category: constant generated columns in the foreign key;
+  - category names are unique per user, type and parent; one budget per category;
+  - an account or category that is in use can't be deleted (foreign keys without cascade). Deleting a user deletes all of their rows.
 
 ## Design system
 
@@ -93,7 +106,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Copy:** calm, short, polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete. No emoji. Claude is written «Claude», in Latin.
 - **Motion:** `--ease-out` for nearly everything, `--ease-lift` only for things that pop (checkbox tick, switch thumb, dialog and toast entry). 120ms color, 180ms position, 260ms overlays. Everything collapses under `prefers-reduced-motion` (in `base.css`).
 - **Icons:** lucide-react, sized with `--icon-size-*` tokens. Import the `*Icon` export (`WalletIcon`, not `Wallet`).
-- **Breakpoints:** 480 / 768 / 1024 (`--small-phone`, `--mobile` below 768, `--tablet-up`, `--desktop`). Below 768 is the phone layout: taller controls (40/48/52px), 44px tap targets, bottom sheets instead of dialogs. `@custom-media` rules in `src/styles/media.css`, injected into every CSS file by PostCSS (`@csstools/postcss-global-data` + `postcss-custom-media`), as in `orange`. JavaScript uses the same values from `src/constants/media.ts`.
+- **Breakpoints:** 480 / 768 / 1024 (`--small-phone`, `--mobile` below 768, `--tablet-up`, `--desktop`), plus `--short-screen` (height below 600px: on phones, the keyboard is open; the login page uses `interactive-widget=resizes-content` so the keyboard shrinks the layout). Below 768 is the phone layout: taller controls (40/48/52px), 44px tap targets, bottom sheets instead of dialogs. `@custom-media` rules in `src/styles/media.css`, injected into every CSS file by PostCSS (`@csstools/postcss-global-data` + `postcss-custom-media`), as in `orange`. JavaScript uses the same values from `src/constants/media.ts`.
 - **Accessibility:** WCAG AA contrast in both themes, visible keyboard focus, respect `prefers-reduced-motion`.
 
 ## Conventions
@@ -103,6 +116,8 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Props types:** extend native element props with `ComponentProps<"button">` (React 19). `ref` is a normal prop, so no `forwardRef`.
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
+- **Auth checks:** every page and Server Action calls `requireUser()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
+- **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`).
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
 - **Base UI:** interactive design system components wrap Base UI parts and style them with `data-*` state attributes (`[data-checked]`, `[data-highlighted]`, `[data-invalid]`, `[data-starting-style]`, …). `Providers` (`src/components/providers`) wraps the app and every story: `DirectionProvider`, the shared tooltip delay and the toast viewport (`useToast()` from `src/components/ui/toast`).
@@ -119,17 +134,23 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 ```text
 src/
+  proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
   app/                  App Router: layout (theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
+    login/              Sign-in page
+    api/auth/[...all]/  Better Auth handler
+  auth/                 Better Auth config (index.ts), getSession / requireUser / requireAdmin (session.ts), signOut (actions.ts)
+  db/                   Drizzle client (index.ts) and schema/ (auth, accounts, categories, transactions, budgets)
   components/
     ui/                 Design system: one folder per component (index.tsx, styles.module.css, index.stories.tsx)
                         logo, logo-mark, button, icon-button, tooltip, field, text-field, textarea, amount-field,
                         search-field, select, combobox, checkbox, switch, radio-group, segmented-control, calendar,
                         date-picker, jalali-date, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
                         badge, tag, category-chip, avatar, divider, amount, progress-bar, foundations (Storybook only)
+    login/              The sign-in screen (Components/Login)
     providers/          Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
-  constants/            category colors, media queries, theme script, transaction type labels
-  helpers/              budget status, category color style
+  constants/            auth (sign-in limit, login path), category, media queries, theme script, transaction, user
+  helpers/              budget status, category color style, sign-in request, placeholder email
   hooks/                useControllableState
   styles/
     tokens/             colors, typography, spacing, radius, shadows, motion, components
@@ -138,8 +159,10 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                category, theme, transaction
-  utils/                cx, focus, jalali, number, text, theme
+  types/                category, theme, transaction, user
+  utils/                cx, duration, env, focus, jalali, number, text, theme, url
+drizzle/                SQL migrations generated by drizzle-kit (committed)
+scripts/                create-admin.ts (`pnpm user:create-admin`)
 ```
 
 ## Workflow
@@ -169,7 +192,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 |---|-------|--------|
 | 0a | Project setup (on `main`): Next.js, TypeScript, ESLint, Prettier, packages, Storybook, Dana font | Done |
 | 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Done (Vercel deploy after merge) |
-| 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Not started |
+| 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Done |
 | 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes | Not started |
 | 3 | User management (admin) | Not started |
 | 4 | Accounts and categories | Not started |
@@ -210,4 +233,4 @@ All pages except `/login` (and the OAuth consent page, if one is needed) require
 
 Tooling: pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`.
 
-Scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `format`, `format:check`, `storybook`, `build-storybook` (database scripts are added in Phase 1).
+Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create-admin` (asks for username, display name and password at the prompt; run it in a terminal).
