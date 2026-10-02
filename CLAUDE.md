@@ -38,7 +38,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **Charts:** chosen in Phase 8 (Reports)
 - **Design system docs:** Storybook
 - **Formatting:** Prettier (default options) with `eslint-config-prettier`
-- **Hosting:** Vercel
+- **Hosting:** Vercel. Two projects from this one repo: `money` (the app) and `money-storybook` (the design system docs, https://money-storybook.vercel.app: Storybook preset, `pnpm build-storybook`, output `storybook-static`), same as `orange` / `orange-storybook`.
 - **Tests:** not in scope yet. Planned later. Write code that is easy to test (small pure functions, data logic separate from UI).
 
 ## Data rules
