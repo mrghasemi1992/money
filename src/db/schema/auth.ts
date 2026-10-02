@@ -18,7 +18,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { USER_ROLES } from "@/constants/user";
+import { DEFAULT_USER_ROLE, USER_ROLES } from "@/constants/user";
 
 import { id, oneOf, timestamps } from "./columns";
 
@@ -39,7 +39,7 @@ export const user = pgTable(
     username: text().unique(),
     /** The username as it was typed. */
     displayUsername: text(),
-    role: text({ enum: USER_ROLES }).notNull().default("user"),
+    role: text({ enum: USER_ROLES }).notNull().default(DEFAULT_USER_ROLE),
     banned: boolean().notNull().default(false),
     banReason: text(),
     banExpires: timestamp({ withTimezone: true }),

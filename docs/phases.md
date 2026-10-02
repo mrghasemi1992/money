@@ -126,10 +126,10 @@ Phase 1: database and sign-in. Read CLAUDE.md first. Create branch feature/phase
    - no public sign-up endpoint: disable it, so users can only be created by an admin
    - BETTER_AUTH_SECRET and BETTER_AUTH_URL in env
    - rate limiting on sign-in
-   Route handler at src/app/api/auth/[...all]/route.ts. Server-side helpers in src/auth/ (getSession, requireRead, requireWrite, requireAdmin) importing server-only. They read the role from the user record on every call. Role names and Persian labels in src/constants/roles.ts.
+   Route handler at src/app/api/auth/[...all]/route.ts. Server-side helpers in src/auth/ (getSession, requireUser, requireWrite, requireAdmin) importing server-only. They read the role from the user record on every call. Role names and Persian labels in src/constants/user.ts.
 4. Protect every route except /login and the auth API: use the Next.js proxy (read the docs; it replaced middleware in this version) for the redirect, and also check the session in each page or Server Action. Never trust the proxy alone.
 5. The /login page from the attached design. Signing in redirects to the page the user came from, or /. Add a sign-out Server Action (the button lands in Phase 2).
-6. Bootstrap script `pnpm user:create-admin` that creates the first admin from a username and password given at the prompt (not as CLI args, so they stay out of shell history).
+6. Bootstrap script `pnpm user:create` that creates the first admin from a username and password given at the prompt (not as CLI args, so they stay out of shell history).
 7. Create the app tables from CLAUDE.md's data model now (accounts, categories, transactions, budgets). They are one shared book: no user_id. Transactions get created_by and updated_by foreign keys to user. Add checks (amount > 0, category type rules, one level of subcategories, transfers need to_account_id and no category) and indexes (date, account, category). No UI for them yet.
 
 Check that build, lint, typecheck and format:check pass, and that sign-in, sign-out and the redirects work locally. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
@@ -239,7 +239,7 @@ Using the Money design system and app shell, design two settings pages, in Persi
 Phase 4: accounts and categories. Read CLAUDE.md first. Create branch feature/phase-4-accounts-categories from main.
 
 Implement the attached design at /settings/accounts and /settings/categories:
-1. Queries and mutations in src/db/ (server-only) on the shared book. Pages call requireRead(); every mutating Server Action calls requireWrite() first and validates with Zod.
+1. Queries and mutations in src/db/ (server-only) on the shared book. Pages call requireUser(); every mutating Server Action calls requireWrite() first and validates with Zod.
 2. Account balance helper in src/helpers/ (opening + income − expense − transfers out + transfers in), computed in SQL. Transactions don't exist in the UI yet, so balances equal the opening balance for now, but the query must already be the real one.
 3. Category rules on the server: one level of subcategories, a subcategory has its parent's type, delete only when unused (otherwise archive), names unique per type + parent.
 4. Starter categories: a constant list in src/constants/ added in one Server Action.
@@ -286,7 +286,7 @@ Using the Money design system and app shell, design the transactions page (تر�
 Phase 5: transactions. Read CLAUDE.md first. Create branch feature/phase-5-transactions from main.
 
 Implement the attached design at /transactions, and wire the global add button from Phase 2 to the new form:
-1. src/db/transactions.ts (server-only): list with filters (Gregorian date range, type, account, category including its subcategories, tag, search on description/note/tags, unknown only), create, update, delete, month totals, on the shared book. Reads call requireRead(); create, update and delete call requireWrite() and set created_by / updated_by from the session. Validate that the account and category exist and match the type rules in CLAUDE.md.
+1. src/db/transactions.ts (server-only): list with filters (Gregorian date range, type, account, category including its subcategories, tag, search on description/note/tags, unknown only), create, update, delete, month totals, on the shared book. Reads call requireUser(); create, update and delete call requireWrite() and set created_by / updated_by from the session. Validate that the account and category exist and match the type rules in CLAUDE.md.
 2. Server Actions with one Zod schema shared by the form and the server. Amount arrives as an integer in rial; the date as ISO.
 3. The month switcher and filters use Jalali months in the UI. Convert them to a Gregorian range with the helper in src/helpers/ before querying. Keep the filters in the URL search params, so a filtered view can be shared and survives a refresh.
 4. The form: AmountField and the Jalali date picker from the design system. The default date is today in Asia/Tehran. Tag suggestions come from the existing tags in the book. "Save and add another" keeps type, account and date.
@@ -364,7 +364,7 @@ Using the Money design system and app shell, design the budgets page (بودجه
 Phase 7: budgets. Read CLAUDE.md first. Create branch feature/phase-7-budgets from main.
 
 Implement the attached design at /budgets:
-1. CRUD for budgets (only top-level expense categories, one per category), Server Actions with Zod that call requireWrite(). The page calls requireRead().
+1. CRUD for budgets (only top-level expense categories, one per category), Server Actions with Zod that call requireWrite(). The page calls requireUser().
 2. Spending per budgeted category for a Jalali month in one SQL query: expense transactions in the month's Gregorian range, with subcategories rolled up into the parent. Transfers are excluded.
 3. The month switcher uses Jalali months and keeps the month in the URL.
 4. Rows link to /transactions with the category and month filters set.
@@ -400,7 +400,7 @@ Using the Money design system and app shell, design the reports page (گزارش
 Phase 8: reports. Read CLAUDE.md first. Create branch feature/phase-8-reports from main.
 
 1. Pick a chart approach: a small library that supports RTL, custom styling from our tokens and both themes, or hand-written SVG components if that's simpler for these few chart types. Tell me the choice and why before building, and record it in CLAUDE.md.
-2. Aggregation queries in src/db/reports.ts (the whole book, requireRead(), transfers excluded from income and expense): totals by category with subcategory roll-up, totals per Jalali month (group in the app by Jalali month, or with a Gregorian range per month; don't do Jalali math in SQL), totals by account, and the previous period for comparison.
+2. Aggregation queries in src/db/reports.ts (the whole book, requireUser(), transfers excluded from income and expense): totals by category with subcategory roll-up, totals per Jalali month (group in the app by Jalali month, or with a Gregorian range per month; don't do Jalali math in SQL), totals by account, and the previous period for comparison.
 3. Implement the attached design at /reports, with the period in the URL. Every chart has a table view.
 4. Stories for the chart components with sample data.
 
@@ -464,7 +464,7 @@ Using the Money design system and app shell, design CSV import and export, in Pe
 ```text
 Phase 10: CSV import and export. Read CLAUDE.md first. Create branch feature/phase-10-csv from main.
 
-1. Export (requireRead()): a Route Handler that streams the book's transactions in a date range as UTF-8 CSV with a BOM (so Excel shows Persian correctly). Columns: Gregorian date, Jalali date, type, amount, account, to account, category, subcategory, description, tags, note.
+1. Export (requireUser()): a Route Handler that streams the book's transactions in a date range as UTF-8 CSV with a BOM (so Excel shows Persian correctly). Columns: Gregorian date, Jalali date, type, amount, account, to account, category, subcategory, description, tags, note.
 2. Import (requireWrite()): parse the CSV (choose a parser library and say why), detect Jalali vs Gregorian dates, normalize Persian digits, validate every row with Zod, map accounts and categories as in the design, detect duplicates (same date, account, amount and type), and insert in one database transaction. source = "csv", created_by = the importing user.
 3. Limits on file size and row count, with clear errors.
 4. Implement the attached design. Stories for the new components.

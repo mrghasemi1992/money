@@ -4,9 +4,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { admin, username } from "better-auth/plugins";
+import { adminAc, userAc } from "better-auth/plugins/admin/access";
 
 import { SIGN_IN_LIMIT } from "@/constants/auth";
 import {
+  DEFAULT_USER_ROLE,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   USERNAME_MAX_LENGTH,
@@ -40,8 +42,11 @@ function getBaseURL() {
 /**
  * Better Auth: sign-in by username and password, invite only.
  * - Nobody can sign up. Users are created by an admin (admin plugin, Phase 3) or by
- *   `pnpm user:create-admin`.
+ *   `pnpm user:create`.
  * - Banned users can't sign in (admin plugin; checked after the password).
+ * - Roles admin, editor and viewer. Only admins may use the admin plugin's user management;
+ *   editors and viewers have no admin permissions. Reading and writing the book is checked by
+ *   Money itself (`src/auth/session.ts`, `src/helpers/role.ts`), not by Better Auth.
  * - Sign-in is limited per IP, counted in the database so the limit holds across serverless
  *   instances. Rate limits apply to HTTP requests to /api/auth only, so the login form posts
  *   there instead of calling auth.api from a Server Action.
@@ -85,7 +90,11 @@ export const auth = betterAuth({
       maxUsernameLength: USERNAME_MAX_LENGTH,
       usernameValidator: (value) => USERNAME_PATTERN.test(value),
     }),
-    admin({ defaultRole: "user", adminRoles: ["admin"] }),
+    admin({
+      roles: { admin: adminAc, editor: userAc, viewer: userAc },
+      defaultRole: DEFAULT_USER_ROLE,
+      adminRoles: ["admin"],
+    }),
     // Must be last: sets cookies when auth.api is called from Server Actions (sign-out).
     nextCookies(),
   ],

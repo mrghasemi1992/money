@@ -10,7 +10,6 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { user } from "./auth";
 import { categories } from "./categories";
 import { id, timestamps } from "./columns";
 
@@ -19,15 +18,12 @@ import { id, timestamps } from "./columns";
  * Subcategory spending rolls up into it.
  *
  * `category_type` and `category_is_top_level` are constant columns, so the composite foreign
- * key only accepts a top-level expense category of the same user.
+ * key only accepts a top-level expense category.
  */
 export const budgets = pgTable(
   "budgets",
   {
     id: id(),
-    userId: uuid()
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
     categoryId: uuid().notNull(),
     /** Rial per Jalali month. */
     amount: bigint({ mode: "number" }).notNull(),
@@ -41,25 +37,11 @@ export const budgets = pgTable(
   },
   (table) => [
     check("budgets_amount_check", sql`${table.amount} > 0`),
-    // Also serves lookups by user_id.
-    unique("budgets_user_id_category_id_unique").on(
-      table.userId,
-      table.categoryId,
-    ),
+    unique("budgets_category_id_unique").on(table.categoryId),
     foreignKey({
       name: "budgets_category_fk",
-      columns: [
-        table.categoryId,
-        table.userId,
-        table.categoryType,
-        table.categoryIsTopLevel,
-      ],
-      foreignColumns: [
-        categories.id,
-        categories.userId,
-        categories.type,
-        categories.isTopLevel,
-      ],
+      columns: [table.categoryId, table.categoryType, table.categoryIsTopLevel],
+      foreignColumns: [categories.id, categories.type, categories.isTopLevel],
     }).onDelete("cascade"),
   ],
 );
