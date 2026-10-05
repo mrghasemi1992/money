@@ -1,12 +1,13 @@
 "use client";
 
 import { Field } from "@base-ui/react/field";
+import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
 import { useControllableState } from "@/hooks/use-controllable-state";
 import control from "@/styles/control.module.css";
 import { cx } from "@/utils/cx";
-import { toPersianDigits } from "@/utils/number";
+import { toLocaleDigits } from "@/utils/number";
 
 type TextareaProps = Omit<
   ComponentProps<"textarea">,
@@ -15,7 +16,7 @@ type TextareaProps = Omit<
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
-  /** Shows «۱۲ از ۲۰۰» under the text. */
+  /** Shows «۱۲ از ۲۰۰» (12 of 200) under the text. */
   showCount?: boolean;
   invalid?: boolean;
 };
@@ -33,6 +34,8 @@ export function Textarea({
   className,
   ...rest
 }: TextareaProps) {
+  const t = useTranslations("common");
+  const locale = useLocale();
   const [text, setText] = useControllableState(
     value,
     defaultValue,
@@ -54,8 +57,12 @@ export function Textarea({
       />
       {showCount ? (
         <span className={control.count} aria-hidden="true">
-          {toPersianDigits(text.length)}
-          {maxLength != null ? ` از ${toPersianDigits(maxLength)}` : null}
+          {maxLength != null
+            ? t("count", {
+                count: toLocaleDigits(text.length, locale),
+                max: toLocaleDigits(maxLength, locale),
+              })
+            : toLocaleDigits(text.length, locale)}
         </span>
       ) : null}
     </div>

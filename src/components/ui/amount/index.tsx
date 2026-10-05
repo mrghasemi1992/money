@@ -1,30 +1,40 @@
+"use client";
+
 import {
   ArrowDownIcon,
   ArrowLeftRightIcon,
   ArrowUpIcon,
   type LucideIcon,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
-import { TRANSACTION_TYPE_LABELS } from "@/constants/transaction";
+import { formatMoneyNumber, getMoneySymbol } from "@/helpers/money";
+import { usePreferences } from "@/hooks/use-preferences";
+import type { MoneyUnit } from "@/types/currency";
 import type { TransactionType } from "@/types/transaction";
 import { cx } from "@/utils/cx";
-import { MINUS_SIGN, formatNumber } from "@/utils/number";
+import { MINUS_SIGN } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
 type AmountType = TransactionType | "neutral";
 
 type AmountProps = Omit<ComponentProps<"span">, "children"> & {
-  /** Whole rials. For income, expense and transfer the sign comes from the type, not the number. */
+  /**
+   * In the book currency's smallest unit (rials, cents), as stored. For income, expense and
+   * transfer the sign comes from the type, not the number.
+   */
   value: number;
   /** neutral = a balance: no color, − only when negative. */
   type?: AmountType;
   size?: "sm" | "md" | "lg" | "hero";
   showSign?: boolean;
+  /** The currency mark: «ریال» / «تومان» / «دلار» after the number, or «$ € £» before it in English. */
   showUnit?: boolean;
-  unit?: string;
-  /** Adds the word درآمد / هزینه / انتقال as a pill. */
+  /** Overrides the viewer's unit (from preferences), for stories and previews. */
+  unit?: MoneyUnit;
+  /** Adds the word درآمد / هزینه / انتقال (Income / Expense / Transfer) as a pill. */
   label?: boolean;
   /** Adds the direction icon: ↓ in, ↑ out, ⇄ transfer. */
   icon?: boolean;
@@ -44,9 +54,10 @@ function signFor(type: AmountType, value: number): string {
 }
 
 /**
- * A rial amount. Direction is carried by the sign (+ income, − expense, none for transfers
- * between your own accounts), and optionally an icon and the word, never by color alone.
- * The number is an isolated left-to-right run with tabular Persian digits.
+ * An amount in the viewer's money unit. Direction is carried by the sign (+ income,
+ * − expense, none for transfers between your own accounts), and optionally an icon and the
+ * word, never by color alone. The number (with a prefix symbol like «$») is an isolated
+ * left-to-right run with tabular digits: Persian digits in Persian, Latin in English.
  */
 export function Amount({
   value,
@@ -54,15 +65,21 @@ export function Amount({
   size = "md",
   showSign = true,
   showUnit = true,
-  unit = "ریال",
+  unit: unitProp,
   label = false,
   icon = false,
   className,
   ...rest
 }: AmountProps) {
+  const t = useTranslations("transactionType");
+  const locale = useLocale();
+  const { moneyUnit } = usePreferences();
+  const unit = unitProp ?? moneyUnit;
+  const symbol = getMoneySymbol(unit, locale);
   const Icon = type === "neutral" ? null : ICONS[type];
-  const word = type === "neutral" ? null : TRANSACTION_TYPE_LABELS[type];
+  const word = type === "neutral" ? null : t(type);
   const sign = showSign ? signFor(type, value) : "";
+  const prefix = showUnit && symbol.position === "prefix" ? symbol.text : "";
 
   return (
     <span
@@ -76,9 +93,12 @@ export function Amount({
       ) : null}
       <bdi dir="ltr" className={styles.number}>
         {sign}
-        {formatNumber(Math.abs(value))}
+        {prefix}
+        {formatMoneyNumber(value, unit, locale)}
       </bdi>
-      {showUnit ? <span className={styles.unit}>{unit}</span> : null}
+      {showUnit && symbol.position === "suffix" ? (
+        <span className={styles.unit}>{symbol.text}</span>
+      ) : null}
       {word ? (
         label ? (
           <span className={styles.label}>{word}</span>

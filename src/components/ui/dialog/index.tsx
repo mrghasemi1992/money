@@ -3,6 +3,7 @@
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { XIcon, type LucideIcon } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
 import { cx } from "@/utils/cx";
@@ -43,9 +44,10 @@ export function Dialog({
   children,
   footer,
   size = "md",
-  closeLabel = "بستن",
+  closeLabel,
   className,
 }: DialogProps) {
+  const t = useTranslations("common");
   return (
     <BaseDialog.Root
       open={open}
@@ -75,12 +77,12 @@ export function Dialog({
                   </BaseDialog.Description>
                 ) : null}
               </div>
-              {closeLabel ? (
+              {closeLabel !== null ? (
                 <BaseDialog.Close
                   render={
                     <IconButton
                       icon={XIcon}
-                      label={closeLabel}
+                      label={closeLabel ?? t("close")}
                       size="sm"
                       tooltip={false}
                     />

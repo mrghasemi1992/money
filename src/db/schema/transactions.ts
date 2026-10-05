@@ -33,9 +33,9 @@ export const transactions = pgTable(
   {
     id: id(),
     type: text({ enum: TRANSACTION_TYPES }).notNull(),
-    /** Gregorian `YYYY-MM-DD`, no time zone. Converted to Jalali only in the UI and MCP. */
+    /** Gregorian `YYYY-MM-DD`, no time zone. Converted to the user's calendar only in the UI and MCP. */
     date: date({ mode: "string" }).notNull(),
-    /** Rial, always positive; `type` gives the direction. */
+    /** In the book currency's smallest unit (rials, cents), always positive; `type` gives the direction. */
     amount: bigint({ mode: "number" }).notNull(),
     accountId: uuid()
       .notNull()

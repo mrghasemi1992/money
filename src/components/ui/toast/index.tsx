@@ -9,6 +9,7 @@ import {
   XIcon,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { cx } from "@/utils/cx";
@@ -59,6 +60,7 @@ function isTone(value: string | undefined): value is ToastTone {
 }
 
 function ToastList() {
+  const t = useTranslations("common");
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => {
     const tone = isTone(toast.type) ? toast.type : "neutral";
@@ -80,7 +82,7 @@ function ToastList() {
               <Toast.Action className={styles.action} />
             ) : null}
           </div>
-          <Toast.Close className={styles.close} aria-label="بستن">
+          <Toast.Close className={styles.close} aria-label={t("close")}>
             <XIcon className={styles.closeIcon} aria-hidden="true" />
           </Toast.Close>
         </Toast.Content>

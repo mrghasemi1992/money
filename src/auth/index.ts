@@ -7,6 +7,9 @@ import { admin, username } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
 
 import { SIGN_IN_LIMIT } from "@/constants/auth";
+import { DEFAULT_CALENDAR } from "@/constants/calendar";
+import { DEFAULT_RIAL_UNIT } from "@/constants/currency";
+import { DEFAULT_LOCALE } from "@/constants/locale";
 import {
   DEFAULT_USER_ROLE,
   PASSWORD_MAX_LENGTH,
@@ -47,6 +50,9 @@ function getBaseURL() {
  * - Roles admin, editor and viewer. Only admins may use the admin plugin's user management;
  *   editors and viewers have no admin permissions. Reading and writing the book is checked by
  *   Money itself (`src/auth/session.ts`, `src/helpers/role.ts`), not by Better Auth.
+ * - Each user's display preferences (language, calendar, rial or toman) are extra user fields,
+ *   so they come with the session. Users change them through Money's own Server Actions, not
+ *   Better Auth's update-user endpoint (`input: false`).
  * - Sign-in is limited per IP, counted in the database so the limit holds across serverless
  *   instances. Rate limits apply to HTTP requests to /api/auth only, so the login form posts
  *   there instead of calling auth.api from a Server Action.
@@ -59,6 +65,21 @@ export const auth = betterAuth({
     provider: "pg",
     schema: { user, session, account: authAccount, verification, rateLimit },
   }),
+  user: {
+    additionalFields: {
+      locale: { type: "string", defaultValue: DEFAULT_LOCALE, input: false },
+      calendar: {
+        type: "string",
+        defaultValue: DEFAULT_CALENDAR[DEFAULT_LOCALE],
+        input: false,
+      },
+      rialUnit: {
+        type: "string",
+        defaultValue: DEFAULT_RIAL_UNIT,
+        input: false,
+      },
+    },
+  },
   emailAndPassword: {
     // Needed for passwords, but only the username plugin's sign-in is reachable (see disabledPaths).
     enabled: true,

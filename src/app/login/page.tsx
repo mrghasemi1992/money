@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { getSession } from "@/auth/session";
 import { Login } from "@/components/login";
 import { LOGIN_PATH, RETURN_TO_PARAM } from "@/constants/auth";
+import { changeLocale } from "@/i18n/actions";
 import { getSafeRedirect } from "@/utils/url";
 
-export const metadata: Metadata = { title: "ورود" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("login");
+  return { title: t("submit") };
+}
 
 export const viewport: Viewport = {
   // The on-screen keyboard shrinks the page instead of covering it, so the button stays visible.
@@ -29,5 +34,5 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   // Already signed in (checked against the database, not just the cookie).
   if (await getSession()) redirect(target);
 
-  return <Login returnTo={target} />;
+  return <Login returnTo={target} onChangeLocale={changeLocale} />;
 }

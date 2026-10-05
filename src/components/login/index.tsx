@@ -5,18 +5,28 @@ import {
   CircleCheckIcon,
   EyeIcon,
   EyeOffIcon,
+  LanguagesIcon,
   TimerIcon,
   UserRoundXIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  type FormEvent,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { IconButton } from "@/components/ui/icon-button";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { TextField } from "@/components/ui/text-field";
+import { LOCALE_NAMES, LOCALES } from "@/constants/locale";
 import { signInWithUsername } from "@/helpers/sign-in";
+import type { Locale } from "@/types/locale";
 import { cx } from "@/utils/cx";
 import { formatCountdown } from "@/utils/duration";
 
@@ -36,12 +46,19 @@ export type LoginState = {
 type LoginProps = {
   /** A path on this site to go to after signing in. Already checked by the page. */
   returnTo?: string;
+  /** Switches the interface language (the changeLocale Server Action). Without it, no switch is shown. */
+  onChangeLocale?: (locale: Locale) => Promise<void>;
   /** Starting state, for stories. */
   initialState?: Partial<LoginState>;
 };
 
 /** The sign-in screen: a centered card on larger screens, the whole screen on phones. */
-export function Login({ returnTo = "/", initialState }: LoginProps) {
+export function Login({
+  returnTo = "/",
+  onChangeLocale,
+  initialState,
+}: LoginProps) {
+  const t = useTranslations("login");
   const router = useRouter();
   const [username, setUsername] = useState(initialState?.username ?? "");
   const [password, setPassword] = useState(initialState?.password ?? "");
@@ -103,7 +120,7 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
       <div className={styles.panel}>
         <header className={styles.header}>
           <LogoMark size="lg" className={styles.logo} />
-          <h1 className={styles.title}>ورود به پول</h1>
+          <h1 className={styles.title}>{t("title")}</h1>
         </header>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
@@ -112,8 +129,8 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
           ) : null}
 
           <Field
-            label="نام کاربری"
-            error={missing.username ? "نام کاربری را وارد کنید." : undefined}
+            label={t("username")}
+            error={missing.username ? t("usernameMissing") : undefined}
           >
             <TextField
               ref={usernameRef}
@@ -135,8 +152,8 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
           </Field>
 
           <Field
-            label="رمز عبور"
-            error={missing.password ? "رمز عبور را وارد کنید." : undefined}
+            label={t("password")}
+            error={missing.password ? t("passwordMissing") : undefined}
           >
             <div className={styles.password}>
               <TextField
@@ -161,7 +178,7 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
               <span className={styles.toggle}>
                 <IconButton
                   icon={showPassword ? EyeOffIcon : EyeIcon}
-                  label="نمایش رمز عبور"
+                  label={t("showPassword")}
                   aria-pressed={showPassword}
                   tooltip={false}
                   onClick={() => setShowPassword((shown) => !shown)}
@@ -178,41 +195,48 @@ export function Login({ returnTo = "/", initialState }: LoginProps) {
             disabled={locked}
             className={styles.submit}
           >
-            ورود
+            {t("submit")}
           </Button>
         </form>
       </div>
       <div className={cx(styles.spacer, styles.spacerEnd)} aria-hidden="true" />
-      <p className={styles.note}>
-        ایجاد حساب کاربری فقط توسط مدیر امکان‌پذیر است؛ برای دسترسی با مدیر
-        هماهنگ کنید.
-      </p>
+      <footer className={styles.footer}>
+        <p className={styles.note}>{t("note")}</p>
+        {onChangeLocale ? <LanguageSwitch onChange={onChangeLocale} /> : null}
+      </footer>
     </main>
   );
 }
 
+/** Offers the other language, written in that language. */
+function LanguageSwitch({
+  onChange,
+}: {
+  onChange: (locale: Locale) => Promise<void>;
+}) {
+  const locale = useLocale();
+  const [pending, startTransition] = useTransition();
+  const other = LOCALES.find((candidate) => candidate !== locale) ?? locale;
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      iconStart={LanguagesIcon}
+      lang={other}
+      loading={pending}
+      onClick={() => startTransition(() => onChange(other))}
+    >
+      {LOCALE_NAMES[other]}
+    </Button>
+  );
+}
+
 const ALERTS = {
-  wrong: {
-    tone: "danger",
-    icon: CircleAlertIcon,
-    text: "نام کاربری یا رمز عبور درست نیست.",
-  },
-  disabled: {
-    tone: "warning",
-    icon: UserRoundXIcon,
-    text: "این حساب غیرفعال شده است. برای فعال‌سازی با مدیر تماس بگیرید.",
-  },
-  locked: {
-    tone: "warning",
-    icon: TimerIcon,
-    text: "چند بار پشت سر هم ورود ناموفق بود. برای امنیت حساب، ورود موقتاً بسته شده است.",
-  },
-  failed: {
-    tone: "danger",
-    icon: CircleAlertIcon,
-    text: "ورود انجام نشد. اتصال اینترنت را بررسی کنید و دوباره امتحان کنید.",
-  },
-  success: { tone: "success", icon: CircleCheckIcon, text: "وارد شدید." },
+  wrong: { tone: "danger", icon: CircleAlertIcon },
+  disabled: { tone: "warning", icon: UserRoundXIcon },
+  locked: { tone: "warning", icon: TimerIcon },
+  failed: { tone: "danger", icon: CircleAlertIcon },
+  success: { tone: "success", icon: CircleCheckIcon },
 } as const;
 
 function Alert({
@@ -222,18 +246,22 @@ function Alert({
   alert: LoginAlert;
   lockSeconds: number;
 }) {
-  const { tone, icon: Icon, text } = ALERTS[alert];
+  const t = useTranslations("login");
+  const locale = useLocale();
+  const { tone, icon: Icon } = ALERTS[alert];
   return (
     <div className={cx(styles.alert, styles[tone])}>
       <Icon className={styles.alertIcon} aria-hidden="true" />
       <div className={styles.alertBody}>
-        <p role={alert === "success" ? "status" : "alert"}>{text}</p>
+        <p role={alert === "success" ? "status" : "alert"}>
+          {t(`alerts.${alert}`)}
+        </p>
         {alert === "locked" ? (
           // Outside the live region, so screen readers don't read every tick.
           <p className={styles.alertDetail}>
-            دوباره امتحان کنید پس از{" "}
+            {t("retryIn")}{" "}
             <bdi dir="ltr" className={cx(styles.countdown, "tabular")}>
-              {formatCountdown(lockSeconds)}
+              {formatCountdown(lockSeconds, locale)}
             </bdi>
           </p>
         ) : null}

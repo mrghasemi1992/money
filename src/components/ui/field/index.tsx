@@ -2,6 +2,7 @@
 
 import { Field as BaseField } from "@base-ui/react/field";
 import { CircleAlertIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { cx } from "@/utils/cx";
@@ -16,7 +17,7 @@ type FieldProps = {
   error?: ReactNode;
   /** Shows a red * after the label. Set `required` on the control too. */
   required?: boolean;
-  /** Shows «(اختیاری)» after the label. */
+  /** Shows «(اختیاری)» / «(optional)» after the label. */
   optional?: boolean;
   disabled?: boolean;
   /** Only for controls that aren't Base UI fields (DatePicker): the control's id. */
@@ -41,6 +42,7 @@ export function Field({
   children,
   className,
 }: FieldProps) {
+  const t = useTranslations("common");
   const invalid = error != null && error !== false;
   return (
     <BaseField.Root
@@ -60,7 +62,9 @@ export function Field({
               *
             </span>
           ) : null}
-          {optional ? <span className={styles.optional}>(اختیاری)</span> : null}
+          {optional ? (
+            <span className={styles.optional}>{t("optional")}</span>
+          ) : null}
         </BaseField.Label>
       ) : null}
       {children}

@@ -1,4 +1,7 @@
-/* Element defaults built on the tokens. Documents set <html lang="fa" dir="rtl">. */
+/*
+ * Element defaults built on the tokens. Documents set <html lang dir> from the interface
+ * language: lang="fa" dir="rtl" or lang="en" dir="ltr".
+ */
 
 *,
 *::before,

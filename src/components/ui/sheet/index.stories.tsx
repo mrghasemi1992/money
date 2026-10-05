@@ -26,7 +26,7 @@ const meta = {
           ]}
         />
         <Field label="مبلغ" required>
-          <AmountField showToman />
+          <AmountField showEquivalent />
         </Field>
         <Field label="شرح" optional>
           <TextField placeholder="مثلاً خرید هفتگی" />

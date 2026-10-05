@@ -3,6 +3,7 @@
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
 import { useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 import type { ControlSize } from "@/components/ui/text-field";
 import { categoryColorStyle } from "@/helpers/category";
@@ -71,8 +72,8 @@ export function Combobox({
   value,
   defaultValue = null,
   onValueChange,
-  placeholder = "جستجوی دسته‌بندی",
-  emptyText = "دسته‌ای با این نام پیدا نشد.",
+  placeholder,
+  emptyText,
   size = "md",
   invalid,
   disabled,
@@ -83,6 +84,7 @@ export function Combobox({
   className,
   "aria-label": ariaLabel,
 }: ComboboxProps) {
+  const t = useTranslations();
   const [selectedValue, setSelectedValue] = useControllableState(
     value,
     defaultValue,
@@ -150,13 +152,13 @@ export function Combobox({
         <BaseCombobox.Input
           id={id}
           className={control.input}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("combobox.placeholder")}
           aria-label={ariaLabel}
           aria-invalid={invalid || undefined}
         />
         <BaseCombobox.Trigger
           className={control.chevronButton}
-          aria-label="نمایش گزینه‌ها"
+          aria-label={t("common.showOptions")}
         >
           <ChevronDownIcon className={control.chevron} aria-hidden="true" />
         </BaseCombobox.Trigger>
@@ -169,7 +171,7 @@ export function Combobox({
         >
           <BaseCombobox.Popup className={menu.popup}>
             <BaseCombobox.Empty className={menu.empty}>
-              {emptyText}
+              {emptyText ?? t("combobox.empty")}
             </BaseCombobox.Empty>
             <BaseCombobox.List className={menu.list}>
               {(group: ItemGroup) => (

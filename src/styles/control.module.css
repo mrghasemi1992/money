@@ -140,6 +140,13 @@
   line-height: var(--leading-snug);
 }
 
+/* A currency symbol before the number («$», «€», «£» in English) */
+.unitStart {
+  padding-inline: 0 var(--space-2-5);
+  border-inline-start: none;
+  border-inline-end: var(--border-width) solid var(--border-default);
+}
+
 .root[data-disabled] .affix,
 .root[data-disabled] .unit,
 .root:has(.input[data-disabled]) .affix,

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { MONEY_UNITS } from "@/constants/currency";
+
 import { Amount } from "./index";
 
 const meta = {
@@ -20,6 +22,7 @@ const meta = {
       options: ["income", "expense", "transfer", "neutral"],
     },
     size: { control: "inline-radio", options: ["sm", "md", "lg", "hero"] },
+    unit: { control: "inline-radio", options: Object.keys(MONEY_UNITS) },
   },
 } satisfies Meta<typeof Amount>;
 
@@ -39,6 +42,24 @@ export const Directions: Story = {
       <Amount value={5000000} type="transfer" icon label />
       <Amount value={-1200000} />
       <Amount value={128450000} />
+    </div>
+  ),
+};
+
+/**
+ * The same stored value in every unit. Values are in the currency's smallest unit, so 1234567
+ * is 1,234,567 rials, 123,456.7 tomans or 12,345.67 dollars.
+ */
+export const Units: Story = {
+  render: () => (
+    <div
+      style={{ display: "grid", gap: "var(--space-3)", justifyItems: "start" }}
+    >
+      {(Object.keys(MONEY_UNITS) as (keyof typeof MONEY_UNITS)[]).map(
+        (unit) => (
+          <Amount key={unit} value={1234567} type="expense" unit={unit} />
+        ),
+      )}
     </div>
   ),
 };

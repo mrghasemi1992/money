@@ -18,6 +18,9 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
+import { CALENDARS, DEFAULT_CALENDAR } from "@/constants/calendar";
+import { DEFAULT_RIAL_UNIT, RIAL_UNITS } from "@/constants/currency";
+import { DEFAULT_LOCALE, LOCALES } from "@/constants/locale";
 import { DEFAULT_USER_ROLE, USER_ROLES } from "@/constants/user";
 
 import { id, oneOf, timestamps } from "./columns";
@@ -43,9 +46,22 @@ export const user = pgTable(
     banned: boolean().notNull().default(false),
     banReason: text(),
     banExpires: timestamp({ withTimezone: true }),
+    /** Interface language. Money's own field (Better Auth `additionalFields`), like the two below. */
+    locale: text({ enum: LOCALES }).notNull().default(DEFAULT_LOCALE),
+    /** Calendar dates are shown and picked in. */
+    calendar: text({ enum: CALENDARS })
+      .notNull()
+      .default(DEFAULT_CALENDAR[DEFAULT_LOCALE]),
+    /** Rial or toman, when the book's currency is IRR. */
+    rialUnit: text({ enum: RIAL_UNITS }).notNull().default(DEFAULT_RIAL_UNIT),
     ...timestamps(),
   },
-  (table) => [check("user_role_check", oneOf(table.role, USER_ROLES))],
+  (table) => [
+    check("user_role_check", oneOf(table.role, USER_ROLES)),
+    check("user_locale_check", oneOf(table.locale, LOCALES)),
+    check("user_calendar_check", oneOf(table.calendar, CALENDARS)),
+    check("user_rial_unit_check", oneOf(table.rialUnit, RIAL_UNITS)),
+  ],
 );
 
 export const session = pgTable(

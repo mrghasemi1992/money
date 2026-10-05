@@ -1,7 +1,7 @@
 /*
  * Creates a user: `pnpm user:create`.
  *
- * Asks for the username, display name, role and password at the prompt (the password is not
+ * Asks for the username, display name, role, language and password at the prompt (the password is not
  * shown), so they never end up in shell history. Use it to create the first admin, and other
  * users until the user management page exists (Phase 3). Writes to the database in
  * DATABASE_URL from .env.local.
@@ -13,9 +13,12 @@
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
 
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { auth } from "@/auth";
+import { DEFAULT_CALENDAR } from "@/constants/calendar";
+import { DEFAULT_LOCALE, LOCALES } from "@/constants/locale";
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
@@ -24,6 +27,8 @@ import {
   USERNAME_PATTERN,
   USER_ROLES,
 } from "@/constants/user";
+import { db } from "@/db";
+import { user as userTable } from "@/db/schema";
 import { placeholderEmail } from "@/helpers/user";
 
 const inputSchema = z.object({
@@ -37,6 +42,7 @@ const inputSchema = z.object({
   role: z.enum(USER_ROLES, {
     error: `One of: ${USER_ROLES.join(", ")}.`,
   }),
+  locale: z.enum(LOCALES, { error: `One of: ${LOCALES.join(", ")}.` }),
   password: z
     .string()
     .min(PASSWORD_MIN_LENGTH, `At least ${PASSWORD_MIN_LENGTH} characters.`)
@@ -89,13 +95,25 @@ async function main() {
     (
       await prompt.question(`Role (${USER_ROLES.join(" / ")}) [admin]: `)
     ).trim() || "admin";
+  const locale =
+    (
+      await prompt.question(
+        `Language (${LOCALES.join(" / ")}) [${DEFAULT_LOCALE}]: `,
+      )
+    ).trim() || DEFAULT_LOCALE;
   prompt.close();
 
   const password = await askHidden("Password: ");
   const confirmation = await askHidden("Password again: ");
   if (password !== confirmation) throw new Error("The passwords don't match.");
 
-  const parsed = inputSchema.safeParse({ username, name, role, password });
+  const parsed = inputSchema.safeParse({
+    username,
+    name,
+    role,
+    locale,
+    password,
+  });
   if (!parsed.success) {
     const messages = parsed.error.issues.map(
       (issue) => `${issue.path.join(".")}: ${issue.message}`,
@@ -113,6 +131,15 @@ async function main() {
       data: { username: parsed.data.username },
     },
   });
+
+  // Preferences aren't Better Auth input fields; the calendar follows the language.
+  await db
+    .update(userTable)
+    .set({
+      locale: parsed.data.locale,
+      calendar: DEFAULT_CALENDAR[parsed.data.locale],
+    })
+    .where(eq(userTable.id, user.id));
 
   console.log(
     `Created ${parsed.data.role} "${user.name}" (${parsed.data.username}).`,

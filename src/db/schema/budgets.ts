@@ -14,7 +14,8 @@ import { categories } from "./categories";
 import { id, timestamps } from "./columns";
 
 /**
- * A monthly limit for a top-level expense category, repeating every Jalali month.
+ * A monthly limit for a top-level expense category, repeating every month of the viewer's
+ * calendar (Jalali or Gregorian).
  * Subcategory spending rolls up into it.
  *
  * `category_type` and `category_is_top_level` are constant columns, so the composite foreign
@@ -25,7 +26,7 @@ export const budgets = pgTable(
   {
     id: id(),
     categoryId: uuid().notNull(),
-    /** Rial per Jalali month. */
+    /** Per month, in the book currency's smallest unit (rials, cents). */
     amount: bigint({ mode: "number" }).notNull(),
     categoryType: text()
       .notNull()

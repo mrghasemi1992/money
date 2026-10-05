@@ -43,7 +43,7 @@ export const Selected: Story = { args: { defaultValue: TODAY } };
 
 export const Open: Story = { args: { defaultValue: TODAY, open: true } };
 
-/** The value is an ISO string; the box shows Jalali. */
+/** The value is an ISO string; the box shows the date in the viewer's calendar. */
 export const InField: Story = {
   render: function Example() {
     const [value, setValue] = useState<string | null>(TODAY);
