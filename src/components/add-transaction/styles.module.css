@@ -1,0 +1,11 @@
+.placeholder {
+  color: var(--text-secondary);
+  font: var(--type-body);
+}
+
+/* Phones add from the floating button in the tab bar instead. */
+@media (--mobile) {
+  .headerButton {
+    display: none;
+  }
+}

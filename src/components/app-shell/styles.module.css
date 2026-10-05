@@ -1,0 +1,55 @@
+.root {
+  display: flex;
+  min-height: 100dvh;
+}
+
+/* Off screen until it gets keyboard focus. */
+.skipLink {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: var(--z-popup);
+  padding: var(--space-2-5) var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+  font: var(--type-control);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-6)));
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.skipLink:hover {
+  color: var(--text-on-brand);
+}
+
+.skipLink:focus-visible {
+  box-shadow: var(--shadow-focus), var(--shadow-lg);
+  transform: none;
+}
+
+.column {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main {
+  width: 100%;
+  max-width: var(--layout-max);
+  padding: var(--space-7) var(--space-8) var(--space-12);
+}
+
+/* Focused by the skip link only; the ring would frame the whole page. */
+.main:focus-visible {
+  box-shadow: none;
+}
+
+@media (--mobile) {
+  .main {
+    /* Room for the tab bar and the floating button above it. */
+    padding: var(--space-1) var(--space-4)
+      calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--space-10));
+  }
+}

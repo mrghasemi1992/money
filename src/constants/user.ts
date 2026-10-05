@@ -18,3 +18,6 @@ export const USERNAME_MAX_LENGTH = 30;
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
+
+/** Display names are shown in menus and reports; long ones are cut off with an ellipsis. */
+export const DISPLAY_NAME_MAX_LENGTH = 60;

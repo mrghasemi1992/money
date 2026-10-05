@@ -25,6 +25,11 @@
   color: var(--brand-text);
 }
 
+.danger {
+  background: var(--status-danger-soft);
+  color: var(--status-danger-text);
+}
+
 .sm .icon {
   width: var(--empty-icon-sm);
   height: var(--empty-icon-sm);
@@ -45,6 +50,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+  font: var(--type-eyebrow);
 }
 
 .title {

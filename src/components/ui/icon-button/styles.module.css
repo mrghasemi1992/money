@@ -8,6 +8,7 @@
   padding: 0;
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-control);
+  text-decoration: none;
   cursor: pointer;
   transition: var(--transition-control), var(--transition-press);
 }
