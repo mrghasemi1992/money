@@ -1,0 +1,15 @@
+.field {
+  max-width: var(--settings-field-max);
+}
+
+.locked {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-1-5);
+}
+
+.lockIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  margin-block-start: 0.2em;
+}

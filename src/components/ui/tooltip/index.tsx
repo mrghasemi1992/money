@@ -21,6 +21,8 @@ type TooltipProps = {
   open?: boolean;
   /** Hover delay in ms. Defaults to the shared delay from Providers. */
   delay?: number;
+  /** Turns the tooltip off while the label is visible anyway (an expanded sidebar). */
+  disabled?: boolean;
 };
 
 /** Label on hover and keyboard focus. Closes with Escape. Never for information the user needs. */
@@ -30,9 +32,10 @@ export function Tooltip({
   side = "top",
   open,
   delay,
+  disabled,
 }: TooltipProps) {
   return (
-    <BaseTooltip.Root open={open}>
+    <BaseTooltip.Root open={open} disabled={disabled}>
       <BaseTooltip.Trigger delay={delay} render={children} />
       <BaseTooltip.Portal>
         <BaseTooltip.Positioner

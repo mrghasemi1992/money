@@ -30,19 +30,39 @@
   --avatar-font-lg: 1.0625rem;
   --avatar-font-xl: var(--text-2xl);
 
-  /* Layout (app shell, Phase 2) */
-  --layout-max: 1200px;
+  /* Layout (app shell) */
+  --layout-max: 1224px; /* the page column, padding included */
   --layout-prose: 68ch;
+  --settings-max: 720px;
+  --settings-field-max: 320px;
+  --settings-label-min: 160px; /* a settings row wraps its control below the name under this */
+  --form-col-min: 220px; /* form fields side by side down to this width, then stacked */
+  --page-title-min: 220px; /* the page header's actions wrap below the title under this */
+  --skeleton-card-min: 200px;
   --sidebar-w: 248px;
-  --topbar-h: 60px;
+  --sidebar-w-collapsed: 76px;
+  --sidebar-pad-x: var(--space-4);
+  --sidebar-pad-x-collapsed: var(--space-3-5);
+  --nav-item-h: 40px;
+  --rail-item-w: 48px; /* nav item and account button in the collapsed sidebar */
+  --topbar-h: 56px;
   --tabbar-h: 64px;
-  --fab-size: 56px;
+  --tab-pill-w: 52px;
+  --tab-pill-h: 28px;
+  --fab-size: 60px;
+  --fab-ring: 4px; /* page-colored ring that cuts the button out of the tab bar */
+  --fab-rise: 24px; /* how far the button rises above the tab bar */
+  --user-menu-w: 256px;
+  --placeholder-min-h: 360px;
+  --status-min-h: 60vh; /* error and not-found messages, centered */
+  --status-text-max: 360px;
   --sheet-max-h: 88dvh;
 
   /* Sign-in page */
   --login-max: 400px;
 
   /* Layers */
+  --z-shell: 20; /* the mobile top bar and tab bar, the skip link */
   --z-popup: 40;
   --z-overlay: 100;
   --z-toast: 200;

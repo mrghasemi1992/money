@@ -15,6 +15,8 @@ export type SegmentOption = {
   /** Colors the selected label for the transaction type: income, expense or transfer. */
   tone?: "income" | "expense" | "transfer";
   disabled?: boolean;
+  /** The label's language when it differs from the interface («English» in the Persian one). */
+  lang?: string;
 };
 
 type SegmentedControlProps = {
@@ -28,6 +30,8 @@ type SegmentedControlProps = {
   name?: string;
   className?: string;
   "aria-label"?: string;
+  /** The id of a visible label, such as a settings row's name. */
+  "aria-labelledby"?: string;
 };
 
 /** Compact one-of-few switch, such as هزینه / درآمد / انتقال. Arrow keys move the selection. */
@@ -52,7 +56,7 @@ export function SegmentedControl({
       onValueChange={(value) => onValueChange?.(value)}
       {...rest}
     >
-      {options.map(({ value, label, icon: Icon, tone, disabled }) => (
+      {options.map(({ value, label, icon: Icon, tone, disabled, lang }) => (
         <Radio.Root
           key={value}
           value={value}
@@ -63,7 +67,9 @@ export function SegmentedControl({
           data-tone={tone}
         >
           {Icon ? <Icon className={styles.icon} aria-hidden="true" /> : null}
-          <span className={styles.label}>{label}</span>
+          <span className={styles.label} lang={lang}>
+            {label}
+          </span>
         </Radio.Root>
       ))}
     </RadioGroup>

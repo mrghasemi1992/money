@@ -1,0 +1,39 @@
+.root {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-shell);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: calc(var(--topbar-h) + env(safe-area-inset-top));
+  padding-block-start: env(safe-area-inset-top);
+  padding-inline: var(--space-4) var(--space-2-5);
+  background: var(--surface-page);
+}
+
+.start,
+.end {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.start {
+  gap: var(--space-1);
+}
+
+.end {
+  gap: var(--space-0-5);
+}
+
+/* Lines the arrow's glyph up with the page edge instead of its tap target. */
+.back {
+  margin-inline-start: calc(var(--space-2) * -1);
+}
+
+@media (--tablet-up) {
+  .root {
+    display: none;
+  }
+}

@@ -1,0 +1,127 @@
+.root {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: var(--z-shell);
+  display: grid;
+  grid-template-columns: repeat(var(--tab-columns), minmax(0, 1fr));
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  padding-block-end: env(safe-area-inset-bottom);
+  border-block-start: var(--border-width) solid var(--border-default);
+  background: var(--surface-card);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-0-5);
+  min-height: var(--tap-min);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:hover {
+  color: var(--text-secondary);
+}
+
+.tab[aria-current="page"] {
+  color: var(--brand-text);
+  font-weight: var(--weight-bold);
+}
+
+.tab:focus-visible {
+  outline: none;
+  box-shadow: inset var(--shadow-focus);
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tab-pill-w);
+  height: var(--tab-pill-h);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.tab[aria-current="page"] .pill {
+  background: var(--surface-selected);
+}
+
+.icon {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}
+
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fabSlot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-block-end: var(--space-2);
+}
+
+/* Rises above the bar; the page-colored ring cuts it out of the bar's top edge. */
+.fab {
+  position: absolute;
+  inset-block-start: calc(var(--fab-rise) * -1);
+  inset-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  margin-inline: auto;
+  padding: 0;
+  border: var(--fab-ring) solid var(--surface-page);
+  border-radius: var(--radius-pill);
+  background: var(--brand-solid);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-on-brand);
+  cursor: pointer;
+  transition: var(--transition-control);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab:hover {
+  background: var(--brand-solid-hover);
+}
+
+.fab:active {
+  background: var(--brand-solid-active);
+  box-shadow: none;
+}
+
+.fab:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.fabIcon {
+  width: var(--icon-size-xl);
+  height: var(--icon-size-xl);
+}
+
+.fabLabel {
+  color: var(--text-secondary);
+  font: var(--type-caption);
+  font-weight: var(--weight-medium);
+}
+
+@media (--tablet-up) {
+  .root {
+    display: none;
+  }
+}

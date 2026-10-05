@@ -1,0 +1,151 @@
+/*
+ * Collapsed state: <html data-sidebar="collapsed">, set before the first paint (SIDEBAR_SCRIPT)
+ * and by the toggle, so the rail never flashes open on load.
+ */
+
+.root {
+  position: sticky;
+  inset-block-start: 0;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: var(--sidebar-w);
+  height: 100dvh;
+  padding: var(--space-5) var(--sidebar-pad-x);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-inline-end: var(--border-width) solid var(--border-default);
+  background: var(--surface-card);
+  transition:
+    width var(--duration-base) var(--ease-out),
+    padding var(--duration-base) var(--ease-out);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--control-h-md);
+  padding-inline-start: var(--space-1-5);
+}
+
+.mark {
+  display: none;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  width: 100%;
+  height: var(--nav-item-h);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font: var(--type-control);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: var(--transition-control);
+}
+
+.item:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.item[aria-current="page"] {
+  background: var(--surface-selected);
+  color: var(--brand-text);
+  font-weight: var(--weight-semibold);
+}
+
+.item:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.icon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.separator {
+  height: 1px;
+  margin: var(--space-2-5) var(--space-1);
+  background: var(--border-subtle);
+}
+
+.foot {
+  display: flex;
+  justify-content: center;
+  margin-block-start: auto;
+}
+
+/* Collapsed to an icon rail */
+
+:global(html[data-sidebar="collapsed"]) .root {
+  width: var(--sidebar-w-collapsed);
+  padding-inline: var(--sidebar-pad-x-collapsed);
+}
+
+:global(html[data-sidebar="collapsed"]) .head {
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-inline-start: 0;
+}
+
+:global(html[data-sidebar="collapsed"]) .logo {
+  display: none;
+}
+
+:global(html[data-sidebar="collapsed"]) .mark {
+  display: block;
+}
+
+:global(html[data-sidebar="collapsed"]) .nav {
+  align-items: center;
+}
+
+:global(html[data-sidebar="collapsed"]) .item {
+  justify-content: center;
+  width: var(--rail-item-w);
+  padding: 0;
+}
+
+:global(html[data-sidebar="collapsed"]) .icon {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}
+
+/* The label stays the link's accessible name; the tooltip shows it. */
+:global(html[data-sidebar="collapsed"]) .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:global(html[data-sidebar="collapsed"]) .separator {
+  width: 100%;
+}
+
+@media (--mobile) {
+  .root {
+    display: none;
+  }
+}

@@ -1,0 +1,11 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--status-min-h);
+  padding-block: var(--space-8);
+}
+
+.root p {
+  max-width: var(--status-text-max);
+}
