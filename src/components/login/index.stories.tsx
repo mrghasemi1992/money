@@ -7,7 +7,8 @@ import { Login } from "./index";
 const meta = {
   title: "Components/Login",
   component: Login,
-  args: { returnTo: "/" },
+  // The language switch calls a Server Action in the app; here it does nothing.
+  args: { returnTo: "/", onChangeLocale: async () => {} },
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof Login>;
 

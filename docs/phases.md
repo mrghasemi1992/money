@@ -8,7 +8,7 @@ How to use this file:
 
 All decisions (stack, data rules, conventions) are in `CLAUDE.md`. The prompts below don't repeat them; they point to it.
 
-UI copy in the designs is Persian. The prompts are in English, with sample Persian labels where it matters.
+UI copy in the designs is Persian, the source language. From Phase 2 on, every screen also needs an English, left-to-right version: ask Claude Design for both, and check that layouts, icons and numbers work in either direction. The prompts are in English, with sample Persian labels where it matters.
 
 ---
 
@@ -137,6 +137,28 @@ Check that build, lint, typecheck and format:check pass, and that sign-in, sign-
 
 ---
 
+## Phase 1b: Languages and currency
+
+Branch: `feature/i18n-and-currency`. No design step: it changes the foundation and the existing components; the settings screens come with Phase 2.
+
+### Claude Code
+
+```text
+Phase 1b: languages and currency. Read CLAUDE.md first.
+
+Make Money work in Persian (RTL, Jalali by default) and English (LTR, Gregorian by default), with one currency per book (IRR, USD, EUR or GBP) and rial or toman for IRR books:
+1. next-intl without locale routing. The locale comes from the user record, otherwise a cookie, otherwise Accept-Language. Typed messages in src/messages/fa.ts and en.ts; move every UI string of the existing components and the login page there. <html lang dir> and Base UI's DirectionProvider follow the language.
+2. User preferences on the user record (Better Auth additionalFields, input: false): locale, calendar (jalali | gregorian), rial_unit (rial | toman). A one-row book table with the currency. CHECK constraints for all of them. A migration.
+3. Amounts become integers in the currency's smallest unit (rials, cents). Formatting and parsing helpers for every unit; Amount, AmountField and ProgressBar use the viewer's unit.
+4. Both calendars: conversion, month lengths, week start (Saturday for Jalali, Monday for Gregorian), weekend, names in both languages. Calendar, DatePicker and the date display (JalaliDate renamed to DateText) use the viewer's calendar. "Today" uses the device's OS time zone, reported by the browser in a cookie.
+5. English font: Plus Jakarta Sans, with Dana for Persian text; tabular digits in both.
+6. A language switch on the login page. Storybook toolbars for language, calendar and money unit.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md and the later phases in this file. Show me the changes and proposed commits, and wait for my OK.
+```
+
+---
+
 ## Phase 2: App shell
 
 Branch: `feature/phase-2-app-shell`
@@ -144,17 +166,21 @@ Branch: `feature/phase-2-app-shell`
 ### Claude Design
 
 ```text
-Using the Money design system, design the app shell, in Persian and RTL, light and dark.
+Using the Money design system, design the app shell, in Persian (RTL) and English (LTR), light and dark. The interface language is a user setting; the English version mirrors the layout (sidebar on the left) and uses the Latin face and Latin digits.
 
 Navigation: داشبورد, تراکنش‌ها, بودجه, گزارش‌ها, تنظیمات, plus مدیریت کاربران shown only to admins.
 
-- Desktop: a sidebar on the right (RTL start) with the logo, the nav links and, at the bottom, the user's name with a menu (تنظیمات، تغییر تم، خروج). Show the active page clearly. It should be collapsible to an icon rail.
+- Desktop: a sidebar on the start side (right in Persian, left in English) with the logo, the nav links and, at the bottom, the user's name with a menu (تنظیمات، تغییر تم، خروج). Show the active page clearly. It should be collapsible to an icon rail.
 - Mobile: a bottom tab bar with the four main pages, and a central floating "add transaction" button (افزودن تراکنش). Settings and the user menu are reachable from a top bar.
 - Desktop also has a clear "add transaction" button in the page header area.
 - Viewers (بیننده) can only read: the add-transaction button (desktop and the floating one on mobile) is not shown for them. Show the user's role (مدیر / ویرایشگر / بیننده) quietly under their name in the user menu.
 - A page header pattern: title and optional actions.
 - Placeholder content for pages not built yet, a loading skeleton, an error page (مشکلی پیش آمد + تلاش دوباره) and a not-found page (صفحه پیدا نشد + بازگشت به داشبورد).
-- Settings page, first version: profile (display name, username read-only), change password (current, new, repeat), theme (روشن / تیره / سیستم).
+- Settings page, first version, in sections:
+  - profile: display name, username read-only
+  - change password: current, new, repeat
+  - display: language (فارسی / English, each written in its own language), calendar (شمسی / میلادی), amounts in ریال / تومان (only shown when the book's currency is rial, with one line saying toman is ten rials), theme (روشن / تیره / سیستم)
+  - for admins only, «تنظیمات دفتر» (book settings): currency (ریال ایران، دلار آمریکا، یورو، پوند بریتانیا). The currency can only be changed while nothing has been recorded yet; afterwards show it disabled with a one-line reason.
 ```
 
 ### Claude Code
@@ -168,10 +194,12 @@ Implement the attached design:
 3. User menu with settings, theme and sign out (wire the Phase 1 sign-out action).
 4. Routes from CLAUDE.md as placeholders: /, /transactions, /budgets, /reports, /settings, /admin/users (admins only; others get not-found). The add-transaction button opens a placeholder dialog for now.
 5. /settings: display name, change password (Better Auth), theme choice (light, dark, system). If the design shows a three-way theme choice, update the theme utils and CLAUDE.md to match.
-6. loading.tsx, error.tsx and not-found.tsx inside the shell. Page titles "<page> | پول".
-7. Stories for every new component (Components/<Name>), with the App Router mocks for active links.
+6. Display preferences on /settings: language (reuse changeLocale from src/i18n/actions.ts), calendar and rial/toman, saved with updateUserPreferences in a Server Action that calls requireUser() and validates with Zod. The page re-renders in the new language right away.
+7. Book settings on /settings for admins only (requireAdmin() in the action, hidden for others): the currency, upserted into the book table. Refuse a currency change once the book holds amounts (any transaction or budget, or a non-zero opening balance), checked in SQL in the action, with a clear error.
+8. loading.tsx, error.tsx and not-found.tsx inside the shell. Page titles "<page> | پول" / "<page> | Money" from the messages.
+9. All copy in src/messages (fa and en). Stories for every new component (Components/<Name>), with the App Router mocks for active links; check them with the language toolbar in both directions.
 
-Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+Check that build, lint, typecheck, format:check and build-storybook pass, and that switching language, calendar, rial/toman and (as an admin) the book currency works in the browser. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
 ```
 
 ---
@@ -183,10 +211,10 @@ Branch: `feature/phase-3-users`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design the admin page مدیریت کاربران, in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design the admin page مدیریت کاربران, in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
-- A list of users: display name, username, role (مدیر / ویرایشگر / بیننده), status (فعال / غیرفعال), created date (Jalali). On mobile it becomes a card list.
-- "New user" (کاربر جدید) opens a dialog: display name, username, temporary password (with a "generate" button and a copy button), role. The role choice shows one short line per role: مدیر (everything, plus managing users), ویرایشگر (read and change all data), بیننده (read only). The default is بیننده.
+- A list of users: display name, username, role (مدیر / ویرایشگر / بیننده), language, status (فعال / غیرفعال), created date (in the viewer's calendar). On mobile it becomes a card list.
+- "New user" (کاربر جدید) opens a dialog: display name, username, temporary password (with a "generate" button and a copy button), role, language (فارسی / English; sets the new user's calendar default too). The role choice shows one short line per role: مدیر (everything, plus managing users), ویرایشگر (read and change all data), بیننده (read only). The default is بیننده.
 - A row menu: reset password (shows a new temporary password to copy, once), disable / enable, change role.
 - Confirmation dialogs for disabling a user and for removing admin rights.
 - An admin can't disable or demote themself; show that as a disabled option with a short reason.
@@ -200,7 +228,7 @@ Using the Money design system and app shell, design the admin page مدیریت 
 Phase 3: user management. Read CLAUDE.md first. Create branch feature/phase-3-users from main.
 
 Implement the attached design at /admin/users with the Better Auth admin plugin:
-1. List users; create a user (username, display name, temporary password, role); reset password; ban/unban (disable/enable); set role (admin, editor, viewer). Every action is a Server Action that calls requireAdmin() first and validates input with Zod.
+1. List users; create a user (username, display name, temporary password, role, language; the calendar follows the language as in scripts/create-user.ts); reset password; ban/unban (disable/enable); set role (admin, editor, viewer). Every action is a Server Action that calls requireAdmin() first and validates input with Zod.
 2. Generate temporary passwords on the server with node:crypto. Show them once and never store them in plain text.
 3. Guards on the server too: an admin can't ban or demote themself, and the last admin can't be demoted.
 4. Disabling a user also revokes their sessions and, once Phase 6 exists, their OAuth tokens. Leave a TODO in the code pointing to Phase 6.
@@ -218,10 +246,10 @@ Branch: `feature/phase-4-accounts-categories`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design two settings pages, in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design two settings pages, in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
 1. حساب‌ها (accounts): bank cards, cash and so on.
-   - List with name and current balance in rial; a total at the top.
+   - List with name and current balance in the book currency; a total at the top.
    - Add / edit dialog: name, starting balance (موجودی اولیه; can be zero, the balance on the day you start using the app).
    - Reorder, archive (archived accounts are hidden from forms but keep their history), and delete only when the account has no transactions.
 2. دسته‌بندی‌ها (categories):
@@ -242,7 +270,7 @@ Implement the attached design at /settings/accounts and /settings/categories:
 1. Queries and mutations in src/db/ (server-only) on the shared book. Pages call requireUser(); every mutating Server Action calls requireWrite() first and validates with Zod.
 2. Account balance helper in src/helpers/ (opening + income − expense − transfers out + transfers in), computed in SQL. Transactions don't exist in the UI yet, so balances equal the opening balance for now, but the query must already be the real one.
 3. Category rules on the server: one level of subcategories, a subcategory has its parent's type, delete only when unused (otherwise archive), names unique per type + parent.
-4. Starter categories: a constant list in src/constants/ added in one Server Action.
+4. Starter categories: a constant list in src/constants/ with names in both languages, added in one Server Action in the acting user's language.
 5. Reordering accounts (sort_order). Archiving hides an account from forms.
 6. Stories for the new components.
 
@@ -258,10 +286,10 @@ Branch: `feature/phase-5-transactions`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design the transactions page (تراکنش‌ها) and the add/edit transaction form, in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design the transactions page (تراکنش‌ها) and the add/edit transaction form, in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
 1. The list:
-   - Grouped by Jalali day (e.g. "چهارشنبه ۹ مهر ۱۴۰۵") within a month, with a month switcher and the month's income, expense and net at the top.
+   - Grouped by day in the viewer's calendar (e.g. "چهارشنبه ۹ مهر ۱۴۰۵", "Wednesday, 30 September 2026") within a month, with a month switcher and the month's income, expense and net at the top.
    - Each row: category chip (or a transfer icon showing "رسالت ← بلو"), description, account, tags, and the signed amount. Unknown transactions (description "؟") look visibly unidentified.
    - A row shows a small mark when it was added by Claude.
    - Who added a transaction (and who last edited it, if someone else) is shown in its detail, not in the row.
@@ -271,7 +299,7 @@ Using the Money design system and app shell, design the transactions page (تر�
 2. The form, a dialog on desktop and a bottom sheet on mobile:
    - type: هزینه / درآمد / انتقال (segmented)
    - amount (large, the first field focused)
-   - date (Jalali picker, default today)
+   - date (date picker in the viewer's calendar, default today)
    - account (for a transfer: from and to)
    - category, with subcategories grouped under it (hidden for a transfer)
    - description, tags (chips with suggestions from existing tags), note (collapsed by default)
@@ -287,9 +315,9 @@ Phase 5: transactions. Read CLAUDE.md first. Create branch feature/phase-5-trans
 
 Implement the attached design at /transactions, and wire the global add button from Phase 2 to the new form:
 1. src/db/transactions.ts (server-only): list with filters (Gregorian date range, type, account, category including its subcategories, tag, search on description/note/tags, unknown only), create, update, delete, month totals, on the shared book. Reads call requireUser(); create, update and delete call requireWrite() and set created_by / updated_by from the session. Validate that the account and category exist and match the type rules in CLAUDE.md.
-2. Server Actions with one Zod schema shared by the form and the server. Amount arrives as an integer in rial; the date as ISO.
-3. The month switcher and filters use Jalali months in the UI. Convert them to a Gregorian range with the helper in src/helpers/ before querying. Keep the filters in the URL search params, so a filtered view can be shared and survives a refresh.
-4. The form: AmountField and the Jalali date picker from the design system. The default date is today in Asia/Tehran. Tag suggestions come from the existing tags in the book. "Save and add another" keeps type, account and date.
+2. Server Actions with one Zod schema shared by the form and the server. Amount arrives as an integer in the book currency's smallest unit (rials, cents); the date as ISO. Validation errors are translated on the server.
+3. The month switcher and filters use the viewer's calendar months in the UI. Convert them to a Gregorian range with monthRange (src/utils/calendar.ts) before querying. Keep the filters in the URL search params, so a filtered view can be shared and survives a refresh.
+4. The form: AmountField and DatePicker from the design system. The default date is today in the viewer's time zone (Preferences.timeZone). Tag suggestions come from the existing tags in the book. "Save and add another" keeps type, account and date.
 5. source = "web" for rows created here.
 6. Pagination or "load more" by month. Keep the list fast for tens of thousands of rows.
 7. Stories for the new components.
@@ -306,11 +334,11 @@ Branch: `feature/phase-6-mcp`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design these screens, in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design these screens, in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
 1. Settings → اتصال به Claude (/settings/connector):
    - The connector URL with a copy button, and short numbered steps for adding it in Claude (Settings → Connectors → Add custom connector).
-   - A list of connected apps (for example "Claude", connected on <Jalali date>, last used <date>) with a "قطع دسترسی" (revoke) button and a confirmation.
+   - A list of connected apps (for example "Claude", connected on <date>, last used <date>, in the viewer's calendar) with a "قطع دسترسی" (revoke) button and a confirmation.
    - Examples of what to say to Claude, e.g. "این پیامک بانک رو ثبت کن", "این ماه چقدر خرج رستوران کردم؟".
 2. The OAuth consent screen that opens when Claude connects: the app logo, "Claude می‌خواهد به حساب پول شما دسترسی داشته باشد", the list of permissions, which follows the user's role (everyone: read transactions; editors and admins also: add and edit transactions, delete transactions when you ask), and buttons اجازه دادن / رد کردن. If the user isn't signed in, the sign-in page comes first and returns here.
 ```
@@ -330,7 +358,8 @@ Goal: users add https://<domain>/mcp as a custom connector in claude.ai, sign in
    - add_transactions (batch, with possible duplicates: same date, account, amount and type)
    - list_transactions (filters + totals), update_transaction, delete_transactions (destructive hint; only when the user asks)
    Viewers only get the read tools (today, list_*). The write tools also call requireWrite() on every call, so a role change applies to an existing connection right away. Rows added or changed through MCP set created_by / updated_by to the token's user.
-   Dates in and out are Jalali YYYY/MM/DD, converted at this boundary with src/utils/jalali.ts. Amounts in rial (toman × 10). Accounts and categories are matched by id, with names in the list tools so Claude can map "رسالت" to an id. An unknown description is "؟". Write the server instructions in the same style as daily-transactions, adapted to accounts, categories, transfers and read-only (viewer) users.
+   MCP requests carry no browser time zone: save the browser's time zone on the user record when the web app reports it (add a column), and use it for today in the tools, falling back to Asia/Tehran.
+   Dates in and out are in the user's calendar: Jalali YYYY/MM/DD or Gregorian YYYY-MM-DD (today says which), converted at this boundary with src/utils/calendar.ts and src/utils/jalali.ts. Amounts in and out are in the book currency's main unit (rials for IRR, toman × 10; dollars, euros or pounds with up to two decimals), converted to the smallest unit here; today also returns the currency. Accounts and categories are matched by id, with names in the list tools so Claude can map "رسالت" to an id. An unknown description is "؟". Write the server instructions in the same style as daily-transactions, adapted to accounts, categories, transfers, the book currency, both calendars and read-only (viewer) users.
 4. source = "mcp" for rows created here. The web list shows the mark from the Phase 5 design.
 5. /settings/connector from the design: the URL, a list of the user's OAuth clients/tokens, revoke. Banning a user (Phase 3) now also revokes their tokens; resolve the Phase 3 TODO.
 6. Test the full flow locally with the MCP Inspector, then on a Vercel preview with claude.ai. Tell me when it's ready for me to add the connector.
@@ -347,11 +376,11 @@ Branch: `feature/phase-7-budgets`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design the budgets page (بودجه), in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design the budgets page (بودجه), in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
-- A budget is a monthly limit for a top-level expense category, repeating every Jalali month. Subcategory spending counts toward its parent.
-- A Jalali month switcher. At the top: total budget, total spent and remaining for the month.
-- One row per budgeted category: color chip, name, spent / limit in rial, a progress bar (normal, near the limit at 80%, over the limit), and remaining or overspent amount. Tapping a row shows that category's transactions for the month (link to the filtered transactions page).
+- A budget is a monthly limit for a top-level expense category, repeating every month of the viewer's calendar. Subcategory spending counts toward its parent.
+- A month switcher. At the top: total budget, total spent and remaining for the month.
+- One row per budgeted category: color chip, name, spent / limit in the book currency, a progress bar (normal, near the limit at 80%, over the limit), and remaining or overspent amount. Tapping a row shows that category's transactions for the month (link to the filtered transactions page).
 - Expense categories without a budget listed below, with a quick "set budget" action.
 - Add / edit budget dialog: category, monthly amount. Remove budget, with a confirmation.
 - Empty state for when there are no budgets yet.
@@ -365,8 +394,8 @@ Phase 7: budgets. Read CLAUDE.md first. Create branch feature/phase-7-budgets fr
 
 Implement the attached design at /budgets:
 1. CRUD for budgets (only top-level expense categories, one per category), Server Actions with Zod that call requireWrite(). The page calls requireUser().
-2. Spending per budgeted category for a Jalali month in one SQL query: expense transactions in the month's Gregorian range, with subcategories rolled up into the parent. Transfers are excluded.
-3. The month switcher uses Jalali months and keeps the month in the URL.
+2. Spending per budgeted category for a month of the viewer's calendar in one SQL query: expense transactions in the month's Gregorian range, with subcategories rolled up into the parent. Transfers are excluded.
+3. The month switcher uses the viewer's calendar months and keeps the month in the URL.
 4. Rows link to /transactions with the category and month filters set.
 5. Stories for the new components.
 
@@ -382,15 +411,15 @@ Branch: `feature/phase-8-reports`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design the reports page (گزارش‌ها), in Persian and RTL, light and dark, desktop and mobile.
+Using the Money design system and app shell, design the reports page (گزارش‌ها), in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
 
-- A period picker: a Jalali month, the last 3, 6 or 12 months, or a custom range.
+- A period picker: a month (in the viewer's calendar), the last 3, 6 or 12 months, or a custom range.
 - Summary cards: income, expense, net, and the change against the previous period.
 - Expense by category: a ranked bar chart or donut with category colors, amounts and percentages. Tapping a category expands its subcategories.
 - Income by category, the same pattern.
-- Month by month: income and expense bars per Jalali month, with net as a line.
+- Month by month: income and expense bars per month, with net as a line.
 - Spending by account.
-- Charts read right to left, axes and labels use Persian digits and Jalali month names, and every chart has a table view for accessibility.
+- Charts follow the reading direction (right to left in Persian, left to right in English), axes and labels use the language's digits and the viewer's calendar month names, amounts use the book currency, and every chart has a table view for accessibility.
 - Empty and loading states.
 ```
 
@@ -399,8 +428,8 @@ Using the Money design system and app shell, design the reports page (گزارش
 ```text
 Phase 8: reports. Read CLAUDE.md first. Create branch feature/phase-8-reports from main.
 
-1. Pick a chart approach: a small library that supports RTL, custom styling from our tokens and both themes, or hand-written SVG components if that's simpler for these few chart types. Tell me the choice and why before building, and record it in CLAUDE.md.
-2. Aggregation queries in src/db/reports.ts (the whole book, requireUser(), transfers excluded from income and expense): totals by category with subcategory roll-up, totals per Jalali month (group in the app by Jalali month, or with a Gregorian range per month; don't do Jalali math in SQL), totals by account, and the previous period for comparison.
+1. Pick a chart approach: a small library that supports RTL and LTR, custom styling from our tokens and both themes, or hand-written SVG components if that's simpler for these few chart types. Tell me the choice and why before building, and record it in CLAUDE.md.
+2. Aggregation queries in src/db/reports.ts (the whole book, requireUser(), transfers excluded from income and expense): totals by category with subcategory roll-up, totals per month of the viewer's calendar (a Gregorian range per month from monthRange; don't do calendar math in SQL), totals by account, and the previous period for comparison.
 3. Implement the attached design at /reports, with the period in the URL. Every chart has a table view.
 4. Stories for the chart components with sample data.
 
@@ -416,15 +445,15 @@ Branch: `feature/phase-9-dashboard`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design the dashboard (داشبورد), in Persian and RTL, light and dark, desktop and mobile. It's the first page after sign-in.
+Using the Money design system and app shell, design the dashboard (داشبورد), in Persian (RTL) and English (LTR), light and dark, desktop and mobile. It's the first page after sign-in.
 
-- A greeting and today's Jalali date.
+- A greeting and today's date in the viewer's calendar.
 - Total balance across accounts, plus each account's balance (horizontal scroll on mobile).
-- This Jalali month: income, expense, net.
+- This month: income, expense, net.
 - Budget progress: the 3 to 5 categories closest to or over their limit, linking to /budgets.
 - Top expense categories this month (small chart), linking to /reports.
 - Recent transactions (about 8), linking to /transactions.
-- A notice when there are unknown transactions ("۳ تراکنش ناشناس دارید"), linking to the filtered list.
+- A notice when there are unknown transactions ("۳ تراکنش ناشناس دارید", "You have 3 unidentified transactions"), linking to the filtered list.
 - First-run state for an empty book: for editors and admins, steps to add accounts, add categories, add a first transaction and connect Claude; for viewers, a short note that nothing has been recorded yet.
 ```
 
@@ -447,12 +476,12 @@ Branch: `feature/phase-10-csv`
 ### Claude Design
 
 ```text
-Using the Money design system and app shell, design CSV import and export, in Persian and RTL, light and dark, desktop and mobile. It lives in Settings (درون‌ریزی و برون‌بری).
+Using the Money design system and app shell, design CSV import and export, in Persian (RTL) and English (LTR), light and dark, desktop and mobile. It lives in Settings (درون‌ریزی و برون‌بری).
 
-1. Export: choose a date range (Jalali) and download a CSV of transactions.
+1. Export: choose a date range (in the viewer's calendar) and download a CSV of transactions.
 2. Import, as a stepper:
    - upload a file
-   - map the columns (date, amount, type or signed amount, account, category, subcategory, description, tags, note), with a preview of the first rows; the date column can be Jalali or Gregorian
+   - map the columns (date, amount, type or signed amount, account, category, subcategory, description, tags, note), with a preview of the first rows; the date column can be Jalali or Gregorian; for an IRR book, say whether amounts are in rial or toman
    - match unknown account and category names: map them to existing ones or create new ones
    - review: rows that will be added, rows with errors (with the reason per row), possible duplicates (skip or add anyway)
    - result: how many were added, skipped and failed
@@ -464,8 +493,8 @@ Using the Money design system and app shell, design CSV import and export, in Pe
 ```text
 Phase 10: CSV import and export. Read CLAUDE.md first. Create branch feature/phase-10-csv from main.
 
-1. Export (requireUser()): a Route Handler that streams the book's transactions in a date range as UTF-8 CSV with a BOM (so Excel shows Persian correctly). Columns: Gregorian date, Jalali date, type, amount, account, to account, category, subcategory, description, tags, note.
-2. Import (requireWrite()): parse the CSV (choose a parser library and say why), detect Jalali vs Gregorian dates, normalize Persian digits, validate every row with Zod, map accounts and categories as in the design, detect duplicates (same date, account, amount and type), and insert in one database transaction. source = "csv", created_by = the importing user.
+1. Export (requireUser()): a Route Handler that streams the book's transactions in a date range as UTF-8 CSV with a BOM (so Excel shows Persian correctly). Columns: Gregorian date, Jalali date, type, amount (in the book currency's main unit, with a currency column), account, to account, category, subcategory, description, tags, note. Header names in the exporting user's language.
+2. Import (requireWrite()): parse the CSV (choose a parser library and say why), detect Jalali vs Gregorian dates, normalize Persian digits and decimal separators, convert amounts to the smallest unit (toman × 10 when chosen), validate every row with Zod, map accounts and categories as in the design, detect duplicates (same date, account, amount and type), and insert in one database transaction. source = "csv", created_by = the importing user.
 3. Limits on file size and row count, with clear errors.
 4. Implement the attached design. Stories for the new components.
 
@@ -489,7 +518,7 @@ Write a script (not a UI) that copies the transactions table of the daily-transa
 - bank → an account with the same name (create it with opening balance 0 if missing; I'll fix opening balances after)
 - tags kept as they are, description kept ("؟" stays unknown), no category (I'll categorize later)
 - source = "mcp"
-Dry run by default: print counts per account and month and a sample of the converted rows. Only write with an explicit --write flag. Refuse to run if the book already has transactions, unless --force is given.
+Amounts are rials, so refuse to run unless the book currency is IRR. Dry run by default: print counts per account and month and a sample of the converted rows. Only write with an explicit --write flag. Refuse to run if the book already has transactions, unless --force is given.
 
 Ask me before running it against production.
 ```
@@ -505,5 +534,5 @@ Branch: `feature/phase-12-tests`. No design step.
 ```text
 Phase 12: tests. Read CLAUDE.md first. Create branch feature/phase-12-tests from main.
 
-Propose a test setup for this Next.js app (unit, component and end-to-end), and wait for my OK before installing anything. Then cover first: src/utils/jalali.ts and src/utils/number.ts, the balance, month-range and budget helpers, the Zod schemas, role checks in Server Actions, Route Handlers and MCP tools (a viewer can never write, only admins manage users, a role change applies right away), the MCP tools' date conversion, and the main flows (sign in, add a transaction, transfer, budget progress). Add spec.test.tsx files next to components as CLAUDE.md describes, and a test script in CI.
+Propose a test setup for this Next.js app (unit, component and end-to-end), and wait for my OK before installing anything. Then cover first: src/utils/jalali.ts, src/utils/calendar.ts (both calendars, week start, formatting in both languages), src/utils/number.ts, src/utils/locale.ts, src/helpers/money.ts (every unit, input parsing), the balance and budget helpers, the Zod schemas, role checks in Server Actions, Route Handlers and MCP tools (a viewer can never write, only admins manage users, a role change applies right away), the MCP tools' date conversion, and the main flows (sign in, add a transaction, transfer, budget progress). Add spec.test.tsx files next to components as CLAUDE.md describes, and a test script in CI.
 ```

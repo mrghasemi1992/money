@@ -1,20 +1,27 @@
-/* The number reads left to right but sits against the start (right) edge, next to the label. */
+/*
+ * The number always reads left to right, but sits against the start edge, next to the label:
+ * the right edge in Persian, the left edge in English.
+ */
 .input {
   direction: ltr;
-  text-align: right;
+  text-align: start;
   font-weight: var(--weight-semibold);
   font-size: var(--amount-input-scale);
   font-feature-settings: var(--font-features-tabular);
 }
 
-.withToman {
+:global(html[dir="rtl"]) .input {
+  text-align: end;
+}
+
+.withEquivalent {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
 }
 
-.toman {
+.equivalent {
   color: var(--text-muted);
   font: var(--type-caption);
 }

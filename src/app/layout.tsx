@@ -1,16 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { Providers } from "@/components/providers";
 import { ThemeSync } from "@/components/theme-sync";
+import { TimeZoneSync } from "@/components/time-zone-sync";
+import { LOCALE_DIRECTIONS } from "@/constants/locale";
 import { THEME_SCRIPT } from "@/constants/theme";
+import { getPreferences } from "@/i18n/preferences";
+import { MESSAGES } from "@/messages";
 import { fontVariables } from "@/styles/fonts";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: { default: "پول", template: "%s | پول" },
-  description: "حسابداری شخصی",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  return {
+    title: { default: t("appName"), template: `%s | ${t("appName")}` },
+    description: t("description"),
+  };
+}
 
 /** Browser UI color: page surface of each theme (slate-50 / slate-950). */
 export const viewport: Viewport = {
@@ -20,12 +28,15 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const preferences = await getPreferences();
+  const { locale } = preferences;
+
   return (
     // The inline theme script sets data-theme before hydration, so React must accept the DOM value.
     <html
-      lang="fa"
-      dir="rtl"
+      lang={locale}
+      dir={LOCALE_DIRECTIONS[locale]}
       className={fontVariables}
       suppressHydrationWarning
     >
@@ -34,7 +45,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <ThemeSync />
-        <Providers>{children}</Providers>
+        <Providers preferences={preferences} messages={MESSAGES[locale]}>
+          <TimeZoneSync />
+          {children}
+        </Providers>
       </body>
     </html>
   );

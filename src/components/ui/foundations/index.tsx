@@ -8,8 +8,9 @@ import {
   WalletIcon,
 } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import { CATEGORY_COLORS, CATEGORY_COLOR_NAMES } from "@/constants/category";
+import { CATEGORY_COLORS } from "@/constants/category";
 
 import styles from "./styles.module.css";
 
@@ -314,6 +315,7 @@ export function SemanticColors() {
 }
 
 export function CategoryColors() {
+  const t = useTranslations("categoryColor");
   return (
     <Section
       title="Categories"
@@ -333,7 +335,7 @@ export function CategoryColors() {
                 color: `var(--cat-${color}-text)`,
               }}
             >
-              {CATEGORY_COLOR_NAMES[color]}
+              {t(color)}
             </span>
             <code className={styles.code}>{color}</code>
           </div>

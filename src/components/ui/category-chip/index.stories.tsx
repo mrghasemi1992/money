@@ -7,8 +7,9 @@ import {
   LaptopIcon,
   UtensilsIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { CATEGORY_COLORS, CATEGORY_COLOR_NAMES } from "@/constants/category";
+import { CATEGORY_COLORS } from "@/constants/category";
 
 import { CategoryChip } from "./index";
 
@@ -37,26 +38,25 @@ export const Playground: Story = {};
 
 /** Every category hue, plain and soft. Switch the theme to compare. */
 export const AllColors: Story = {
-  render: () => (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, max-content)",
-        gap: "var(--space-3) var(--space-8)",
-      }}
-    >
-      {CATEGORY_COLORS.map((color) => (
-        <div key={color} style={{ display: "contents" }}>
-          <CategoryChip name={CATEGORY_COLOR_NAMES[color]} color={color} />
-          <CategoryChip
-            name={CATEGORY_COLOR_NAMES[color]}
-            color={color}
-            variant="soft"
-          />
-        </div>
-      ))}
-    </div>
-  ),
+  render: function AllColors() {
+    const t = useTranslations("categoryColor");
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, max-content)",
+          gap: "var(--space-3) var(--space-8)",
+        }}
+      >
+        {CATEGORY_COLORS.map((color) => (
+          <div key={color} style={{ display: "contents" }}>
+            <CategoryChip name={t(color)} color={color} />
+            <CategoryChip name={t(color)} color={color} variant="soft" />
+          </div>
+        ))}
+      </div>
+    );
+  },
 };
 
 export const WithIcons: Story = {

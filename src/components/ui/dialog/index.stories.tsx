@@ -48,7 +48,7 @@ export const WithForm: Story = {
     trigger: <Button>تعیین بودجه</Button>,
     children: (
       <Field label="سقف ماهانه" required>
-        <AmountField defaultValue={12000000} showToman />
+        <AmountField defaultValue={12000000} showEquivalent />
       </Field>
     ),
     footer: (

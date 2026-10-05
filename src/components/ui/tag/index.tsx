@@ -3,6 +3,7 @@
 import { Toggle } from "@base-ui/react/toggle";
 import { XIcon, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import { categoryColorStyle } from "@/helpers/category";
 import type { CategoryColor } from "@/types/category";
@@ -35,10 +36,12 @@ export function Tag({
   defaultSelected,
   onSelectedChange,
   onRemove,
-  removeLabel = "حذف",
+  removeLabel: removeLabelProp,
   disabled = false,
   className,
 }: TagProps) {
+  const t = useTranslations("common");
+  const removeLabel = removeLabelProp ?? t("remove");
   const toggles =
     onSelectedChange !== undefined ||
     selected !== undefined ||

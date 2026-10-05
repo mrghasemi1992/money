@@ -2,14 +2,17 @@
 
 import { Popover } from "@base-ui/react/popover";
 import { CalendarIcon, ChevronDownIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Calendar } from "@/components/ui/calendar";
 import type { ControlSize } from "@/components/ui/text-field";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import { usePreferences } from "@/hooks/use-preferences";
 import control from "@/styles/control.module.css";
+import type { CalendarSystem, DateFormat } from "@/types/calendar";
+import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
-import { formatJalali, type JalaliFormat } from "@/utils/jalali";
 
 import styles from "./styles.module.css";
 
@@ -20,13 +23,15 @@ type DatePickerProps = {
   onValueChange?: (value: string) => void;
   placeholder?: string;
   /** How the picked date reads in the box. */
-  format?: Exclude<JalaliFormat, "month">;
+  format?: Exclude<DateFormat, "month">;
   size?: ControlSize;
   /** Marks the box invalid when it isn't inside a Field with an error. */
   invalid?: boolean;
   disabled?: boolean;
-  /** ISO date marked as today. Defaults to today in Tehran. */
+  /** ISO date marked as today. Defaults to today in the viewer's time zone. */
   today?: string;
+  /** Overrides the viewer's calendar, for stories. */
+  calendar?: CalendarSystem;
   min?: string;
   max?: string;
   /** Submits the ISO value with a form. */
@@ -40,19 +45,21 @@ type DatePickerProps = {
 };
 
 /**
- * Field-style box that opens the Jalali Calendar. Takes and returns ISO dates; the box shows
- * the Jalali date («پنج‌شنبه ۹ مهر ۱۴۰۵»). Inside a Field, pass the same id to Field's htmlFor.
+ * Field-style box that opens the Calendar in the viewer's calendar. Takes and returns ISO
+ * dates; the box shows the date in that calendar («پنج‌شنبه ۹ مهر ۱۴۰۵»,
+ * «Thursday, 1 October 2026»). Inside a Field, pass the same id to Field's htmlFor.
  */
 export function DatePicker({
   value,
   defaultValue = null,
   onValueChange,
-  placeholder = "انتخاب تاریخ",
+  placeholder,
   format = "weekday",
   size = "md",
   invalid,
   disabled,
   today,
+  calendar: calendarProp,
   min,
   max,
   name,
@@ -69,6 +76,9 @@ export function DatePicker({
     },
   );
   const [open, setOpen] = useState(false);
+  const t = useTranslations("calendar");
+  const preferences = usePreferences();
+  const calendar = calendarProp ?? preferences.calendar;
 
   return (
     <Popover.Root open={openProp ?? open} onOpenChange={setOpen}>
@@ -93,7 +103,9 @@ export function DatePicker({
           className={control.value}
           data-placeholder={date ? undefined : ""}
         >
-          {date ? formatJalali(date, format) : placeholder}
+          {date
+            ? formatDate(date, { locale: preferences.locale, calendar, format })
+            : (placeholder ?? t("pickDate"))}
         </span>
         <ChevronDownIcon className={control.chevron} aria-hidden="true" />
       </Popover.Trigger>
@@ -104,10 +116,11 @@ export function DatePicker({
           sideOffset={6}
           align="start"
         >
-          <Popover.Popup className={styles.popup} aria-label="انتخاب تاریخ">
+          <Popover.Popup className={styles.popup} aria-label={t("pickDate")}>
             <Calendar
               value={date}
               today={today}
+              calendar={calendar}
               min={min}
               max={max}
               onValueChange={(next) => {

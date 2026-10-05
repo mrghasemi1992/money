@@ -1,44 +1,39 @@
+"use client";
+
 import { CircleAlertIcon, TriangleAlertIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps, ReactNode } from "react";
 
-import { getBudgetStatus, type BudgetStatus } from "@/helpers/budget";
+import { getBudgetStatus } from "@/helpers/budget";
+import { formatMoney, formatMoneyNumber } from "@/helpers/money";
+import { usePreferences } from "@/hooks/use-preferences";
+import type { MoneyUnit } from "@/types/currency";
 import { cx } from "@/utils/cx";
-import { formatNumber, formatPercent } from "@/utils/number";
+import { formatPercent } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
 type ProgressBarProps = Omit<ComponentProps<"div">, "children"> & {
-  /** Spent so far, in rials. */
+  /** Spent so far, in the book currency's smallest unit. */
   value: number;
-  /** The budget, in rials. */
+  /** The budget, in the same unit. */
   max: number;
   /** Ratio from which the bar is «near the limit». */
   nearAt?: number;
   label?: ReactNode;
-  /** Footer with the status text and «x از y». */
+  /** Footer with the status text and «x از y» (x of y). */
   showValues?: boolean;
   /** Replaces the footer status text. */
   caption?: ReactNode;
   size?: "sm" | "md" | "lg";
-  unit?: string;
+  /** Overrides the viewer's unit (from preferences), for stories and previews. */
+  unit?: MoneyUnit;
 };
 
-function statusText(
-  status: BudgetStatus,
-  value: number,
-  max: number,
-  unit: string,
-): string {
-  if (status === "over")
-    return `${formatNumber(value - max)} ${unit} بیش از بودجه`;
-  if (status === "near")
-    return `نزدیک به سقف، ${formatNumber(max - value)} ${unit} مانده`;
-  return `${formatNumber(max - value)} ${unit} مانده`;
-}
-
 /**
- * Budget usage: ok (royal), near the limit (amber, ⚠, «نزدیک به سقف») and over (red with
- * diagonal stripes, «… بیش از بودجه»). The status is spelled out, not only colored.
+ * Budget usage: ok (royal), near the limit (amber, ⚠, «نزدیک به سقف» / «Near the limit») and
+ * over (red with diagonal stripes, «… بیش از بودجه» / «… over budget»). The status is spelled
+ * out, not only colored.
  */
 export function ProgressBar({
   value,
@@ -48,13 +43,23 @@ export function ProgressBar({
   showValues = false,
   caption,
   size = "md",
-  unit = "ریال",
+  unit: unitProp,
   className,
   ...rest
 }: ProgressBarProps) {
+  const t = useTranslations("budget");
+  const locale = useLocale();
+  const { moneyUnit } = usePreferences();
+  const unit = unitProp ?? moneyUnit;
   const status = getBudgetStatus(value, max, nearAt);
   const ratio = max > 0 ? value / max : 0;
-  const text = statusText(status, value, max, unit);
+  const text =
+    status === "over"
+      ? t("over", { amount: formatMoney(value - max, unit, locale) })
+      : t(status === "near" ? "near" : "left", {
+          amount: formatMoney(max - value, unit, locale),
+        });
+  const percent = formatPercent(ratio * 100, locale);
   const StatusIcon =
     status === "over"
       ? CircleAlertIcon
@@ -71,7 +76,7 @@ export function ProgressBar({
       {label != null ? (
         <div className={styles.head}>
           <span className={styles.label}>{label}</span>
-          <span className={styles.percent}>{formatPercent(ratio * 100)}</span>
+          <span className={styles.percent}>{percent}</span>
         </div>
       ) : null}
       <div
@@ -80,7 +85,7 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={max}
         aria-valuenow={Math.min(value, max)}
-        aria-valuetext={`${formatPercent(ratio * 100)}، ${text}`}
+        aria-valuetext={t("meter", { percent, status: text })}
         aria-label={typeof label === "string" ? label : undefined}
       >
         <span
@@ -98,7 +103,10 @@ export function ProgressBar({
           </span>
           {showValues ? (
             <span className={styles.values}>
-              {formatNumber(value)} از {formatNumber(max)}
+              {t("values", {
+                value: formatMoneyNumber(value, unit, locale),
+                max: formatMoneyNumber(max, unit, locale),
+              })}
             </span>
           ) : null}
         </div>

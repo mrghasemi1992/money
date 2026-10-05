@@ -15,6 +15,13 @@
       "when": 1790953839562,
       "tag": "0001_shared_book_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791220660912,
+      "tag": "0002_i18n_currency",
+      "breakpoints": true
     }
   ]
 }

@@ -1,11 +1,12 @@
 /*
- * Typography. One family for everything: Persian, Latin and digits.
- * Dana's default instance is hairline, so every role sets an explicit weight.
+ * Typography. The Persian interface uses Dana for everything: Persian, Latin and digits.
+ * The English interface (<html lang="en">) uses Plus Jakarta Sans, with Dana for any Persian
+ * text in it. Dana's default instance is hairline, so every role sets an explicit weight.
  * Never letter-space Persian: it breaks joining.
  */
 
 :root {
-  /* --font-dana is defined by next/font on <html> (src/styles/fonts.ts) */
+  /* --font-dana and --font-jakarta are defined by next/font on <html> (src/styles/fonts.ts) */
   --font-sans: var(--font-dana), Tahoma, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -35,8 +36,9 @@
   --weight-heavy: 800;
 
   /*
-   * Tabular Persian digits for amounts and dates. Dana has no `tnum`; its ss03 gives equal-width
+   * Tabular digits for amounts and dates. Dana has no `tnum`; its ss03 gives equal-width
    * Persian digits. Never use ss02 (it draws Latin digits as Persian glyphs and breaks copy).
+   * English uses Plus Jakarta Sans's `tnum` (below).
    */
   --font-features-tabular: "ss03";
 
@@ -69,4 +71,14 @@
     var(--font-sans);
   --type-mono: var(--weight-regular) var(--text-sm) / var(--leading-normal)
     var(--font-mono);
+}
+
+/*
+ * English interface. The composed --type-* roles above read --font-sans on this same element,
+ * so they pick up the Latin face.
+ */
+:root:lang(en) {
+  --font-sans:
+    var(--font-jakarta), var(--font-dana), system-ui, -apple-system, sans-serif;
+  --font-features-tabular: "tnum";
 }

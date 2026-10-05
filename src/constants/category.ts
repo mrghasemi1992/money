@@ -1,6 +1,7 @@
 /**
  * Category colors from the design: 10 hues plus neutral slate, chosen to be told apart in both
- * themes. A category is always shown with its name, never by color alone.
+ * themes. A category is always shown with its name, never by color alone. The color names for
+ * the picker are the `categoryColor` messages.
  */
 export const CATEGORY_COLORS = [
   "red",
@@ -15,21 +16,6 @@ export const CATEGORY_COLORS = [
   "brown",
   "slate",
 ] as const;
-
-/** Persian names of the colors, for the category color picker. */
-export const CATEGORY_COLOR_NAMES = {
-  red: "قرمز",
-  orange: "نارنجی",
-  amber: "کهربایی",
-  lime: "لیمویی",
-  green: "سبز",
-  teal: "سبزآبی",
-  sky: "آبی آسمانی",
-  violet: "بنفش",
-  pink: "صورتی",
-  brown: "قهوه‌ای",
-  slate: "خاکستری",
-} as const;
 
 /** Category types. Stored as text in `categories.type`; a subcategory has its parent's type. */
 export const CATEGORY_TYPES = ["expense", "income"] as const;

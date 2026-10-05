@@ -3,6 +3,7 @@
 import { Drawer } from "@base-ui/react/drawer";
 import { XIcon } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
 import { cx } from "@/utils/cx";
@@ -35,9 +36,10 @@ export function Sheet({
   description,
   children,
   footer,
-  closeLabel = "بستن",
+  closeLabel,
   className,
 }: SheetProps) {
+  const t = useTranslations("common");
   return (
     <Drawer.Root
       open={open}
@@ -60,12 +62,12 @@ export function Sheet({
                   </Drawer.Description>
                 ) : null}
               </div>
-              {closeLabel ? (
+              {closeLabel !== null ? (
                 <Drawer.Close
                   render={
                     <IconButton
                       icon={XIcon}
-                      label={closeLabel}
+                      label={closeLabel ?? t("close")}
                       size="sm"
                       tooltip={false}
                     />

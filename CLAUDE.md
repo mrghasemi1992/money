@@ -1,41 +1,61 @@
-# Money: a Persian personal accounting app
+# Money: a personal accounting app in Persian and English
 
 ## What this is
 
-Money is a personal accounting app with a Persian, right-to-left interface. Users record income, expenses and transfers by hand in the web app, or by talking to Claude, which saves them through the app's MCP connector. Built by Mohammad Reza Ghasemi.
+Money is a personal accounting app with a Persian (right-to-left) and English (left-to-right) interface. Users record income, expenses and transfers by hand in the web app, or by talking to Claude, which saves them through the app's MCP connector. Built by Mohammad Reza Ghasemi.
 
-- Persian only. RTL everywhere, Jalali calendar in the UI, Persian digits. No i18n layer and no English locale.
+- Two languages: Persian (the default and the design's language; RTL, Persian digits) and English (LTR, Latin digits), with next-intl and no locale in the URL (see Languages, calendars and currency).
+- Each user picks their language, their calendar (Jalali or Gregorian) and, in an IRR book, whether amounts show in rial or toman.
 - Light and dark themes.
 - Several users, by invite only. There is no public sign-up. An admin creates accounts in the app.
 - **One shared book.** All users work on the same accounts, categories, transactions and budgets. There is no per-user data. What a user can do depends on their role (see Roles).
-- Amounts are shown in rial.
+- One book currency, chosen by an admin: Iranian rial (IRR), US dollar (USD), euro (EUR) or British pound (GBP). No exchange rates and no accounts in different currencies.
 
 ## Roles
 
-| Role | Persian label | Read | Write | User management |
-|------|---------------|------|-------|-----------------|
-| `admin` | مدیر | ✓ | ✓ | ✓ |
-| `editor` | ویرایشگر | ✓ | ✓ | ✗ |
-| `viewer` | بیننده | ✓ | ✗ | ✗ |
+| Role | Label (fa / en) | Read | Write | User management and book settings |
+|------|-----------------|------|-------|-----------------------------------|
+| `admin` | مدیر / Admin | ✓ | ✓ | ✓ |
+| `editor` | ویرایشگر / Editor | ✓ | ✓ | ✗ |
+| `viewer` | بیننده / Viewer | ✓ | ✗ | ✗ |
 
 - **Read:** see every page with the book's data: dashboard, transactions, budgets, reports, accounts, categories. Export CSV.
 - **Write:** create, edit and delete transactions, accounts, categories and budgets, and import CSV. Write includes read.
 - **User management** (admins only): create users, reset passwords, disable and enable users, change roles.
-- Every user can change their own display name, password and theme, and connect Claude.
+- **Book settings** (admins only): the book's currency.
+- Every user can change their own display name, password, language, calendar, rial or toman, and theme, and connect Claude.
 - New users get `viewer` unless the admin picks another role (`DEFAULT_USER_ROLE`).
 - The role is checked on the server for every page, Server Action, Route Handler and MCP tool call, read from the user record at that moment (a role change applies right away, also to already connected Claude sessions). Hiding controls in the UI is only a convenience: a viewer sees no add, edit or delete controls, but the server is what enforces it.
-- Role names and Persian labels are in `src/constants/user.ts` (`USER_ROLES`, `USER_ROLE_LABELS`). What each role may do is in `src/helpers/role.ts` (`canWrite`, `canManageUsers`, and `toUserRole` for the plain string Better Auth stores), shared by the server checks, the MCP tools and the UI. The server checks are `requireUser()` (any role: reading, own settings), `requireWrite()` and `requireAdmin()` in `src/auth/session.ts`.
+- Role names are in `src/constants/user.ts` (`USER_ROLES`); their labels are the `role` messages. What each role may do is in `src/helpers/role.ts` (`canWrite`, `canManageUsers`, and `toUserRole` for the plain string Better Auth stores), shared by the server checks, the MCP tools and the UI. The server checks are `requireUser()` (any role: reading, own settings), `requireWrite()` and `requireAdmin()` in `src/auth/session.ts`.
+
+## Languages, calendars and currency
+
+| Setting | Values | Default | Who | Stored in |
+|---------|--------|---------|-----|-----------|
+| Language | `fa` (فارسی, RTL), `en` (English, LTR) | `fa` | each user | `user.locale` |
+| Calendar | `jalali`, `gregorian` | by language: Jalali for Persian, Gregorian for English | each user | `user.calendar` |
+| Rial or toman | `rial`, `toman` (IRR books only) | `rial` | each user | `user.rial_unit` |
+| Theme | light, dark, system | system | each device | `localStorage` (`money-theme`) |
+| Currency | `IRR`, `USD`, `EUR`, `GBP` | `IRR` | admins, for the book | `book.currency` |
+| Time zone | IANA name | the device's OS time zone (automatic, not a setting) | each device | `money-time-zone` cookie |
+
+- **Language for a request** (`resolveLocale` in `src/i18n/locale.ts`): the signed-in user's `locale`; signed out, the `money-locale` cookie, otherwise the browser's Accept-Language (`negotiateLocale`), otherwise Persian. `changeLocale` (`src/i18n/actions.ts`) sets the cookie and, when signed in, the user's `locale`; the login page has a small switch that calls it. The language decides `<html lang dir>`, the digits, the fonts and the copy.
+- **Preferences** (`Preferences` in `src/types/preferences.ts`): the user's language, calendar and rial/toman, the book's currency, the device's time zone, and the derived `moneyUnit` (`rial`, `toman`, `USD`, `EUR`, `GBP`). Server: `getPreferences()` (`src/i18n/preferences.ts`, once per request). Client: `usePreferences()` (`src/hooks/use-preferences.ts`), filled by `Providers` from the root layout. Signed-out pages get the defaults for their language.
+- **Time zone** follows each viewer's device: `TimeZoneSync` (`src/components/time-zone-sync`, in the root layout) saves the browser's OS time zone in the `money-time-zone` cookie and refreshes the page when it rendered with another one (first visit, travel, OS change). The server reads it in `resolveTimeZone` (`src/i18n/time-zone.ts`): the cookie, otherwise Vercel's `x-vercel-ip-timezone` header, otherwise `Asia/Tehran`. Two users in different time zones can see a different «today».
+- **Week**: Jalali weeks start on Saturday with Friday as the weekend; Gregorian weeks start on Monday with Saturday and Sunday as the weekend (`WEEK_START`, `WEEKEND` in `src/constants/calendar.ts`).
+- **Money units** (`MONEY_UNITS` in `src/constants/currency.ts`): stored units per shown unit (rial 1, toman 10, dollar/euro/pound 100) and decimals always shown (2 for dollars, euros, pounds; tomans show one only when the rials don't divide by ten).
 
 ## Features (full scope)
 
 - Sign in with username and password (invite only)
 - Roles: admin, editor, viewer (see Roles)
 - Admin user management: create users, reset passwords, disable accounts, change roles
+- Settings: profile, password, language (فارسی / English), calendar (Jalali / Gregorian), rial or toman (IRR books), theme (light / dark / system); for admins also the book's currency
 - Accounts (bank cards, cash, …) with a starting balance and a live current balance
 - Categories with one optional level of subcategories, separate for income and expense
 - Transactions: income, expense and transfer between own accounts, with category, subcategory, account, tags, description and note
-- Claude connector (MCP) with OAuth sign-in. Claude acts as the signed-in user with that user's role: everyone can read, editors and admins can also add, edit and delete transactions
-- Budgets: a monthly limit per category, repeating every Jalali month
+- Claude connector (MCP) with OAuth sign-in. Claude acts as the signed-in user with that user's role: everyone can read, editors and admins can also add, edit and delete transactions. Dates in the user's calendar, amounts in the book currency
+- Budgets: a monthly limit per category, repeating every month of the viewer's calendar
 - Reports: charts by category and by month
 - Dashboard: balances, this month's totals, budget progress, recent transactions
 - CSV import and export
@@ -53,6 +73,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
   - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
   - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
 - **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth.
+- **i18n:** next-intl without i18n routing: the locale comes from the user record (signed in) or the `money-locale` cookie, then Accept-Language (signed out), never from the URL. Request config in `src/i18n/request.ts`, wired with the next-intl plugin in `next.config.ts`. Messages are typed (`AppConfig` in `src/i18n/types.d.ts`).
 - **Validation:** Zod for every form, Server Action input, MCP tool input and CSV row.
 - **UI primitives:** Base UI (`@base-ui/react`, unstyled). Use it for interactive parts like Dialog, Menu, Popover, Select, Combobox, Tooltip, Tabs, Switch, Checkbox.
 - **Styling:** CSS Modules + CSS custom properties as design tokens. No Tailwind. No component libraries (no shadcn/ui, no MUI).
@@ -68,23 +89,25 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - **One shared book, no `user_id` on financial data.** `accounts`, `categories`, `transactions` and `budgets` belong to the book, not to a user. Queries don't filter by user; access is controlled by role (see Roles).
 - **Who did it.** Transactions record `created_by` and `updated_by` (user ids). The acting user always comes from the session (web) or the OAuth token (MCP), never from client input.
 - **Dates are stored as Gregorian.** A transaction's date is a Postgres `date` (`YYYY-MM-DD`, no time zone). Timestamps (`created_at`, `updated_at`) are `timestamptz`. Never store Jalali dates.
-- **Jalali only at the edges.** Dates travel through the app as ISO strings. Convert to Jalali only:
-  - in UI components that show or pick a date (`JalaliDate`, the date picker), and
-  - at the MCP boundary: tools take and return Jalali `YYYY/MM/DD`, because bank SMS use Jalali and LLMs are unreliable at calendar math. The MCP layer converts before reading or writing the database.
-- **Jalali months drive periods.** "This month", budgets and monthly reports use Jalali months. A helper turns a Jalali month into a Gregorian date range for queries.
-- **Today** is the current date in `Asia/Tehran`.
-- **Amounts** are positive integers in rial (`bigint`). The transaction type gives the direction. Format for display with `Intl.NumberFormat("fa-IR")`, which also produces real Persian digit characters. Amount inputs accept both Persian and Latin digits.
+- **Calendars only at the edges.** Dates travel through the app as ISO strings. Convert to the user's calendar (Jalali or Gregorian) only:
+  - in UI components that show or pick a date (`DateText`, `Calendar`, `DatePicker`), and
+  - at the MCP boundary: tools take and return dates in the signed-in user's calendar, Jalali `YYYY/MM/DD` or Gregorian `YYYY-MM-DD` (bank SMS use Jalali, and LLMs are unreliable at Jalali calendar math). The MCP layer converts before reading or writing the database.
+- **The viewer's calendar months drive periods.** "This month", budgets and monthly reports use the months of the viewing user's calendar, so two users with different calendars see different month boundaries. `monthRange` in `src/utils/calendar.ts` turns a month into a Gregorian date range for queries.
+- **Today** is the current date in the viewer's device time zone (`Preferences.timeZone`): `todayIso(timeZone)`. MCP has no browser; Phase 6 decides its time zone.
+- **Amounts** are integers in the book currency's smallest unit (`bigint`): rials for IRR, cents or pence for USD, EUR and GBP. Transaction and budget amounts are positive; the transaction type gives the direction. Toman is only a way of showing and typing IRR amounts (1 toman = 10 rials); the stored value is always rials. Format with the helpers in `src/helpers/money.ts` (`formatMoney`, `formatMoneyNumber`) or the `Amount` component, never by hand. Amount inputs accept Persian, Arabic and Latin digits, and «.» or «٫» before decimals when the unit has them.
+- **The book currency** can change only while the book holds no amounts: no transactions, no budgets and every opening balance 0. The Server Action checks this; changing it later would silently reinterpret every stored number.
 - **Unknown transactions:** a description of `؟` (or empty) marks a transaction that still needs to be identified, as in `daily-transactions`.
 
 ### Data model
 
 | Table | Main columns |
 |-------|--------------|
-| Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
-| `accounts` | `id`, `name`, `opening_balance` (rial, may be 0 or negative), `archived`, `sort_order` |
+| Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`, and Money's preference fields `locale` (`fa` \| `en`), `calendar` (`jalali` \| `gregorian`), `rial_unit` (`rial` \| `toman`)), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
+| `book` | One row (`id` 1): `currency` (`IRR` \| `USD` \| `EUR` \| `GBP`). No row until an admin first saves the settings; until then `DEFAULT_BOOK_SETTINGS` (IRR) applies (`getBookSettings` in `src/db/book.ts`) |
+| `accounts` | `id`, `name`, `opening_balance` (smallest unit, may be 0 or negative), `archived`, `sort_order` |
 | `categories` | `id`, `type` (`income` \| `expense`), `name`, `color`, `parent_id` (null for a category, set for a subcategory), `archived` |
 | `transactions` | `id`, `type` (`income` \| `expense` \| `transfer`), `date`, `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers, optional otherwise), `description` and `note` (`''` when empty), `tags` (`text[]`), `source` (`web` \| `mcp` \| `csv`), `created_by`, `updated_by` (user ids), `created_at`, `updated_at` |
-| `budgets` | `id`, `category_id` (top-level expense category), `amount` (rial per Jalali month) |
+| `budgets` | `id`, `category_id` (top-level expense category), `amount` (smallest unit, per month) |
 
 - Subcategories are one level deep: a subcategory's parent must be a top-level category, and it has the same `type` as its parent.
 - A transaction's category must match its type (income categories for income, expense categories for expense). Transfers have no category.
@@ -92,7 +115,8 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 - Users are disabled (banned), never deleted, so `created_by` / `updated_by` always point to a real user.
 - Account balance = opening balance + income − expense − transfers out + transfers in. Transfers never count as income or expense in totals, budgets or reports.
 - **The database enforces these rules too** (constraints in `src/db/schema/`), so a bug in app code can't store bad data. Server code still validates first, to show a clear error:
-  - amounts > 0; `type`, `source`, `color` and `role` limited to their constants (CHECK constraints built with `oneOf`);
+  - amounts > 0; `type`, `source`, `color`, `role`, `locale`, `calendar`, `rial_unit` and `currency` limited to their constants (CHECK constraints built with `oneOf`);
+  - `book` has at most one row (`id = 1`);
   - a transfer has a `to_account_id` different from `account_id` and no category; income and expense have no `to_account_id`;
   - a transaction's category has the transaction's type: foreign key `(category_id, type)`;
   - one level of subcategories with the parent's type: foreign key `(parent_id, type, has_parent)` → `(id, type, is_top_level)`, using generated columns;
@@ -103,43 +127,50 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 
 ## Design system
 
-- **Brand:** name "Money" (Persian wordmark پول, as in the old `money` project, now `money-old`).
+- **Brand:** name "Money": wordmark «پول» in the Persian interface (as in the old `money` project, now `money-old`), «Money» in the English one (`metadata.appName` message).
 - **Look:** modern and calm, inspired by the Kanvas design system in Claude Design. Primary color is Kanvas royal blue `#223BB2` (`royal-600`), with a cool slate neutral tinted toward it and royal-tinted shadows. Flat stacked surfaces (page → card → raised), no gradients, no illustrations.
-- **Logo:** Lucide's wallet glyph in white on a royal rounded tile, plus the wordmark «پول» at weight 800. `Logo` and `LogoMark` in `src/components/ui/`, favicon in `src/app/icon.svg`, iOS icon in `src/app/apple-icon.tsx`.
+- **Logo:** Lucide's wallet glyph in white on a royal rounded tile, plus the wordmark («پول» / «Money») at weight 800. `Logo` and `LogoMark` in `src/components/ui/`, favicon in `src/app/icon.svg`, iOS icon in `src/app/apple-icon.tsx`.
 - **Tokens** live in `src/styles/tokens/` and are the only source of colors, type, spacing, radius, shadows and motion:
   - Colors: raw ramps (`--royal-*`, `--slate-*`, accent hues) plus semantic aliases. Components use only the aliases: `--surface-*`, `--border-*`, `--text-*`, `--brand-*`, `--status-*`, `--amount-*`, `--budget-*`, `--cat-*`. Light on `:root` and `[data-theme="light"]`; `[data-theme="dark"]` re-points the aliases.
-  - Type roles as `font` shorthands: `font: var(--type-body)` (`display`, `title-lg`, `title`, `heading`, `body-md`, `body`, `label`, `control`, `caption`, `eyebrow`, `amount-hero`, `amount-lg`, `amount`). 12px floor; never letter-space Persian.
+  - Type roles as `font` shorthands: `font: var(--type-body)` (`display`, `title-lg`, `title`, `heading`, `body-md`, `body`, `label`, `control`, `caption`, `eyebrow`, `amount-hero`, `amount-lg`, `amount`). 12px floor; never letter-space Persian. `:root:lang(en)` swaps `--font-sans` and `--font-features-tabular`, and the roles follow.
   - Categories: 10 hues + slate (`src/constants/category.ts`), each `--cat-<hue>` (dot), `-soft` (fill) and `-text` (label). A category is never shown by color alone.
   - Focus is a 3px ring drawn with `box-shadow: var(--shadow-focus)` (danger controls: `--shadow-focus-danger`).
-- **Font:** Dana (variable, `dana-variable.woff2`, copied from `daily-transactions`), loaded with `next/font/local`.
-  - Dana's default weight is 10 (hairline). Every text style must set a weight. Declare `weight: "10 900"`.
-  - Dana has no `tnum` feature. Use `font-feature-settings: var(--font-features-tabular)` (`"ss03"`) for tabular Persian digits in amounts, dates and columns of numbers (helper class `.tabular`).
-  - Never use Dana's `ss02` (it draws Latin digits as Persian glyphs and breaks copy and screen readers). Persian digits come from `Intl.NumberFormat("fa-IR")`.
-- **RTL:** `<html lang="fa" dir="rtl">`, and Base UI's `DirectionProvider` (in `src/components/providers`) set to `rtl` for keyboard navigation and popup placement. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, …), never `left`/`right`.
+- **Fonts** (`src/styles/fonts.ts`, both variables on `<html>`):
+  - Persian interface: Dana for everything (variable, `dana-variable.woff2`, copied from `daily-transactions`, `next/font/local`, `--font-dana`). Dana's default weight is 10 (hairline): every text style must set a weight. Declare `weight: "10 900"`.
+  - English interface: Plus Jakarta Sans (Kanvas's text face, `next/font/google`, `--font-jakarta`, weights 200–800), with Dana as the fallback for Persian text such as names and categories.
+  - Tabular digits in amounts, dates and columns of numbers: `font-feature-settings: var(--font-features-tabular)` (helper class `.tabular`). It is `"ss03"` for Dana (no `tnum`) and `"tnum"` in English.
+  - Never use Dana's `ss02` (it draws Latin digits as Persian glyphs and breaks copy and screen readers). Persian digits come from `Intl.NumberFormat("fa-IR")` (`formatNumber` in `src/utils/number.ts`).
+- **Direction:** `<html lang dir>` follows the language (`fa` → `rtl`, `en` → `ltr`, `LOCALE_DIRECTIONS`), and Base UI's `DirectionProvider` (in `src/components/providers`) follows it for keyboard navigation and popup placement. Every layout must work in both directions. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, `text-align: start`, …), never `left`/`right`. Where an element forces `direction: ltr` (number inputs), align it against the page's start edge with `:global(html[dir="rtl"])`.
   - Directional icons (back/forward arrows and chevrons) are written in LTR terms (`ChevronLeftIcon` = back) and get the global `mirror-rtl` class (`mirrorIcon` / `mirrorIcons` props on IconButton and Button), so they point the right way in either direction. Money-direction icons (`ArrowUpIcon`, `ArrowDownIcon`, `ArrowLeftRightIcon`) are direction-neutral and never mirrored.
 - **Themes:** light and dark, both defined as tokens. No flash of the wrong theme on load (inline script in `<head>` sets `data-theme` from the saved choice, otherwise the OS setting), same setup as `orange`.
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
-  - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
-  - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian thousands separator «٬» (U+066C), percent «٪».
+  - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
+  - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian: Persian digits, «٬» (U+066C) thousands, «٫» (U+066B) decimals, «٪» percent. English: Latin digits, «,», «.», «%».
+  - Unit marks (`MONEY_UNIT_SYMBOLS`): Persian writes the unit's name after the number («۲٬۵۰۰٬۰۰۰ ریال», «… تومان», «… دلار», «… یورو», «… پوند»); English writes «$», «€», «£» before it, inside the left-to-right run, after the sign («−$1,234.56»), and «rial» / «toman» after it.
   - Budgets: ok (royal) → near the limit from 85% (amber, ⚠, «نزدیک به سقف») → over (red with diagonal stripes, «… بیش از بودجه»). `getBudgetStatus` in `src/helpers/budget.ts`.
-- **Dates in the UI:** «۹ مهر ۱۴۰۵», with weekday «پنج‌شنبه ۹ مهر ۱۴۰۵», «امروز» / «دیروز» in lists, numeric «۱۴۰۵/۰۷/۰۹» only in dense tables. Weeks start on Saturday (شنبه); Friday is tinted as the weekend. `AmountField` takes and returns a number in rial; `Calendar` and `DatePicker` take and return ISO date strings.
-- **Copy:** calm, short, polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete. No emoji. Claude is written «Claude», in Latin.
+- **Dates in the UI** (`formatDate` in `src/utils/calendar.ts`, the `DateText` component): long «۹ مهر ۱۴۰۵» / «9 Mehr 1405» / «1 October 2026» (Persian Gregorian: «۱ اکتبر ۲۰۲۶»), weekday «پنج‌شنبه ۹ مهر ۱۴۰۵» / «Thursday, 1 October 2026», «امروز» / «دیروز» (Today / Yesterday) in lists, numeric «۱۴۰۵/۰۷/۰۹» / «2026/10/01» only in dense tables. Month and weekday names are written out in `src/constants/calendar.ts`, not taken from Intl. The month grid starts the week and tints the weekend per calendar (see Languages, calendars and currency). `AmountField` takes and returns the stored integer (rials or cents); `Calendar` and `DatePicker` take and return ISO date strings.
+- **Copy:** every string the user sees comes from the messages (see Conventions). Calm and short in both languages. No emoji. Claude is written «Claude», in Latin.
+  - Persian: polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete.
+  - English: sentence case. Buttons are verbs that name the outcome («Add expense», never «OK»); cancel is always «Cancel». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense («Transaction added») and offer «Undo» after add/delete. Use typographic apostrophes («Couldn’t»).
 - **Motion:** `--ease-out` for nearly everything, `--ease-lift` only for things that pop (checkbox tick, switch thumb, dialog and toast entry). 120ms color, 180ms position, 260ms overlays. Everything collapses under `prefers-reduced-motion` (in `base.css`).
 - **Icons:** lucide-react, sized with `--icon-size-*` tokens. Import the `*Icon` export (`WalletIcon`, not `Wallet`).
 - **Breakpoints:** 480 / 768 / 1024 (`--small-phone`, `--mobile` below 768, `--tablet-up`, `--desktop`), plus `--short-screen` (height below 600px: on phones, the keyboard is open; the login page uses `interactive-widget=resizes-content` so the keyboard shrinks the layout). Below 768 is the phone layout: taller controls (40/48/52px), 44px tap targets, bottom sheets instead of dialogs. `@custom-media` rules in `src/styles/media.css`, injected into every CSS file by PostCSS (`@csstools/postcss-global-data` + `postcss-custom-media`), as in `orange`. JavaScript uses the same values from `src/constants/media.ts`.
-- **Accessibility:** WCAG AA contrast in both themes, visible keyboard focus, respect `prefers-reduced-motion`.
+- **Accessibility:** WCAG AA contrast in both themes, visible keyboard focus, respect `prefers-reduced-motion`, correct `lang` and `dir` (set `lang` on text in the other language, like the language switch).
 
 ## Conventions
 
 - **Folder layout:** the repo root is this `money` folder. All app code lives in `src/` (the App Router is in `src/app`). Config files stay at the repo root. Never create a nested project folder (no `money/money`).
 - **Components:** design system components (from the Claude Design handoff) live in `src/components/ui/`. Feature components live directly in `src/components/`. Storybook titles follow the folder: `Design system/<Name>` for `ui/`, `Components/<Name>` for feature components. Each component gets one lowercase folder with `index.tsx`, `styles.module.css`, `index.stories.tsx` (and `spec.test.tsx` once testing starts).
 - **Props types:** extend native element props with `ComponentProps<"button">` (React 19). `ref` is a normal prop, so no `forwardRef`.
+- **Copy and translations:** no user-facing text in components. Every string is a message in `src/messages/fa.ts` (the source; it defines the `Messages` type) and `src/messages/en.ts` (typed as `Messages`, so a missing or extra key fails the type check). Use `useTranslations` in client components and non-async Server Components, `getTranslations` in async Server Components, `generateMetadata` and Server Actions (errors returned to the user are translated on the server). Messages use ICU syntax (`{amount}`); pass already formatted numbers and amounts. Group keys by feature (`login`, `budget`, …) with shared words in `common`. Sample data in stories (names, categories) may stay Persian.
+- **Formatting:** formatting functions are pure and take the language, calendar or unit explicitly (`formatDate`, `formatMoney`, `formatNumber`). Components that show amounts or dates read them from `usePreferences()` / `useLocale()` and are client components (`Amount`, `DateText`, `ProgressBar`, …); they accept a `unit` or `calendar` override for stories.
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
 - **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
 - **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`).
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
+- **Storybook** has toolbars for theme, language (فارسی RTL / English LTR), calendar and money (IRR rial, IRR toman, USD, EUR, GBP). Check new components in both languages.
 - **Base UI:** interactive design system components wrap Base UI parts and style them with `data-*` state attributes (`[data-checked]`, `[data-highlighted]`, `[data-invalid]`, `[data-starting-style]`, …). `Providers` (`src/components/providers`) wraps the app and every story: `DirectionProvider`, the shared tooltip delay and the toast viewport (`useToast()` from `src/components/ui/toast`).
 - **Forms:** put controls inside `Field` (Base UI Field), which wires the label, hint and error to the control. Controls that aren't Base UI fields (`DatePicker`) take an `id` that you also pass to Field's `htmlFor`.
 - **Server-only code** (`src/db/`, `src/auth/`, `src/mcp/`) imports `server-only`.
@@ -147,7 +178,7 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
   - `src/types/`: shared TypeScript types
   - `src/constants/`: fixed data and config
   - `src/utils/`: generic functions that would work unchanged in another project (for example `cx`, Jalali conversion, digit normalizing)
-  - `src/helpers/`: functions specific to Money and its data (for example account balance, Jalali month range for budgets)
+  - `src/helpers/`: functions specific to Money and its data (for example account balance, money formatting, preferences)
   - `src/hooks/`: React hooks that aren't tied to one component (for example `useControllableState`)
 
 ## Project structure
@@ -155,23 +186,32 @@ Money is a personal accounting app with a Persian, right-to-left interface. User
 ```text
 src/
   proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
-  app/                  App Router: layout (theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
+  app/                  App Router: layout (lang/dir, theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
     login/              Sign-in page
     api/auth/[...all]/  Better Auth handler
   auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts)
-  db/                   Drizzle client (index.ts) and schema/ (auth, accounts, categories, transactions, budgets)
+  db/                   Drizzle client (index.ts), schema/ (auth, book, accounts, categories, transactions, budgets),
+                        queries: book.ts (getBookSettings), users.ts (updateUserPreferences)
+  i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
+                        (time-zone.ts), getPreferences (preferences.ts), changeLocale (actions.ts), typed messages
+                        (types.d.ts)
+  messages/             Interface copy: fa.ts (source, Messages type), en.ts, index.ts (MESSAGES)
   components/
     ui/                 Design system: one folder per component (index.tsx, styles.module.css, index.stories.tsx)
                         logo, logo-mark, button, icon-button, tooltip, field, text-field, textarea, amount-field,
                         search-field, select, combobox, checkbox, switch, radio-group, segmented-control, calendar,
-                        date-picker, jalali-date, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
+                        date-picker, date-text, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
                         badge, tag, category-chip, avatar, divider, amount, progress-bar, foundations (Storybook only)
     login/              The sign-in screen (Components/Login)
-    providers/          Base UI direction, tooltip delay group, toast viewport
+    providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
-  constants/            auth (sign-in limit, login path), category, media queries, theme script, transaction, user
-  helpers/              budget status, category color style, role permissions, sign-in request, placeholder email
-  hooks/                useControllableState
+    time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
+  constants/            auth (sign-in limit, login path), book (default settings), calendar (names, week start),
+                        category, currency (units, symbols), locale, media queries, theme script, time zone,
+                        transaction, user
+  helpers/              budget status, category color style, money formatting and input, preferences, role
+                        permissions, sign-in request, placeholder email
+  hooks/                useControllableState, usePreferences
   styles/
     tokens/             colors, typography, spacing, radius, shadows, motion, components
     base.css            element defaults, focus ring, mirror-rtl, reduced motion
@@ -179,8 +219,9 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                category, theme, transaction, user
-  utils/                cx, duration, env, focus, jalali, number, text, theme, url
+  types/                book, calendar, category, currency, locale, preferences, theme, transaction, user
+  utils/                calendar (both calendars, formatDate), cx, duration, env, focus, iso-date, jalali (math),
+                        locale (Accept-Language), number, text, theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 scripts/                create-user.ts (`pnpm user:create`)
 ```
@@ -211,8 +252,9 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | # | Phase | Status |
 |---|-------|--------|
 | 0a | Project setup (on `main`): Next.js, TypeScript, ESLint, Prettier, packages, Storybook, Dana font | Done |
-| 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Done (Vercel deploy after merge) |
+| 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Done |
 | 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Done |
+| 1b | Languages and currency: Persian and English, Jalali and Gregorian, book currency, rial or toman (foundation; the settings UI is in Phase 2) | Done |
 | 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes | Not started |
 | 3 | User management (admin) | Not started |
 | 4 | Accounts and categories | Not started |
@@ -234,7 +276,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/transactions` | Transactions (تراکنش‌ها) | 2 (placeholder until 5) |
 | `/budgets` | Budgets (بودجه) | 2 (placeholder until 7) |
 | `/reports` | Reports (گزارش‌ها) | 2 (placeholder until 8) |
-| `/settings` | Settings (تنظیمات): profile and password, theme | 2 |
+| `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
 | `/settings/connector` | Claude connector: URL, connected apps | 6 |
@@ -249,8 +291,8 @@ All pages except `/login` (and the OAuth consent page, if one is needed) require
 - `../daily-transactions`: MCP with `mcp-handler`, Neon access, Jalali helpers (`src/lib/jalali.ts`), the Dana font file, the MCP tool set and instructions.
 - `../money-old` (GitHub `money-old`, formerly `money`): personal accounting features, Dana font notes, RTL and Persian number formatting rules.
 - `../orange`: the implementation process, folder layout, Storybook setup, theme script and PostCSS media setup.
-- `../kanvas`: Kanvas tokens (`src/styles/tokens.css`), the source of the royal blue ramp.
+- `../kanvas`: Kanvas tokens (`src/styles/tokens.css`), the source of the royal blue ramp and of Plus Jakarta Sans.
 
 Tooling: pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`.
 
-Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create` (asks for username, display name, role and password at the prompt; run it in a terminal).
+Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create` (asks for username, display name, role, language and password at the prompt; run it in a terminal).

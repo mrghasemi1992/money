@@ -3,6 +3,7 @@
 import { Input } from "@base-ui/react/input";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useRef, type ComponentProps } from "react";
+import { useTranslations } from "next-intl";
 
 import { useControllableState } from "@/hooks/use-controllable-state";
 import control from "@/styles/control.module.css";
@@ -29,12 +30,13 @@ export function SearchField({
   defaultValue = "",
   onValueChange,
   size = "md",
-  placeholder = "جستجو",
-  clearLabel = "پاک کردن",
+  placeholder,
+  clearLabel,
   disabled,
   className,
   ...rest
 }: SearchFieldProps) {
+  const t = useTranslations("common");
   const [text, setText] = useControllableState(
     value,
     defaultValue,
@@ -55,7 +57,7 @@ export function SearchField({
         ref={inputRef}
         type="search"
         className={control.input}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("search")}
         disabled={disabled}
         value={text}
         onValueChange={(next) => setText(next)}
@@ -65,7 +67,7 @@ export function SearchField({
         <button
           type="button"
           className={control.clear}
-          aria-label={clearLabel}
+          aria-label={clearLabel ?? t("clear")}
           onClick={() => {
             setText("");
             inputRef.current?.focus();

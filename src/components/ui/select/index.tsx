@@ -3,6 +3,7 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { CheckIcon, ChevronDownIcon, type LucideIcon } from "lucide-react";
 import { Fragment } from "react";
+import { useTranslations } from "next-intl";
 
 import type { ControlSize } from "@/components/ui/text-field";
 import { categoryColorStyle } from "@/helpers/category";
@@ -62,7 +63,7 @@ export function Select({
   value,
   defaultValue,
   onValueChange,
-  placeholder = "انتخاب کنید",
+  placeholder,
   size = "md",
   invalid,
   disabled,
@@ -73,6 +74,7 @@ export function Select({
   className,
   "aria-label": ariaLabel,
 }: SelectProps) {
+  const t = useTranslations("common");
   const byValue = new Map(options.map((option) => [option.value, option]));
 
   return (
@@ -100,7 +102,11 @@ export function Select({
         <BaseSelect.Value className={control.value}>
           {(selected: string | null) => {
             const option = selected == null ? undefined : byValue.get(selected);
-            return option ? <OptionLabel option={option} /> : placeholder;
+            return option ? (
+              <OptionLabel option={option} />
+            ) : (
+              (placeholder ?? t("choose"))
+            );
           }}
         </BaseSelect.Value>
         <BaseSelect.Icon
