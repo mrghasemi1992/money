@@ -36,6 +36,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 | Calendar | `jalali`, `gregorian` | by language: Jalali for Persian, Gregorian for English | each user | `user.calendar` |
 | Rial or toman | `rial`, `toman` (IRR books only) | `rial` | each user | `user.rial_unit` |
 | Theme | light, dark, system | system | each device | `localStorage` (`money-theme`) |
+| Sidebar collapsed | expanded, collapsed (icon rail) | expanded | each device | `localStorage` (`money-sidebar`) |
 | Currency | `IRR`, `USD`, `EUR`, `GBP` | `IRR` | admins, for the book | `book.currency` |
 | Time zone | IANA name | the device's OS time zone (automatic, not a setting) | each device | `money-time-zone` cookie |
 
@@ -95,7 +96,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **The viewer's calendar months drive periods.** "This month", budgets and monthly reports use the months of the viewing user's calendar, so two users with different calendars see different month boundaries. `monthRange` in `src/utils/calendar.ts` turns a month into a Gregorian date range for queries.
 - **Today** is the current date in the viewer's device time zone (`Preferences.timeZone`): `todayIso(timeZone)`. MCP has no browser; Phase 6 decides its time zone.
 - **Amounts** are integers in the book currency's smallest unit (`bigint`): rials for IRR, cents or pence for USD, EUR and GBP. Transaction and budget amounts are positive; the transaction type gives the direction. Toman is only a way of showing and typing IRR amounts (1 toman = 10 rials); the stored value is always rials. Format with the helpers in `src/helpers/money.ts` (`formatMoney`, `formatMoneyNumber`) or the `Amount` component, never by hand. Amount inputs accept Persian, Arabic and Latin digits, and «.» or «٫» before decimals when the unit has them.
-- **The book currency** can change only while the book holds no amounts: no transactions, no budgets and every opening balance 0. The Server Action checks this; changing it later would silently reinterpret every stored number.
+- **The book currency** can change only while the book holds no amounts: no transactions, no budgets and every opening balance 0. Changing it later would silently reinterpret every stored number. `setBookCurrency` (`src/db/book.ts`) checks and upserts in one SQL statement (`insert … select … where not <holds amounts> on conflict do update`), so an amount recorded in between can't slip past; `bookHoldsAmounts` tells the settings page to show the currency locked.
 - **Unknown transactions:** a description of `؟` (or empty) marks a transaction that still needs to be identified, as in `daily-transactions`.
 
 ### Data model
@@ -142,7 +143,12 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
   - Never use Dana's `ss02` (it draws Latin digits as Persian glyphs and breaks copy and screen readers). Persian digits come from `Intl.NumberFormat("fa-IR")` (`formatNumber` in `src/utils/number.ts`).
 - **Direction:** `<html lang dir>` follows the language (`fa` → `rtl`, `en` → `ltr`, `LOCALE_DIRECTIONS`), and Base UI's `DirectionProvider` (in `src/components/providers`) follows it for keyboard navigation and popup placement. Every layout must work in both directions. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, `text-align: start`, …), never `left`/`right`. Where an element forces `direction: ltr` (number inputs), align it against the page's start edge with `:global(html[dir="rtl"])`.
   - Directional icons (back/forward arrows and chevrons) are written in LTR terms (`ChevronLeftIcon` = back) and get the global `mirror-rtl` class (`mirrorIcon` / `mirrorIcons` props on IconButton and Button), so they point the right way in either direction. Money-direction icons (`ArrowUpIcon`, `ArrowDownIcon`, `ArrowLeftRightIcon`) are direction-neutral and never mirrored.
-- **Themes:** light and dark, both defined as tokens. No flash of the wrong theme on load (inline script in `<head>` sets `data-theme` from the saved choice, otherwise the OS setting), same setup as `orange`.
+- **Themes:** light and dark, both defined as tokens. Users choose light, dark or system (follow the OS) in settings and in the user menu (`useThemePreference`, `setThemePreference` in `src/utils/theme.ts`; «system» clears the saved choice). No flash of the wrong theme on load (inline script in `<head>` sets `data-theme` from the saved choice, otherwise the OS setting), same setup as `orange`.
+- **App shell** (`AppShell`, `src/components/app-shell`, rendered by `src/app/(app)/layout.tsx` around every signed-in page): a skip link to `#main`; from 768px up the `Sidebar` on the start side (logo, sections, `UserMenu`); on phones the `TopBar` (logo, back to the dashboard on non-tab pages, settings, user menu) and the fixed `TabBar` with the floating add button. Each part hides itself at the other breakpoint with CSS.
+  - The sections are `NAV_ITEMS` (`src/constants/navigation.ts`: label = `nav` message key, href, icon, `tab`, `adminOnly`), filtered by `getNavItems(role)` and marked active by `isNavItemActive` (`src/helpers/navigation.ts`, subpages count: `/settings/accounts` → Settings). The layout passes the role from the user record; the pages check it again.
+  - The sidebar collapses to an icon rail (tooltips show the labels). The choice is saved in `localStorage` (`money-sidebar`); an inline `<head>` script (`SIDEBAR_SCRIPT`) sets `<html data-sidebar="collapsed">` before the first paint, and CSS draws the rail from that attribute (`:global(html[data-sidebar="collapsed"])`), so it never flashes open. `useSidebarCollapsed` gives components the same value.
+  - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form. Until Phase 5 the form is a placeholder.
+  - Pages start with `PageHeader` (h1 title = the nav label, subtitle, actions). Unbuilt pages show `PagePlaceholder`. `loading.tsx` shows `PageSkeleton`, `error.tsx` `PageError` (retry), `not-found.tsx` `PageNotFound`, all inside the shell; the `[...rest]` catch-all sends unknown paths to that not-found page. Page titles are `<nav label> | پول` / `<nav label> | Money` (the root layout's title template).
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
   - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
   - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian: Persian digits, «٬» (U+066C) thousands, «٫» (U+066B) decimals, «٪» percent. English: Latin digits, «,», «.», «%».
@@ -167,7 +173,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
 - **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
-- **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`).
+- **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`; `src/app/(app)/settings/actions.ts`: profile, password, display preferences, book currency). Pages pass them to client components as props (`onSave`, `onSignOut`, …), so stories can pass fakes. Form actions take `unknown`, parse it with Zod and return `ActionResult` (`src/types/action.ts`): `{ ok: true }` or a translated `error`, with the `field` it belongs to when there is one. After a change that affects the page they call `refresh()` from `next/cache`.
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
 - **Storybook** has toolbars for theme, language (فارسی RTL / English LTR), calendar and money (IRR rial, IRR toman, USD, EUR, GBP). Check new components in both languages.
@@ -186,12 +192,16 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 ```text
 src/
   proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
-  app/                  App Router: layout (lang/dir, theme script, Providers), pages, icon.svg, apple-icon.tsx, globals.css
+  app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
     login/              Sign-in page
+    (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
+                        page.tsx (dashboard), transactions, budgets, reports, settings (+ actions.ts), admin/users,
+                        [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
   auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts)
   db/                   Drizzle client (index.ts), schema/ (auth, book, accounts, categories, transactions, budgets),
-                        queries: book.ts (getBookSettings), users.ts (updateUserPreferences)
+                        queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
+                        (updateUserPreferences)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
                         (time-zone.ts), getPreferences (preferences.ts), changeLocale (actions.ts), typed messages
                         (types.d.ts)
@@ -203,15 +213,23 @@ src/
                         date-picker, date-text, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
                         badge, tag, category-chip, avatar, divider, amount, progress-bar, foundations (Storybook only)
     login/              The sign-in screen (Components/Login)
+    app-shell/          The frame of signed-in pages: skip link, sidebar, top bar, tab bar, add-transaction form
+    sidebar/, top-bar/, tab-bar/, user-menu/   Its parts (desktop sidebar and rail; phone top and bottom bars;
+                        the account menu with settings, theme and sign-out)
+    add-transaction/    AddTransactionProvider (dialog / sheet), AddTransactionButton, useAddTransaction
+    page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
+                        loading, error and not-found)
+    settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
+                        book-settings/ (admins)
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
   constants/            auth (sign-in limit, login path), book (default settings), calendar (names, week start),
-                        category, currency (units, symbols), locale, media queries, theme script, time zone,
-                        transaction, user
-  helpers/              budget status, category color style, money formatting and input, preferences, role
-                        permissions, sign-in request, placeholder email
-  hooks/                useControllableState, usePreferences
+                        category, currency (units, symbols), locale, media queries, navigation (NAV_ITEMS), sidebar
+                        (storage key, script), theme script, time zone, transaction, user
+  helpers/              budget status, category color style, money formatting and input, navigation (getNavItems,
+                        isNavItemActive), preferences, role permissions, sign-in request, placeholder email
+  hooks/                useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed, useThemePreference
   styles/
     tokens/             colors, typography, spacing, radius, shadows, motion, components
     base.css            element defaults, focus ring, mirror-rtl, reduced motion
@@ -219,9 +237,10 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                book, calendar, category, currency, locale, preferences, theme, transaction, user
+  types/                action (ActionResult), book, calendar, category, currency, locale, navigation, preferences,
+                        theme, transaction, user
   utils/                calendar (both calendars, formatDate), cx, duration, env, focus, iso-date, jalali (math),
-                        locale (Accept-Language), number, text, theme, url
+                        locale (Accept-Language), number, sidebar (collapsed state), text, theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 scripts/                create-user.ts (`pnpm user:create`)
 ```
@@ -255,7 +274,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 0b | Design system: logo, tokens, themes, RTL, base components, Storybook, first Vercel deploy | Done |
 | 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Done |
 | 1b | Languages and currency: Persian and English, Jalali and Gregorian, book currency, rial or toman (foundation; the settings UI is in Phase 2) | Done |
-| 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes | Not started |
+| 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes, settings | Done |
 | 3 | User management (admin) | Not started |
 | 4 | Accounts and categories | Not started |
 | 5 | Transactions | Not started |
@@ -280,7 +299,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
 | `/settings/connector` | Claude connector: URL, connected apps | 6 |
-| `/admin/users` | User management (admins only) | 3 |
+| `/admin/users` | User management (admins only; others get not-found) | 2 (placeholder until 3) |
 | `/api/auth/[...all]` | Better Auth handler | 1 |
 | `/mcp` | MCP endpoint (OAuth bearer token) | 6 |
 
