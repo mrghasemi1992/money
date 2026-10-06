@@ -21,3 +21,13 @@ export const PASSWORD_MAX_LENGTH = 128;
 
 /** Display names are shown in menus and reports; long ones are cut off with an ellipsis. */
 export const DISPLAY_NAME_MAX_LENGTH = 60;
+
+/**
+ * Temporary passwords an admin gives a new user or after a reset: three groups of four
+ * characters from an alphabet without look-alikes (no 0/O, 1/l/I), «kT7m-Qx4p-Wz9r». 55
+ * characters, 12 picks: about 69 bits. Generated on the server (`generateTemporaryPassword`).
+ */
+export const TEMPORARY_PASSWORD_ALPHABET =
+  "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export const TEMPORARY_PASSWORD_GROUPS = 3;
+export const TEMPORARY_PASSWORD_GROUP_LENGTH = 4;

@@ -58,6 +58,11 @@
   --status-text-max: 360px;
   --sheet-max-h: 88dvh;
 
+  /* User management */
+  --password-tracking: 0.06em; /* a temporary password, Latin only, spaced for reading it out */
+  --users-actions-col: 56px; /* the table's row-menu column */
+  --users-filter-w: 148px; /* the role and status filters */
+
   /* Sign-in page */
   --login-max: 400px;
 

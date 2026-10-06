@@ -1,0 +1,23 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.passwordRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.password {
+  flex: 1;
+  min-width: 0;
+}
+
+/*
+ * Latin letters and digits only; the spacing helps reading it out. No tabular feature: Dana's
+ * ss03 would draw the Latin digits as Persian ones.
+ */
+.password input {
+  letter-spacing: var(--password-tracking);
+}

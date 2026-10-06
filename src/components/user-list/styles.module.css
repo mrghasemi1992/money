@@ -1,0 +1,237 @@
+/*
+ * The list is a table where the column has room for it and cards where it doesn't. The switch
+ * is a container query on the list itself (the sidebar's width changes the room, not only the
+ * window): 50rem, where all six columns fit without wrapping. Container queries can't read
+ * custom media or variables, so the width is written here.
+ */
+.root {
+  container: users / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.search {
+  flex: 1 1 var(--form-col-min);
+  min-width: 0;
+  max-width: var(--settings-field-max);
+}
+
+.filters {
+  display: flex;
+  flex: 0 1 auto;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.filter {
+  width: var(--users-filter-w);
+  min-width: 0;
+}
+
+.summary {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.panel {
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.empty {
+  padding: var(--space-8) var(--space-4);
+}
+
+.tableView {
+  display: none;
+}
+
+.cardView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@container users (width >= 50rem) {
+  .tableView {
+    display: block;
+  }
+
+  .cardView {
+    display: none;
+  }
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-body);
+}
+
+.table th {
+  padding: var(--space-2-5) var(--space-4);
+  border-block-end: var(--border-width) solid var(--border-default);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-2-5) var(--space-4);
+  border-block-end: var(--border-width) solid var(--border-subtle);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.table tbody tr {
+  transition: background-color var(--duration-instant) var(--ease-out);
+}
+
+.table tbody tr:hover {
+  background: var(--surface-inset);
+}
+
+/* The empty state below the table's only row (the admin themself) gets a line above it. */
+.table + .empty {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.table .actionsCol {
+  width: var(--users-actions-col);
+  padding-block: var(--space-1-5);
+  padding-inline: var(--space-2);
+  text-align: end;
+}
+
+.secondary {
+  color: var(--text-secondary);
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  min-width: 0;
+}
+
+.nameLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.disabled .name {
+  color: var(--text-muted);
+}
+
+.username {
+  color: var(--text-secondary);
+  text-align: start;
+}
+
+/* Cards */
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.cardTitle {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* A left-to-right flex item: align-self keeps it on the page's start edge, under the name. */
+.cardTitle .username {
+  align-self: flex-start;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+}
+
+.meta {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+/* Skeleton */
+
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.skeletonRow + .skeletonRow {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.skeletonText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}

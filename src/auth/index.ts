@@ -44,7 +44,7 @@ function getBaseURL() {
 
 /**
  * Better Auth: sign-in by username and password, invite only.
- * - Nobody can sign up. Users are created by an admin (admin plugin, Phase 3) or by
+ * - Nobody can sign up. Users are created by an admin on /admin/users (admin plugin) or by
  *   `pnpm user:create`.
  * - Banned users can't sign in (admin plugin; checked after the password).
  * - Roles admin, editor and viewer. Only admins may use the admin plugin's user management;
