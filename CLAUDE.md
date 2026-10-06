@@ -21,12 +21,23 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 
 - **Read:** see every page with the book's data: dashboard, transactions, budgets, reports, accounts, categories. Export CSV.
 - **Write:** create, edit and delete transactions, accounts, categories and budgets, and import CSV. Write includes read.
-- **User management** (admins only): create users, reset passwords, disable and enable users, change roles.
+- **User management** (admins only): create users, reset passwords, disable and enable users, change roles. The page is `/admin/users` (see User management below).
 - **Book settings** (admins only): the book's currency.
 - Every user can change their own display name, password, language, calendar, rial or toman, and theme, and connect Claude.
 - New users get `viewer` unless the admin picks another role (`DEFAULT_USER_ROLE`).
 - The role is checked on the server for every page, Server Action, Route Handler and MCP tool call, read from the user record at that moment (a role change applies right away, also to already connected Claude sessions). Hiding controls in the UI is only a convenience: a viewer sees no add, edit or delete controls, but the server is what enforces it.
 - Role names are in `src/constants/user.ts` (`USER_ROLES`); their labels are the `role` messages. What each role may do is in `src/helpers/role.ts` (`canWrite`, `canManageUsers`, and `toUserRole` for the plain string Better Auth stores), shared by the server checks, the MCP tools and the UI. The server checks are `requireUser()` (any role: reading, own settings), `requireWrite()` and `requireAdmin()` in `src/auth/session.ts`.
+
+## User management
+
+`/admin/users` (`UserManagement` in `src/components/user-management`, Server Actions in `src/app/(app)/admin/users/actions.ts`). Every action calls `requireAdmin()` first and validates its input with Zod; the user record and the role are read fresh each time.
+
+- **Create:** display name, username, temporary password, role (default `viewer`) and language, through the Better Auth admin plugin's `createUser` with the admin's session headers. The calendar follows the language (`DEFAULT_CALENDAR`), as in `pnpm user:create`. The username plugin lowercases the username for sign-in, keeps the typed form as `display_username` and refuses a taken one (shown on the username field). The form's rules are `newUserSchema` (`src/helpers/new-user.ts`), shared by the form and the action; its messages are keys of `users.form.errors`.
+- **Temporary passwords** are made on the server with `node:crypto` (`generateTemporaryPassword` in `src/helpers/user.ts`: three groups of four from an alphabet without look-alikes, «kT7m-Qx4p-Wz9r»). The new-user form asks for one when it opens (`generatePassword` action) and can ask for another; the admin may also type one. A reset makes one, sets it with the admin plugin's `setUserPassword` and returns it once to the dialog. Only Better Auth's hash is stored; the password is never logged or kept.
+- **Reset password** also signs the user out everywhere (`revokeUserSessions`). An admin can't reset their own password here (they change it in settings, with the current one).
+- **Change role** and **disable** run as one guarded SQL statement each (`setUserRole`, `disableUser` in `src/db/users.ts`): they lock the actor's and the target's rows (in id order) and write only while the actor is still an enabled admin and isn't the target. So an admin can't demote or disable themself, and two admins acting on each other at once can't leave the book without an admin: the last enabled admin always stays. The actions check self first for a clear message. Removing admin rights asks for confirmation.
+- **Disable** (Better Auth's ban) deletes the user's sessions in the same statement, so they are signed out at once; banned users can't sign in and count as signed out in `getSession`. Once Phase 6 exists it must also revoke their OAuth tokens (TODO in `disableUser`). Disabled users stay in the database. **Enable** is the admin plugin's `unbanUser`; the toast after disabling offers «واگرد» / «Undo», which enables again.
+- The list (`listUsers`) shows display name, username, role, language, status and creation date (the day in the viewer's time zone), with search and role and status filters on the client. A table from a 50rem-wide list (container query), cards below that. On the admin's own row the actions they can't take are disabled with a reason (Menu items' `description`).
 
 ## Languages, calendars and currency
 
@@ -69,7 +80,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `drizzle-kit migrate` before `next build`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview).
 - **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin. Setup in `src/auth/index.ts`:
   - Drizzle adapter, UUID ids (`generateId: "uuid"`). The Better Auth tables are written by hand in `src/db/schema/auth.ts`; when a plugin adds fields, add them there.
-  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin (admin plugin) or `pnpm user:create`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
+  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin on `/admin/users` (admin plugin) or with `pnpm user:create`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
   - Roles `admin`, `editor` and `viewer` (admin plugin `roles`: `admin` gets the plugin's user management permissions, `editor` and `viewer` get none; default `viewer`). Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
   - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
   - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
@@ -148,6 +159,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
   - The sections are `NAV_ITEMS` (`src/constants/navigation.ts`: label = `nav` message key, href, icon, `tab`, `adminOnly`), filtered by `getNavItems(role)` and marked active by `isNavItemActive` (`src/helpers/navigation.ts`, subpages count: `/settings/accounts` → Settings). The layout passes the role from the user record; the pages check it again.
   - The sidebar collapses to an icon rail (tooltips show the labels). The choice is saved in `localStorage` (`money-sidebar`); an inline `<head>` script (`SIDEBAR_SCRIPT`) sets `<html data-sidebar="collapsed">` before the first paint, and CSS draws the rail from that attribute (`:global(html[data-sidebar="collapsed"])`), so it never flashes open. `useSidebarCollapsed` gives components the same value.
   - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form. Until Phase 5 the form is a placeholder.
+  - Forms and confirmations opened from a page use `ResponsiveDialog` (`src/components/responsive-dialog`: a Dialog from 768px up, a Sheet on phones) or `ConfirmDialog` (cancel plus one button that names the outcome).
   - Pages start with `PageHeader` (h1 title = the nav label, subtitle, actions). Unbuilt pages show `PagePlaceholder`. `loading.tsx` shows `PageSkeleton`, `error.tsx` `PageError` (retry), `not-found.tsx` `PageNotFound`, all inside the shell; the `[...rest]` catch-all sends unknown paths to that not-found page. Page titles are `<nav label> | پول` / `<nav label> | Money` (the root layout's title template).
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
   - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
@@ -173,7 +185,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
 - **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
-- **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`; `src/app/(app)/settings/actions.ts`: profile, password, display preferences, book currency). Pages pass them to client components as props (`onSave`, `onSignOut`, …), so stories can pass fakes. Form actions take `unknown`, parse it with Zod and return `ActionResult` (`src/types/action.ts`): `{ ok: true }` or a translated `error`, with the `field` it belongs to when there is one. After a change that affects the page they call `refresh()` from `next/cache`.
+- **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`; `src/app/(app)/settings/actions.ts`: profile, password, display preferences, book currency; `src/app/(app)/admin/users/actions.ts`: user management). Pages pass them to client components as props (`onSave`, `onSignOut`, …), so stories can pass fakes. Form actions take `unknown`, parse it with Zod and return `ActionResult` (`src/types/action.ts`): `{ ok: true }` (plus data when the action hands something back, such as a temporary password) or a translated `error`, with the `field` it belongs to when there is one. After a change that affects the page they call `refresh()` from `next/cache`.
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu) and `choice.module.css` (label next to Checkbox, Switch, Radio).
 - **Storybook** has toolbars for theme, language (فارسی RTL / English LTR), calendar and money (IRR rial, IRR toman, USD, EUR, GBP). Check new components in both languages.
@@ -195,13 +207,14 @@ src/
   app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
     login/              Sign-in page
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
-                        page.tsx (dashboard), transactions, budgets, reports, settings (+ actions.ts), admin/users,
+                        page.tsx (dashboard), transactions, budgets, reports, settings (+ actions.ts), admin/users
+                        (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
   auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts)
   db/                   Drizzle client (index.ts), schema/ (auth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
-                        (updateUserPreferences)
+                        (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
                         (time-zone.ts), getPreferences (preferences.ts), changeLocale (actions.ts), typed messages
                         (types.d.ts)
@@ -219,6 +232,9 @@ src/
     add-transaction/    AddTransactionProvider (dialog / sheet), AddTransactionButton, useAddTransaction
     page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
                         loading, error and not-found)
+    user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
+                        role-dialog/, reset-password-dialog/ (confirm, then the password once)
+    responsive-dialog/, confirm-dialog/   Dialog on larger screens, Sheet on phones; a confirmation with one action
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
                         book-settings/ (admins)
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
@@ -228,8 +244,10 @@ src/
                         category, currency (units, symbols), locale, media queries, navigation (NAV_ITEMS), sidebar
                         (storage key, script), theme script, time zone, transaction, user
   helpers/              budget status, category color style, money formatting and input, navigation (getNavItems,
-                        isNavItemActive), preferences, role permissions, sign-in request, placeholder email
-  hooks/                useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed, useThemePreference
+                        isNavItemActive), new-user form rules (newUserSchema), preferences, role permissions,
+                        sign-in request, user (placeholder email, temporary password)
+  hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
+                        useThemePreference
   styles/
     tokens/             colors, typography, spacing, radius, shadows, motion, components
     base.css            element defaults, focus ring, mirror-rtl, reduced motion
@@ -278,7 +296,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 1 | Database and sign-in: Neon, Drizzle, Better Auth, login page, first admin | Done |
 | 1b | Languages and currency: Persian and English, Jalali and Gregorian, book currency, rial or toman (foundation; the settings UI is in Phase 2) | Done |
 | 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes, settings | Done |
-| 3 | User management (admin) | Not started |
+| 3 | User management (admin) | Done |
 | 4 | Accounts and categories | Not started |
 | 5 | Transactions | Not started |
 | 6 | Claude connector (MCP + OAuth) | Not started |
@@ -302,7 +320,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
 | `/settings/connector` | Claude connector: URL, connected apps | 6 |
-| `/admin/users` | User management (admins only; others get not-found) | 2 (placeholder until 3) |
+| `/admin/users` | User management (admins only; others get not-found) | 3 |
 | `/api/auth/[...all]` | Better Auth handler | 1 |
 | `/mcp` | MCP endpoint (OAuth bearer token) | 6 |
 

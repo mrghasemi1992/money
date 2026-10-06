@@ -20,6 +20,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Change: One shared book with roles](#change-one-shared-book-with-roles)
 - [Phase 1b: Languages and currency](#phase-1b-languages-and-currency)
 - [Phase 2: App shell](#phase-2-app-shell)
+- [Phase 3: User management](#phase-3-user-management)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -84,6 +85,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | One shared book with roles | 2026-10-02         | `feature/shared-book-roles`     | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
 | 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`     | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
 | 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`     | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
+| 3 User management          | 2026-10-06         | `feature/phase-3-users`         | PR link added when it opens                           |
 
 ---
 
@@ -635,9 +637,65 @@ PR #6: the app shell (sidebar with icon rail, phone top bar and tab bar with the
 
 ---
 
+## Phase 3: User management
+
+Branch: `feature/phase-3-users`. Date: 2026-10-06. PR link added when it opens.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-3-user-management-admin):
+
+```text
+Using the Money design system and app shell, design the admin page مدیریت کاربران, in Persian (RTL) and English (LTR), light and dark, desktop and mobile.
+
+- A list of users: display name, username, role (مدیر / ویرایشگر / بیننده), language, status (فعال / غیرفعال), created date (in the viewer's calendar). On mobile it becomes a card list.
+- "New user" (کاربر جدید) opens a dialog: display name, username, temporary password (with a "generate" button and a copy button), role, language (فارسی / English; sets the new user's calendar default too). The role choice shows one short line per role: مدیر (everything, plus managing users), ویرایشگر (read and change all data), بیننده (read only). The default is بیننده.
+- A row menu: reset password (shows a new temporary password to copy, once), disable / enable, change role.
+- Confirmation dialogs for disabling a user and for removing admin rights.
+- An admin can't disable or demote themself; show that as a disabled option with a short reason.
+- Empty, loading and error states.
+- The page is about user accounts only; it shows no transactions or balances.
+```
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/14995d4f-ac77-43c6-a38c-6dc45293f0e4?file=User+Management.dc.html` (a canvas of `UsersPage.dc.html` frames) and the design system bundle, CSS and `support.js` it imports. The prompt is the one in phases.md:
+
+```text
+Implement: Phase 3: user management. Read CLAUDE.md first. Create branch feature/phase-3-users from main.
+
+Implement the attached design at /admin/users with the Better Auth admin plugin:
+1. List users; create a user (username, display name, temporary password, role, language; the calendar follows the language as in scripts/create-user.ts); reset password; ban/unban (disable/enable); set role (admin, editor, viewer). Every action is a Server Action that calls requireAdmin() first and validates input with Zod.
+2. Generate temporary passwords on the server with node:crypto. Show them once and never store them in plain text.
+3. Guards on the server too: an admin can't ban or demote themself, and the last admin can't be demoted.
+4. Disabling a user also revokes their sessions and, once Phase 6 exists, their OAuth tokens. Leave a TODO in the code pointing to Phase 6.
+5. Stories for the new components.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Where the implementation differs from the design
+
+- **Password hint.** The design says the user sets their own password at first sign-in. Money has no forced password change, so the hint says to give the password to the person, who can change it later in Settings.
+- **Reset password on your own row** is disabled with a reason (change it in Settings, with the current password). An admin reset skips the current-password check and signs the user out everywhere.
+- **No undo after creating a user.** Users are never deleted. Undo is offered after disabling (it enables again).
+- **Reset and disable sign the user out everywhere**, and the confirmation texts say so.
+- **Username rules** stay the ones Better Auth's username plugin uses (Latin letters, digits, «.» and «_», 3 to 30 characters) instead of the design's lowercase-only with «-».
+- **The error state** is the shell's error page (`error.tsx`), as on the other pages.
+
+### Follow-ups
+
+None yet.
+
+### Result
+
+`/admin/users`: the user list (table on wide screens, cards on narrow ones, search and role and status filters), new user with a server-made temporary password, change role with a confirmation for removing admin rights, disable with undo, enable, and reset password with the new password shown once. Role changes and disabling are guarded in the SQL statement that writes them (no self-demotion or self-ban, and the last enabled admin stays). Disabling deletes the user's sessions in the same statement, with a TODO for Phase 6 to revoke OAuth tokens. Menu items got an optional description line, for disabled actions with a reason. Stories for every new component. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 3 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 4 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>
