@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
   CopyIcon,
+  KeyRoundIcon,
+  ShieldIcon,
+  UserXIcon,
   EllipsisVerticalIcon,
   PencilIcon,
   SlidersHorizontalIcon,
@@ -77,5 +80,28 @@ export const WithGroupsAndChecks: Story = {
         ]}
       />
     );
+  },
+};
+
+/** A disabled item can say why it is disabled, in a short line under its label. */
+export const DisabledWithReason: Story = {
+  args: {
+    open: true,
+    items: [
+      { label: "بازنشانی رمز عبور", icon: KeyRoundIcon },
+      {
+        label: "تغییر نقش",
+        icon: ShieldIcon,
+        disabled: true,
+        description: "نقش خودتان را نمی‌توانید تغییر دهید.",
+      },
+      { separator: true },
+      {
+        label: "غیرفعال کردن",
+        icon: UserXIcon,
+        disabled: true,
+        description: "حساب خودتان را نمی‌توانید غیرفعال کنید.",
+      },
+    ],
   },
 };

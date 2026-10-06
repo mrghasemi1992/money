@@ -1,0 +1,42 @@
+.password {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  padding-inline-start: var(--space-4);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+
+/*
+ * Latin letters and digits only, so the spacing helps reading it out without touching Persian.
+ * No tabular feature: Dana's ss03 would draw the Latin digits as Persian ones.
+ */
+.value {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  font: var(--type-heading);
+  letter-spacing: var(--password-tracking);
+  text-align: start;
+  overflow-wrap: anywhere;
+  -webkit-user-select: all;
+  user-select: all;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-block-start: var(--space-3);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.noteIcon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  margin-block-start: var(--menu-icon-offset);
+}

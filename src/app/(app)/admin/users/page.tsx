@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { requireAdmin } from "@/auth/session";
-import { PageHeader } from "@/components/page-header";
-import { PagePlaceholder } from "@/components/page-placeholder";
+import { UserManagement } from "@/components/user-management";
+import { listUsers } from "@/db/users";
+import { getPreferences } from "@/i18n/preferences";
+
+import {
+  changeRole,
+  createUser,
+  disable,
+  enable,
+  generatePassword,
+  resetPassword,
+} from "./actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   // Other roles get «not found», so the title doesn't name the page either.
@@ -13,13 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function UsersPage() {
-  await requireAdmin();
-  const t = await getTranslations();
+  const { user } = await requireAdmin();
+  const { timeZone } = await getPreferences();
+  const users = await listUsers(timeZone);
 
   return (
-    <>
-      <PageHeader title={t("nav.users")} subtitle={t("users.subtitle")} />
-      <PagePlaceholder section="users" />
-    </>
+    <UserManagement
+      users={users}
+      currentUserId={user.id}
+      onGeneratePassword={generatePassword}
+      onCreate={createUser}
+      onResetPassword={resetPassword}
+      onChangeRole={changeRole}
+      onDisable={disable}
+      onEnable={enable}
+    />
   );
 }
