@@ -93,6 +93,8 @@
   --menu-max-h: 320px;
   --menu-item-h: 36px;
   --menu-indent: 18px;
+  --menu-description-max: 240px; /* an item's description wraps at this width */
+  --menu-icon-offset: 2px; /* lines the icon up with the label when a description follows */
   --popover-min-w: 240px;
   --popover-max-w: 340px;
   --popup-enter-shift: 4px;

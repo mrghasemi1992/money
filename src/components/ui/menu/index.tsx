@@ -9,6 +9,11 @@ import { cx } from "@/utils/cx";
 
 type MenuAction = {
   label: string;
+  /**
+   * A short line under the label. On a disabled item it says why: «نقش خودتان را نمی‌توانید
+   * تغییر دهید.».
+   */
+  description?: string;
   icon?: LucideIcon;
   /** Short hint at the end of the row, such as a keyboard shortcut. */
   shortcut?: string;
@@ -79,13 +84,26 @@ export function Menu({
                   {Icon ? (
                     <Icon className={menu.icon} aria-hidden="true" />
                   ) : null}
-                  <span className={menu.text}>{item.label}</span>
+                  {item.description ? (
+                    <span className={menu.textStack}>
+                      <span className={menu.text}>{item.label}</span>
+                      <span className={menu.description}>
+                        {item.description}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className={menu.text}>{item.label}</span>
+                  )}
                   {item.shortcut ? (
                     <span className={menu.end}>{item.shortcut}</span>
                   ) : null}
                 </>
               );
-              const className = cx(menu.item, item.danger && menu.danger);
+              const className = cx(
+                menu.item,
+                item.danger && menu.danger,
+                item.description && menu.described,
+              );
               if (item.checked !== undefined) {
                 return (
                   <BaseMenu.CheckboxItem
