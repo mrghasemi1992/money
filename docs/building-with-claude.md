@@ -85,7 +85,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | One shared book with roles | 2026-10-02         | `feature/shared-book-roles`     | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
 | 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`     | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
 | 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`     | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
-| 3 User management          | 2026-10-06         | `feature/phase-3-users`         | PR link added when it opens                           |
+| 3 User management          | 2026-10-06         | `feature/phase-3-users`         | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
 
 ---
 
@@ -639,7 +639,7 @@ PR #6: the app shell (sidebar with icon rail, phone top bar and tab bar with the
 
 ## Phase 3: User management
 
-Branch: `feature/phase-3-users`. Date: 2026-10-06. PR link added when it opens.
+Branch: `feature/phase-3-users`. Date: 2026-10-06. PR [#7](https://github.com/mrghasemi1992/money/pull/7).
 
 ### Claude Design prompt
 
@@ -685,7 +685,17 @@ Check that build, lint, typecheck, format:check and build-storybook pass. Update
 
 ### Follow-ups
 
-None yet.
+The UI was tested in Storybook with fake actions, because local development uses the production database; the real actions are tested on the PR's preview, which has its own Neon branch.
+
+```text
+commit them, then create pr
+```
+
+```text
+yes, add and push it
+```
+
+(The second one approved this commit, which fills in the PR link and these follow-ups.)
 
 ### Result
 
