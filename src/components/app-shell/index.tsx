@@ -4,12 +4,16 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
-import { AddTransactionProvider } from "@/components/add-transaction";
+import {
+  type AddTransactionActions,
+  AddTransactionProvider,
+} from "@/components/add-transaction";
 import { Sidebar } from "@/components/sidebar";
 import { TabBar } from "@/components/tab-bar";
 import { TopBar } from "@/components/top-bar";
 import { findNavItem, getNavItems } from "@/helpers/navigation";
 import { canManageUsers, canWrite } from "@/helpers/role";
+import type { TransactionOptions } from "@/types/transaction";
 import type { UserRole } from "@/types/user";
 
 import styles from "./styles.module.css";
@@ -22,6 +26,12 @@ type AppShellProps = {
   user: { name: string; role: UserRole };
   /** Ends the session (the signOut Server Action). */
   onSignOut: () => Promise<void>;
+  /**
+   * For editors and admins: what the add-transaction form chooses from (a promise, so the
+   * shell doesn't wait) and its Server Actions. Null for viewers.
+   */
+  transactionOptions?: Promise<TransactionOptions> | null;
+  transactionActions?: AddTransactionActions | null;
   children: ReactNode;
 };
 
@@ -31,7 +41,13 @@ type AppShellProps = {
  * the navigation. Admins also get user management; editors and admins the add-transaction
  * buttons. The pages check the role again on the server.
  */
-export function AppShell({ user, onSignOut, children }: AppShellProps) {
+export function AppShell({
+  user,
+  onSignOut,
+  transactionOptions = null,
+  transactionActions = null,
+  children,
+}: AppShellProps) {
   const t = useTranslations("shell");
   const pathname = usePathname();
   const items = getNavItems(user.role);
@@ -42,7 +58,11 @@ export function AppShell({ user, onSignOut, children }: AppShellProps) {
   const backHref = section && section.href !== pathname ? section.href : "/";
 
   return (
-    <AddTransactionProvider enabled={canWrite(user.role)}>
+    <AddTransactionProvider
+      enabled={canWrite(user.role)}
+      options={transactionOptions}
+      actions={transactionActions}
+    >
       <div className={styles.root}>
         <a href={`#${MAIN_ID}`} className={styles.skipLink}>
           {t("skipToContent")}

@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { AddTransactionProvider } from "@/components/add-transaction";
+import {
+  SAMPLE_ADD_TRANSACTION_ACTIONS,
+  SAMPLE_TRANSACTION_OPTIONS_PROMISE,
+} from "@/components/transaction-list/sample-transactions";
 import { getNavItems } from "@/helpers/navigation";
 
 import { TabBar } from "./index";
@@ -27,7 +31,11 @@ type Story = StoryObj<typeof meta>;
 export const WithAddButton: Story = {
   decorators: [
     (Story) => (
-      <AddTransactionProvider enabled>
+      <AddTransactionProvider
+        enabled
+        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
+        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+      >
         <Story />
       </AddTransactionProvider>
     ),

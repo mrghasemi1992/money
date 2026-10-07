@@ -1,0 +1,84 @@
+/* The box grows to fit its chips; the input takes the rest of the last line. */
+.root {
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  height: auto;
+  min-height: var(--control-h-md);
+  padding-block: var(--space-1);
+}
+
+.input {
+  flex: 1;
+  min-width: var(--tag-input-min);
+  height: var(--tag-h);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  max-width: 100%;
+  height: var(--tag-h);
+  padding-inline: var(--space-2-5) var(--space-1);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font: var(--type-label);
+  line-height: var(--leading-none);
+  white-space: nowrap;
+  outline: 0;
+}
+
+.chip[data-highlighted] {
+  border-color: var(--brand-border);
+  background: var(--brand-soft);
+}
+
+.chipIcon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  color: var(--text-muted);
+}
+
+.chipLabel {
+  overflow: hidden;
+  padding-block-end: 1px;
+  text-overflow: ellipsis;
+}
+
+.remove {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--tag-x);
+  height: var(--tag-x);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-control);
+}
+
+.remove:hover {
+  background: var(--surface-active);
+  color: var(--text-primary);
+}
+
+.remove:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.removeIcon {
+  width: var(--icon-size-2xs);
+  height: var(--icon-size-2xs);
+}
+
+.hidden {
+  display: none;
+}

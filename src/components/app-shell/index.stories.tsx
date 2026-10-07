@@ -3,6 +3,10 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { AddTransactionButton } from "@/components/add-transaction";
 import { PageHeader } from "@/components/page-header";
 import { PagePlaceholder } from "@/components/page-placeholder";
+import {
+  SAMPLE_ADD_TRANSACTION_ACTIONS,
+  SAMPLE_TRANSACTION_OPTIONS_PROMISE,
+} from "@/components/transaction-list/sample-transactions";
 import { setSidebarCollapsed } from "@/utils/sidebar";
 
 import { AppShell } from "./index";
@@ -14,22 +18,28 @@ const meta = {
     user: { name: "مریم احمدی", role: "admin" },
     // Signing out calls a Server Action in the app; here it does nothing.
     onSignOut: async () => {},
+    transactionOptions: SAMPLE_TRANSACTION_OPTIONS_PROMISE,
+    transactionActions: SAMPLE_ADD_TRANSACTION_ACTIONS,
     children: (
       <>
         <PageHeader
-          title="تراکنش‌ها"
+          title="بودجه"
           subtitle="مهر ۱۴۰۵"
           actions={<AddTransactionButton />}
         />
-        <PagePlaceholder section="transactions" />
+        <PagePlaceholder section="budgets" />
       </>
     ),
   },
-  argTypes: { children: { control: false } },
+  argTypes: {
+    children: { control: false },
+    transactionOptions: { control: false },
+    transactionActions: { control: false },
+  },
   parameters: {
     layout: "fullscreen",
     // The App Router mock's current path marks the active link.
-    nextjs: { navigation: { pathname: "/transactions" } },
+    nextjs: { navigation: { pathname: "/budgets" } },
   },
 } satisfies Meta<typeof AppShell>;
 
@@ -50,8 +60,8 @@ export const Viewer: Story = {
     user: { name: "سارا محمدی", role: "viewer" },
     children: (
       <>
-        <PageHeader title="تراکنش‌ها" subtitle="مهر ۱۴۰۵" />
-        <PagePlaceholder section="transactions" />
+        <PageHeader title="بودجه" subtitle="مهر ۱۴۰۵" />
+        <PagePlaceholder section="budgets" />
       </>
     ),
   },

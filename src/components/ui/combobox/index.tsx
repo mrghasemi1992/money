@@ -18,13 +18,18 @@ export type ComboboxGroup = {
   label: string;
   /** Category hue: a dot before the group label, and before the value once picked. */
   color?: CategoryColor;
-  options: { value: string; label: string }[];
+  /**
+   * `selectedLabel` replaces «group / option» in the box once picked: an option that stands
+   * for the whole group («همه» → «خوراک»).
+   */
+  options: { value: string; label: string; selectedLabel?: string }[];
 };
 
 /** One option as Base UI sees it: the option plus its group, so labels read «خوراک / رستوران». */
 type Item = {
   value: string;
   label: string;
+  selectedLabel?: string;
   groupLabel: string;
   color?: CategoryColor;
 };
@@ -59,7 +64,7 @@ type ComboboxProps = {
 };
 
 function itemLabel(item: Item): string {
-  return `${item.groupLabel} / ${item.label}`;
+  return item.selectedLabel ?? `${item.groupLabel} / ${item.label}`;
 }
 
 /**

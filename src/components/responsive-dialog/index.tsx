@@ -21,6 +21,8 @@ type ResponsiveDialogProps = {
   children?: ReactNode;
   /** Actions. Cancel buttons close it through `onOpenChange(false)`. */
   footer?: ReactNode;
+  /** The element focused on open, such as a form's first field. */
+  initialFocus?: DialogProps["initialFocus"];
 };
 
 /**
