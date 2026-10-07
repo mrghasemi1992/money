@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Tag } from "./index";
@@ -67,6 +68,35 @@ export const Removable: Story = {
             {tag}
           </Tag>
         ))}
+      </div>
+    );
+  },
+};
+
+/** Suggestions: each tag adds itself with one click (the categories page's starters). */
+export const Suggestions: Story = {
+  render: function Example() {
+    const [added, setAdded] = useState<string[]>([]);
+    const suggestions = [
+      { name: "خوراک", color: "orange", title: "همراه با ۲ زیردسته" },
+      { name: "حمل‌ونقل", color: "sky", title: "همراه با ۲ زیردسته" },
+      { name: "پوشاک", color: "pink", title: "بدون زیردسته" },
+    ] as const;
+    return (
+      <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+        {suggestions
+          .filter((suggestion) => !added.includes(suggestion.name))
+          .map((suggestion) => (
+            <Tag
+              key={suggestion.name}
+              color={suggestion.color}
+              icon={PlusIcon}
+              title={suggestion.title}
+              onClick={() => setAdded([...added, suggestion.name])}
+            >
+              {suggestion.name}
+            </Tag>
+          ))}
       </div>
     );
   },

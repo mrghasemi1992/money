@@ -59,6 +59,11 @@ export const Dollars: Story = {
   args: { defaultValue: 123456, unit: "USD" },
 };
 
+/** Balances may be negative (an overdrawn card): type «-» or «−» before the number. */
+export const Negative: Story = {
+  args: { defaultValue: -2500000, allowNegative: true, unit: "rial" },
+};
+
 export const Invalid: Story = {
   render: () => (
     <Field label="مبلغ" required error="مبلغ را وارد کنید.">

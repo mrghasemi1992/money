@@ -17,11 +17,14 @@ import control from "@/styles/control.module.css";
 import type { MoneyUnit } from "@/types/currency";
 import { cx } from "@/utils/cx";
 import { focusInnerInput } from "@/utils/focus";
-import { formatNumber } from "@/utils/number";
+import { MINUS_SIGN, formatNumber } from "@/utils/number";
 
 import type { ControlSize } from "@/components/ui/text-field";
 
 import styles from "./styles.module.css";
+
+/** A minus sign typed before the number: «-», «−» (U+2212) or a dash, after any spaces. */
+const LEADING_MINUS = /^\s*[-−‐–]/;
 
 type AmountFieldProps = Omit<
   ComponentProps<"input">,
@@ -38,6 +41,11 @@ type AmountFieldProps = Omit<
    * a rial field, «معادل … ریال» under a toman one), because people think in both.
    */
   showEquivalent?: boolean;
+  /**
+   * Accepts a minus sign («-» or «−») before the number, for balances that may be negative (an
+   * overdrawn card). Transaction and budget amounts are always positive and leave it off.
+   */
+  allowNegative?: boolean;
   size?: ControlSize;
   invalid?: boolean;
 };
@@ -46,7 +54,8 @@ type AmountFieldProps = Omit<
  * Amount input in the viewer's money unit. Accepts Persian, Arabic or Latin digits (typed or
  * pasted, with any separators) and «.» or «٫» before decimals when the unit has them (dollars,
  * euros, pounds, tomans). Shows the language's digits and separators. Takes and returns the
- * stored integer; with `name`, a hidden input submits it.
+ * stored integer; with `name`, a hidden input submits it. With `allowNegative`, a leading minus
+ * makes the amount negative.
  */
 export function AmountField({
   value,
@@ -54,6 +63,7 @@ export function AmountField({
   onValueChange,
   unit: unitProp,
   showEquivalent = false,
+  allowNegative = false,
   size = "md",
   invalid,
   disabled,
@@ -82,7 +92,8 @@ export function AmountField({
       ? draft.text
       : amount == null
         ? ""
-        : formatMoneyNumber(amount, unit, locale);
+        : (amount < 0 ? MINUS_SIGN : "") +
+          formatMoneyNumber(amount, unit, locale);
   const otherUnit: MoneyUnit | null =
     unit === "rial" ? "toman" : unit === "toman" ? "rial" : null;
 
@@ -112,9 +123,21 @@ export function AmountField({
         aria-invalid={invalid || undefined}
         value={text}
         onValueChange={(typed) => {
-          const parsed = parseMoneyInput(typed, unit, locale);
-          setDraft(parsed);
-          setAmount(parsed.value);
+          const negative = allowNegative && LEADING_MINUS.test(typed);
+          const parsed = parseMoneyInput(
+            negative ? typed.replace(LEADING_MINUS, "") : typed,
+            unit,
+            locale,
+          );
+          const next =
+            negative && parsed.value !== null && parsed.value !== 0
+              ? -parsed.value
+              : parsed.value;
+          setDraft({
+            text: (negative ? MINUS_SIGN : "") + parsed.text,
+            value: next,
+          });
+          setAmount(next);
         }}
         {...rest}
       />

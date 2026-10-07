@@ -56,16 +56,17 @@
   box-shadow: var(--shadow-focus);
 }
 
-.toggle:active:not([data-disabled]) {
+.toggle:active:not([data-disabled], :disabled) {
   transform: translateY(1px);
 }
 
-.toggle[data-disabled] {
+.toggle[data-disabled],
+.toggle:disabled {
   cursor: not-allowed;
 }
 
 @media (hover: hover) {
-  .root:has(.toggle:hover:not([data-disabled], [data-pressed])) {
+  .root:has(.toggle:hover:not([data-disabled], [data-pressed], :disabled)) {
     border-color: var(--border-input-hover);
     background: var(--surface-hover);
   }
