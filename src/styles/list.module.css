@@ -1,0 +1,71 @@
+/*
+ * Rows of a settings list on a card (accounts, categories, their archived ones): a leading
+ * tile, a name with a quiet line under it, then amounts and a row menu at the end. Rows are
+ * separated by a subtle line.
+ */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item + .item {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+}
+
+@media (--mobile) {
+  .row {
+    padding: var(--space-3);
+  }
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-px);
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  overflow: hidden;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Archived rows read quieter. */
+.muted .name {
+  color: var(--text-secondary);
+}
+
+.muted .amount {
+  --amount-color: var(--text-secondary);
+}
+
+.end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+}

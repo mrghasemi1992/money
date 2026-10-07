@@ -22,6 +22,10 @@ const en: Messages = {
     today: "Today",
     yesterday: "Yesterday",
     undo: "Undo",
+    viewOnly: "View only",
+    listSeparator: ", ",
+    transactionCount:
+      "{countNumber, plural, =0 {No transactions} one {{count} transaction} other {{count} transactions}}",
   },
   transactionType: {
     income: "Income",
@@ -287,8 +291,184 @@ const en: Messages = {
       copyFailed: "Couldn’t copy. Select the password and copy it by hand.",
     },
   },
+  accounts: {
+    title: "Accounts",
+    subtitle: "Bank cards, cash and anywhere else your money sits",
+    add: "Add account",
+    list: "Accounts",
+    total: "Total balance",
+    totalNote:
+      "{countNumber, plural, one {{count} active account} other {{count} active accounts}}{archived, select, true {, excluding archived} other {}}",
+    types: {
+      card: "Bank card",
+      cash: "Cash",
+      other: "Other",
+    },
+    menu: "Options for {name}",
+    actions: {
+      edit: "Edit",
+      moveUp: "Move up",
+      moveDown: "Move down",
+      archive: "Archive",
+      restore: "Restore",
+      delete: "Delete",
+    },
+    dragHandle: "Move {name}",
+    dragHint:
+      "Drag a row by its handle to reorder. The transaction form lists accounts in the same order.",
+    moveHint:
+      "Reorder from each account’s menu. The transaction form lists accounts in the same order.",
+    archived: "Archived ({count})",
+    archivedNote: "Hidden from forms; their history is kept.",
+    form: {
+      newTitle: "New account",
+      editTitle: "Edit account",
+      name: "Name",
+      namePlaceholder: "e.g. Mellat Bank card",
+      type: "Type",
+      opening: "Starting balance",
+      openingHint:
+        "The balance on the day you start using Money. Can be zero or negative.",
+      openingHintEdit:
+        "The current balance is recalculated from this amount and the account’s transactions.",
+      submitNew: "Add account",
+      submitEdit: "Save changes",
+      errors: {
+        nameMissing: "Enter a name.",
+        nameTooLong: "An account name can be at most {max} characters.",
+        nameTaken: "An account with this name already exists.",
+      },
+    },
+    delete: {
+      title: "Delete account?",
+      description: "“{name}” will be permanently deleted.",
+      submit: "Delete account",
+    },
+    blocked: {
+      title: "This account can’t be deleted",
+      description:
+        "“{name}” has {count} transactions, and accounts with transactions can’t be deleted. Archive it to hide it from forms and keep its history.",
+      archivedDescription:
+        "“{name}” has {count} transactions, and accounts with transactions can’t be deleted. It stays archived so its history is kept.",
+      submit: "Archive account",
+    },
+    empty: {
+      title: "No accounts yet",
+      description:
+        "Add a bank card, a cash wallet or any other account so you can start recording transactions.",
+      viewerTitle: "No accounts have been set up",
+      viewerDescription:
+        "Accounts appear here once an editor or admin adds them.",
+    },
+    error: "Couldn’t load accounts",
+    failed: "Couldn’t save. Check your internet connection and try again.",
+    inUse:
+      "This account has transactions, so it can’t be deleted. Archive it to hide it from forms.",
+    toasts: {
+      added: "Account added",
+      saved: "Changes saved",
+      archived: "“{name}” archived",
+      restored: "“{name}” restored",
+      deleted: "“{name}” deleted",
+    },
+  },
+  categories: {
+    title: "Categories",
+    subtitle: "The categories and subcategories you give each transaction",
+    add: "Add category",
+    type: "Category type",
+    list: "{type} categories",
+    subcategoryCount:
+      "{countNumber, plural, one {{count} subcategory} other {{count} subcategories}}",
+    addSubcategory: "Subcategory",
+    addSubcategoryLabel: "Add a subcategory to {name}",
+    menu: "Options for {name}",
+    actions: {
+      edit: "Rename and recolor",
+      addSubcategory: "Add subcategory",
+      rename: "Rename",
+      archive: "Archive",
+      restore: "Restore",
+      delete: "Delete",
+    },
+    archived: "Archived ({count})",
+    archivedNote: "Hidden from forms; past transactions stay in reports.",
+    form: {
+      newTitle:
+        "{type, select, expense {New expense category} other {New income category}}",
+      editTitle: "Edit category",
+      newSubTitle: "New subcategory",
+      editSubTitle: "Rename subcategory",
+      underParent: "Under “{name}”",
+      name: "Name",
+      namePlaceholder: "e.g. Food",
+      subPlaceholder: "e.g. Restaurants",
+      color: "Color",
+      colorHintEdit: "Subcategories take the same color.",
+      colorFromParent: "Subcategories use their parent’s color.",
+      submitNew: "Add category",
+      submitNewSub: "Add subcategory",
+      submitEdit: "Save changes",
+      errors: {
+        nameMissing: "Enter a name.",
+        nameTooLong: "A category name can be at most {max} characters.",
+        nameTaken: "A category with this name already exists.",
+      },
+    },
+    delete: {
+      title: "Delete category?",
+      subTitle: "Delete subcategory?",
+      description: "“{name}” will be permanently deleted.",
+      withSubcategories:
+        "“{name}” and its {count} subcategories will be permanently deleted.",
+      submit: "Delete category",
+      subSubmit: "Delete subcategory",
+    },
+    blocked: {
+      title: "This category can’t be deleted",
+      subTitle: "This subcategory can’t be deleted",
+      description:
+        "“{name}” is used by {count} transactions, so it can’t be deleted. Archive it to hide it from forms and leave reports untouched.",
+      archivedDescription:
+        "“{name}” is used by {count} transactions, so it can’t be deleted. It stays archived so reports stay untouched.",
+      submit: "Archive category",
+      subSubmit: "Archive subcategory",
+    },
+    empty: {
+      title:
+        "{type, select, expense {No expense categories yet} other {No income categories yet}}",
+      description: "Start from a suggestion with one tap, or make your own.",
+      noStartersDescription: "Make your own category.",
+      viewerTitle: "No categories have been set up",
+      viewerDescription:
+        "Categories appear here once an editor or admin adds them.",
+    },
+    starters: {
+      title: "Suggestions",
+      addAll: "Add all",
+      addOwn: "Create your own",
+      add: "Add {name}",
+      includes:
+        "{countNumber, plural, =0 {No subcategories} one {Includes {count} subcategory} other {Includes {count} subcategories}}",
+    },
+    error: "Couldn’t load categories",
+    failed: "Couldn’t save. Check your internet connection and try again.",
+    inUse:
+      "This category is used by transactions, so it can’t be deleted. Archive it to hide it from forms.",
+    toasts: {
+      added: "Category added",
+      subAdded: "Subcategory added",
+      saved: "Changes saved",
+      archived: "“{name}” archived",
+      restored: "“{name}” restored",
+      deleted: "“{name}” deleted",
+      starterAdded: "“{name}” added",
+      startersAdded: "Suggestions added",
+      startersRemoved: "Suggestions removed",
+    },
+  },
   settings: {
-    subtitle: "Profile, password and display",
+    subtitle: "Accounts, categories, profile and display",
     failed: "Couldn’t save. Check your internet connection and try again.",
     profile: {
       title: "Profile",
@@ -322,6 +502,11 @@ const en: Messages = {
       subtitle: "Language, calendar and appearance for your account.",
       tomanNote: "One toman equals ten rials.",
       themeNote: "On this device only.",
+    },
+    data: {
+      title: "Accounts and categories",
+      accounts: "Cards, cash and the starting balance of each",
+      categories: "Expense and income categories and their subcategories",
     },
     book: {
       title: "Book settings",

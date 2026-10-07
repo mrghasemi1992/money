@@ -1,0 +1,55 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--book-list-max);
+}
+
+.empty {
+  padding-block: var(--space-10);
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.totalLabel {
+  color: var(--text-on-brand-muted);
+  font: var(--type-label);
+}
+
+.totalAmount {
+  --amount-color: var(--text-on-brand);
+  --amount-unit-color: var(--text-on-brand-muted);
+}
+
+.totalNote {
+  color: var(--text-on-brand-muted);
+  font: var(--type-caption);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.skeletonRow + .skeletonRow {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.skeletonText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}

@@ -37,6 +37,9 @@ export function AppShell({ user, onSignOut, children }: AppShellProps) {
   const items = getNavItems(user.role);
   const tabs = items.filter((item) => item.tab);
   const onTab = findNavItem(tabs, pathname) !== undefined;
+  // A subpage (/settings/accounts) goes back to its section, anything else to the dashboard.
+  const section = findNavItem(items, pathname);
+  const backHref = section && section.href !== pathname ? section.href : "/";
 
   return (
     <AddTransactionProvider enabled={canWrite(user.role)}>
@@ -49,6 +52,7 @@ export function AppShell({ user, onSignOut, children }: AppShellProps) {
           <TopBar
             user={user}
             showBack={!onTab}
+            backHref={backHref}
             showUsersLink={canManageUsers(user.role)}
             onSignOut={onSignOut}
           />

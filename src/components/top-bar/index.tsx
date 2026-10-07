@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeftIcon, SettingsIcon } from "lucide-react";
+import type { Route } from "next";
 import { useTranslations } from "next-intl";
 
 import { UserMenu } from "@/components/user-menu";
@@ -15,6 +16,8 @@ type TopBarProps = {
   user: { name: string; role: UserRole };
   /** A back button to the dashboard, on pages that aren't tabs (settings, user management, not found). */
   showBack?: boolean;
+  /** Where the back button goes: the dashboard, or the parent section of a subpage (/settings). */
+  backHref?: Route;
   /** Adds user management to the user menu (admins). */
   showUsersLink?: boolean;
   onSignOut: () => Promise<void>;
@@ -25,6 +28,7 @@ type TopBarProps = {
 export function TopBar({
   user,
   showBack = false,
+  backHref = "/",
   showUsersLink = false,
   onSignOut,
   className,
@@ -35,7 +39,7 @@ export function TopBar({
       <div className={styles.start}>
         {showBack ? (
           <IconButton
-            href="/"
+            href={backHref}
             icon={ArrowLeftIcon}
             mirrorIcon
             label={t("shell.back")}

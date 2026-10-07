@@ -1,0 +1,59 @@
+import type { Account } from "@/types/account";
+
+/** Accounts for stories: names stay Persian, amounts in rials. */
+export const SAMPLE_ACCOUNTS: Account[] = [
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b01",
+    name: "بانک ملی",
+    type: "card",
+    openingBalance: 21500000,
+    balance: 46240000,
+    archived: false,
+    transactionCount: 42,
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b02",
+    name: "بانک سامان",
+    type: "card",
+    openingBalance: 4300000,
+    balance: 14680000,
+    archived: false,
+    transactionCount: 18,
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b03",
+    name: "کیف پول نقدی",
+    type: "cash",
+    openingBalance: 650000,
+    balance: 1950000,
+    archived: false,
+    transactionCount: 9,
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b04",
+    name: "صندوق پس‌انداز",
+    type: "other",
+    openingBalance: 30000000,
+    balance: 38000000,
+    archived: false,
+    transactionCount: 3,
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b05",
+    name: "کارت هدیه",
+    type: "card",
+    openingBalance: 2000000,
+    balance: 2000000,
+    archived: false,
+    transactionCount: 0,
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b06",
+    name: "بانک پاسارگاد",
+    type: "card",
+    openingBalance: 5000000,
+    balance: -1200000,
+    archived: true,
+    transactionCount: 27,
+  },
+];

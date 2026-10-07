@@ -9,3 +9,7 @@
 .root p {
   max-width: var(--status-text-max);
 }
+
+.list {
+  padding-block: var(--space-10);
+}
