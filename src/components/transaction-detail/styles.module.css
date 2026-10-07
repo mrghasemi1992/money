@@ -1,0 +1,132 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1) var(--space-2);
+  text-align: center;
+}
+
+.description {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-heading);
+  overflow-wrap: anywhere;
+}
+
+.unknown {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  padding: var(--space-3);
+  border: var(--border-width) dashed var(--status-warning-border);
+  border-radius: var(--radius-lg);
+  background: var(--status-warning-soft);
+  color: var(--status-warning-text);
+  font: var(--type-caption);
+}
+
+.unknownIcon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.unknownText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.unknownTitle {
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  font: var(--type-body);
+}
+
+.facts dt {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.facts .noteLabel {
+  align-self: start;
+}
+
+.note {
+  color: var(--text-secondary);
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+.people {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  padding-block-start: var(--space-3-5);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+}
+
+.personText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.personLine {
+  color: var(--text-primary);
+  font: var(--type-label);
+}
+
+.personDate {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.spacer {
+  flex: 1;
+}

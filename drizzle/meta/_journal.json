@@ -29,6 +29,13 @@
       "when": 1791396371682,
       "tag": "0003_account_types",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791403202109,
+      "tag": "0004_transaction_list_index",
+      "breakpoints": true
     }
   ]
 }

@@ -45,12 +45,26 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 
 - **Accounts** (`src/db/accounts.ts`): name (unique ignoring case), type (`card`, `cash`, `other`: only the icon and label, `ACCOUNT_TYPES`), starting balance (may be 0 or negative; AmountField `allowNegative`). The list shows the total of the active accounts and each account's live balance and transaction count. **Balances** come from `accountBalance()` (`src/helpers/account-balance.ts`): one SQL expression, opening + income − expense − transfers out + transfers in, summed in Postgres; never add balances up in JavaScript.
 - **Order**: `sort_order`, set for the whole list in one statement (`reorderAccounts`). Drag by the handle from 768px up (native drag and drop), «انتقال به بالا / پایین» in the row menu everywhere. New accounts go to the end; archived ones keep their position. Forms list accounts in this order.
-- **Archive** hides an account or category from forms (Phase 5 must leave archived ones out of its pickers) and keeps its history; archived items are listed under «بایگانی‌شده» (`ArchivedSection`) with restore and delete.
+- **Archive** hides an account or category from forms (the transaction form leaves archived ones out, except the one an edited transaction already uses) and keeps its history; archived items are listed under «بایگانی‌شده» (`ArchivedSection`) with restore and delete.
 - **Delete only when unused**, checked in the statement that deletes: an account without transactions (`deleteAccount`); a category or subcategory only when nothing in its family (the top-level category and all its subcategories) has transactions (`deleteCategories`), and a category goes with its subcategories. The page asks first, or explains why not and offers to archive. Budgets of a deleted category go with it (foreign key cascade).
 - **Categories** (`src/db/categories.ts`): names unique per type and parent ignoring case (the server checks; the database's unique constraint catches exact duplicates), a color from the palette for top-level categories (`CategoryColorPicker`; a new category gets the first hue its siblings don't use, `nextCategoryColor`). Subcategories are created from their parent in one statement (`createSubcategory`), taking its type and color; recoloring a category recolors its subcategories. Archiving a category hides its subcategories without changing their own flag.
 - **Starter categories**: `STARTER_CATEGORIES` (`src/constants/starter-categories.ts`), names in both languages, offered while a type has no active categories. `addStarterCategories` stores them (with their subcategories, in order, skipping names that exist) in one SQL statement in the acting user's language.
 - Names are tidied before they are compared or saved (`tidyName` in `src/utils/text.ts`: Arabic «ي» «ك» to Persian, spaces collapsed, trimmed).
 - **Raw SQL with Drizzle:** in a one-table query Drizzle writes columns without their table (`"id"`), so inside a correlated subquery an outer column must be qualified explicitly (`` sql`${accounts}.${sql.identifier("id")}` ``).
+
+## Transactions
+
+`/transactions` (`Transactions` in `src/components/transactions`, page in `src/app/(app)/transactions/page.tsx`). Every role reads; viewers get no add, edit or delete controls and a «فقط مشاهده» badge.
+
+- **Queries** in `src/db/transactions.ts` (server-only). Like the other `src/db` files they don't check the role: the page calls `requireUser()`, every write action `requireWrite()`, and in Phase 6 the MCP tools check the token's user before calling the same functions. Writes take the acting user's id for `created_by` / `updated_by` (from the session, never from input). `listTransactions(filters, cursor)` (with accounts, category and its parent, creator and last editor), `transactionTotals` (income, expense, count), `transactionDayTotals` (per day, for the day headers), `listTransactionTags` (most used first), `listTransactionOptions` (accounts, categories and tags for the form and filters), `checkTransactionReferences`, `createTransaction`, `updateTransaction`, `deleteTransaction` (returns what it stored, for undo).
+- **Filters** (`TransactionFilters`): Gregorian date range, types, account (from or to), category (a top-level category includes its subcategories), tag, search (description, note, tags and category names; folded like `normalizePersian` in SQL, LIKE wildcards escaped) and unknown only. Column references in the filter SQL are qualified (`column()`), so the same conditions work in the joined list query and the one-table totals.
+- **Speed:** keyset pagination on `(date, created_at, id)`, newest first, 50 rows a page (`TRANSACTION_PAGE_SIZE`), with the index `transactions_list_index` on the same three columns (migration `0004`). The cursor keeps `created_at` to the microsecond. Totals and day totals are summed in Postgres over the whole period, so a day split between pages still shows its full net. «نمایش بیشتر» calls `loadTransactions` (any role); after a change the page's refresh brings a new first page and the pages already shown are reloaded to match (`limit`).
+- **URL:** the filters live in the search params (`src/helpers/transaction-filters.ts`): `month`, `from`, `to`, `type` (repeated), `account`, `category`, `tag`, `q`, `unknown=1`. `month` is `YYYY-MM` of the calendar its year belongs to (Jalali below 1700, Gregorian from 1700); a viewer with the other calendar sees that month as a date range. `from` / `to` replace the month. No period means the viewer's current month. `resolveTransactionPeriod` turns the month into a Gregorian range with `monthRange` before querying.
+- **Form** (`TransactionDialog`, `src/components/transaction-dialog`): type, amount (focused on open), date (default today in the viewer's time zone, no future dates), account (from and to for a transfer), category with its subcategories (a category can be picked itself, «بدون زیردسته»; hidden for transfers), description, tags (`TagInput`, suggestions from the book's tags) and a note (collapsed). «ثبت و افزودن بعدی» keeps the type, account and date. Required for income and expense: a category. An empty description is saved as «؟».
+- **Rules:** `transactionSchema(today)` in `src/helpers/transaction.ts` is shared by the form and the Server Actions (`src/app/(app)/transactions/actions.ts`); `transactionErrors` gives each field's first error (also the rules between fields while another field is invalid). The actions then check in the database that the accounts and category exist, aren't archived (an edit may keep the archived ones it had) and the category has the transaction's type. Errors are translated on the server and come back on their field. Rows added here get `source = "web"`.
+- **Undo:** adding offers «واگرد» (deletes it); deleting offers «واگرد» (`restoreTransaction` adds it again under a new id by the acting user, allowing the archived account or category it had). Editing shows «تغییرات ذخیره شد».
+- **List** (`TransactionList`): grouped by day in the viewer's calendar («امروز، …», «دیروز، …») with each day's net; description or a «؟» mark with «ناشناس», category chip or the transfer's route («رسالت ← بلو»), account, tags, a Claude badge for `source = "mcp"`, the signed amount, and edit / delete for writers. Clicking a row opens `TransactionDetail` (who added it, «با Claude» for MCP rows, and who last edited it when that's someone else). From 62rem of list width (container query) the account gets its own column; on phones each row starts with a tile.
+- **Global add:** the layout passes editors and admins `listTransactionOptions()` as a promise and the create / delete actions to `AppShell` → `AddTransactionProvider`, so the header button and the tab bar's floating button open the same form on every page without holding up the page.
 
 ## Languages, calendars and currency
 
@@ -121,7 +135,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Today** is the current date in the viewer's device time zone (`Preferences.timeZone`): `todayIso(timeZone)`. MCP has no browser; Phase 6 decides its time zone.
 - **Amounts** are integers in the book currency's smallest unit (`bigint`): rials for IRR, cents or pence for USD, EUR and GBP. Transaction and budget amounts are positive; the transaction type gives the direction. Toman is only a way of showing and typing IRR amounts (1 toman = 10 rials); the stored value is always rials. Format with the helpers in `src/helpers/money.ts` (`formatMoney`, `formatMoneyNumber`) or the `Amount` component, never by hand. Amount inputs accept Persian, Arabic and Latin digits, and «.» or «٫» before decimals when the unit has them; with `allowNegative` (starting balances only) a leading «-» or «−».
 - **The book currency** can change only while the book holds no amounts: no transactions, no budgets and every opening balance 0. Changing it later would silently reinterpret every stored number. `setBookCurrency` (`src/db/book.ts`) checks and upserts in one SQL statement (`insert … select … where not <holds amounts> on conflict do update`), so an amount recorded in between can't slip past; `bookHoldsAmounts` tells the settings page to show the currency locked.
-- **Unknown transactions:** a description of `؟` (or empty) marks a transaction that still needs to be identified, as in `daily-transactions`.
+- **Unknown transactions:** a description of `؟` (or empty) marks a transaction that still needs to be identified, as in `daily-transactions`. The form saves an empty description as `؟` (`UNKNOWN_DESCRIPTION`); `isUnknownDescription` also accepts empty and «?».
 
 ### Data model
 
@@ -171,8 +185,8 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **App shell** (`AppShell`, `src/components/app-shell`, rendered by `src/app/(app)/layout.tsx` around every signed-in page): a skip link to `#main`; from 768px up the `Sidebar` on the start side (logo, sections, `UserMenu`); on phones the `TopBar` (logo, back on non-tab pages: to the section for a subpage such as `/settings/accounts`, otherwise to the dashboard; settings, user menu) and the fixed `TabBar` with the floating add button. Each part hides itself at the other breakpoint with CSS.
   - The sections are `NAV_ITEMS` (`src/constants/navigation.ts`: label = `nav` message key, href, icon, `tab`, `adminOnly`), filtered by `getNavItems(role)` and marked active by `isNavItemActive` (`src/helpers/navigation.ts`, subpages count: `/settings/accounts` → Settings). The layout passes the role from the user record; the pages check it again.
   - The sidebar collapses to an icon rail (tooltips show the labels). The choice is saved in `localStorage` (`money-sidebar`); an inline `<head>` script (`SIDEBAR_SCRIPT`) sets `<html data-sidebar="collapsed">` before the first paint, and CSS draws the rail from that attribute (`:global(html[data-sidebar="collapsed"])`), so it never flashes open. `useSidebarCollapsed` gives components the same value.
-  - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form. Until Phase 5 the form is a placeholder.
-  - Forms and confirmations opened from a page use `ResponsiveDialog` (`src/components/responsive-dialog`: a Dialog from 768px up, a Sheet on phones) or `ConfirmDialog` (cancel plus one button that names the outcome).
+  - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form (`TransactionDialog`, see Transactions).
+  - Forms and confirmations opened from a page use `ResponsiveDialog` (`src/components/responsive-dialog`: a Dialog from 768px up, a Sheet on phones; `initialFocus` puts the focus on a form's first field) or `ConfirmDialog` (cancel plus one button that names the outcome).
   - Pages start with `PageHeader` (h1 title = the nav label, subtitle, actions). Unbuilt pages show `PagePlaceholder`. `loading.tsx` shows `PageSkeleton`, `error.tsx` `PageError` (retry), `not-found.tsx` `PageNotFound`, all inside the shell; the `[...rest]` catch-all sends unknown paths to that not-found page. Page titles are `<nav label> | پول` / `<nav label> | Money` (the root layout's title template).
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
   - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
@@ -200,6 +214,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
 - **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`; `src/app/(app)/settings/actions.ts`: profile, password, display preferences, book currency; `src/app/(app)/admin/users/actions.ts`: user management). Pages pass them to client components as props (`onSave`, `onSignOut`, …), so stories can pass fakes. Form actions take `unknown`, parse it with Zod and return `ActionResult` (`src/types/action.ts`): `{ ok: true }` (plus data when the action hands something back, such as a temporary password) or a translated `error`, with the `field` it belongs to when there is one. After a change that affects the page they call `refresh()` from `next/cache`.
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
+- **Layers** (`--z-*` in `tokens/components.css`): shell bars 20, overlays (Dialog, Sheet) 100, popups (Select, Combobox, Menu, DatePicker, Popover) 150, toasts and tooltips 200. Popups sit above overlays because forms in dialogs open them.
 - **Shared component styles** that several components use are CSS Modules in `src/styles/`: `control.module.css` (the input box of TextField, AmountField, Select, Combobox, DatePicker, …), `menu.module.css` (popup lists of Select, Combobox and Menu), `choice.module.css` (label next to Checkbox, Switch, Radio) and `list.module.css` (rows of the accounts and categories lists: tile, name, quiet line, end).
 - **Storybook** has toolbars for theme, language (فارسی RTL / English LTR), calendar and money (IRR rial, IRR toman, USD, EUR, GBP). Check new components in both languages.
 - **Base UI:** interactive design system components wrap Base UI parts and style them with `data-*` state attributes (`[data-checked]`, `[data-highlighted]`, `[data-invalid]`, `[data-starting-style]`, …). `Providers` (`src/components/providers`) wraps the app and every story: `DirectionProvider`, the shared tooltip delay and the toast viewport (`useToast()` from `src/components/ui/toast`).
@@ -220,7 +235,8 @@ src/
   app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
     login/              Sign-in page
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
-                        page.tsx (dashboard), transactions, budgets, reports, settings (+ actions.ts;
+                        page.tsx (dashboard), transactions (+ actions.ts, loading.tsx, error.tsx), budgets,
+                        reports, settings (+ actions.ts;
                         accounts/ and categories/ with actions.ts, loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
@@ -229,7 +245,8 @@ src/
   db/                   Drizzle client (index.ts), schema/ (auth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
-                        categories.ts, errors.ts (isUniqueViolation)
+                        categories.ts, transactions.ts (list, totals, tags, options, create / update / delete),
+                        errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
                         (time-zone.ts), getPreferences (preferences.ts), changeLocale (actions.ts), typed messages
                         (types.d.ts)
@@ -239,12 +256,19 @@ src/
                         logo, logo-mark, button, icon-button, tooltip, field, text-field, textarea, amount-field,
                         search-field, select, combobox, checkbox, switch, radio-group, segmented-control, calendar,
                         date-picker, date-text, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
-                        badge, tag, category-chip, avatar, divider, amount, progress-bar, foundations (Storybook only)
+                        badge, tag, tag-input, category-chip, avatar, divider, amount, progress-bar, foundations
+                        (Storybook only)
     login/              The sign-in screen (Components/Login)
     app-shell/          The frame of signed-in pages: skip link, sidebar, top bar, tab bar, add-transaction form
     sidebar/, top-bar/, tab-bar/, user-menu/   Its parts (desktop sidebar and rail; phone top and bottom bars;
                         the account menu with settings, theme and sign-out)
-    add-transaction/    AddTransactionProvider (dialog / sheet), AddTransactionButton, useAddTransaction
+    add-transaction/    AddTransactionProvider (the add form, dialog / sheet), AddTransactionButton, useAddTransaction
+    transactions/       The /transactions page: header with the month switcher, summary, filters, list, dialogs
+                        (+ skeleton, error)
+    transaction-list/, transaction-detail/, transaction-dialog/, transaction-filters/, transaction-summary/
+                        Day-grouped rows (+ sample-transactions.ts for stories), the detail, the add / edit form,
+                        the filter bar and panel, the month's income / expense / net
+    month-switcher/     «‹ مهر ۱۴۰۵ ›» in the viewer's calendar
     page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
                         loading, error and not-found)
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
@@ -264,11 +288,13 @@ src/
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
                         settings), calendar (names, week start), category, currency (units, symbols), locale, media
                         queries, navigation (NAV_ITEMS), sidebar (storage key, script), starter-categories, theme
-                        script, time zone, transaction, user
+                        script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
+                        user
   helpers/              account form rules, account balance SQL (accountBalance), budget status, category color
                         style and name rules, money formatting and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), preferences, role permissions,
-                        sign-in request, user (placeholder email, temporary password)
+                        sign-in request, transaction form rules (transactionSchema), transaction filters (URL
+                        params, period), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
                         useThemePreference
   styles/
@@ -321,7 +347,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 2 | App shell: sidebar, mobile bottom bar, theme toggle, user menu, placeholder routes, settings | Done |
 | 3 | User management (admin) | Done |
 | 4 | Accounts and categories | Done |
-| 5 | Transactions | Not started |
+| 5 | Transactions | Done |
 | 6 | Claude connector (MCP + OAuth) | Not started |
 | 7 | Budgets | Not started |
 | 8 | Reports | Not started |
@@ -336,7 +362,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 |-------|------|-------|
 | `/login` | Sign in | 1 |
 | `/` | Dashboard (داشبورد) | 2 (placeholder until 9) |
-| `/transactions` | Transactions (تراکنش‌ها) | 2 (placeholder until 5) |
+| `/transactions` | Transactions (تراکنش‌ها) | 5 |
 | `/budgets` | Budgets (بودجه) | 2 (placeholder until 7) |
 | `/reports` | Reports (گزارش‌ها) | 2 (placeholder until 8) |
 | `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |

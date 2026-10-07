@@ -2,7 +2,7 @@
 
 import { Drawer } from "@base-ui/react/drawer";
 import { XIcon } from "lucide-react";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode, RefObject } from "react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -23,6 +23,8 @@ type SheetProps = {
   footer?: ReactNode;
   /** Accessible name of the × button. Set to null to hide it. */
   closeLabel?: string | null;
+  /** The element focused on open (a form's first field); by default the first focusable one. */
+  initialFocus?: RefObject<HTMLElement | null>;
   className?: string;
 };
 
@@ -37,6 +39,7 @@ export function Sheet({
   children,
   footer,
   closeLabel,
+  initialFocus,
   className,
 }: SheetProps) {
   const t = useTranslations("common");
@@ -51,7 +54,10 @@ export function Sheet({
       <Drawer.Portal>
         <Drawer.Backdrop className={styles.backdrop} />
         <Drawer.Viewport className={styles.viewport}>
-          <Drawer.Popup className={cx(styles.popup, className)}>
+          <Drawer.Popup
+            className={cx(styles.popup, className)}
+            initialFocus={initialFocus}
+          >
             <div className={styles.grab} aria-hidden="true" />
             <div className={styles.head}>
               <div className={styles.titles}>

@@ -22,6 +22,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 2: App shell](#phase-2-app-shell)
 - [Phase 3: User management](#phase-3-user-management)
 - [Phase 4: Accounts and categories](#phase-4-accounts-and-categories)
+- [Phase 5: Transactions](#phase-5-transactions)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -88,6 +89,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`           | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
 | 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
 | 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
+| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | (linked when opened)                                  |
 
 ---
 
@@ -774,9 +776,68 @@ push and create the pr
 
 ---
 
+## Phase 5: Transactions
+
+Branch: `feature/phase-5-transactions`. Date: 2026-10-07. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-5-transactions).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/ac0b31b3-e13c-4a9a-90d1-aba0155d0a46?file=Transactions.dc.html` (one `Transactions.dc.html` with switches for language, theme, device, role (owner or viewer), data state (live, loading, empty) and the previews: list, filters, add, errors, edit, detail, unknown, delete) and the design system bundle, CSS and `support.js` it imports. The prompt is the one in phases.md:
+
+```text
+Phase 5: transactions. Read CLAUDE.md first. Create branch feature/phase-5-transactions from main.
+
+Implement the attached design at /transactions, and wire the global add button from Phase 2 to the new form:
+1. src/db/transactions.ts (server-only): list with filters (Gregorian date range, type, account, category including its subcategories, tag, search on description/note/tags, unknown only), create, update, delete, month totals, on the shared book. Reads call requireUser(); create, update and delete call requireWrite() and set created_by / updated_by from the session. Validate that the account and category exist and match the type rules in CLAUDE.md.
+2. Server Actions with one Zod schema shared by the form and the server. Amount arrives as an integer in the book currency's smallest unit (rials, cents); the date as ISO. Validation errors are translated on the server.
+3. The month switcher and filters use the viewer's calendar months in the UI. Convert them to a Gregorian range with monthRange (src/utils/calendar.ts) before querying. Keep the filters in the URL search params, so a filtered view can be shared and survives a refresh.
+4. The form: AmountField and DatePicker from the design system. The default date is today in the viewer's time zone (Preferences.timeZone). Tag suggestions come from the existing tags in the book. "Save and add another" keeps type, account and date.
+5. source = "web" for rows created here.
+6. Pagination or "load more" by month. Keep the list fast for tens of thousands of rows.
+7. Stories for the new components.
+
+Check that build, lint, typecheck, format:check and build-storybook pass, and test creating, editing, deleting and filtering in the browser, including a transfer, and that a viewer sees no write controls and gets an error from the Server Actions. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Where the implementation differs from the prompt and the design
+
+- **Role checks.** The prompt puts `requireUser()` / `requireWrite()` inside `src/db/transactions.ts`. They stay in the page and the Server Actions instead, like every other `src/db` file: those checks read the session cookie and redirect, which the MCP tools of Phase 6 can't use with a bearer token. The db functions take the acting user's id for `created_by` / `updated_by`; the actions pass the session's user. Every write action calls `requireWrite()` first, and reading more of the list calls `requireUser()`.
+- **Category icons.** The design gives each category an icon (utensils, car, …); categories have only a color. On phones the row's tile is tinted with the category's color and shows the type's arrow.
+- **Category is required** for income and expense in the web form, as the design asks, although the database allows none (Claude saves unknown ones without a category).
+- **Search** covers the description, note, tags and category names (the design's placeholder). The design's mock also matched accounts and amounts; the account has its own filter.
+- **A category itself can be picked** («بدون زیردسته» under it), not only its subcategories, since categories may have none. The filter's picker lists expense and income categories, each with «همه» for the whole family.
+- **No undo after an edit** («تغییرات ذخیره شد»), following the copy rules (undo after add and delete). Undoing a delete adds the transaction again under a new id, by the acting user.
+- **Shell.** The design's sidebar has its own «ثبت تراکنش» button, a Claude card and a dark-mode switch; the Phase 2 shell keeps «افزودن تراکنش» in the page header and the theme in the user menu.
+- **Month in the URL.** `month=1405-07` is a Jalali month and `month=2026-10` a Gregorian one (told apart by the year); a viewer with the other calendar sees the shared month as a date range.
+- **A tag typed without pressing Enter** is kept as a tag when the box loses focus, so it isn't lost when saving.
+
+Changes to earlier parts, found while building and testing:
+
+- **Popups above dialogs.** `--z-popup` was below `--z-overlay`, so a Select, Combobox or DatePicker opened inside a dialog drew behind it (no earlier dialog had one). Popups are now 150, between overlays (100) and toasts (200).
+- `Dialog`, `Sheet` and `ResponsiveDialog` take `initialFocus` (the amount field). `Combobox` options take a `selectedLabel` (an option that stands for the whole group shows «خوراک», not «خوراک / همه»). New design-system control `TagInput`. `Amount` uses the shared `TRANSACTION_TYPE_ICONS`.
+- Migration `0004_transaction_list_index` replaces the date index with one on `(date, created_at, id)`, the list's order. It only adds an index, so the deployed app keeps working before it runs.
+
+### Testing
+
+Local development uses the production database, so the browser tests ran against a throwaway Postgres 17 in Docker with all migrations applied. The dev server was pointed at it through a temporary node-postgres switch in `src/db/index.ts` and a seed script, both removed afterwards and not committed. Three local test users (admin, editor, viewer), three accounts, a few categories and 300 generated transactions.
+
+Tested in the browser: adding an expense (errors on every empty required field at once, a subcategory found by search, a new tag typed with Arabic «ي» saved as «کاری»), «ثبت و افزودن بعدی» (form reset with type, account and date kept, the dialog staying open through the refresh), a transfer (the same-account error, then saved), the detail, editing, deleting with undo, adding from the dashboard; filters (search, type, account, the whole «خوراک» family, a date range, unknown only, clear all) with counts and totals checked against SQL; the previous month through the URL; «نمایش بیشتر» to all 93 rows of a month, with a day split between pages showing its full net; the phone layout (tiles, detail sheet, add sheet). Viewer: with the edit form open, the signed-in admin was demoted to viewer in the database and saved; the Server Action refused it, nothing changed, and the page came back without write controls. A fresh viewer page has no add, edit or delete controls and a read-only detail. `EXPLAIN ANALYZE` shows the month query using the new index without a sort.
+
+Bugs found this way and fixed: popups behind dialogs, the category error hidden while the amount was also missing (Zod skips refinements while a field fails), the account column showing on narrow lists and pushing the row's buttons to a second line, summary amounts clipped on phones, and a tag lost when the box lost focus.
+
+### Result
+
+`/transactions`: a month of the viewer's calendar (or a date range) with its income, expense and net, the filters (search, dates, type, account, category with its subcategories, tag, unknown only) as removable chips and in the URL, and the transactions grouped by day with each day's net, 50 at a time with «نمایش بیشتر». Rows show the category or the transfer's route, the account, tags, a Claude mark and the signed amount; unknown ones are marked «ناشناس». The detail shows who added and last edited a transaction. Editors and admins add (from every page, through the header or floating button), edit and delete with undo; viewers read. One Zod schema for the form and the actions, checks of the accounts and category in the database, errors translated on their field. Keyset pagination with a matching index. Stories for every new component. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 5 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 6 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>

@@ -9,7 +9,7 @@ import styles from "./styles.module.css";
 
 type PagePlaceholderProps = {
   /** The section whose page isn't built yet: its nav icon and its `<section>.placeholder` message. */
-  section: Exclude<NavKey, "settings" | "users">;
+  section: Exclude<NavKey, "settings" | "users" | "transactions">;
   className?: string;
 };
 

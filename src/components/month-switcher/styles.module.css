@@ -1,0 +1,13 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-primary);
+  font: var(--type-heading);
+}
+
+.label {
+  min-width: var(--month-switcher-label);
+  text-align: center;
+  white-space: nowrap;
+}

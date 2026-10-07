@@ -2,7 +2,7 @@
 
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { XIcon, type LucideIcon } from "lucide-react";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode, RefObject } from "react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -28,6 +28,8 @@ type DialogProps = {
   size?: "sm" | "md" | "lg";
   /** Accessible name of the × button. Set to null to hide it. */
   closeLabel?: string | null;
+  /** The element focused on open (a form's first field); by default the first focusable one. */
+  initialFocus?: RefObject<HTMLElement | null>;
   className?: string;
 };
 
@@ -45,6 +47,7 @@ export function Dialog({
   footer,
   size = "md",
   closeLabel,
+  initialFocus,
   className,
 }: DialogProps) {
   const t = useTranslations("common");
@@ -60,6 +63,7 @@ export function Dialog({
         <BaseDialog.Viewport className={styles.viewport}>
           <BaseDialog.Popup
             className={cx(styles.popup, styles[size], className)}
+            initialFocus={initialFocus}
           >
             <div className={styles.head}>
               {Icon ? (

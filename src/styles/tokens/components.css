@@ -77,13 +77,27 @@
   --starters-max: 520px;
   --categories-tabs-w: 220px; /* the expense and income tabs from 768px up */
 
+  /* Transactions */
+  --transactions-max: 1160px; /* the transactions page */
+  --month-switcher-label: 128px; /* the month between the arrows, so they don't move */
+  --transaction-tile: 40px; /* the tile at the start of a row on phones */
+  --transaction-row-min-h: 56px;
+  --transaction-amount-col: 130px; /* the amount column, wide enough for a large rial amount */
+  --transaction-amount-col-wide: 150px;
+  --transaction-actions-col: 72px; /* edit and delete */
+  --transaction-unknown-mark: 26px; /* the dashed «؟» circle */
+  --transaction-unknown-border: 1.5px;
+  --meta-dot: 3px; /* the dot between the category and the account on phones */
+
   /* Sign-in page */
   --login-max: 400px;
 
   /* Layers */
   --z-shell: 20; /* the mobile top bar and tab bar, the skip link */
-  --z-popup: 40;
   --z-overlay: 100;
+  /* Menus, selects, comboboxes, date pickers and popovers: above dialogs and sheets, which
+     contain them, so a picker opened in a form shows over it. */
+  --z-popup: 150;
   --z-toast: 200;
 
   /* Choice controls */
@@ -150,6 +164,7 @@
   --tag-h: 30px;
   --tag-dot: 8px;
   --tag-x: 20px;
+  --tag-input-min: 140px; /* the tag input's text box next to its chips */
   --cat-dot: 10px;
   --cat-dot-sm: 8px;
   --cat-icon: 36px;

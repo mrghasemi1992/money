@@ -5,6 +5,10 @@ import {
   AddTransactionProvider,
 } from "@/components/add-transaction";
 import { DateText } from "@/components/ui/date-text";
+import {
+  SAMPLE_ADD_TRANSACTION_ACTIONS,
+  SAMPLE_TRANSACTION_OPTIONS_PROMISE,
+} from "@/components/transaction-list/sample-transactions";
 
 import { PageHeader } from "./index";
 
@@ -32,7 +36,11 @@ export const WithDateAndAction: Story = {
   },
   decorators: [
     (Story) => (
-      <AddTransactionProvider enabled>
+      <AddTransactionProvider
+        enabled
+        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
+        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+      >
         <Story />
       </AddTransactionProvider>
     ),

@@ -1,0 +1,444 @@
+/*
+ * Rows are a grid. From 768px up: description | category (and account) | amount | actions;
+ * from 62rem of list width the account gets its own column. On phones: a tile, then the
+ * description with the category and account under it, and the amount at the end.
+ */
+
+.root {
+  container: transactions / inline-size;
+}
+
+.columns,
+.row {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.6fr) minmax(0, 1.4fr)
+    minmax(var(--transaction-amount-col), auto);
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.writable .columns,
+.writable .row {
+  grid-template-columns:
+    minmax(0, 1.6fr) minmax(0, 1.4fr)
+    minmax(var(--transaction-amount-col), auto)
+    var(--transaction-actions-col);
+}
+
+.columns {
+  padding: var(--space-2-5) var(--space-4);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+}
+
+.amountHead {
+  text-align: end;
+}
+
+@container transactions (width >= 62rem) {
+  .columns,
+  .row {
+    grid-template-columns:
+      minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 0.8fr)
+      minmax(var(--transaction-amount-col-wide), auto);
+  }
+
+  .writable .columns,
+  .writable .row {
+    grid-template-columns:
+      minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 0.8fr)
+      minmax(var(--transaction-amount-col-wide), auto)
+      var(--transaction-actions-col);
+  }
+
+  .narrowOnly {
+    display: none;
+  }
+
+  .columns .wideOnly {
+    display: block;
+  }
+
+  .row .account {
+    display: flex;
+  }
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+}
+
+.dayHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font: var(--type-label);
+}
+
+.dayLabel {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dayTitle {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.dayNet {
+  flex: none;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  min-height: var(--transaction-row-min-h);
+  padding: var(--space-2-5) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.tile {
+  display: none;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+/* The whole row opens the detail: the button's ::after covers it (the actions sit above). */
+.open {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  outline: 0;
+}
+
+.open:focus-visible {
+  box-shadow: none;
+}
+
+.open::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.open:focus-visible::after {
+  outline: var(--ring-width) solid var(--ring-color);
+  outline-offset: calc(-1 * var(--ring-width));
+}
+
+.description {
+  display: block;
+  overflow: hidden;
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* An unknown transaction reads as its «؟» mark and badge; the name is for screen readers. */
+.openUnknown .description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.unknownMark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--transaction-unknown-mark);
+  height: var(--transaction-unknown-mark);
+  border: var(--transaction-unknown-border) dashed var(--status-warning-border);
+  border-radius: var(--radius-pill);
+  background: var(--status-warning-soft);
+  color: var(--status-warning-text);
+  font-weight: var(--weight-heavy);
+}
+
+.claudeIcon {
+  display: none;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.meta {
+  display: none;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chip {
+  max-width: 100%;
+}
+
+.route {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font: var(--type-body);
+  font-weight: var(--weight-medium);
+}
+
+.routeIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--cat-icon-sm);
+  height: var(--cat-icon-sm);
+  border-radius: var(--radius-md);
+  background: var(--amount-transfer-soft);
+  color: var(--amount-transfer);
+}
+
+.routeIcon svg {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.routeText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.noCategory {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  height: var(--cat-soft-h);
+  padding-inline: var(--space-2-5);
+  border: var(--border-width) dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.accountLine,
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.account {
+  gap: var(--space-1-5);
+  color: var(--text-secondary);
+}
+
+/* Wide-only columns; the container query above shows them. Listed after their own rules. */
+.account,
+.wideOnly {
+  display: none;
+}
+
+.accountName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.accountIcon {
+  flex: none;
+  width: var(--icon-size-2xs);
+  height: var(--icon-size-2xs);
+}
+
+.account .accountIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.amount {
+  justify-self: end;
+}
+
+.actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-0-5);
+}
+
+.more {
+  padding: var(--space-3) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+@media (--mobile) {
+  .columns,
+  .category,
+  .account,
+  .actions,
+  .claudeBadge {
+    display: none;
+  }
+
+  .row,
+  .writable .row {
+    grid-template-columns: var(--transaction-tile) minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .dayHead {
+    padding-inline: var(--space-3);
+  }
+
+  .tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--transaction-tile);
+    height: var(--transaction-tile);
+    border-radius: var(--radius-lg);
+  }
+
+  .tileTransfer {
+    background: var(--amount-transfer-soft);
+    color: var(--amount-transfer);
+  }
+
+  .tileUnknown {
+    border: var(--transaction-unknown-border) dashed
+      var(--status-warning-border);
+    background: var(--status-warning-soft);
+    color: var(--status-warning-text);
+  }
+
+  .tileCategory {
+    background: var(--cat-soft);
+    color: var(--cat-text);
+  }
+
+  .tileNone {
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+  }
+
+  .tileIcon {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+  }
+
+  .tileMark {
+    font: var(--type-heading);
+    font-weight: var(--weight-heavy);
+  }
+
+  .unknownMark {
+    display: none;
+  }
+
+  .titleLine {
+    flex-wrap: nowrap;
+    gap: var(--space-1-5);
+  }
+
+  .claudeIcon {
+    display: flex;
+    flex: none;
+    color: var(--brand-text);
+  }
+
+  .claudeIcon svg {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-muted);
+    font: var(--type-caption);
+    white-space: nowrap;
+  }
+
+  .metaText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .metaDot {
+    flex: none;
+    width: var(--meta-dot);
+    height: var(--meta-dot);
+    border-radius: var(--radius-pill);
+    background: var(--text-placeholder);
+  }
+
+  .amount {
+    padding-block-start: var(--space-0-5);
+  }
+
+  .more {
+    padding: var(--space-3);
+  }
+}

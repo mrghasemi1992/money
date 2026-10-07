@@ -73,7 +73,8 @@ export const transactions = pgTable(
       "transactions_transfer_check",
       sql`case when ${table.type} = 'transfer' then ${table.toAccountId} is not null and ${table.toAccountId} <> ${table.accountId} and ${table.categoryId} is null else ${table.toAccountId} is null end`,
     ),
-    index().on(table.date),
+    // The list's order (newest first) and its keyset pagination; also serves date ranges.
+    index("transactions_list_index").on(table.date, table.createdAt, table.id),
     index().on(table.accountId),
     index().on(table.toAccountId),
     index().on(table.categoryId),

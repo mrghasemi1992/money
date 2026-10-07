@@ -1,0 +1,75 @@
+.root {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  min-width: 0;
+  padding: var(--space-4) var(--space-5);
+}
+
+.cell + .cell {
+  border-inline-start: var(--border-width) solid var(--border-subtle);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--amount-icon);
+  height: var(--amount-icon);
+  border-radius: var(--radius-pill);
+}
+
+.icon svg {
+  width: var(--icon-size-2xs);
+  height: var(--icon-size-2xs);
+}
+
+.income {
+  background: var(--amount-income-soft);
+  color: var(--amount-income);
+}
+
+.expense {
+  background: var(--amount-expense-soft);
+  color: var(--amount-expense);
+}
+
+.net {
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.value {
+  min-width: 0;
+  margin: 0;
+}
+
+/* Three narrow cells on phones: smaller digits, and the unit wraps under the number. */
+@media (--mobile) {
+  .cell {
+    padding: var(--space-3) var(--space-2-5);
+  }
+
+  .cell .amount {
+    flex-wrap: wrap;
+    row-gap: 0;
+    font: var(--type-amount);
+    font-weight: var(--weight-bold);
+  }
+}

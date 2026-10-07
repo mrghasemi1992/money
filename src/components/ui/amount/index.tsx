@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  ArrowDownIcon,
-  ArrowLeftRightIcon,
-  ArrowUpIcon,
-  type LucideIcon,
-} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
+import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
 import { formatMoneyNumber, getMoneySymbol } from "@/helpers/money";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { MoneyUnit } from "@/types/currency";
@@ -38,12 +33,6 @@ type AmountProps = Omit<ComponentProps<"span">, "children"> & {
   label?: boolean;
   /** Adds the direction icon: ↓ in, ↑ out, ⇄ transfer. */
   icon?: boolean;
-};
-
-const ICONS: Record<TransactionType, LucideIcon> = {
-  income: ArrowDownIcon,
-  expense: ArrowUpIcon,
-  transfer: ArrowLeftRightIcon,
 };
 
 function signFor(type: AmountType, value: number): string {
@@ -76,7 +65,7 @@ export function Amount({
   const { moneyUnit } = usePreferences();
   const unit = unitProp ?? moneyUnit;
   const symbol = getMoneySymbol(unit, locale);
-  const Icon = type === "neutral" ? null : ICONS[type];
+  const Icon = type === "neutral" ? null : TRANSACTION_TYPE_ICONS[type];
   const word = type === "neutral" ? null : t(type);
   const sign = showSign ? signFor(type, value) : "";
   const prefix = showUnit && symbol.position === "prefix" ? symbol.text : "";
