@@ -1,0 +1,97 @@
+.root {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.item {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.dragging {
+  background: var(--surface-selected);
+}
+
+/* Where the dragged row will land: a line above or below the row under the pointer. */
+.dropBefore {
+  box-shadow: inset 0 var(--drop-line) 0 var(--brand-solid);
+}
+
+.dropAfter {
+  box-shadow: inset 0 calc(-1 * var(--drop-line)) 0 var(--brand-solid);
+}
+
+.handle {
+  display: flex;
+  flex: none;
+  margin-inline-end: calc(-1 * var(--space-1));
+  color: var(--text-placeholder);
+  cursor: grab;
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.handleIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+/* Phones reorder from the row menu. */
+@media (--mobile) {
+  .handle {
+    display: none;
+  }
+}
+
+.icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--account-icon);
+  height: var(--account-icon);
+  border-radius: var(--account-icon-radius);
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.iconGlyph {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.balance {
+  margin-inline-end: var(--space-1);
+}
+
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1-5);
+  padding-inline: var(--space-1);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-wrap: pretty;
+}
+
+.hintIcon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  margin-block-start: var(--space-px);
+}
+
+.moveHint {
+  display: none;
+}
+
+@media (--mobile) {
+  .dragHint {
+    display: none;
+  }
+
+  .moveHint {
+    display: inline;
+  }
+}

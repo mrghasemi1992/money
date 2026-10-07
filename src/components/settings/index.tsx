@@ -6,6 +6,7 @@ import { BookSettings } from "@/components/book-settings";
 import { DisplaySettings } from "@/components/display-settings";
 import { PasswordSettings } from "@/components/password-settings";
 import { ProfileSettings } from "@/components/profile-settings";
+import { SettingsLinks } from "@/components/settings-links";
 import type { Currency } from "@/types/currency";
 import type { ActionResult } from "@/types/action";
 
@@ -26,7 +27,10 @@ type SettingsProps = {
   onSaveCurrency: (currency: Currency) => Promise<ActionResult>;
 };
 
-/** The /settings page's sections: profile, password, display and, for admins, the book. */
+/**
+ * The /settings page's sections: links to accounts and categories, profile, password,
+ * display and, for admins, the book.
+ */
 export function Settings({
   user,
   isAdmin,
@@ -39,6 +43,7 @@ export function Settings({
 }: SettingsProps) {
   return (
     <div className={styles.root}>
+      <SettingsLinks />
       <ProfileSettings
         name={user.name}
         username={user.username}

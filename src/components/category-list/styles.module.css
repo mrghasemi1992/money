@@ -1,0 +1,80 @@
+.item {
+  display: flex;
+  flex-direction: column;
+}
+
+.tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--cat-icon);
+  height: var(--cat-icon);
+  border-radius: var(--category-icon-radius);
+  background: var(--cat-soft);
+}
+
+.dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--cat);
+}
+
+/* The quick add button; phones use the row menu. */
+@media (--mobile) {
+  .addSub {
+    display: none;
+  }
+}
+
+.subcategories {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  list-style: none;
+}
+
+.subcategory {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  min-height: var(--subcategory-row-h);
+  padding-inline: var(--subcategory-indent) var(--space-4);
+}
+
+@media (--mobile) {
+  .subcategory {
+    padding-inline-end: var(--space-3);
+  }
+}
+
+.subDot {
+  flex: none;
+  width: var(--cat-dot-sm);
+  height: var(--cat-dot-sm);
+  border-radius: var(--radius-pill);
+  background: var(--cat);
+}
+
+.subName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--type-body);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.subMeta {
+  flex: none;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.archivedText {
+  align-items: flex-start;
+  gap: var(--space-0-5);
+}

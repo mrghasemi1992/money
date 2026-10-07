@@ -63,6 +63,20 @@
   --users-actions-col: 56px; /* the table's row-menu column */
   --users-filter-w: 148px; /* the role and status filters */
 
+  /* Accounts and categories */
+  --book-list-max: 880px; /* the accounts and categories pages */
+  --account-icon: 40px; /* the type tile at the start of an account row */
+  --account-icon-radius: var(--radius-lg);
+  --category-icon-radius: 10px;
+  --subcategory-row-h: 40px;
+  --subcategory-indent: 64px; /* lines a subcategory's dot up under its parent's name */
+  --swatch-size: 28px;
+  --swatch-hit: 36px; /* the swatch's button, larger than the color */
+  --swatch-ring: 2px;
+  --drop-line: 2px; /* where a dragged account will land */
+  --starters-max: 520px;
+  --categories-tabs-w: 220px; /* the expense and income tabs from 768px up */
+
   /* Sign-in page */
   --login-max: 400px;
 
@@ -177,5 +191,7 @@
     --radio-dot: 10px;
     --calendar-day-h: 42px;
     --menu-item-h: var(--tap-min);
+    --subcategory-indent: 60px;
+    --swatch-hit: var(--tap-min);
   }
 }

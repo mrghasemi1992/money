@@ -29,8 +29,9 @@
   font-feature-settings: var(--font-features-tabular);
 }
 
+/* --amount-unit-color lets a surface recolor the unit, such as the balance on a brand card. */
 .unit {
-  color: var(--text-muted);
+  color: var(--amount-unit-color, var(--text-muted));
   font-size: 0.8em;
   font-weight: var(--weight-medium);
 }

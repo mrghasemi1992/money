@@ -1,0 +1,35 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--book-list-max);
+}
+
+.tabs {
+  align-self: flex-start;
+  min-width: var(--categories-tabs-w);
+}
+
+@media (--mobile) {
+  .tabs {
+    align-self: stretch;
+  }
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.skeletonRow + .skeletonRow {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.skeletonText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}

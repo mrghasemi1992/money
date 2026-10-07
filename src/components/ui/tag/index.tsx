@@ -20,6 +20,10 @@ type TagProps = {
   selected?: boolean;
   defaultSelected?: boolean;
   onSelectedChange?: (selected: boolean) => void;
+  /** Makes the tag a button that does one thing, such as adding a suggested category. */
+  onClick?: () => void;
+  /** Tooltip text, such as what a click adds. */
+  title?: string;
   /** Shows an × button that removes the tag. */
   onRemove?: () => void;
   removeLabel?: string;
@@ -27,7 +31,10 @@ type TagProps = {
   className?: string;
 };
 
-/** Filter or keyword chip. Toggles with onSelectedChange; shows × with onRemove. */
+/**
+ * Filter or keyword chip. Toggles with onSelectedChange; acts as a button with onClick (a
+ * suggestion to add); shows × with onRemove.
+ */
 export function Tag({
   children,
   color,
@@ -35,6 +42,8 @@ export function Tag({
   selected,
   defaultSelected,
   onSelectedChange,
+  onClick,
+  title,
   onRemove,
   removeLabel: removeLabelProp,
   disabled = false,
@@ -60,6 +69,7 @@ export function Tag({
     <span
       className={cx(styles.root, className)}
       data-disabled={disabled || undefined}
+      title={title}
     >
       {toggles ? (
         <Toggle
@@ -71,6 +81,15 @@ export function Tag({
         >
           {label}
         </Toggle>
+      ) : onClick ? (
+        <button
+          type="button"
+          className={styles.toggle}
+          disabled={disabled}
+          onClick={onClick}
+        >
+          {label}
+        </button>
       ) : (
         <span className={styles.static}>{label}</span>
       )}

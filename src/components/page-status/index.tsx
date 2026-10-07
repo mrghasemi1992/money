@@ -3,12 +3,15 @@
 import {
   ArrowLeftIcon,
   CircleAlertIcon,
+  CloudOffIcon,
+  RefreshCwIcon,
   RotateCwIcon,
   SearchXIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 
 import styles from "./styles.module.css";
@@ -30,6 +33,41 @@ export function PageError({ onRetry }: { onRetry: () => void }) {
         }
       />
     </div>
+  );
+}
+
+/**
+ * A list that failed to load, under its page's header (error.tsx of a page whose title is
+ * safe to show): what didn't load, and a retry.
+ */
+export function ListError({
+  title,
+  onRetry,
+}: {
+  /** What didn't load: «حساب‌ها بارگذاری نشد». */
+  title: string;
+  onRetry: () => void;
+}) {
+  const t = useTranslations("page.error");
+  return (
+    <Card padding="md" role="alert">
+      <EmptyState
+        icon={CloudOffIcon}
+        tone="danger"
+        title={title}
+        description={t("description")}
+        action={
+          <Button
+            variant="secondary"
+            iconStart={RefreshCwIcon}
+            onClick={onRetry}
+          >
+            {t("retry")}
+          </Button>
+        }
+        className={styles.list}
+      />
+    </Card>
   );
 }
 
