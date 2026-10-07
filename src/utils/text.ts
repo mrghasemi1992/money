@@ -12,3 +12,16 @@ export function normalizePersian(text: string): string {
     .replace(/[ً-ٰٟ]/g, "")
     .toLowerCase();
 }
+
+/**
+ * Cleans a name before it is compared or saved: Arabic «ي» and «ك» become Persian «ی» and «ک»
+ * (keyboards differ), runs of spaces become one and the ends are trimmed. Keeps ZWNJ, which
+ * is part of Persian spelling («حمل‌ونقل»).
+ */
+export function tidyName(text: string): string {
+  return text
+    .replace(/[يى]/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\s+/g, " ")
+    .trim();
+}

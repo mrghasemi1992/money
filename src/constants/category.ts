@@ -19,3 +19,6 @@ export const CATEGORY_COLORS = [
 
 /** Category types. Stored as text in `categories.type`; a subcategory has its parent's type. */
 export const CATEGORY_TYPES = ["expense", "income"] as const;
+
+/** Category and subcategory names appear in chips and reports; long ones are cut off. */
+export const CATEGORY_NAME_MAX_LENGTH = 40;
