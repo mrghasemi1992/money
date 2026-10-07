@@ -21,6 +21,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 1b: Languages and currency](#phase-1b-languages-and-currency)
 - [Phase 2: App shell](#phase-2-app-shell)
 - [Phase 3: User management](#phase-3-user-management)
+- [Phase 4: Accounts and categories](#phase-4-accounts-and-categories)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -76,16 +77,17 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 
 ## Timeline
 
-| Step                       | Dates              | Branch                          | PR                                                    |
-| -------------------------- | ------------------ | ------------------------------- | ----------------------------------------------------- |
-| Planning                   | 2026-10-01         | none                            | none (CLAUDE.md and docs/phases.md committed with 0a) |
-| 0a Project setup           | 2026-10-01         | `main`                          | none                                                  |
-| 0b Design system           | 2026-10-01 → 10-02 | `feature/phase-0-design-system` | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
-| 1 Database and sign-in     | 2026-10-02         | `feature/phase-1-auth`          | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
-| One shared book with roles | 2026-10-02         | `feature/shared-book-roles`     | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
-| 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`     | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
-| 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`     | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
-| 3 User management          | 2026-10-06         | `feature/phase-3-users`         | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
+| Step                       | Dates              | Branch                                | PR                                                    |
+| -------------------------- | ------------------ | ------------------------------------- | ----------------------------------------------------- |
+| Planning                   | 2026-10-01         | none                                  | none (CLAUDE.md and docs/phases.md committed with 0a) |
+| 0a Project setup           | 2026-10-01         | `main`                                | none                                                  |
+| 0b Design system           | 2026-10-01 → 10-02 | `feature/phase-0-design-system`       | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
+| 1 Database and sign-in     | 2026-10-02         | `feature/phase-1-auth`                | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
+| One shared book with roles | 2026-10-02         | `feature/shared-book-roles`           | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
+| 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`           | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
+| 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`           | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
+| 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
+| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | (link added after the PR is opened)                   |
 
 ---
 
@@ -703,9 +705,74 @@ yes, add and push it
 
 ---
 
+## Phase 4: Accounts and categories
+
+Branch: `feature/phase-4-accounts-categories`. Date: 2026-10-07. PR: (link added after the PR is opened).
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-4-accounts-and-categories).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/410b1d85-ba50-452b-9598-88e4ae39cfe2?file=Money+Settings.dc.html` (a canvas of `SettingsScreen.dc.html` frames: both pages in Persian and English, light and dark, desktop and mobile, the dialogs and sheets, empty, loading and error states, and the viewer's read-only pages) and the design system bundle, CSS and `support.js` it imports. The prompt is the one in phases.md:
+
+```text
+Implement: Phase 4: accounts and categories. Read CLAUDE.md first. Create branch feature/phase-4-accounts-categories from main.
+Implement the attached design at /settings/accounts and /settings/categories:
+
+1. Queries and mutations in src/db/ (server-only) on the shared book. Pages call requireUser(); every mutating Server Action calls requireWrite() first and validates with Zod.
+2. Account balance helper in src/helpers/ (opening + income − expense − transfers out + transfers in), computed in SQL. Transactions don't exist in the UI yet, so balances equal the opening balance for now, but the query must already be the real one.
+3. Category rules on the server: one level of subcategories, a subcategory has its parent's type, delete only when unused (otherwise archive), names unique per type + parent.
+4. Starter categories: a constant list in src/constants/ with names in both languages, added in one Server Action in the acting user's language.
+5. Reordering accounts (sort_order). Archiving hides an account from forms.
+6. Stories for the new components.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Where the implementation differs from the design
+
+- **Account type.** The design gives each account a type (bank card, cash, other) with its own icon. It wasn't in the data model, so `accounts.type` was added (migration `0003_account_types`, default `card`). Account names became unique ignoring case (a unique index on `lower(name)`), as the design's «حسابی با این نام وجود دارد» needs.
+- **Negative starting balances.** The data model allows them (an overdrawn card) but the design's amount field has no sign. AmountField got `allowNegative`: a leading «-» or «−» makes the amount negative.
+- **Navigation.** The design's sidebar lists حساب‌ها and دسته‌بندی‌ها under a Settings heading. The app shell keeps one Settings item; /settings got a first section that links to both pages, and on phones the top bar's back button goes from a settings subpage to /settings.
+- **Viewers' empty states** say an editor or admin adds accounts and categories (the design says «مالک دفتر», book owner, which isn't a role).
+- **Undo** is offered after adding, deleting, archiving and restoring, as the copy rules ask. Editing shows «تغییرات ذخیره شد» without undo. Undoing a delete adds the account or category again (with its subcategories) under a new id; it had no transactions, so nothing pointed to the old one.
+- **Subcategory rows** don't get the parent's «+ زیردسته» button on phones (as in the design); the row menu has it.
+- **Starters** are offered while a type has no active categories. A suggestion whose name already exists (also an archived one) isn't offered.
+- **The type control** in the account form is a labelled group instead of a Field: inside a Field, Base UI named every option «نوع». The same problem in the new-user form's language control is left for a separate fix.
+
+### Testing
+
+The UI was tested in Storybook with fake actions (both languages, both themes, desktop and phone; drag and drop, menus, dialogs, undo). Because local development uses the production database, the SQL was tested against a throwaway local Postgres 18 with all migrations applied, running the real `src/db` functions through node-postgres. That caught a real bug: in a one-table query Drizzle writes columns without their table, so inside the balance and usage subqueries `"id"` meant the transaction's id and every balance came back as the opening balance. The outer columns are now qualified.
+
+### Follow-ups
+
+Trying the pages locally, the accounts page failed with `column "type" does not exist`: local development uses the production database, and the new migration hadn't run there yet.
+
+```text
+i'm in /accounts page but i got error
+```
+
+Claude explained the cause and asked before migrating production (the migration only adds a column with a default, a check and an index, so the deployed app keeps working). The migration was then applied from the terminal:
+
+```text
+pnpm db:migrate
+```
+
+```text
+it works now, commit them
+```
+
+### Result
+
+`/settings/accounts`: the total balance of the active accounts, the accounts in their saved order (drag by the handle from 768px up, «انتقال به بالا / پایین» in the row menu everywhere), each with its type, transaction count and live balance; add and edit (name, type, starting balance), archive and restore, delete only without transactions (otherwise a dialog offers to archive). `/settings/categories`: expense and income tabs, categories with their subcategories in the parent's color, add, rename and recolor (subcategories follow), archive, restore, delete only when nothing in the family is used, and suggested starter categories (one tap, or all at once) named in the user's language. Balances are computed in SQL by `accountBalance` (`src/helpers/account-balance.ts`); each rule is checked by the Server Action for a clear message and again in the statement that writes. Viewers see both pages read only. Loading and error states for both pages, links from /settings, stories for every new component. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 4 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 5 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>
