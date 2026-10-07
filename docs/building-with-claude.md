@@ -87,7 +87,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`           | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
 | 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`           | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
 | 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
-| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | (link added after the PR is opened)                   |
+| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
 
 ---
 
@@ -707,7 +707,7 @@ yes, add and push it
 
 ## Phase 4: Accounts and categories
 
-Branch: `feature/phase-4-accounts-categories`. Date: 2026-10-07. PR: (link added after the PR is opened).
+Branch: `feature/phase-4-accounts-categories`. Date: 2026-10-07. PR [#8](https://github.com/mrghasemi1992/money/pull/8).
 
 ### Claude Design prompt
 
@@ -762,6 +762,10 @@ pnpm db:migrate
 
 ```text
 it works now, commit them
+```
+
+```text
+push and create the pr
 ```
 
 ### Result
