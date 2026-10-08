@@ -30,3 +30,12 @@ export function tidyName(text: string): string {
 export function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? "";
 }
+
+/**
+ * Wraps text in Unicode isolates (FSI … PDI), so a date or number quoted inside a sentence of
+ * the other direction keeps its order: «۱۴۰۵/۰۶/۰۲», «12,O00». For text the UI shows; never
+ * for text written to files.
+ */
+export function isolate(text: string): string {
+  return `⁨${text}⁩`;
+}

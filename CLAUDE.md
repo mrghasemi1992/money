@@ -103,6 +103,21 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
   - `TopSpending`: the month's expenses by top-level category (`categoryTotals`), the 4 largest plus «سایر» (`spendingSlices`, `DASHBOARD_SPENDING_SLICES`), as one stacked bar in the categories' hues and a list with amounts and shares; links to `/reports?month=…` (`monthReportHref`).
 - Sizes are `--dashboard-*` tokens; the layout is two flex rows (balance beside this month, recent beside budgets and spending) that stack below their minimum widths.
 
+## CSV import and export
+
+`/settings/import-export` (`ImportExport` in `src/components/import-export`, page in `src/app/(app)/settings/import-export/page.tsx`), linked from the first section of `/settings` («داده‌های دفتر»). Every role exports; editors and admins also import, viewers get a note instead.
+
+- **Export** (`CsvExport`): a range (this month, last month, this year of the viewer's calendar, or two DatePickers: `exportPresetRange`), an account or all, the count (`countExportTransactions`, any role) and «دانلود CSV», which opens the Route Handler `GET /transactions/export?from=&to=[&account=]` (`src/app/(app)/transactions/export/route.ts`, `requireUser()`). It streams UTF-8 with a BOM (Excel shows Persian correctly), reading 1,000 rows per query (`exportTransactions` in `src/db/transactions.ts`, oldest first, keyset on `(date, created_at, id)`). Columns (`CSV_EXPORT_COLUMNS`, headers are the `importExport.columns` messages in the user's language): Gregorian date, Jalali date (`1405/06/24`), type (the language's word), amount in the book currency's main unit without grouping (`formatMajorAmount`: rials, or `1234.56`), currency code, account, to account, category (the top-level one), subcategory, description, tags («، » / «, » between), note. Numbers and dates use Latin digits. Text that a spreadsheet would run as a formula (`=`, `+`, `-`, `@`) gets a «'» (`protectFormula`); the import removes it.
+- **Import** (`CsvImport`, a stepper `ImportStepper` and five steps):
+  1. **Upload** (`ImportUpload`): drop or choose a `.csv`; the browser reads it with **Papa Parse** (`src/utils/csv-parse.ts`: RFC 4180 quoting with commas, quotes and line breaks in fields, the BOM dropped, the delimiter detected: «,», «;» (Excel in many locales), tab or «|», no dependencies, reads a File directly). Refused with a clear error: not CSV, over 4 MB (`CSV_IMPORT_MAX_BYTES`), over 10,000 rows (`CSV_IMPORT_MAX_ROWS`), not UTF-8 (replacement characters, `hasEncodingErrors`), empty. «سطر اول نام ستون‌هاست» (on by default); a sample file in the export's format (`downloadSample`).
+  2. **Columns** (`ImportMapping`): fields `CSV_FIELDS` (date, amount, type, account, to account, category, subcategory, description, tags, note), guessed from the headers (`guessColumnMap`, `CSV_FIELD_HEADERS`: the export's headers in both languages and common bank names). «مبلغ و نوع»: a separate type column (positive amounts; words in `CSV_TYPE_WORDS`, both languages) or signed amounts (negative = expense, positive = income, a row with a destination account = transfer). The calendar isn't a choice: **each date's year decides** (below 1700 Jalali), so one file may mix both; the step shows how many rows each calendar has and how the first date reads. For an IRR book, rial or toman must be chosen (toman × 10). A preview of the first 5 rows shows what each column becomes.
+  3. **Names** (`ImportMatching`): account names and (type, category, subcategory) names the book doesn't have, compared folded (`foldCsvText`: Persian «ی» «ک», ZWNJ as a space, lowercase); archived accounts and categories count as known. Each becomes a new one, an existing one (suggested when one name's words include the other's: «ملی» → «بانک ملی», `suggestMatch`), «بدون دسته‌بندی» or, for a subcategory, «بدون زیردسته» (its category). `completeMatches` fills suggestions until no new name appears (a subcategory's key follows its category's choice). New tags are noted.
+  4. **Review** (`ImportReview`, Base UI Tabs): ready rows (the first 5, with «تازه» for new accounts or categories), rows with errors (row number as a spreadsheet counts it, the reason, the row's text; «دانلود ردیف‌های دارای خطا» writes them with an error column) and possible duplicates from the server (`checkImportDuplicates`: same date, account, amount and type as a stored transaction, `findImportDuplicates`), skipped unless «افزودن» is chosen.
+  5. **Result** (`ImportResult`): added, skipped and failed rows, what was created, links to the transactions over the imported dates, the failed rows' file and «درون‌ریزی فایل دیگر».
+- **Rules** (`src/helpers/csv-import.ts`, `src/helpers/csv-values.ts`, pure and shared by the browser and the server): `importRowSchema` is the Zod schema of one row (fields in order, so the first issue is the row's first problem; messages are `ImportRowErrorCode`s, the `importExport.import.errors` messages): dates year first (`1405/06/24`, `2026-09-15`, `-` `/` `.`, a time after it ignored) or year last when the file's dates tell the order (a day above 12, `detectDateOrder`; otherwise `dateAmbiguous`), not in the future; amounts with Persian, Arabic or Latin digits, «٬» «,» thousands, «.» «٫» decimals (or «,» before at most two), a minus in front or behind or parentheses, a currency mark, and no more decimals than the unit has (`parseImportAmount`); the type; the transaction rules (a transfer needs a different destination account; categories are ignored on transfers; a subcategory needs a category); the text limits of the transaction form. An empty description becomes «؟». `planImport` adds the names step's choices and returns ready rows (`ImportRow`, accounts and categories as `ImportRef`: existing id or new key), errors, and the accounts and categories to create (new top-level categories get the next free hue, `colorNewCategories`).
+- **Saving** (`importTransactions`, `requireWrite()`): the browser sends only the mapped cells per row (`importPayloadSchema`: at most 10,000 rows, 1,000 characters a cell), the format, the choices and the duplicates to add. The server plans everything again with the book read fresh and the viewer's today, looks for duplicates again (skipped unless chosen), and `saveImport` (`src/db/import.ts`) adds the new accounts (at the end, opening balance 0, type `card`), categories, subcategories and the rows in **one `db.batch`** (one transaction; rows in chunks of 500, `created_at` a microsecond apart in file order). `source = "csv"`, `created_by` and `updated_by` the importing user. A name taken meanwhile fails the whole batch («taken»). The mapped rows travel in one Server Action request: `experimental.serverActions.bodySizeLimit` is 4.5mb (Vercel's limit on request bodies), the browser refuses more than `CSV_IMPORT_MAX_PAYLOAD_BYTES`.
+- Raw values quoted in sentences (a date, «12,O00», a file name's extension) are wrapped in Unicode isolates (`isolate` in `src/utils/text.ts`) so they keep their order in the other direction; never in files. The transaction detail says «ثبت توسط … با درون‌ریزی فایل» for `source = "csv"`.
+
 ## Claude connector (MCP)
 
 Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add custom connector), sign in to Money once and allow access; Claude then works on the shared book as that user, with that user's role. The URL and the steps are on `/settings/connector` (and in the README).
@@ -148,7 +163,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - Budgets: a monthly limit per category, repeating every month of the viewer's calendar
 - Reports: income, expense and net against the previous period, by category (with subcategories), by account and month by month, each chart with a table view
 - Dashboard: balances, this month's totals, budget progress, top spending, recent transactions, unknown transactions, and first-run steps for an empty book
-- CSV import and export
+- CSV import and export: export a date range (and account) as UTF-8 CSV with both calendars; import in five steps (upload, columns, names, review with errors and possible duplicates, result), saved in one transaction
 - Later: one-time import of the `daily-transactions` data
 
 ## Tech stack
@@ -166,6 +181,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth (`@better-auth/mcp`, `@better-auth/cimd`, see Claude connector). `@better-auth/utils` is a direct dependency pinned to the version Better Auth's core expects, so the plugins share one copy of `@better-auth/core`.
 - **i18n:** next-intl without i18n routing: the locale comes from the user record (signed in) or the `money-locale` cookie, then Accept-Language (signed out), never from the URL. Request config in `src/i18n/request.ts`, wired with the next-intl plugin in `next.config.ts`. Messages are typed (`AppConfig` in `src/i18n/types.d.ts`).
 - **Validation:** Zod for every form, Server Action input, MCP tool input and CSV row.
+- **CSV:** Papa Parse (`papaparse`) reads imported files in the browser (RFC 4180, delimiter detection, BOM, File input); writing CSV is a few lines of our own (`src/utils/csv.ts`).
 - **UI primitives:** Base UI (`@base-ui/react`, unstyled). Use it for interactive parts like Dialog, Menu, Popover, Select, Combobox, Tooltip, Tabs, Switch, Checkbox.
 - **Styling:** CSS Modules + CSS custom properties as design tokens. No Tailwind. No component libraries (no shadcn/ui, no MUI).
 - **Icons:** lucide-react
@@ -294,9 +310,11 @@ src/
     mcp/                The MCP endpoint (route.ts: withMcpAuth + the tools)
     .well-known/        OAuth protected resource and authorization server metadata
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
-                        page.tsx (dashboard, with its streamed sections), transactions (+ actions.ts, loading.tsx, error.tsx), budgets
+                        page.tsx (dashboard, with its streamed sections), transactions (+ actions.ts, loading.tsx, error.tsx,
+                        export/route.ts: the CSV export), budgets
                         (+ actions.ts, loading.tsx, error.tsx), reports, settings (+ actions.ts;
-                        accounts/, categories/ and connector/ with actions.ts, loading.tsx, error.tsx), admin/users
+                        accounts/, categories/, connector/ and import-export/ with actions.ts, loading.tsx,
+                        error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
@@ -306,10 +324,12 @@ src/
   db/                   Drizzle client (index.ts), schema/ (auth, oauth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
-                        categories.ts, transactions.ts (list, totals, unknown summary, tags, options, create / update / delete),
+                        categories.ts, transactions.ts (list, totals, unknown summary, tags, options, create / update / delete,
+                        exportTransactions),
                         budgets.ts (listBudgetCategories, saveBudget, deleteBudget),
                         reports.ts (compareTotals, categoryTotals, rangeTotals, accountExpenseTotals),
                         dashboard.ts (getBookProgress),
+                        import.ts (findImportDuplicates, saveImport: the CSV import in one batch),
                         connector.ts (checkMcpGrant, listConnections, revokeConnection, revokeGrants),
                         errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
@@ -358,15 +378,22 @@ src/
     category-list/, category-dialog/, category-color-picker/, starter-categories/   Category rows with
                         subcategories, the category / subcategory form, the palette swatches, the suggestions
     archived-section/   «بایگانی‌شده (n)» toggle with the archived rows
-    settings-links/     The /settings sections that link to accounts, categories and the Claude connector
+    settings-links/     The /settings sections that link to accounts, categories, import and export, and the Claude
+                        connector
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
                         book-settings/ (admins)
     connector-settings/, connector-consent/   The /settings/connector page and the OAuth consent page
+    import-export/      The /settings/import-export page (+ skeleton, error)
+    csv-export/, csv-import/   The export card; the import card with its steps and state (+ sample-import.ts,
+                        sample-plan.ts for stories)
+    import-stepper/, import-upload/, import-mapping/, import-matching/, import-review/, import-result/
+                        The import's stepper and five steps
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
-                        settings), calendar (names, week start), category, connector (paths, scope, tool limits), currency (units, symbols), dashboard (section sizes), locale, media
+                        settings), calendar (names, week start), category, connector (paths, scope, tool limits), csv (limits,
+                        fields, header and type words, export columns and presets), currency (units, symbols), dashboard (section sizes), locale, media
                         queries, navigation (NAV_ITEMS), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
                         user
@@ -375,7 +402,9 @@ src/
                         style and name rules, dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), preferences, reports (URL params,
                         resolveReportPeriod, period text, compareAmounts), role permissions,
-                        connector (dates and amounts at the MCP boundary), oauth-consent (consent requests),
+                        connector (dates and amounts at the MCP boundary), csv-values (dates, amounts, types, tags of
+                        imported cells), csv-import (column guess, row schema, name matching, planImport, payload
+                        schemas), csv-export (row, file name, presets), oauth-consent (consent requests),
                         sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
                         params, period, NO_TRANSACTION_FILTERS), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
@@ -387,11 +416,12 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                account, action (ActionResult), book, budget, calendar, category, connector, currency, dashboard, locale, navigation, preferences,
+  types/                account, action (ActionResult), book, budget, calendar, category, connector, csv, currency, dashboard, locale, navigation, preferences,
                         report, theme, transaction, user
-  utils/                calendar (both calendars, formatDate), chart (niceAxis, axisShare), cx, duration, env, focus, iso-date, jalali (math),
+  utils/                calendar (both calendars, formatDate), chart (niceAxis, axisShare), csv (writing, BOM, formula
+                        guard, download), csv-parse (Papa Parse), cx, duration, env, focus, iso-date, jalali (math),
                         locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
-                        state), text (also firstName), theme, url
+                        state), text (also firstName, isolate), theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log)
 scripts/                create-user.ts (`pnpm user:create`)
@@ -436,7 +466,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 7 | Budgets | Done |
 | 8 | Reports | Done |
 | 9 | Dashboard | Done |
-| 10 | CSV import and export | Not started |
+| 10 | CSV import and export | Done |
 | 11 | Import from `daily-transactions` | Later |
 | 12 | Tests | Later |
 
@@ -453,6 +483,8 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
 | `/settings/connector` | Claude connector: URL, steps, connected apps (revoke), examples | 6 |
+| `/settings/import-export` | CSV export (every role) and import (editors and admins) | 10 |
+| `/transactions/export` | CSV export Route Handler (`?from=&to=&account=`) | 10 |
 | `/oauth/consent` | OAuth consent for Claude (outside the app shell) | 6 |
 | `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata | 6 |
 | `/admin/users` | User management (admins only; others get not-found) | 3 |

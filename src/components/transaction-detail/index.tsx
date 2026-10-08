@@ -19,11 +19,18 @@ import { MOBILE_QUERY } from "@/constants/media";
 import { isUnknownDescription } from "@/helpers/transaction";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
-import type { Transaction } from "@/types/transaction";
+import type { Transaction, TransactionSource } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { todayIso } from "@/utils/iso-date";
 
 import styles from "./styles.module.css";
+
+/** «ثبت توسط …», with how: in the app, with Claude or from a CSV import. */
+const ADDED_BY = {
+  web: "transactions.detail.addedBy",
+  mcp: "transactions.detail.addedByClaude",
+  csv: "transactions.detail.addedByImport",
+} as const satisfies Record<TransactionSource, string>;
 
 type TransactionDetailProps = {
   open: boolean;
@@ -213,12 +220,9 @@ export function TransactionDetail({
             <Avatar name={transaction.createdBy.name} size="sm" />
             <div className={styles.personText}>
               <span className={styles.personLine}>
-                {t(
-                  transaction.source === "mcp"
-                    ? "transactions.detail.addedByClaude"
-                    : "transactions.detail.addedBy",
-                  { name: transaction.createdBy.name },
-                )}
+                {t(ADDED_BY[transaction.source], {
+                  name: transaction.createdBy.name,
+                })}
               </span>
               <span className={styles.personDate}>
                 {day(transaction.createdAt)}

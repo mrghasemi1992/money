@@ -1,0 +1,128 @@
+.root {
+  min-width: 0;
+}
+
+/* From 768px up: numbered circles joined by lines. */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: contents;
+}
+
+.line {
+  flex: 1;
+  min-width: var(--import-step-line-min);
+  height: var(--import-step-line);
+  border-radius: var(--radius-pill);
+  background: var(--border-default);
+}
+
+.step:not([data-state="next"]) .line {
+  background: var(--brand-solid);
+}
+
+.number {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--import-step);
+  height: var(--import-step);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-muted);
+  font: var(--type-label);
+  font-weight: var(--weight-bold);
+  font-feature-settings: var(--font-features-tabular);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.step:not([data-state="next"]) .number {
+  border-color: var(--brand-solid);
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+}
+
+.check {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.label {
+  flex: none;
+  color: var(--text-muted);
+  font: var(--type-label);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.step[data-state="done"] .label {
+  color: var(--text-secondary);
+}
+
+.step[data-state="current"] .label {
+  color: var(--text-primary);
+  font-weight: var(--weight-bold);
+}
+
+/* Phones: the current step's name and five bars. */
+.compact {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.compactHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.compactLabel {
+  font: var(--type-heading);
+  font-weight: var(--weight-bold);
+}
+
+.compactCount {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.segments {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.segment {
+  height: var(--import-step-segment);
+  border-radius: var(--radius-pill);
+  background: var(--border-default);
+}
+
+.segment:not([data-state="next"]) {
+  background: var(--brand-solid);
+}
+
+@media (--mobile) {
+  .steps {
+    display: none;
+  }
+
+  .compact {
+    display: flex;
+  }
+}

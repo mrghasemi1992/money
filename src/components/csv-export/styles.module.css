@@ -1,0 +1,81 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.summary {
+  display: flex;
+  flex: 1 1 var(--import-note-min);
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.summaryText {
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+}
+
+.hint {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (--mobile) {
+  .presets {
+    display: flex;
+    width: 100%;
+  }
+
+  /* Four options share a phone's width. */
+  .presets > button {
+    padding-inline: var(--space-2);
+  }
+
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .download {
+    flex: 1;
+  }
+}
+
+/* The dates read in full, one under the other. */
+@media (--small-phone) {
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

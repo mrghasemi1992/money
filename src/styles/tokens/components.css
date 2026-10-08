@@ -164,6 +164,26 @@
   --consent-link: 28px; /* the circle between the marks */
   --consent-result-icon: 56px;
 
+  /* CSV import and export (/settings/import-export) */
+  --import-max: 1000px; /* the page column */
+  --import-step: 28px; /* the numbered circles of the stepper */
+  --import-step-line: 2px; /* the line between them */
+  --import-step-line-min: 12px;
+  --import-step-segment: 4px; /* the phone stepper's bars */
+  --import-drop-icon: 48px; /* the tile in the drop zone */
+  --import-drop-text-max: 360px;
+  --import-drop-border: 2px; /* the drop zone's dashed edge */
+  --import-file-icon: 40px; /* the file's tile once read */
+  --import-tile-icon: 36px; /* the review's ready / errors / duplicates tiles */
+  --import-result-icon: 56px;
+  --import-result-max: 520px; /* the result's three numbers */
+  --import-preview-cell: 128px; /* a column of the preview */
+  --import-preview-wide: 170px; /* the description's column of the preview */
+  --import-match-arrow: 18px; /* the arrow between a name and its choice */
+  --import-dot: 3px; /* between parts of a review row */
+  --import-dup-choice: 160px; /* a duplicate's skip / add switch */
+  --import-note-min: 240px; /* a note beside its button, before the button wraps below */
+
   /* Layers */
   --z-shell: 20; /* the mobile top bar and tab bar, the skip link */
   --z-overlay: 100;

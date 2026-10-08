@@ -1,0 +1,129 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6) 0 var(--space-2);
+  text-align: center;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--import-result-icon);
+  height: var(--import-result-icon);
+  border-radius: var(--radius-pill);
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+}
+
+.iconGlyph {
+  width: var(--icon-size-2xl);
+  height: var(--icon-size-2xl);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  font: var(--type-title);
+  font-weight: var(--weight-bold);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-body);
+  text-wrap: pretty;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  max-width: var(--import-result-max);
+  margin: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-0-5);
+  padding: var(--space-4) var(--space-2);
+}
+
+.stat + .stat {
+  border-inline-start: var(--border-width) solid var(--border-default);
+}
+
+.statLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+}
+
+.statLabel[data-tone="success"] {
+  color: var(--status-success-text);
+}
+
+.statLabel[data-tone="neutral"] {
+  color: var(--text-secondary);
+}
+
+.statLabel[data-tone="danger"] {
+  color: var(--status-danger-text);
+}
+
+.statIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.statValue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+}
+
+.statNumber {
+  font: var(--type-title-lg);
+  font-weight: var(--weight-bold);
+  font-feature-settings: var(--font-features-tabular);
+}
+
+.statUnit {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.created {
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+@media (--mobile) {
+  .actions {
+    flex-direction: column;
+    align-self: stretch;
+  }
+}

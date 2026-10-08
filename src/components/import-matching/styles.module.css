@@ -1,0 +1,126 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.allKnown {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--status-success-border);
+  border-radius: var(--radius-lg);
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+  font: var(--type-body);
+}
+
+.allKnownIcon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.groupHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.groupTitle {
+  margin: 0;
+  font: var(--type-heading);
+  font-weight: var(--weight-bold);
+}
+
+.groupSubtitle {
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-wrap: pretty;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--import-match-arrow) minmax(
+      0,
+      1.2fr
+    );
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+
+.row + .row {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-px);
+  min-width: 0;
+}
+
+.nameText {
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.nameMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.arrow {
+  width: var(--import-match-arrow);
+  height: var(--import-match-arrow);
+  color: var(--text-placeholder);
+}
+
+.tags {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.tagsIcon {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+@media (--mobile) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .arrow {
+    display: none;
+  }
+}

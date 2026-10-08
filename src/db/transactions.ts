@@ -9,6 +9,7 @@ import {
   UNKNOWN_DESCRIPTION,
 } from "@/constants/transaction";
 import { NO_TRANSACTION_FILTERS } from "@/helpers/transaction-filters";
+import type { ExportedTransaction } from "@/types/csv";
 import type {
   AccountOption,
   Transaction,
@@ -545,4 +546,77 @@ export async function deleteTransactions(
     .delete(transactions)
     .where(inArray(transactions.id, ids))
     .returning(storedColumns);
+}
+
+/**
+ * One page of the transactions matching the filters for the CSV export, oldest first (by
+ * date, then by when they were added), and the cursor of the next page. Same keyset as the
+ * list, the other way round, so a long export reads page by page while it streams.
+ */
+export async function exportTransactions(
+  filters: TransactionFilters,
+  cursor: string | null,
+  limit: number,
+): Promise<{ rows: ExportedTransaction[]; nextCursor: string | null }> {
+  const after = decodeCursor(cursor);
+  const rows = await db
+    .select({
+      id: transactions.id,
+      type: transactions.type,
+      date: transactions.date,
+      amount: transactions.amount,
+      cursorTime: sql<string>`to_char(${transactions.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
+      accountName: accounts.name,
+      toAccountName: toAccount.name,
+      categoryName: categories.name,
+      parentName: parent.name,
+      description: transactions.description,
+      note: transactions.note,
+      tags: transactions.tags,
+    })
+    .from(transactions)
+    .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+    .leftJoin(toAccount, eq(toAccount.id, transactions.toAccountId))
+    .leftJoin(categories, eq(categories.id, transactions.categoryId))
+    .leftJoin(parent, eq(parent.id, categories.parentId))
+    .where(
+      and(
+        filterConditions(filters),
+        after
+          ? sql`(${transactions.date}, ${transactions.createdAt}, ${transactions.id}) > (${after.date}::date, ${after.createdAt}::timestamptz, ${after.id}::uuid)`
+          : undefined,
+      ),
+    )
+    .orderBy(
+      asc(transactions.date),
+      asc(transactions.createdAt),
+      asc(transactions.id),
+    )
+    .limit(limit + 1);
+
+  const page = rows.slice(0, limit);
+  const last = page.at(-1);
+  return {
+    rows: page.map((row) => ({
+      type: row.type,
+      date: row.date,
+      amount: row.amount,
+      accountName: row.accountName,
+      toAccountName: row.toAccountName,
+      // A subcategory is written under its parent's name.
+      categoryName: row.parentName ?? row.categoryName,
+      subcategoryName: row.parentName ? row.categoryName : null,
+      description: row.description,
+      note: row.note,
+      tags: row.tags,
+    })),
+    nextCursor:
+      rows.length > limit && last
+        ? encodeCursor({
+            date: last.date,
+            createdAt: last.cursorTime,
+            id: last.id,
+          })
+        : null,
+  };
 }

@@ -27,6 +27,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 7: Budgets](#phase-7-budgets)
 - [Phase 8: Reports](#phase-8-reports)
 - [Phase 9: Dashboard](#phase-9-dashboard)
+- [Phase 10: CSV import and export](#phase-10-csv-import-and-export)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -97,7 +98,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | [#11](https://github.com/mrghasemi1992/money/pull/11) |
 | 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | [#12](https://github.com/mrghasemi1992/money/pull/12) |
 | 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`             | [#13](https://github.com/mrghasemi1992/money/pull/13) |
-| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`           | (linked when opened)                                  |
+| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`           | [#43](https://github.com/mrghasemi1992/money/pull/43) |
+| 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                | (linked when opened)                                  |
 
 ---
 
@@ -1027,7 +1029,7 @@ The reports page from the design: a period in the URL (a month, the last 3, 6 or
 
 ## Phase 9: Dashboard
 
-Branch: `feature/phase-9-dashboard`. Date: 2026-10-08. PR: linked when it is opened.
+Branch: `feature/phase-9-dashboard`. Date: 2026-10-08. PR [#43](https://github.com/mrghasemi1992/money/pull/43).
 
 ### Claude Design prompt
 
@@ -1067,11 +1069,55 @@ Bugs found this way and fixed: on phones a setup step's number sat on its own li
 
 The dashboard from the design: a greeting with today's date, a notice for unknown transactions, the total balance with each account, this month's income, expense and net, the recent transactions, the budgets closest to their limit and the month's top spending, each section streamed in with its own skeleton. An empty book shows setup steps to editors and admins and a note to viewers. Stories for every section. CLAUDE.md updated.
 
+## Phase 10: CSV import and export
+
+Branch: `feature/phase-10-csv`. Date: 2026-10-08. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-10-csv-import-and-export).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/befa7aa1-168d-4676-adbd-77802f030154?file=CSV+Import+Export.dc.html` (one `CSV Import Export.dc.html` with props for language, theme, device, role, currency and step: the export card, the viewer's note and the five import steps), the design system's bundle, CSS and tokens, and `support.js`. The design files were read through the design MCP. The prompt is the one in phases.md:
+
+```text
+Phase 10: CSV import and export. Read CLAUDE.md first. Create branch feature/phase-10-csv from main.
+
+1. Export (requireUser()): a Route Handler that streams the book's transactions in a date range as UTF-8 CSV with a BOM (so Excel shows Persian correctly). Columns: Gregorian date, Jalali date, type, amount (in the book currency's main unit, with a currency column), account, to account, category, subcategory, description, tags, note. Header names in the exporting user's language.
+2. Import (requireWrite()): parse the CSV (choose a parser library and say why), detect Jalali vs Gregorian dates, normalize Persian digits and decimal separators, convert amounts to the smallest unit (toman × 10 when chosen), validate every row with Zod, map accounts and categories as in the design, detect duplicates (same date, account, amount and type), and insert in one database transaction. source = "csv", created_by = the importing user.
+3. Limits on file size and row count, with clear errors.
+4. Implement the attached design. Stories for the new components.
+
+Check that build, lint, typecheck, format:check and build-storybook pass, and test with a sample file that has both date formats and some bad rows. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Decisions and where the implementation differs from the prompt and the design
+
+- **Parser: Papa Parse.** It reads the file in the browser, so the column step can preview the file at once: RFC 4180 quoting (commas, quotes and line breaks inside fields), the BOM, delimiter detection (Excel writes «;» in many locales) and a File input, with no dependencies. Writing CSV (export, the error rows, the sample) is a small function of our own. The server never gets the file: it gets the mapped cells and checks every row again with the same Zod schema.
+- **Calendar per row, not per file.** The design asks the user to choose the date column's calendar. Instead, each date's year decides (below 1700 is Jalali), as the Claude connector already does, so one file may mix both. The column step shows how many rows each calendar has and how the first date reads, in place of the switch. Dates with the year last (what Excel writes back) are read when the file's dates tell the order of day and month; otherwise those rows fail with a clear reason.
+- **Limits.** 4 MB (the design says 5 MB) and 10,000 rows. The mapped rows go to a Server Action in one request, and Vercel refuses request bodies above 4.5 MB; `bodySizeLimit` is raised to 4.5mb. Files that aren't UTF-8 (Excel's Windows-1256 «CSV») are refused with a hint to save as «CSV UTF-8».
+- **A «to account» field.** The design's fields had no destination account; without it transfers (and the export's own files) couldn't be imported. With signed amounts, a row with a destination account is a transfer.
+- **Names step.** Choices also include «بدون دسته‌بندی» for a category and «بدون زیردسته» for a subcategory. A name already in the book (archived ones included, compared folded) isn't asked about. Suggestions link a name to an existing one when one's words include the other's («ملی» → «بانک ملی»). New accounts get type card and opening balance 0. Tags aren't stored separately in Money, so «new tags» are only noted.
+- **Duplicates** are checked against the stored transactions (date, account, amount and type), looked up again when saving; rows into a new account can't be duplicates. The design's similar-row text says «with the same description and amount»; it says «with the same amount and type», which is what is compared.
+- **Export.** The design's English frame used text fields for dates; both languages use the DatePicker. The design's hint said dates are written in the viewer's calendar; the file has both. The account filter from the design is kept. The badge after downloading says «دانلود آغاز شد» (the page can't know when a download ends). Download is disabled when the range has no transactions.
+- **Left out of the design's frames:** the sidebar's book switcher (Money has one book), the app shell (Phase 2).
+
+### Testing
+
+- The sample file (`;` separated, with a BOM, Persian and Latin digits, tomans, Jalali and Gregorian dates and a `15/09/2026`, a quoted note with a `;`, a `=HYPERLINK` description) went through Papa Parse, the payload schema and `planImport` against the stories' book: 6 rows ready, 7 rejected with their reasons (empty amount, month 13, «12,O00», a future date, the same account on both sides of a transfer, an unknown type, an empty date). Exporting the ready rows and importing that file back gave the same rows.
+- The two new queries (`exportTransactions` with a cursor, `findImportDuplicates` with 2,500 keys in two chunks) ran against Postgres over a range with no transactions, so nothing was read. Saving an import wasn't run: local development uses the production book. It is left for the Preview deployment (its own Neon branch).
+- In Storybook: every step in Persian and English, light and dark, desktop and phone, with working fakes from upload to result. Bugs found this way and fixed: raw dates and amounts quoted in Persian sentences were reordered (now in Unicode isolates), a Persian file name lost its «.csv» to the wrong end, English plurals («1 rows»), the export's presets and dates were cramped on phones, and the result's numbers sat under their labels.
+
+### Result
+
+`/settings/import-export`: an export card for every role (range presets in the viewer's calendar, an account, the count, a streamed UTF-8 CSV with both calendars) and, for editors and admins, a five-step import (upload, columns, names, review with errors and possible duplicates, result) saved in one database transaction with `source = "csv"`. Errors can be downloaded as a CSV to fix. The transaction detail names imported rows. Stories for the page and every step. CLAUDE.md updated.
+
 ---
 
 ## Next phases
 
-Phases 10 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>

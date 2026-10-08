@@ -1,0 +1,170 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Amount and type, calendar, unit. */
+.format {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+}
+
+.formatSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.groupLabel {
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+}
+
+.calendarCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.groupHint {
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-wrap: pretty;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.sectionHeadRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: var(--type-heading);
+  font-weight: var(--weight-bold);
+}
+
+.sectionSubtitle {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+/* The preview: the file's first rows, scrolling sideways. */
+.previewScroll {
+  overflow-x: auto;
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.preview {
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.headCell,
+.cell {
+  box-sizing: border-box;
+  width: var(--import-preview-cell);
+  min-width: var(--import-preview-cell);
+  max-width: var(--import-preview-cell);
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+  vertical-align: top;
+}
+
+.headCell[data-wide],
+.cell[data-wide] {
+  width: var(--import-preview-wide);
+  min-width: var(--import-preview-wide);
+  max-width: var(--import-preview-wide);
+}
+
+.headCell {
+  border-block-end: var(--border-width) solid var(--border-default);
+  background: var(--surface-inset);
+}
+
+.headName,
+.headField {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow: hidden;
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.headName {
+  color: var(--text-secondary);
+}
+
+.headField {
+  color: var(--brand-text);
+}
+
+.headField[data-ignored] {
+  color: var(--text-placeholder);
+}
+
+.headIcon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.cell {
+  overflow: hidden;
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  color: var(--text-primary);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell[data-ignored] {
+  color: var(--text-placeholder);
+}
+
+@media (--mobile) {
+  .format,
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
