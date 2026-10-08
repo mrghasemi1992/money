@@ -2,7 +2,6 @@
 
 import {
   ArrowLeftRightIcon,
-  CircleDashedIcon,
   CircleHelpIcon,
   PencilIcon,
   SparklesIcon,
@@ -10,16 +9,14 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { CSSProperties } from "react";
 
+import { TransactionTile } from "@/components/transaction-tile";
 import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
-import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
-import { categoryColorStyle } from "@/helpers/category";
 import { isUnknownDescription } from "@/helpers/transaction";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { Transaction, TransactionDayTotal } from "@/types/transaction";
@@ -209,35 +206,14 @@ function TransactionRow({
       : category.name
     : t("transactions.list.noCategory");
   const AccountIcon = ACCOUNT_TYPE_ICONS[account.type];
-  const TypeIcon = TRANSACTION_TYPE_ICONS[transaction.type];
   const description = unknown
     ? t("transactions.list.unknownDescription")
     : transaction.description;
 
-  const tileStyle: CSSProperties | undefined =
-    category && !unknown ? categoryColorStyle(category.color) : undefined;
-  const tileKind = isTransfer
-    ? styles.tileTransfer
-    : unknown
-      ? styles.tileUnknown
-      : category
-        ? styles.tileCategory
-        : styles.tileNone;
-
   return (
     <li className={styles.row}>
-      <span className={cx(styles.tile, tileKind)} style={tileStyle}>
-        {unknown && !isTransfer ? (
-          <span className={styles.tileMark} aria-hidden="true">
-            ؟
-          </span>
-        ) : isTransfer ? (
-          <ArrowLeftRightIcon className={styles.tileIcon} aria-hidden="true" />
-        ) : category ? (
-          <TypeIcon className={styles.tileIcon} aria-hidden="true" />
-        ) : (
-          <CircleDashedIcon className={styles.tileIcon} aria-hidden="true" />
-        )}
+      <span className={styles.tile}>
+        <TransactionTile transaction={transaction} />
       </span>
 
       <div className={styles.main}>
