@@ -43,3 +43,21 @@ How it works: Money is its own OAuth 2.1 authorization server (Better Auth's MCP
 | `pnpm db:generate`     | Generate a SQL migration   |
 | `pnpm db:migrate`      | Apply migrations           |
 | `pnpm user:create`     | Create a user (prompts)    |
+
+## License
+
+Copyright 2026 Mohammad Reza Ghasemi.
+
+The source code is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+- **Noncommercial use is free.** You can use, copy, change and share the code for personal, study, research and other noncommercial purposes.
+- **Credit is required.** Keep the `Required Notice:` lines from the [LICENSE](LICENSE) file in every copy, and credit Mohammad Reza Ghasemi as the author with a link to this repository.
+- **Commercial use needs a paid license.** Companies and anyone using Money for commercial purposes must buy a separate license. Contact me through [GitHub](https://github.com/mrghasemi1992).
+
+### Name and logo
+
+The name "Money" («پول») and the Money logo are not covered by the license. They belong to Mohammad Reza Ghasemi and may not be used in copies or modified versions. If you publish your own version, use a different name and logo.
+
+### Third-party content
+
+Libraries and fonts used by this project keep their own licenses. Money is not affiliated with or endorsed by Anthropic; Claude is a trademark of Anthropic.
