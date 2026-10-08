@@ -1,0 +1,31 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: var(--import-max);
+}
+
+.viewerNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font: var(--type-caption);
+}
+
+.viewerIcon {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

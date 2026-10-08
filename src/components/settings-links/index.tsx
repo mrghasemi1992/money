@@ -1,4 +1,5 @@
 import {
+  ArrowDownUpIcon,
   ChevronRightIcon,
   LandmarkIcon,
   type LucideIcon,
@@ -17,10 +18,15 @@ type SettingsLink = {
   href: Route;
   icon: LucideIcon;
   /** Message keys of the link's title and description. */
-  title: "accounts.title" | "categories.title" | "connector.title";
+  title:
+    | "accounts.title"
+    | "categories.title"
+    | "importExport.title"
+    | "connector.title";
   description:
     | "settings.data.accounts"
     | "settings.data.categories"
+    | "settings.data.importExport"
     | "settings.claude.connector";
 };
 
@@ -43,6 +49,12 @@ const SECTIONS: {
         title: "categories.title",
         description: "settings.data.categories",
       },
+      {
+        href: "/settings/import-export",
+        icon: ArrowDownUpIcon,
+        title: "importExport.title",
+        description: "settings.data.importExport",
+      },
     ],
   },
   {
@@ -59,8 +71,8 @@ const SECTIONS: {
 ];
 
 /**
- * The /settings sections that lead to subpages: the book's accounts and categories, and the
- * Claude connector.
+ * The /settings sections that lead to subpages: the book's accounts and categories, CSV import
+ * and export, and the Claude connector.
  */
 export function SettingsLinks() {
   const t = useTranslations();
