@@ -1,0 +1,146 @@
+.list {
+  margin: 0;
+  margin-block-start: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .list .row:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* The whole row opens the detail: the button's ::after covers it. */
+.open {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  outline: 0;
+}
+
+.open:focus-visible {
+  box-shadow: none;
+}
+
+.open::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.open:focus-visible::after {
+  outline: var(--ring-width) solid var(--ring-color);
+  outline-offset: calc(-1 * var(--ring-width));
+}
+
+.description {
+  display: block;
+  overflow: hidden;
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* An unknown transaction reads as its «؟» tile and badge; the name is for screen readers. */
+.openUnknown .description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.metaText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The category gives way first; the account keeps most of its name. */
+.account {
+  flex-shrink: 0;
+  max-width: 45%;
+}
+
+.metaDot {
+  flex: none;
+  width: var(--meta-dot);
+  height: var(--meta-dot);
+  border-radius: var(--radius-pill);
+  background: var(--text-placeholder);
+}
+
+.day {
+  flex: none;
+}
+
+.amount {
+  flex: none;
+}
+
+@media (--mobile) {
+  .row {
+    padding: var(--space-3);
+  }
+}
+
+.skeleton {
+  min-width: 0;
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.skeletonHead {
+  padding: var(--space-4);
+}
+
+.skeleton .main {
+  gap: var(--space-2);
+}

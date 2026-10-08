@@ -25,3 +25,8 @@ export function tidyName(text: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/** The first word of a name, for a greeting: «سارا محمدی» → «سارا». The whole name when it has one word. */
+export function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? "";
+}
