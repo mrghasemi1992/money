@@ -1,0 +1,44 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--dashboard-max);
+}
+
+/* The greeting sits close to the cards below it. */
+.root > :first-child {
+  margin-block-end: var(--space-1);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.main,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.main {
+  flex: 2 1 var(--dashboard-main-min);
+}
+
+.side {
+  flex: 1 1 var(--dashboard-side-min);
+}
+
+/* The balance and this month are as tall as each other. */
+.top {
+  align-items: stretch;
+}
+
+.top .main > *,
+.top .side > * {
+  flex: 1 0 auto;
+}

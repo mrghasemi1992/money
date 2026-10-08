@@ -26,6 +26,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 6: Claude connector](#phase-6-claude-connector)
 - [Phase 7: Budgets](#phase-7-budgets)
 - [Phase 8: Reports](#phase-8-reports)
+- [Phase 9: Dashboard](#phase-9-dashboard)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -95,7 +96,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | [#10](https://github.com/mrghasemi1992/money/pull/10) |
 | 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | [#11](https://github.com/mrghasemi1992/money/pull/11) |
 | 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | [#12](https://github.com/mrghasemi1992/money/pull/12) |
-| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`             | (linked when opened)                                  |
+| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`             | [#13](https://github.com/mrghasemi1992/money/pull/13) |
+| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`           | (linked when opened)                                  |
 
 ---
 
@@ -961,7 +963,7 @@ The budgets page from the design: a month of the viewer's calendar in the URL, t
 
 ## Phase 8: Reports
 
-Branch: `feature/phase-8-reports`. Date: 2026-10-08. PR: linked when it is opened.
+Branch: `feature/phase-8-reports`. Date: 2026-10-08. PR: [#13](https://github.com/mrghasemi1992/money/pull/13).
 
 ### Claude Design prompt
 
@@ -1023,9 +1025,53 @@ The reports page from the design: a period in the URL (a month, the last 3, 6 or
 
 ---
 
+## Phase 9: Dashboard
+
+Branch: `feature/phase-9-dashboard`. Date: 2026-10-08. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-9-dashboard).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/7a471d54-3821-4e68-ad28-8337bef74437?file=Dashboard+Canvas.dc.html` (a canvas of `Dashboard.dc.html` frames: the populated book in both languages, light and dark, desktop and mobile, and the first run for editors, admins and viewers), the design system's `styles.css` and `support.js`. The design files were read through the design MCP. The prompt is the one in phases.md:
+
+```text
+Phase 9: dashboard. Read CLAUDE.md first. Create branch feature/phase-9-dashboard from main.
+
+Implement the attached design at /, reusing the queries and components from Phases 4–8 (balances, month totals, budget progress, report aggregations, transaction rows). Load sections in parallel with Suspense and a skeleton each, so one slow query doesn't hold up the page. The first-run state shows when the book has no accounts or no transactions, with the editor/admin or viewer version by role.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Decisions and where the implementation differs from the prompt and the design
+
+- **Streaming.** The page reads only the user and the book's progress (one statement) before it renders; each section is then an async Server Component in its own Suspense boundary with its own skeleton. The unknown-transactions notice has no skeleton: it appears only when there is something to say.
+- **Reused queries.** `listAccounts` (balances), `transactionTotals` (the month), `listTransactions` (recent), `listBudgetCategories` (budgets) and `categoryTotals` (top spending). New: `getBookProgress` and `unknownTransactionSummary`.
+- **Unknown transactions.** In Money «ناشناس» means the description is «؟», not a missing category, so the notice's second line says it isn't clear yet what they were for (the design said their category is unknown). The count is for the whole book, and the link lists them all: `/transactions?from=<oldest>&unknown=1` (the design's `?status=unidentified` doesn't exist).
+- **Recent transactions.** Flat rows as in the design, with the tile the transactions list already used on phones, now a shared `TransactionTile`. A row opens the transaction's detail, read only; editing stays on the transactions page. Unknown rows show the «؟» tile and the «ناشناس» badge (as in the list), not a made-up title.
+- **First run.** The design's four steps, with real links (`/settings/accounts`, `/settings/categories`, `/settings/connector`; the design had `/accounts/new`, `/categories`, `/settings/claude`). «ثبت تراکنش» opens the add form and is blocked until there is an account. Steps are marked done from the book (accounts, categories, transactions, this user's Claude connection), so «۰ از ۴ انجام شده» counts up; the next open step is the primary button. The header's add button is hidden during the first run.
+- **Budgets.** The 4 with the highest share of their limit, whatever their status (as in the design); without budgets the card says so and writers get «تعیین بودجه».
+- **Top spending.** The 4 largest categories and «سایر», «بدون دسته‌بندی» for uncategorized expenses; the link opens the month's report.
+- **Left out of the design's frames:** the sidebar's add button, Claude panel and dark-mode switch, which belong to the app shell (Phase 2), not this page.
+- `PagePlaceholder` is gone: the dashboard was the last unbuilt page. The app shell's stories show the sample dashboard instead.
+
+### Testing
+
+The new queries ran against the production book (read only): it has accounts and categories but no transactions yet, so `/` shows the first run with two steps done. The page and its parts were checked in Storybook with sample data: Persian and English, light and dark, desktop and phone, the loading skeletons, the first run for writers (empty and half way) and viewers, and opening a recent transaction. The real `/` wasn't opened signed in: the preview browser has no session, and the only accounts are on the production book.
+
+Bugs found this way and fixed: on phones a setup step's number sat on its own line above the text, and in recent rows the account was cut as early as the category.
+
+### Result
+
+The dashboard from the design: a greeting with today's date, a notice for unknown transactions, the total balance with each account, this month's income, expense and net, the recent transactions, the budgets closest to their limit and the month's top spending, each section streamed in with its own skeleton. An empty book shows setup steps to editors and admins and a note to viewers. Stories for every section. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 9 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 10 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>

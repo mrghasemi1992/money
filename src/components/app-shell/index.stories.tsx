@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { AddTransactionButton } from "@/components/add-transaction";
+import { SampleDashboard } from "@/components/dashboard/sample-dashboard";
 import { PageHeader } from "@/components/page-header";
-import { PagePlaceholder } from "@/components/page-placeholder";
 import {
   SAMPLE_ADD_TRANSACTION_ACTIONS,
   SAMPLE_TRANSACTION_OPTIONS_PROMISE,
@@ -20,16 +19,7 @@ const meta = {
     onSignOut: async () => {},
     transactionOptions: SAMPLE_TRANSACTION_OPTIONS_PROMISE,
     transactionActions: SAMPLE_ADD_TRANSACTION_ACTIONS,
-    children: (
-      <>
-        <PageHeader
-          title="داشبورد"
-          subtitle="مهر ۱۴۰۵"
-          actions={<AddTransactionButton />}
-        />
-        <PagePlaceholder section="dashboard" />
-      </>
-    ),
+    children: <SampleDashboard canWrite />,
   },
   argTypes: {
     children: { control: false },
@@ -58,12 +48,7 @@ export const Editor: Story = {
 export const Viewer: Story = {
   args: {
     user: { name: "سارا محمدی", role: "viewer" },
-    children: (
-      <>
-        <PageHeader title="داشبورد" subtitle="مهر ۱۴۰۵" />
-        <PagePlaceholder section="dashboard" />
-      </>
-    ),
+    children: <SampleDashboard canWrite={false} />,
   },
 };
 

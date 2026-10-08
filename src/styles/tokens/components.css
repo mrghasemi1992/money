@@ -102,6 +102,18 @@
   --budget-edit-gutter: 44px; /* room for the edit button at the end of a card row */
   --budget-summary-cell-min: 190px; /* a total and its unit: «۳۷۹٬۰۰۰٬۰۰۰ ریال» */
 
+  /* Dashboard */
+  --dashboard-max: 1160px; /* the dashboard */
+  --dashboard-main-min: 460px; /* the balance and recent transactions, beside the side column down to this width */
+  --dashboard-side-min: 290px; /* this month, budgets and top spending */
+  --dashboard-account-min: 140px; /* an account's tile on the balance card */
+  --dashboard-spending-h: 12px; /* the stacked bar of the month's spending */
+  --dashboard-spending-slice-min: 4px; /* the thinnest slice, so every category shows */
+  --dashboard-notice-text-min: 220px; /* the notice's text beside its button, then above it */
+  --dashboard-percent-w: 40px; /* «۱۰۰٪», so the shares end in a line */
+  --dashboard-step: 32px; /* a setup step's number */
+  --dashboard-setup-max: 760px; /* the first-run steps */
+
   /* Reports and charts */
   --reports-max: 1160px; /* the reports page */
   --report-summary-min: 220px; /* the summary cards side by side down to this width */

@@ -1,0 +1,124 @@
+.root {
+  /* Amounts in white with their unit in the card's muted text (Amount reads both). */
+  --amount-neutral: var(--text-on-brand);
+  --amount-unit-color: var(--text-on-brand-muted);
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  background: var(--surface-brand);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-on-brand);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  color: var(--text-on-brand-muted);
+  font: var(--type-label);
+}
+
+.count {
+  flex: none;
+  color: var(--text-on-brand-muted);
+  font: var(--type-caption);
+}
+
+.total {
+  margin-block-start: var(--space-1);
+}
+
+.accounts {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  margin-block-start: auto;
+  padding: var(--space-5) 0 0;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.accounts::-webkit-scrollbar {
+  display: none;
+}
+
+.account {
+  display: flex;
+  flex: 1 0 var(--dashboard-account-min);
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--text-on-brand) 11%, transparent);
+  scroll-snap-align: start;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  color: var(--text-on-brand-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.nameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+/* Phones: the tiles scroll from edge to edge of the card. */
+@media (--mobile) {
+  .root {
+    padding: var(--space-5);
+  }
+
+  .accounts {
+    margin-inline: calc(var(--space-5) * -1);
+    padding-inline: var(--space-5);
+    scroll-padding-inline: var(--space-5);
+  }
+
+  .account {
+    flex-basis: var(--dashboard-account-min);
+    flex-grow: 0;
+  }
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.skeleton .accounts {
+  padding-block-start: var(--space-2);
+}
+
+.skeleton .account {
+  background: var(--surface-inset);
+}

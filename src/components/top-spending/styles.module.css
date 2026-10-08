@@ -1,0 +1,110 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  padding: var(--space-4);
+}
+
+/* One bar split by category; it follows the reading direction like any flex row. */
+.bar {
+  display: flex;
+  gap: var(--space-0-5);
+  height: var(--dashboard-spending-h);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+}
+
+.slice {
+  flex-shrink: 1;
+  flex-basis: 0;
+  min-width: var(--dashboard-spending-slice-min);
+  background: var(--cat);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.chip {
+  max-width: 100%;
+}
+
+.uncategorized {
+  display: inline-flex;
+  align-items: center;
+  height: var(--cat-soft-h);
+  padding-inline: var(--space-2-5);
+  border: var(--border-width) dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.amount {
+  flex: none;
+  font-weight: var(--weight-semibold);
+}
+
+.share {
+  flex: none;
+  width: var(--dashboard-percent-w);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+  text-align: end;
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block-start: var(--space-2-5);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--text-secondary);
+  font: var(--type-body);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  min-width: 0;
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.skeletonRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}

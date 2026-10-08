@@ -351,43 +351,6 @@
 
   .tile {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--transaction-tile);
-    height: var(--transaction-tile);
-    border-radius: var(--radius-lg);
-  }
-
-  .tileTransfer {
-    background: var(--amount-transfer-soft);
-    color: var(--amount-transfer);
-  }
-
-  .tileUnknown {
-    border: var(--transaction-unknown-border) dashed
-      var(--status-warning-border);
-    background: var(--status-warning-soft);
-    color: var(--status-warning-text);
-  }
-
-  .tileCategory {
-    background: var(--cat-soft);
-    color: var(--cat-text);
-  }
-
-  .tileNone {
-    background: var(--surface-sunken);
-    color: var(--text-muted);
-  }
-
-  .tileIcon {
-    width: var(--icon-size-md);
-    height: var(--icon-size-md);
-  }
-
-  .tileMark {
-    font: var(--type-heading);
-    font-weight: var(--weight-heavy);
   }
 
   .unknownMark {

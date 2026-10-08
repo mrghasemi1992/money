@@ -219,6 +219,18 @@ export const EMPTY_TRANSACTION_PARAMS: TransactionFilterParams = {
   unknownOnly: false,
 };
 
+/** Every transaction of the book: no period and no filters. */
+export const NO_TRANSACTION_FILTERS: TransactionFilters = {
+  from: null,
+  to: null,
+  types: [],
+  accountId: null,
+  categoryId: null,
+  tag: null,
+  search: "",
+  unknownOnly: false,
+};
+
 /** Toggles a type in a list, keeping the form's order. */
 export function toggleType(
   types: TransactionType[],

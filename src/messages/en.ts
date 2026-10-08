@@ -145,7 +145,6 @@ const en: Messages = {
   },
   page: {
     loading: "Loading",
-    placeholderTitle: "This page isn’t built yet",
     error: {
       title: "Something went wrong",
       description:
@@ -160,8 +159,83 @@ const en: Messages = {
     },
   },
   dashboard: {
-    placeholder:
-      "Account balances, the month at a glance and recent transactions will appear here.",
+    greeting: "Hello, {name}",
+    welcome: "Welcome, {name}",
+    all: "All",
+    unknown: {
+      title:
+        "{countNumber, plural, one {You have {count} unidentified transaction} other {You have {count} unidentified transactions}}",
+      description:
+        "It isn’t clear yet what they were for. Identify them to keep your reports accurate.",
+      action: "Review transactions",
+    },
+    balances: {
+      title: "Total balance, all accounts",
+      count:
+        "{countNumber, plural, one {{count} account} other {{count} accounts}}",
+      accounts: "Balance of each account",
+    },
+    month: {
+      title: "This month",
+      subtitle: "{month}, to date",
+      net: "Net",
+    },
+    recent: {
+      title: "Recent transactions",
+      all: "All transactions",
+    },
+    budgets: {
+      title: "Budgets",
+      subtitle: "Closest to their limit",
+      all: "All budgets",
+      empty: "No category has a budget yet.",
+      set: "Set a budget",
+    },
+    spending: {
+      title: "Top spending",
+      report: "Full report",
+      reportLabel: "Full report for {month}",
+      chart: "Each category’s share of spending in {month}",
+      other: "Other",
+      total: "Total expenses",
+      empty: "No expenses recorded this month yet.",
+    },
+    setup: {
+      title: "Set up your book",
+      subtitle: "Four steps to your first monthly report.",
+      progress: "{done} of {total} done",
+      done: "Done",
+      steps: {
+        accounts: {
+          title: "Add your accounts",
+          description:
+            "Bank accounts, cards and cash, each with today’s balance.",
+          action: "Add account",
+        },
+        categories: {
+          title: "Set up categories",
+          description:
+            "Create expense and income categories so reports make sense.",
+          action: "Add category",
+        },
+        transaction: {
+          title: "Record a first transaction",
+          description: "Enter a recent expense or income.",
+          action: "Add transaction",
+          needsAccount: "Add an account first.",
+        },
+        claude: {
+          title: "Connect Claude",
+          description: "Tell Claude what you spent and it’s recorded here.",
+          action: "Connect Claude",
+        },
+      },
+    },
+    viewer: {
+      title: "Nothing has been recorded yet",
+      description:
+        "When an editor or admin adds accounts and transactions, a summary will appear here.",
+    },
   },
   transactions: {
     net: "Net",
