@@ -23,6 +23,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 3: User management](#phase-3-user-management)
 - [Phase 4: Accounts and categories](#phase-4-accounts-and-categories)
 - [Phase 5: Transactions](#phase-5-transactions)
+- [Phase 6: Claude connector](#phase-6-claude-connector)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -89,7 +90,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`           | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
 | 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
 | 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
-| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | (linked when opened)                                  |
+| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | [#10](https://github.com/mrghasemi1992/money/pull/10) |
+| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | (linked when opened)                                  |
 
 ---
 
@@ -778,7 +780,7 @@ push and create the pr
 
 ## Phase 5: Transactions
 
-Branch: `feature/phase-5-transactions`. Date: 2026-10-07. PR: linked when it is opened.
+Branch: `feature/phase-5-transactions`. Date: 2026-10-07. PR [#10](https://github.com/mrghasemi1992/money/pull/10).
 
 ### Claude Design prompt
 
@@ -833,11 +835,80 @@ Bugs found this way and fixed: popups behind dialogs, the category error hidden 
 
 `/transactions`: a month of the viewer's calendar (or a date range) with its income, expense and net, the filters (search, dates, type, account, category with its subcategories, tag, unknown only) as removable chips and in the URL, and the transactions grouped by day with each day's net, 50 at a time with «نمایش بیشتر». Rows show the category or the transfer's route, the account, tags, a Claude mark and the signed amount; unknown ones are marked «ناشناس». The detail shows who added and last edited a transaction. Editors and admins add (from every page, through the header or floating button), edit and delete with undo; viewers read. One Zod schema for the form and the actions, checks of the accounts and category in the database, errors translated on their field. Keyset pagination with a matching index. Stories for every new component. CLAUDE.md updated.
 
+## Phase 6: Claude connector
+
+Branch: `feature/phase-6-mcp`. Date: 2026-10-08. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-6-claude-connector-mcp--oauth).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/a3595c44-16c8-43b9-8064-eba0e06d9e8a?file=Claude+Connector+Screens.dc.html` (a canvas of `Connector Settings.dc.html` frames: both languages, light and dark, desktop and mobile, the revoke confirmation, the toast and no apps; and `Claude Consent.dc.html` frames: the consent for an editor, an admin and a viewer, and sign-in first) and the `support.js` it imports. The design files were read through the design MCP. The prompt is the one in phases.md:
+
+```text
+Phase 6: Claude connector. Read CLAUDE.md first. Create branch feature/phase-6-mcp from main.
+
+Goal: users add https://<domain>/mcp as a custom connector in claude.ai, sign in once with their username and password, and Claude works on the shared book with that user's role.
+
+1. OAuth: read the current Better Auth docs and the current MCP authorization spec. Use Better Auth's OAuth 2.1 provider / MCP plugin (whichever the docs now recommend) for authorization, token and client registration (dynamic client registration and/or client ID metadata documents, whichever claude.ai uses today), PKCE, and the .well-known metadata (oauth-authorization-server and oauth-protected-resource). Use the consent page from the attached design. Sign-in goes through /login and returns to the consent page.
+2. MCP endpoint at src/app/mcp/route.ts with mcp-handler, wrapped in withMcpAuth. It verifies the bearer token with Better Auth, rejects banned users, and puts the user id and current role in the tool context. Tool code lives in src/mcp/ (server-only) and reuses the src/db/ functions from Phase 5, so the same rules apply as in the web UI.
+3. Tools, modeled on ../daily-transactions/src/lib/mcp.ts:
+   - today
+   - list_accounts (with balances), list_categories (with subcategories and type)
+   - add_transactions (batch, with possible duplicates: same date, account, amount and type)
+   - list_transactions (filters + totals), update_transaction, delete_transactions (destructive hint; only when the user asks)
+   Viewers only get the read tools (today, list_*). The write tools also call requireWrite() on every call, so a role change applies to an existing connection right away. Rows added or changed through MCP set created_by / updated_by to the token's user.
+   MCP requests carry no browser time zone: save the browser's time zone on the user record when the web app reports it (add a column), and use it for today in the tools, falling back to Asia/Tehran.
+   Dates in and out are in the user's calendar: Jalali YYYY/MM/DD or Gregorian YYYY-MM-DD (today says which), converted at this boundary with src/utils/calendar.ts and src/utils/jalali.ts. Amounts in and out are in the book currency's main unit (rials for IRR, toman × 10; dollars, euros or pounds with up to two decimals), converted to the smallest unit here; today also returns the currency. Accounts and categories are matched by id, with names in the list tools so Claude can map "رسالت" to an id. An unknown description is "؟". Write the server instructions in the same style as daily-transactions, adapted to accounts, categories, transfers, the book currency, both calendars and read-only (viewer) users.
+4. source = "mcp" for rows created here. The web list shows the mark from the Phase 5 design.
+5. /settings/connector from the design: the URL, a list of the user's OAuth clients/tokens, revoke. Banning a user (Phase 3) now also revokes their tokens; resolve the Phase 3 TODO.
+6. Test the full flow locally with the MCP Inspector, then on a Vercel preview with claude.ai. Tell me when it's ready for me to add the connector.
+
+Check that build, lint, typecheck and format:check pass. Update CLAUDE.md and the README (connector setup). Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Follow-ups
+
+1. The session hit its usage limit after the local tests, before the Inspector test, the stories and the docs. In a new turn: "continue from where you interrupted".
+
+### Decisions and where the implementation differs from the prompt and the design
+
+- **Client registration.** The current Better Auth docs recommend the `mcp` plugin (an OAuth 2.1 provider set up for MCP) over a separate `oauthProvider`, with `cimd` for Client ID Metadata Documents; MCP has deprecated dynamic client registration. claude.ai's connector docs list CIMD and DCR as supported and use CIMD when the authorization server metadata advertises it with the `none` token auth method. So Money offers CIMD only: no open registration endpoint, and nobody can create clients through the API.
+- **Token checks.** The prompt's "verifies the bearer token with Better Auth" is done with Better Auth's JWT verification, reading the signing keys through `auth.api.getJwks()` rather than over HTTP (a preview's own URL can sit behind Vercel's protection). Access tokens are JWTs, which can't be revoked, so every MCP request also checks the user's consent for that app in the database (and marks it used); revoking on `/settings/connector` or disabling the user deletes the consent and tokens, and access ends at the next request.
+- **`requireWrite()` on every call.** `requireWrite()` reads the session cookie and redirects, which a bearer-token request can't use (as noted in Phase 5). The write tools re-read the user's role from the database on every call instead; viewers don't get them at all.
+- **Dates in.** Results use the user's calendar as asked. Input accepts both forms, the year telling the calendar (below 1700 is Jalali, as in the transactions URL), so a Jalali date from a bank SMS works for a user of the Gregorian calendar without Claude converting it.
+- **Category.** Claude may save income or expense without a category (an unknown transaction), as the database allows; the web form still requires one (`categoryRequired`).
+- **Batches.** `add_transactions` saves all or none, and reports each invalid row with its reasons, so Claude can fix and retry without duplicates.
+- **Local URL.** OAuth only accepts plain HTTP resources on `localhost`, so locally the connector URL is `http://localhost:3000/mcp` while the app runs on `money.localhost`. Previews use the branch URL.
+- **Time zone.** The browser's time zone is saved on the user from the app layout (after the response) when TimeZoneSync's cookie differs. TimeZoneSync only wrote the cookie when the browser's zone differed from the server's guess, so a user in Asia/Tehran never reported one; it now always keeps the cookie current.
+- **Design.** The consent and sign-in screens use Money's username, not the design's email. The Claude mark is Lucide's sparkles, as in the design (no official mark). The connected apps show the day of «last used», not the time. The settings page has no breadcrumb (no other settings subpage has one), and the design's sidebar Claude card isn't built (as in Phase 5). The consent page also says where the answer goes («… به claude.ai برمی‌گردید»), which the MCP spec asks for.
+- **Settings.** `/settings` gets a second link section, «Claude», for the connector page.
+- **Dependencies.** `@better-auth/mcp`, `@better-auth/cimd`, `@better-auth/oauth-provider`, `mcp-handler`, `@modelcontextprotocol/server`, and `@better-auth/utils` pinned to the version Better Auth's core expects (otherwise the new plugins resolved a second copy of `@better-auth/core` and the types broke).
+
+### Testing
+
+Like Phase 5, against a throwaway Postgres 17 in Docker with all migrations, through a temporary node-postgres switch in `src/db/index.ts` and a seed script (three users: admin, editor, viewer; three accounts; categories; a few transactions), all removed afterwards and not committed.
+
+- **OAuth as Claude Code**, with its real Client ID Metadata Document (`https://claude.ai/oauth/claude-code-client-metadata`) and a local callback: 401 with `resource_metadata`, the protected resource and authorization server metadata, the CIMD client created, `/login` with «Claude Code is asking to connect», straight on to the consent page after signing in, Allow, the code exchanged with PKCE and `resource` (form-encoded), a JWT bound to `http://localhost:3000/mcp`, a refresh token, and the refresh grant (rotated). An existing consent skips the page; Deny ends on the design's result screen.
+- **Tools**, through a small JSON-RPC client: `today` (1405/07/16, Asia/Tehran), balances, categories; a batch with a future date, a transfer to the same account and a bad date and fractional rials (nothing saved, every reason listed); a valid batch with Persian digits, an Arabic «ي» in a tag, an empty description (saved as «؟», no category), a transfer with a Gregorian date (shown back in Jalali) and a copy of an existing transaction (flagged as a possible duplicate); filters and totals for the «خوراک» family, unknown only, an update (and a refused change of type with an expense category), deleting the duplicate with an unknown id reported. Rows have `source = mcp` and the token's user as author and editor, and show the Claude mark on `/transactions`.
+- **Roles and revoking:** demoting the editor to viewer with the token still valid: the next `tools/list` has only the read tools and a direct `delete_transactions` call fails. The viewer (English, Gregorian) gets Gregorian dates and only «Read transactions» on the consent page. Revoking on `/settings/connector`: the toast, the empty state, and the still-unexpired token gets 401 and its refresh token `invalid_grant`. Disabling the user (`disableUser`): signed out, consent and tokens gone in the same statement, 401.
+- **Time zone:** saved on the user after a page load; `today` follows it (America/Los_Angeles still on 7 October).
+- **MCP Inspector 2.9:** it discovers the server but expects dynamic client registration, so it got a client registered for it in the test database. Sign-in, «تغییر حساب» from the viewer to the editor, Allow, «Authorization complete», connected and tools run on both protocol versions (2025-11-25 and 2026-07-28).
+- The consent page and the connector page on a phone and in the light theme.
+
+Bugs found this way and fixed: TimeZoneSync not reporting a time zone the server had guessed right, and «Settings › Connectors» breaking after the chevron on phones.
+
+### Result
+
+The Claude connector: Money is an OAuth 2.1 authorization server for its MCP endpoint (Better Auth `mcp` + `cimd` + `jwt`, migration `0005_oauth_connector`), with the discovery metadata, Claude's sign-in through `/login`, the consent page from the design and `/settings/connector` (URL with copy, steps, connected apps with revoke, examples). `/mcp` checks the token, the grant and the user on every request and offers seven tools on the same queries and rules as the web UI, with dates in the user's calendar and amounts in the book currency; viewers read only. Disabling a user revokes their connections (the Phase 3 TODO). Stories for the new components and the login's Claude state. CLAUDE.md and the README (connector setup) updated.
+
 ---
 
 ## Next phases
 
-Phases 6 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 7 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>
