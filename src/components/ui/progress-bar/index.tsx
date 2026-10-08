@@ -26,6 +26,10 @@ type ProgressBarProps = Omit<ComponentProps<"div">, "children"> & {
   /** Replaces the footer status text. */
   caption?: ReactNode;
   size?: "sm" | "md" | "lg";
+  /** A line across the track at this share of it (0–1), such as how far into the month today is. */
+  marker?: number;
+  /** Explains the marker in the footer, after a short line drawn like it. */
+  markerLabel?: ReactNode;
   /** Overrides the viewer's unit (from preferences), for stories and previews. */
   unit?: MoneyUnit;
 };
@@ -43,8 +47,11 @@ export function ProgressBar({
   showValues = false,
   caption,
   size = "md",
+  marker,
+  markerLabel,
   unit: unitProp,
   className,
+  "aria-label": ariaLabel,
   ...rest
 }: ProgressBarProps) {
   const t = useTranslations("budget");
@@ -86,14 +93,22 @@ export function ProgressBar({
         aria-valuemax={max}
         aria-valuenow={Math.min(value, max)}
         aria-valuetext={t("meter", { percent, status: text })}
-        aria-label={typeof label === "string" ? label : undefined}
+        aria-label={typeof label === "string" ? label : ariaLabel}
       >
         <span
           className={styles.fill}
           style={{ inlineSize: `${Math.min(ratio, 1) * 100}%` }}
         />
+        {marker !== undefined ? (
+          <span
+            className={styles.marker}
+            style={{
+              insetInlineStart: `${Math.min(Math.max(marker, 0), 1) * 100}%`,
+            }}
+          />
+        ) : null}
       </div>
-      {showValues || caption != null ? (
+      {showValues || caption != null || markerLabel != null ? (
         <div className={styles.foot}>
           <span className={styles.status}>
             {StatusIcon ? (
@@ -107,6 +122,12 @@ export function ProgressBar({
                 value: formatMoneyNumber(value, unit, locale),
                 max: formatMoneyNumber(max, unit, locale),
               })}
+            </span>
+          ) : null}
+          {markerLabel != null ? (
+            <span className={styles.markerLabel}>
+              <span className={styles.markerSwatch} aria-hidden="true" />
+              {markerLabel}
             </span>
           ) : null}
         </div>

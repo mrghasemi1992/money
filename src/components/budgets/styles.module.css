@@ -1,0 +1,31 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--budgets-max);
+}
+
+.list {
+  overflow: hidden;
+}
+
+.empty {
+  padding-block: var(--space-4) var(--space-2);
+}
+
+.skeletonRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  padding: var(--space-3-5) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.skeletonRow:first-child {
+  border-block-start: 0;
+}
+
+.skeletonEnd {
+  display: flex;
+  justify-content: flex-end;
+}

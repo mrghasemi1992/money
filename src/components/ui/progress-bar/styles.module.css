@@ -77,8 +77,19 @@
   );
 }
 
+/* Stays visible on the fill, with a ring in the card's color. */
+.marker {
+  position: absolute;
+  inset-block: 0;
+  inline-size: var(--progress-marker);
+  margin-inline-start: calc(var(--progress-marker) / -2);
+  background: var(--text-primary);
+  box-shadow: 0 0 0 var(--border-width) var(--surface-card);
+}
+
 .foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
@@ -111,4 +122,17 @@
 .values {
   font-feature-settings: var(--font-features-tabular);
   white-space: nowrap;
+}
+
+.markerLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.markerSwatch {
+  flex: none;
+  inline-size: var(--progress-marker);
+  block-size: var(--progress-marker-swatch);
+  background: var(--text-primary);
 }

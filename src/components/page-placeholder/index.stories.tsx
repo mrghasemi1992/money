@@ -9,7 +9,7 @@ const meta = {
   argTypes: {
     section: {
       control: "inline-radio",
-      options: ["dashboard", "budgets", "reports"],
+      options: ["dashboard", "reports"],
     },
   },
 } satisfies Meta<typeof PagePlaceholder>;
@@ -19,4 +19,4 @@ type Story = StoryObj<typeof meta>;
 
 export const Dashboard: Story = {};
 
-export const Budgets: Story = { args: { section: "budgets" } };
+export const Reports: Story = { args: { section: "reports" } };

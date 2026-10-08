@@ -24,6 +24,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 4: Accounts and categories](#phase-4-accounts-and-categories)
 - [Phase 5: Transactions](#phase-5-transactions)
 - [Phase 6: Claude connector](#phase-6-claude-connector)
+- [Phase 7: Budgets](#phase-7-budgets)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -91,7 +92,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
 | 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
 | 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | [#10](https://github.com/mrghasemi1992/money/pull/10) |
-| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | (linked when opened)                                  |
+| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | [#11](https://github.com/mrghasemi1992/money/pull/11) |
+| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | (linked when opened)                                  |
 
 ---
 
@@ -837,7 +839,7 @@ Bugs found this way and fixed: popups behind dialogs, the category error hidden 
 
 ## Phase 6: Claude connector
 
-Branch: `feature/phase-6-mcp`. Date: 2026-10-08. PR: linked when it is opened.
+Branch: `feature/phase-6-mcp`. Date: 2026-10-08. PR [#11](https://github.com/mrghasemi1992/money/pull/11).
 
 ### Claude Design prompt
 
@@ -906,9 +908,58 @@ The Claude connector: Money is an OAuth 2.1 authorization server for its MCP end
 
 ---
 
+## Phase 7: Budgets
+
+Branch: `feature/phase-7-budgets`. Date: 2026-10-08. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-7-budgets).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/ad61f70f-27c1-4a17-b7c5-8a70a270305f?file=Budgets+Board.dc.html` (a canvas of `Budgets Page.dc.html` frames: both languages, light and dark, desktop and mobile; add, edit and remove as dialogs and sheets; no budgets yet; a viewer), the design system bundle and tokens it imports, and `support.js`. The design files were read through the design MCP. The prompt is the one in phases.md:
+
+```text
+Phase 7: budgets. Read CLAUDE.md first. Create branch feature/phase-7-budgets from main.
+
+Implement the attached design at /budgets:
+1. CRUD for budgets (only top-level expense categories, one per category), Server Actions with Zod that call requireWrite(). The page calls requireUser().
+2. Spending per budgeted category for a month of the viewer's calendar in one SQL query: expense transactions in the month's Gregorian range, with subcategories rolled up into the parent. Transfers are excluded.
+3. The month switcher uses the viewer's calendar months and keeps the month in the URL.
+4. Rows link to /transactions with the category and month filters set.
+5. Stories for the new components.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Decisions and where the implementation differs from the prompt and the design
+
+- **Near the limit at 80%.** The design and phases.md use 80%; the code had 85% since Phase 0b (`BUDGET_NEAR_RATIO`). It is now 80%, for ProgressBar too.
+- **One query.** The same statement reads every top-level expense category with its budget, its active subcategories and its spending, so the rows, the totals and the «without a budget» list come from one round trip.
+- **Save is one action.** Adding and changing a budget are the same upsert, so two people setting the same category at once can't fail on the unique constraint; the action says whether it was new, and only a new budget offers «واگرد» (the design's toast has none; the app's rule is undo after add and delete).
+- **URL.** `?month=1405-07`, the same parameter as the transactions page. A month of the other calendar opens the viewer's month around its middle. The switcher also goes into future months (budgets repeat; nothing is spent yet), as in the design.
+- **Rows.** Most used first, as in the design. They link to `/transactions?month=…&category=…`; the category filter already includes subcategories, so the transactions page's expense total matches the row. Categories have no icons in Money, so rows show the category's color dot (the design shows icon tiles).
+- **Archived categories.** A budget whose category was archived keeps its row with an «بایگانی‌شده» badge and can be changed or removed; an archived category can't get a new budget (checked in the statement that writes).
+- **Empty state.** Viewers see the app's usual «when an editor or admin …» wording instead of the design's «book owner». Without any expense categories, writers get a link to `/settings/categories`.
+- **Today's line.** The design's pace marker on the summary bar is a new `marker` / `markerLabel` on ProgressBar. ProgressBar's `aria-label` now names the meter.
+- **Header.** As in the design, the budgets header has the month switcher, «ماه جاری» and «تعیین بودجه», not «افزودن تراکنش» (the tab bar's button still adds transactions on phones).
+
+### Testing
+
+Local development uses the production database, so nothing was written to it: the read query ran against it, and the insert and delete statements were checked with `EXPLAIN` (which plans them without running them). The page's states and flows were checked in Storybook with working fakes: setting a budget from a category without one, editing, removing (confirmation over the form) and «واگرد»; the row links; the empty states for writers, viewers and a book without expense categories; Persian and English, light and dark, desktop and phone. The real `/budgets` wasn't opened signed in: the preview browser had no session, and the only accounts are on the production book.
+
+Bugs found this way and fixed: the summary's amounts overflowing their cells on phones, and the phone rows' order (percent next to the name, status before spent of limit).
+
+### Result
+
+The budgets page from the design: a month of the viewer's calendar in the URL, the month's spent, total budget and remaining with a line for today, one row per budget linking to that category's transactions for the month, the expense categories without a budget, and the add / edit / remove dialogs with undo; viewers read only. One SQL query for the month's spending with subcategories rolled up, Server Actions with Zod and `requireWrite()`. Stories for the new components and ProgressBar's marker. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 7 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 8 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>

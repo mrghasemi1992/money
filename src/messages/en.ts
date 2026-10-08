@@ -322,8 +322,84 @@ const en: Messages = {
     failed: "Couldn’t save. Check your internet connection and try again.",
   },
   budgets: {
-    placeholder:
-      "Each category’s monthly budget and how much of it is spent will appear here.",
+    period: {
+      current:
+        "{passedNumber, plural, one {{passed} day} other {{passed} days}} in, {left} left",
+      past: "This month has ended",
+      future: "This month hasn’t started",
+    },
+    thisMonth: "This month",
+    add: "Set budget",
+    summary: {
+      spentIn: "Spent in {month}",
+      total: "Total budget",
+      remaining: "Remaining",
+      over: "Over budget",
+      used: "{percent} of total budget spent",
+      pace: "Today: {percent} through the month",
+    },
+    list: {
+      label: "Budgets",
+      category: "Category",
+      used: "Used",
+      spent: "Spent of limit",
+      status: "Status",
+      ofLimit: "of {max}",
+      open: "{name} transactions, {month}",
+      edit: "Edit {name} budget",
+      archived: "Archived",
+    },
+    unbudgeted: {
+      title: "Expense categories without a budget",
+      subtitle: "Spent in {month}",
+      noSpending: "No spending",
+      add: "Set budget for {name}",
+    },
+    empty: {
+      title: "You haven’t set any budgets yet",
+      description:
+        "Set a monthly limit for an expense category. It repeats every month.",
+      viewerTitle: "No budgets in this book yet",
+      viewerDescription:
+        "When an editor or admin sets a budget, it will show up here.",
+      noCategories:
+        "Budgets are set for expense categories. Add your expense categories in Settings first.",
+      addCategories: "Add categories",
+    },
+    form: {
+      newTitle: "New budget",
+      editTitle: "{name} budget",
+      description: "A monthly spending limit. It repeats every month.",
+      category: "Category",
+      categoryPlaceholder: "Choose a category",
+      amount: "Monthly limit",
+      subcategories:
+        "Spending in subcategories ({names}) counts toward this budget.",
+      submit: "Save budget",
+      remove: "Remove budget",
+      errors: {
+        categoryMissing: "Choose a category.",
+        categoryUnavailable:
+          "This category was archived or deleted. Choose another one.",
+        amountMissing: "Enter an amount.",
+        amountTooLarge: "This amount is too large.",
+      },
+    },
+    remove: {
+      title: "Remove {name} budget?",
+      description:
+        "The monthly limit of {amount} is removed from every month. Transactions are not deleted.",
+      submit: "Remove budget",
+    },
+    toasts: {
+      added: "{name} budget set",
+      saved: "{name} budget saved",
+      removed: "{name} budget removed",
+      restored: "{name} budget restored",
+    },
+    error: "Couldn’t load budgets",
+    failed: "Couldn’t save. Check your internet connection and try again.",
+    missing: "This budget no longer exists. Reload the page.",
   },
   reports: {
     placeholder: "Spending and income by category and by month will go here.",
