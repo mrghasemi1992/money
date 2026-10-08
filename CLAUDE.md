@@ -66,6 +66,17 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **List** (`TransactionList`): grouped by day in the viewer's calendar («امروز، …», «دیروز، …») with each day's net; description or a «؟» mark with «ناشناس», category chip or the transfer's route («رسالت ← بلو»), account, tags, a Claude badge for `source = "mcp"`, the signed amount, and edit / delete for writers. Clicking a row opens `TransactionDetail` (who added it, «با Claude» for MCP rows, and who last edited it when that's someone else). From 62rem of list width (container query) the account gets its own column; on phones each row starts with a tile.
 - **Global add:** the layout passes editors and admins `listTransactionOptions()` as a promise and the create / delete actions to `AppShell` → `AddTransactionProvider`, so the header button and the tab bar's floating button open the same form on every page without holding up the page.
 
+## Budgets
+
+`/budgets` (`Budgets` in `src/components/budgets`, page in `src/app/(app)/budgets/page.tsx`). Every role reads; viewers get no set, edit or remove controls and a «فقط مشاهده» badge.
+
+- A budget is a monthly limit for a top-level expense category (one per category), repeating every month of the viewer's calendar. Subcategory spending counts toward its parent; transfers and income never count.
+- **Month:** `?month=YYYY-MM`, read with the transactions page's `parseMonthParam`. `resolveBudgetMonth` (`src/helpers/budget.ts`) makes it a month of the viewer's calendar (a month of the other calendar becomes the viewer's month around its middle) with its Gregorian range (`monthRange`), its phase (past, current, future) and today's day in it. No param is the current month; the switcher drops the param there, goes into future months too (nothing spent yet), and «ماه جاری» / «This month» returns.
+- **Query:** `listBudgetCategories(from, to)` (`src/db/budgets.ts`, server-only) reads every top-level expense category with its budget, its active subcategories' names and its expenses in the range in one SQL statement: expense transactions only, grouped by `coalesce(parent_id, id)` so subcategories roll up into their parent. The page's totals are the budgeted rows added up.
+- **Writes:** `saveBudget` adds or changes a budget in one statement (`insert … select` from a top-level expense category that is active or already has a budget, `on conflict (category_id) do update`; `xmax = 0` tells whether it is new); `deleteBudget` returns what it removed, for undo. The Server Actions (`src/app/(app)/budgets/actions.ts`) call `requireWrite()` and validate with `budgetSchema` (shared with the form; messages are keys of `budgets.form.errors`). Setting a new budget and removing one offer «واگرد»; changing one shows «بودجه … ذخیره شد».
+- **Page:** `BudgetSummary` (spent in the month, total budget, remaining or over, one bar for all of it with a line for today in the current month: ProgressBar's `marker`), `BudgetList` (most used first: chip, bar, percent, spent of limit, status; a table from 56rem of list width, cards below; each row links to `/transactions?month=…&category=…` through `budgetTransactionsHref`, and writers get an edit button), `UnbudgetedList` (active expense categories without a budget, what they spent, «تعیین بودجه»), `BudgetDialog` (category, fixed when editing; monthly limit; a note naming the subcategories that count; «حذف بودجه» opens a ConfirmDialog over it). The empty state follows the role; without expense categories it links to `/settings/categories`.
+- A budget whose category is archived keeps its row (marked «بایگانی‌شده») and can be changed or removed; an archived category can't get a new budget.
+
 ## Claude connector (MCP)
 
 Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add custom connector), sign in to Money once and allow access; Claude then works on the shared book as that user, with that user's role. The URL and the steps are on `/settings/connector` (and in the README).
@@ -207,7 +218,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
   - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
   - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian: Persian digits, «٬» (U+066C) thousands, «٫» (U+066B) decimals, «٪» percent. English: Latin digits, «,», «.», «%».
   - Unit marks (`MONEY_UNIT_SYMBOLS`): Persian writes the unit's name after the number («۲٬۵۰۰٬۰۰۰ ریال», «… تومان», «… دلار», «… یورو», «… پوند»); English writes «$», «€», «£» before it, inside the left-to-right run, after the sign («−$1,234.56»), and «rial» / «toman» after it.
-  - Budgets: ok (royal) → near the limit from 85% (amber, ⚠, «نزدیک به سقف») → over (red with diagonal stripes, «… بیش از بودجه»). `getBudgetStatus` in `src/helpers/budget.ts`.
+  - Budgets: ok (royal) → near the limit from 80% (amber, ⚠, «نزدیک به سقف») → over (red with diagonal stripes, «… بیش از بودجه»). `getBudgetStatus` in `src/helpers/budget.ts`.
 - **Dates in the UI** (`formatDate` in `src/utils/calendar.ts`, the `DateText` component): long «۹ مهر ۱۴۰۵» / «9 Mehr 1405» / «1 October 2026» (Persian Gregorian: «۱ اکتبر ۲۰۲۶»), weekday «پنج‌شنبه ۹ مهر ۱۴۰۵» / «Thursday, 1 October 2026», «امروز» / «دیروز» (Today / Yesterday) in lists, numeric «۱۴۰۵/۰۷/۰۹» / «2026/10/01» only in dense tables. Month and weekday names are written out in `src/constants/calendar.ts`, not taken from Intl. The month grid starts the week and tints the weekend per calendar (see Languages, calendars and currency). `AmountField` takes and returns the stored integer (rials or cents); `Calendar` and `DatePicker` take and return ISO date strings.
 - **Copy:** every string the user sees comes from the messages (see Conventions). Calm and short in both languages. No emoji. Claude is written «Claude», in Latin.
   - Persian: polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete.
@@ -253,8 +264,8 @@ src/
     mcp/                The MCP endpoint (route.ts: withMcpAuth + the tools)
     .well-known/        OAuth protected resource and authorization server metadata
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
-                        page.tsx (dashboard), transactions (+ actions.ts, loading.tsx, error.tsx), budgets,
-                        reports, settings (+ actions.ts;
+                        page.tsx (dashboard), transactions (+ actions.ts, loading.tsx, error.tsx), budgets
+                        (+ actions.ts, loading.tsx, error.tsx), reports, settings (+ actions.ts;
                         accounts/, categories/ and connector/ with actions.ts, loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
@@ -266,6 +277,7 @@ src/
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
                         categories.ts, transactions.ts (list, totals, tags, options, create / update / delete),
+                        budgets.ts (listBudgetCategories, saveBudget, deleteBudget),
                         connector.ts (checkMcpGrant, listConnections, revokeConnection, revokeGrants),
                         errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
@@ -290,6 +302,10 @@ src/
                         Day-grouped rows (+ sample-transactions.ts for stories), the detail, the add / edit form,
                         the filter bar and panel, the month's income / expense / net
     month-switcher/     «‹ مهر ۱۴۰۵ ›» in the viewer's calendar
+    budgets/            The /budgets page: header with the month switcher, summary, rows, categories without a
+                        budget, dialogs (+ skeleton, error)
+    budget-summary/, budget-list/, budget-dialog/   The month's spent / budget / remaining with today's line,
+                        the budget rows and the unbudgeted categories (+ sample-budgets.ts for stories), the form
     page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
                         loading, error and not-found)
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
@@ -312,7 +328,8 @@ src/
                         queries, navigation (NAV_ITEMS), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
                         user
-  helpers/              account form rules, account balance SQL (accountBalance), budget status, category color
+  helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
+                        month, transactions link), category color
                         style and name rules, money formatting and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), preferences, role permissions,
                         connector (dates and amounts at the MCP boundary), oauth-consent (consent requests),
@@ -327,7 +344,7 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                account, action (ActionResult), book, calendar, category, connector, currency, locale, navigation, preferences,
+  types/                account, action (ActionResult), book, budget, calendar, category, connector, currency, locale, navigation, preferences,
                         theme, transaction, user
   utils/                calendar (both calendars, formatDate), cx, duration, env, focus, iso-date, jalali (math),
                         locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
@@ -373,7 +390,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 4 | Accounts and categories | Done |
 | 5 | Transactions | Done |
 | 6 | Claude connector (MCP + OAuth) | Done |
-| 7 | Budgets | Not started |
+| 7 | Budgets | Done |
 | 8 | Reports | Not started |
 | 9 | Dashboard | Not started |
 | 10 | CSV import and export | Not started |
@@ -387,7 +404,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/login` | Sign in | 1 |
 | `/` | Dashboard (داشبورد) | 2 (placeholder until 9) |
 | `/transactions` | Transactions (تراکنش‌ها) | 5 |
-| `/budgets` | Budgets (بودجه) | 2 (placeholder until 7) |
+| `/budgets` | Budgets (بودجه), `?month=` | 7 |
 | `/reports` | Reports (گزارش‌ها) | 2 (placeholder until 8) |
 | `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
