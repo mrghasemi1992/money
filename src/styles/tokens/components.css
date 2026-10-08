@@ -89,6 +89,19 @@
   --transaction-unknown-border: 1.5px;
   --meta-dot: 3px; /* the dot between the category and the account on phones */
 
+  /* Budgets */
+  --budgets-max: 1160px; /* the budgets page */
+  --budget-row-min-h: 56px;
+  --budget-category-col: minmax(170px, 1.1fr);
+  --budget-used-col: minmax(160px, 1.5fr);
+  --budget-spent-col: 200px; /* «۴۱٬۲۰۰٬۰۰۰ از ۶۰٬۰۰۰٬۰۰۰» */
+  --budget-status-col: 220px; /* «نزدیک به سقف، ۳٬۱۰۰٬۰۰۰ ریال مانده» */
+  --budget-percent-w: 42px; /* «۱۲۲٪», so the bars end in a line */
+  --budget-edit-col: 32px;
+  --budget-card-head-h: 40px; /* a card row's first line, as tall as its edit button */
+  --budget-edit-gutter: 44px; /* room for the edit button at the end of a card row */
+  --budget-summary-cell-min: 190px; /* a total and its unit: «۳۷۹٬۰۰۰٬۰۰۰ ریال» */
+
   /* Sign-in page */
   --login-max: 400px;
 
@@ -197,6 +210,8 @@
   --progress-h-lg: 12px;
   --progress-stripe: 6px;
   --progress-stripe-gap: 10px;
+  --progress-marker: 2px; /* a line across the track, such as today in the month */
+  --progress-marker-swatch: 12px; /* the same line in the footer, explaining it */
 
   /* Logo: the wordmark is 0.92× the mark, the gap 0.3× */
   --logo-mark-sm: 24px;
