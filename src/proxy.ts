@@ -32,7 +32,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except the auth API, Next.js internals and static files (icons, fonts, …).
-    "/((?!api/auth|_next/static|_next/image|icon\\.svg|apple-icon|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
+    // Everything except the auth API, the MCP endpoint and OAuth metadata (they answer with
+    // their own 401s), Next.js internals and static files (icons, fonts, …).
+    "/((?!api/auth|mcp$|\\.well-known/|_next/static|_next/image|icon\\.svg|apple-icon|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
   ],
 };

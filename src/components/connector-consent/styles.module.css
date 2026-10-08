@@ -1,0 +1,363 @@
+/*
+ * A card centered on the page, on phones too (the design keeps it as a card with less
+ * padding): Money ⇄ Claude, the question, who is signed in, the permissions, the answer.
+ */
+
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--space-10) var(--space-6);
+  background: var(--surface-page);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--consent-max);
+  padding: var(--space-8);
+  border: var(--border-width) solid var(--border-card);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-md);
+}
+
+/* Money ⇄ Claude */
+
+.marks {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-block-start: var(--space-1);
+}
+
+.mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.logo {
+  width: var(--consent-mark);
+  height: var(--consent-mark);
+}
+
+.clientMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--consent-mark);
+  height: var(--consent-mark);
+  border: var(--border-width) solid var(--border-default);
+  border-radius: var(--consent-mark-radius);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+}
+
+.clientGlyph {
+  width: var(--icon-size-xl);
+  height: var(--icon-size-xl);
+}
+
+.markName {
+  color: var(--text-secondary);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: var(--consent-mark);
+  color: var(--text-muted);
+}
+
+.linkLine {
+  width: var(--connector-link-line);
+  border-block-start: var(--connector-link-width) dotted var(--border-strong);
+}
+
+.linkIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--consent-link);
+  height: var(--consent-link);
+  border-radius: var(--radius-pill);
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+}
+
+.linkGlyph {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-title);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Who is signed in */
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+}
+
+.accountText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.accountName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountUsername {
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-align: start;
+}
+
+.switch {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-link);
+  font: var(--type-label);
+  white-space: nowrap;
+  cursor: pointer;
+  outline: 0;
+}
+
+.switch:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.switch:disabled {
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .switch:not(:disabled):hover {
+    color: var(--text-link-hover);
+    text-decoration: underline;
+  }
+}
+
+/* What Claude may do */
+
+.permissions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.permissionsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.canDo {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.itemIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--connector-tile);
+  height: var(--connector-tile);
+  border-radius: var(--radius-md);
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.itemGlyph {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+.itemText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+  padding-block-start: var(--space-0-5);
+}
+
+.itemTitle {
+  color: var(--text-primary);
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+}
+
+.itemDescription {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.viewerNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font: var(--type-caption);
+}
+
+.noteGlyph {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
+/* The answer */
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.button {
+  flex: 1;
+}
+
+.failed {
+  margin: 0;
+  color: var(--status-danger-text);
+  font: var(--type-label);
+}
+
+.redirect {
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-align: center;
+}
+
+.footNote {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+/* Allowed or denied */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0 var(--space-2);
+  text-align: center;
+}
+
+.resultIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--consent-result-icon);
+  height: var(--consent-result-icon);
+  border-radius: var(--radius-xl);
+}
+
+.success {
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+}
+
+.neutral {
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.resultGlyph {
+  width: var(--icon-size-xl);
+  height: var(--icon-size-xl);
+}
+
+.resultText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.resultDescription {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-body);
+  text-wrap: pretty;
+}
+
+@media (--mobile) {
+  .root {
+    align-items: flex-start;
+    padding: var(--space-4);
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+}

@@ -114,6 +114,12 @@ const en: Messages = {
       failed: "Couldn’t sign in. Check your internet connection and try again.",
       success: "Signed in.",
     },
+    oauth: {
+      subtitle: "Sign in first to connect {client}.",
+      context:
+        "{client} is asking to connect to your Money account. You’ll come back to the permission screen after signing in.",
+      submit: "Sign in and continue",
+    },
   },
   nav: {
     dashboard: "Dashboard",
@@ -620,6 +626,104 @@ const en: Messages = {
       startersRemoved: "Suggestions removed",
     },
   },
+  connector: {
+    title: "Connect to Claude",
+    subtitle:
+      "Record transactions and ask about your spending by chatting with Claude.",
+    error: "Couldn’t load connected apps",
+    url: {
+      title: "Connector URL",
+      subtitle: "Add this URL to Claude as a custom connector.",
+      hint: "Sign-in and permission happen in Money after you add it. Your password is never shared with Claude.",
+      copy: "Copy",
+      copied: "Copied",
+      copyLabel: "Copy the connector URL",
+    },
+    steps: {
+      title: "Add it in Claude",
+      one: "In Claude, go to <path><chip>Settings</chip><sep></sep><chip>Connectors</chip></path>.",
+      two: "Click <chip>Add custom connector</chip>.",
+      three:
+        "Name it “Money”, paste the URL above into <chip>Remote MCP server URL</chip> and click <chip>Add</chip>.",
+      four: "Click <chip>Connect</chip>, sign in to Money and allow access.",
+    },
+    apps: {
+      title: "Connected apps",
+      subtitle: "Apps that currently have access to your account.",
+      connected: "Connected <date></date>",
+      lastUsed: "Last used <date></date>",
+      neverUsed: "Not used yet",
+      read: "Read only",
+      write: "Read & write",
+      revoke: "Revoke access",
+      emptyTitle: "No apps connected yet",
+      emptyDescription: "Add the URL above in Claude and it will show up here.",
+      role: {
+        viewer:
+          "Claude works with your role (Viewer): it can only read transactions.",
+        editor:
+          "Claude works with your role (Editor): it reads, adds and edits transactions, and deletes only when you ask.",
+        admin:
+          "Claude works with your role (Admin): it reads, adds and edits transactions, and deletes only when you ask.",
+      },
+    },
+    revoke: {
+      title: "Revoke {name}’s access?",
+      description:
+        "It will no longer be able to read or record your transactions. Transactions it already added stay where they are. To use it again you’ll need to reconnect.",
+      done: "{name} access revoked",
+      failed:
+        "Couldn’t revoke access. Check your internet connection and try again.",
+    },
+    examples: {
+      title: "Things to say to Claude",
+      subtitle: "A few ideas to start. Write it your own way.",
+      record: "Record",
+      ask: "Ask",
+      sms: "“Log this bank SMS”",
+      smsHint: "Paste the message text in the same chat.",
+      groceries: "“Spent 850k toman on groceries yesterday, Mellat card”",
+      transfer: "“Move 2 million from Mellat to Cash”",
+      restaurants: "“How much did I spend on restaurants this month?”",
+      unknown: "“Show me this month’s unknown transactions”",
+      compare: "“Compare this month’s spending with last month”",
+      badgeBefore: "Transactions Claude records carry a",
+      badgeAfter: "badge in your lists.",
+    },
+    consent: {
+      title: "{client} wants to access your Money account",
+      switchAccount: "Switch account",
+      canDo: "{client} will be able to:",
+      yourRole: "Your role: {role}",
+      read: "Read transactions",
+      readDescription:
+        "To answer questions like “How much did I spend this month?”",
+      write: "Add and edit transactions",
+      writeDescription:
+        "Everything it records shows a Claude badge in your lists.",
+      delete: "Delete transactions when you ask",
+      deleteDescription: "Claude never deletes anything without your request.",
+      viewerNote:
+        "Your role is Viewer, so {client} can’t add, edit or delete transactions.",
+      redirect: "After you answer, you’ll return to {host}.",
+      deny: "Deny",
+      allow: "Allow",
+      footNote:
+        "You can revoke access anytime in Settings › Connect to Claude.",
+      doneTitle: "Access allowed",
+      doneDescription:
+        "Returning to {client}… If this window doesn’t close, you can close it.",
+      deniedTitle: "Access denied",
+      deniedDescription:
+        "{client} wasn’t connected to your Money account. You can close this window.",
+      back: "Back to {client}",
+      failed:
+        "Your answer wasn’t saved. Check your internet connection and try again.",
+      invalidTitle: "This request is no longer valid",
+      invalidDescription:
+        "The connection request expired or is incomplete. Click “Connect” in Claude again.",
+    },
+  },
   settings: {
     subtitle: "Accounts, categories, profile and display",
     failed: "Couldn’t save. Check your internet connection and try again.",
@@ -660,6 +764,10 @@ const en: Messages = {
       title: "Accounts and categories",
       accounts: "Cards, cash and the starting balance of each",
       categories: "Expense and income categories and their subcategories",
+    },
+    claude: {
+      title: "Claude",
+      connector: "Record transactions and ask about spending by chatting",
     },
     book: {
       title: "Book settings",

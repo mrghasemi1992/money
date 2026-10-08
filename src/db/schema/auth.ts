@@ -54,6 +54,11 @@ export const user = pgTable(
       .default(DEFAULT_CALENDAR[DEFAULT_LOCALE]),
     /** Rial or toman, when the book's currency is IRR. */
     rialUnit: text({ enum: RIAL_UNITS }).notNull().default(DEFAULT_RIAL_UNIT),
+    /**
+     * IANA time zone the user's browser last reported. The Claude connector has no browser,
+     * so its «today» is the user's today in this zone (Asia/Tehran until the web app reports one).
+     */
+    timeZone: text(),
     ...timestamps(),
   },
   (table) => [

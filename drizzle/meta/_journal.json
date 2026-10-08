@@ -36,6 +36,13 @@
       "when": 1791403202109,
       "tag": "0004_transaction_list_index",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791407691709,
+      "tag": "0005_oauth_connector",
+      "breakpoints": true
     }
   ]
 }

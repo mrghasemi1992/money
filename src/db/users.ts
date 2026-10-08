@@ -7,8 +7,25 @@ import type { ManagedUser, UserRole } from "@/types/user";
 import { toUserRole } from "@/helpers/role";
 import { todayIso } from "@/utils/iso-date";
 
+import { revokeGrants } from "./connector";
 import { db } from "./index";
 import { session, user } from "./schema";
+
+/**
+ * Saves the time zone the user's browser reported, when it changed. The Claude connector uses
+ * it for «today». The caller checks the zone is a real one.
+ */
+export async function saveUserTimeZone(
+  userId: string,
+  timeZone: string,
+): Promise<void> {
+  await db
+    .update(user)
+    .set({ timeZone })
+    .where(
+      sql`${user.id} = ${userId} and ${user.timeZone} is distinct from ${timeZone}`,
+    );
+}
 
 /** Saves some of a user's display preferences. The caller checks who may do this. */
 export async function updateUserPreferences(
@@ -109,12 +126,10 @@ export async function setUserRole(
 }
 
 /**
- * Disables (bans) another user and signs them out everywhere, in one statement. Returns false
- * when it refused, as setUserRole does. Disabled users stay in the database, so the
- * transactions they recorded keep pointing to them.
- *
- * TODO(Phase 6): also revoke the user's OAuth access and refresh tokens (the Claude connector),
- * so a connected Claude loses access at the same moment.
+ * Disables (bans) another user, signs them out everywhere and disconnects their apps (the
+ * Claude connector's grants and tokens), in one statement. Returns false when it refused, as
+ * setUserRole does. Disabled users stay in the database, so the transactions they recorded
+ * keep pointing to them.
  */
 export async function disableUser(
   actorId: string,
@@ -133,7 +148,8 @@ export async function disableUser(
     signed_out as (
       delete from ${session}
         where ${session.userId} in (select id from disabled)
-    )
+    ),
+    ${revokeGrants(sql`select id from disabled`)}
     select id from disabled
   `);
   return result.rows.length > 0;

@@ -36,7 +36,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Temporary passwords** are made on the server with `node:crypto` (`generateTemporaryPassword` in `src/helpers/user.ts`: three groups of four from an alphabet without look-alikes, «kT7m-Qx4p-Wz9r»). The new-user form asks for one when it opens (`generatePassword` action) and can ask for another; the admin may also type one. A reset makes one, sets it with the admin plugin's `setUserPassword` and returns it once to the dialog. Only Better Auth's hash is stored; the password is never logged or kept.
 - **Reset password** also signs the user out everywhere (`revokeUserSessions`). An admin can't reset their own password here (they change it in settings, with the current one).
 - **Change role** and **disable** run as one guarded SQL statement each (`setUserRole`, `disableUser` in `src/db/users.ts`): they lock the actor's and the target's rows (in id order) and write only while the actor is still an enabled admin and isn't the target. So an admin can't demote or disable themself, and two admins acting on each other at once can't leave the book without an admin: the last enabled admin always stays. The actions check self first for a clear message. Removing admin rights asks for confirmation.
-- **Disable** (Better Auth's ban) deletes the user's sessions in the same statement, so they are signed out at once; banned users can't sign in and count as signed out in `getSession`. Once Phase 6 exists it must also revoke their OAuth tokens (TODO in `disableUser`). Disabled users stay in the database. **Enable** is the admin plugin's `unbanUser`; the toast after disabling offers «واگرد» / «Undo», which enables again.
+- **Disable** (Better Auth's ban) deletes the user's sessions and their Claude connector grants and tokens (`revokeGrants`) in the same statement, so they are signed out and Claude loses access at once; banned users can't sign in and count as signed out in `getSession`. Disabled users stay in the database. **Enable** is the admin plugin's `unbanUser`; the toast after disabling offers «واگرد» / «Undo», which enables again.
 - The list (`listUsers`) shows display name, username, role, language, status and creation date (the day in the viewer's time zone), with search and role and status filters on the client. A table from a 50rem-wide list (container query), cards below that. On the admin's own row the actions they can't take are disabled with a reason (Menu items' `description`).
 
 ## Accounts and categories
@@ -56,15 +56,29 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 
 `/transactions` (`Transactions` in `src/components/transactions`, page in `src/app/(app)/transactions/page.tsx`). Every role reads; viewers get no add, edit or delete controls and a «فقط مشاهده» badge.
 
-- **Queries** in `src/db/transactions.ts` (server-only). Like the other `src/db` files they don't check the role: the page calls `requireUser()`, every write action `requireWrite()`, and in Phase 6 the MCP tools check the token's user before calling the same functions. Writes take the acting user's id for `created_by` / `updated_by` (from the session, never from input). `listTransactions(filters, cursor)` (with accounts, category and its parent, creator and last editor), `transactionTotals` (income, expense, count), `transactionDayTotals` (per day, for the day headers), `listTransactionTags` (most used first), `listTransactionOptions` (accounts, categories and tags for the form and filters), `checkTransactionReferences`, `createTransaction`, `updateTransaction`, `deleteTransaction` (returns what it stored, for undo).
+- **Queries** in `src/db/transactions.ts` (server-only). Like the other `src/db` files they don't check the role: the page calls `requireUser()`, every write action `requireWrite()`, and the MCP tools check the token's user before calling the same functions (`createTransactions`, `findSimilarTransactions` and `deleteTransactions` are their batch versions). Writes take the acting user's id for `created_by` / `updated_by` (from the session, never from input). `listTransactions(filters, cursor)` (with accounts, category and its parent, creator and last editor), `transactionTotals` (income, expense, count), `transactionDayTotals` (per day, for the day headers), `listTransactionTags` (most used first), `listTransactionOptions` (accounts, categories and tags for the form and filters), `checkTransactionReferences`, `createTransaction`, `updateTransaction`, `deleteTransaction` (returns what it stored, for undo).
 - **Filters** (`TransactionFilters`): Gregorian date range, types, account (from or to), category (a top-level category includes its subcategories), tag, search (description, note, tags and category names; folded like `normalizePersian` in SQL, LIKE wildcards escaped) and unknown only. Column references in the filter SQL are qualified (`column()`), so the same conditions work in the joined list query and the one-table totals.
 - **Speed:** keyset pagination on `(date, created_at, id)`, newest first, 50 rows a page (`TRANSACTION_PAGE_SIZE`), with the index `transactions_list_index` on the same three columns (migration `0004`). The cursor keeps `created_at` to the microsecond. Totals and day totals are summed in Postgres over the whole period, so a day split between pages still shows its full net. «نمایش بیشتر» calls `loadTransactions` (any role); after a change the page's refresh brings a new first page and the pages already shown are reloaded to match (`limit`).
 - **URL:** the filters live in the search params (`src/helpers/transaction-filters.ts`): `month`, `from`, `to`, `type` (repeated), `account`, `category`, `tag`, `q`, `unknown=1`. `month` is `YYYY-MM` of the calendar its year belongs to (Jalali below 1700, Gregorian from 1700); a viewer with the other calendar sees that month as a date range. `from` / `to` replace the month. No period means the viewer's current month. `resolveTransactionPeriod` turns the month into a Gregorian range with `monthRange` before querying.
 - **Form** (`TransactionDialog`, `src/components/transaction-dialog`): type, amount (focused on open), date (default today in the viewer's time zone, no future dates), account (from and to for a transfer), category with its subcategories (a category can be picked itself, «بدون زیردسته»; hidden for transfers), description, tags (`TagInput`, suggestions from the book's tags) and a note (collapsed). «ثبت و افزودن بعدی» keeps the type, account and date. Required for income and expense: a category. An empty description is saved as «؟».
-- **Rules:** `transactionSchema(today)` in `src/helpers/transaction.ts` is shared by the form and the Server Actions (`src/app/(app)/transactions/actions.ts`); `transactionErrors` gives each field's first error (also the rules between fields while another field is invalid). The actions then check in the database that the accounts and category exist, aren't archived (an edit may keep the archived ones it had) and the category has the transaction's type. Errors are translated on the server and come back on their field. Rows added here get `source = "web"`.
+- **Rules:** `transactionSchema(today, options)` in `src/helpers/transaction.ts` is shared by the form, the Server Actions and the MCP tools (which pass `categoryRequired: false`: Claude may save a transaction it can't place yet without a category) (`src/app/(app)/transactions/actions.ts`); `transactionErrors` gives each field's first error (also the rules between fields while another field is invalid). The actions then check in the database that the accounts and category exist, aren't archived (an edit may keep the archived ones it had) and the category has the transaction's type. Errors are translated on the server and come back on their field. Rows added here get `source = "web"`.
 - **Undo:** adding offers «واگرد» (deletes it); deleting offers «واگرد» (`restoreTransaction` adds it again under a new id by the acting user, allowing the archived account or category it had). Editing shows «تغییرات ذخیره شد».
 - **List** (`TransactionList`): grouped by day in the viewer's calendar («امروز، …», «دیروز، …») with each day's net; description or a «؟» mark with «ناشناس», category chip or the transfer's route («رسالت ← بلو»), account, tags, a Claude badge for `source = "mcp"`, the signed amount, and edit / delete for writers. Clicking a row opens `TransactionDetail` (who added it, «با Claude» for MCP rows, and who last edited it when that's someone else). From 62rem of list width (container query) the account gets its own column; on phones each row starts with a tile.
 - **Global add:** the layout passes editors and admins `listTransactionOptions()` as a promise and the create / delete actions to `AppShell` → `AddTransactionProvider`, so the header button and the tab bar's floating button open the same form on every page without holding up the page.
+
+## Claude connector (MCP)
+
+Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add custom connector), sign in to Money once and allow access; Claude then works on the shared book as that user, with that user's role. The URL and the steps are on `/settings/connector` (and in the README).
+
+- **Authorization server:** Better Auth's `mcp` plugin (the OAuth 2.1 provider, `@better-auth/mcp`), with `cimd` (`@better-auth/cimd`): Claude identifies itself with a Client ID Metadata Document (its `client_id` is a URL Money fetches), which claude.ai prefers when the metadata advertises it. There is no open dynamic client registration, and no one creates clients through the API (`clientPrivileges: () => false`). PKCE (S256) is required. Scopes: `money` (the MCP endpoint) and `offline_access` (refresh tokens); grants: authorization code and refresh token. The `jwt` plugin signs access tokens (its `/token` endpoint is in `disabledPaths`).
+- **URLs** (`src/auth/urls.ts`): the app's URL is `BETTER_AUTH_URL`, on previews `https://$VERCEL_BRANCH_URL` (connect a preview through its branch URL). The MCP resource is `<app>/mcp` (locally `http://localhost:3000/mcp`: over plain HTTP only `localhost` is accepted, so `money.localhost` becomes `localhost`). The issuer is `<app>/api/auth`.
+- **Discovery:** `/mcp` answers unauthenticated requests with 401 and `WWW-Authenticate: Bearer … resource_metadata=…`. `/.well-known/oauth-protected-resource/mcp` (RFC 9728) and `/.well-known/oauth-authorization-server/api/auth` (RFC 8414) are route handlers (`src/app/.well-known/`), with CORS for browser-based clients. The proxy leaves `/mcp` and `/.well-known/` alone.
+- **Sign-in and consent:** Better Auth sends the browser to `/login` with a signed authorization request; the login page shows «Claude is asking to connect» and posts the request (`oauth_query`) with the sign-in, and Better Auth continues to `/oauth/consent` (`ConnectorConsent`, outside the app shell). The consent page shows who is signed in («تغییر حساب» signs out and back in), what Claude may do (follows the role: viewers read only) and where the answer goes, and posts the answer to `/api/auth/oauth2/consent`. `readOAuthRequest` (`src/auth/oauth.ts`) checks the request's signature for both pages. An existing consent skips the page.
+- **MCP endpoint** (`src/app/mcp/route.ts`): `mcp-handler`'s `withMcpAuth` with `verifyMcpToken` (`src/mcp/auth.ts`): the JWT is verified with the signing keys read through `auth.api.getJwks()` (not over HTTP), for this issuer and audience; DPoP-bound tokens are refused. Then `checkMcpGrant` (`src/db/connector.ts`) checks in one statement that the user still allows the app (`oauth_consent`), marks it used (`last_used_at`, Money's own column) and reads the user fresh; banned users are refused. So revoking and disabling take effect on the next request, although access tokens are self-contained JWTs (an hour), and a role change applies right away.
+- **Tools** (`src/mcp/tools.ts`, server instructions in `src/mcp/instructions.ts`, server built per request in `src/mcp/handler.ts`): `today`, `list_accounts` (balances), `list_categories` (with subcategories), `list_transactions` (filters, totals of every match, cursor), and for editors and admins only `add_transactions` (up to 100, all or none, with possible duplicates: same date, account, amount and type), `update_transaction` and `delete_transactions` (destructive hint). Viewers don't get the write tools, and the write tools re-read the role on every call (the MCP equivalent of `requireWrite()`, which needs a session cookie). They reuse the `src/db` queries and `transactionSchema` / `checkTransactionReferences`; errors for Claude are English texts in the tools, not messages. Rows added get `source = "mcp"`; `created_by` / `updated_by` are the token's user.
+- **Dates and amounts at the boundary** (`src/helpers/connector.ts`): results use the user's calendar (Jalali `YYYY/MM/DD`, Gregorian `YYYY-MM-DD`). Input may be either: the year decides the calendar (below 1700 Jalali), so Claude copies a bank SMS date as it is and never converts calendars. Amounts are in the book currency's main unit (rials; dollars, euros, pounds with up to two decimals), converted to the stored smallest unit.
+- **Time zone:** MCP requests have no browser, so `today` uses `user.time_zone`, which the app layout saves (after the response) when the browser's reported zone (TimeZoneSync's cookie) differs; otherwise Asia/Tehran.
+- **Connected apps** (`/settings/connector`, `ConnectorSettings`): every role sees their own connections (`listConnections`: one per OAuth client, connected and last used days in the viewer's time zone) and can revoke one (`revokeConnection`: deletes its consent, refresh and access tokens in one statement).
 
 ## Languages, calendars and currency
 
@@ -76,7 +90,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 | Theme | light, dark, system | system | each device | `localStorage` (`money-theme`) |
 | Sidebar collapsed | expanded, collapsed (icon rail) | expanded | each device | `localStorage` (`money-sidebar`) |
 | Currency | `IRR`, `USD`, `EUR`, `GBP` | `IRR` | admins, for the book | `book.currency` |
-| Time zone | IANA name | the device's OS time zone (automatic, not a setting) | each device | `money-time-zone` cookie |
+| Time zone | IANA name | the device's OS time zone (automatic, not a setting) | each device | `money-time-zone` cookie (and `user.time_zone`, the last one reported, for the Claude connector) |
 
 - **Language for a request** (`resolveLocale` in `src/i18n/locale.ts`): the signed-in user's `locale`; signed out, the `money-locale` cookie, otherwise the browser's Accept-Language (`negotiateLocale`), otherwise Persian. `changeLocale` (`src/i18n/actions.ts`) sets the cookie and, when signed in, the user's `locale`; the login page has a small switch that calls it. The language decides `<html lang dir>`, the digits, the fonts and the copy.
 - **Preferences** (`Preferences` in `src/types/preferences.ts`): the user's language, calendar and rial/toman, the book's currency, the device's time zone, and the derived `moneyUnit` (`rial`, `toman`, `USD`, `EUR`, `GBP`). Server: `getPreferences()` (`src/i18n/preferences.ts`, once per request). Client: `usePreferences()` (`src/hooks/use-preferences.ts`), filled by `Providers` from the root layout. Signed-out pages get the defaults for their language.
@@ -111,7 +125,8 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
   - Roles `admin`, `editor` and `viewer` (admin plugin `roles`: `admin` gets the plugin's user management permissions, `editor` and `viewer` get none; default `viewer`). Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
   - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
   - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
-- **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth.
+  - The OAuth 2.1 provider for the Claude connector: `jwt`, `mcp` and `cimd` plugins (see Claude connector).
+- **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth (`@better-auth/mcp`, `@better-auth/cimd`, see Claude connector). `@better-auth/utils` is a direct dependency pinned to the version Better Auth's core expects, so the plugins share one copy of `@better-auth/core`.
 - **i18n:** next-intl without i18n routing: the locale comes from the user record (signed in) or the `money-locale` cookie, then Accept-Language (signed out), never from the URL. Request config in `src/i18n/request.ts`, wired with the next-intl plugin in `next.config.ts`. Messages are typed (`AppConfig` in `src/i18n/types.d.ts`).
 - **Validation:** Zod for every form, Server Action input, MCP tool input and CSV row.
 - **UI primitives:** Base UI (`@base-ui/react`, unstyled). Use it for interactive parts like Dialog, Menu, Popover, Select, Combobox, Tooltip, Tabs, Switch, Checkbox.
@@ -130,9 +145,9 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Dates are stored as Gregorian.** A transaction's date is a Postgres `date` (`YYYY-MM-DD`, no time zone). Timestamps (`created_at`, `updated_at`) are `timestamptz`. Never store Jalali dates.
 - **Calendars only at the edges.** Dates travel through the app as ISO strings. Convert to the user's calendar (Jalali or Gregorian) only:
   - in UI components that show or pick a date (`DateText`, `Calendar`, `DatePicker`), and
-  - at the MCP boundary: tools take and return dates in the signed-in user's calendar, Jalali `YYYY/MM/DD` or Gregorian `YYYY-MM-DD` (bank SMS use Jalali, and LLMs are unreliable at Jalali calendar math). The MCP layer converts before reading or writing the database.
+  - at the MCP boundary: tools return dates in the signed-in user's calendar, Jalali `YYYY/MM/DD` or Gregorian `YYYY-MM-DD`, and take either (the year tells the calendar), because bank SMS use Jalali and LLMs are unreliable at Jalali calendar math. The MCP layer converts before reading or writing the database (`src/helpers/connector.ts`).
 - **The viewer's calendar months drive periods.** "This month", budgets and monthly reports use the months of the viewing user's calendar, so two users with different calendars see different month boundaries. `monthRange` in `src/utils/calendar.ts` turns a month into a Gregorian date range for queries.
-- **Today** is the current date in the viewer's device time zone (`Preferences.timeZone`): `todayIso(timeZone)`. MCP has no browser; Phase 6 decides its time zone.
+- **Today** is the current date in the viewer's device time zone (`Preferences.timeZone`): `todayIso(timeZone)`. MCP has no browser: it uses the time zone the user's browser last reported (`user.time_zone`), otherwise Asia/Tehran.
 - **Amounts** are integers in the book currency's smallest unit (`bigint`): rials for IRR, cents or pence for USD, EUR and GBP. Transaction and budget amounts are positive; the transaction type gives the direction. Toman is only a way of showing and typing IRR amounts (1 toman = 10 rials); the stored value is always rials. Format with the helpers in `src/helpers/money.ts` (`formatMoney`, `formatMoneyNumber`) or the `Amount` component, never by hand. Amount inputs accept Persian, Arabic and Latin digits, and «.» or «٫» before decimals when the unit has them; with `allowNegative` (starting balances only) a leading «-» or «−».
 - **The book currency** can change only while the book holds no amounts: no transactions, no budgets and every opening balance 0. Changing it later would silently reinterpret every stored number. `setBookCurrency` (`src/db/book.ts`) checks and upserts in one SQL statement (`insert … select … where not <holds amounts> on conflict do update`), so an amount recorded in between can't slip past; `bookHoldsAmounts` tells the settings page to show the currency locked.
 - **Unknown transactions:** a description of `؟` (or empty) marks a transaction that still needs to be identified, as in `daily-transactions`. The form saves an empty description as `؟` (`UNKNOWN_DESCRIPTION`); `isUnknownDescription` also accepts empty and «?».
@@ -141,7 +156,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 
 | Table | Main columns |
 |-------|--------------|
-| Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`, and Money's preference fields `locale` (`fa` \| `en`), `calendar` (`jalali` \| `gregorian`), `rial_unit` (`rial` \| `toman`)), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and the OAuth provider tables (Phase 6) |
+| Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`, and Money's preference fields `locale` (`fa` \| `en`), `calendar` (`jalali` \| `gregorian`), `rial_unit` (`rial` \| `toman`), `time_zone`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and in `src/db/schema/oauth.ts` the JWT and OAuth provider tables: `jwks`, `oauth_client`, `oauth_consent` (with Money's `last_used_at`), `oauth_refresh_token`, `oauth_access_token`, `oauth_resource`, `oauth_client_resource`, `oauth_client_assertion` |
 | `book` | One row (`id` 1): `currency` (`IRR` \| `USD` \| `EUR` \| `GBP`). No row until an admin first saves the settings; until then `DEFAULT_BOOK_SETTINGS` (IRR) applies (`getBookSettings` in `src/db/book.ts`) |
 | `accounts` | `id`, `name` (unique ignoring case), `type` (`card` \| `cash` \| `other`), `opening_balance` (smallest unit, may be 0 or negative), `archived`, `sort_order` |
 | `categories` | `id`, `type` (`income` \| `expense`), `name`, `color`, `parent_id` (null for a category, set for a subcategory), `archived` |
@@ -211,7 +226,7 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Formatting:** formatting functions are pure and take the language, calendar or unit explicitly (`formatDate`, `formatMoney`, `formatNumber`). Components that show amounts or dates read them from `usePreferences()` / `useLocale()` and are client components (`Amount`, `DateText`, `ProgressBar`, …); they accept a `unit` or `calendar` override for stories.
 - Use Server Components by default. Add `"use client"` only when a component needs state, effects or browser APIs.
 - Mutations from the web UI use Server Actions that validate input with Zod and check the session.
-- **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
+- **Auth checks:** every page and Server Action calls `requireUser()`, `requireWrite()` or `requireAdmin()` from `src/auth/session.ts` (or `getSession()` when signed-out visitors are fine). The MCP endpoint checks its bearer token instead (`src/mcp/auth.ts`). `src/proxy.ts` only redirects visitors without a session cookie to `/login?next=<path>`; it never replaces the check in the page or action. `requireWrite()` answers viewers with not-found, and `requireAdmin()` answers non-admins with not-found. Redirect targets from the URL go through `getSafeRedirect` (`src/utils/url.ts`).
 - **Server Actions** live next to the code they belong to, in an `actions.ts` with `"use server"` (`src/auth/actions.ts`: `signOut`; `src/app/(app)/settings/actions.ts`: profile, password, display preferences, book currency; `src/app/(app)/admin/users/actions.ts`: user management). Pages pass them to client components as props (`onSave`, `onSignOut`, …), so stories can pass fakes. Form actions take `unknown`, parse it with Zod and return `ActionResult` (`src/types/action.ts`): `{ ok: true }` (plus data when the action hands something back, such as a temporary password) or a translated `error`, with the `field` it belongs to when there is one. After a change that affects the page they call `refresh()` from `next/cache`.
 - Use design tokens (CSS variables) for all colors, spacing, radius, fonts and shadows. No hard-coded values in component CSS. Part-specific sizes go in `src/styles/tokens/components.css`.
 - **Layers** (`--z-*` in `tokens/components.css`): shell bars 20, overlays (Dialog, Sheet) 100, popups (Select, Combobox, Menu, DatePicker, Popover) 150, toasts and tooltips 200. Popups sit above overlays because forms in dialogs open them.
@@ -233,19 +248,25 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 src/
   proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
   app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
-    login/              Sign-in page
+    login/              Sign-in page (also Claude's sign-in, with the signed OAuth request)
+    oauth/consent/      The OAuth consent page for Claude
+    mcp/                The MCP endpoint (route.ts: withMcpAuth + the tools)
+    .well-known/        OAuth protected resource and authorization server metadata
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
                         page.tsx (dashboard), transactions (+ actions.ts, loading.tsx, error.tsx), budgets,
                         reports, settings (+ actions.ts;
-                        accounts/ and categories/ with actions.ts, loading.tsx, error.tsx), admin/users
+                        accounts/, categories/ and connector/ with actions.ts, loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
-  auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts)
-  db/                   Drizzle client (index.ts), schema/ (auth, book, accounts, categories, transactions, budgets),
+  auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts),
+                        the connector's URLs (urls.ts), readOAuthRequest (oauth.ts)
+  mcp/                  The Claude connector: token check (auth.ts), tools (tools.ts), instructions, per-request server (handler.ts)
+  db/                   Drizzle client (index.ts), schema/ (auth, oauth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
                         categories.ts, transactions.ts (list, totals, tags, options, create / update / delete),
+                        connector.ts (checkMcpGrant, listConnections, revokeConnection, revokeGrants),
                         errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
                         (time-zone.ts), getPreferences (preferences.ts), changeLocale (actions.ts), typed messages
@@ -279,21 +300,23 @@ src/
     category-list/, category-dialog/, category-color-picker/, starter-categories/   Category rows with
                         subcategories, the category / subcategory form, the palette swatches, the suggestions
     archived-section/   «بایگانی‌شده (n)» toggle with the archived rows
-    settings-links/     The /settings section that links to accounts and categories
+    settings-links/     The /settings sections that link to accounts, categories and the Claude connector
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
                         book-settings/ (admins)
+    connector-settings/, connector-consent/   The /settings/connector page and the OAuth consent page
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
-                        settings), calendar (names, week start), category, currency (units, symbols), locale, media
+                        settings), calendar (names, week start), category, connector (paths, scope, tool limits), currency (units, symbols), locale, media
                         queries, navigation (NAV_ITEMS), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
                         user
   helpers/              account form rules, account balance SQL (accountBalance), budget status, category color
                         style and name rules, money formatting and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), preferences, role permissions,
-                        sign-in request, transaction form rules (transactionSchema), transaction filters (URL
+                        connector (dates and amounts at the MCP boundary), oauth-consent (consent requests),
+                        sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
                         params, period), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
                         useThemePreference
@@ -304,10 +327,11 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                account, action (ActionResult), book, calendar, category, currency, locale, navigation, preferences,
+  types/                account, action (ActionResult), book, calendar, category, connector, currency, locale, navigation, preferences,
                         theme, transaction, user
   utils/                calendar (both calendars, formatDate), cx, duration, env, focus, iso-date, jalali (math),
-                        locale (Accept-Language), number, sidebar (collapsed state), text, theme, url
+                        locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
+                        state), text, theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log)
 scripts/                create-user.ts (`pnpm user:create`)
@@ -348,7 +372,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 3 | User management (admin) | Done |
 | 4 | Accounts and categories | Done |
 | 5 | Transactions | Done |
-| 6 | Claude connector (MCP + OAuth) | Not started |
+| 6 | Claude connector (MCP + OAuth) | Done |
 | 7 | Budgets | Not started |
 | 8 | Reports | Not started |
 | 9 | Dashboard | Not started |
@@ -368,12 +392,14 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
-| `/settings/connector` | Claude connector: URL, connected apps | 6 |
+| `/settings/connector` | Claude connector: URL, steps, connected apps (revoke), examples | 6 |
+| `/oauth/consent` | OAuth consent for Claude (outside the app shell) | 6 |
+| `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata | 6 |
 | `/admin/users` | User management (admins only; others get not-found) | 3 |
 | `/api/auth/[...all]` | Better Auth handler | 1 |
 | `/mcp` | MCP endpoint (OAuth bearer token) | 6 |
 
-All pages except `/login` (and the OAuth consent page, if one is needed) require a session. Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
+All pages except `/login` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
 
 ## Reference repositories (siblings of this folder)
 

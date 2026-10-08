@@ -54,3 +54,8 @@ export const Mobile: Story = {
   args: { initialState: filled },
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
+
+/** Signing in for Claude's connector: which app asks, and the button continues to consent. */
+export const ForClaude: Story = {
+  args: { oauth: { query: "sig=story", clientName: "Claude" } },
+};

@@ -1,13 +1,17 @@
 import "server-only";
 
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
+import { mcp } from "@better-auth/mcp";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { admin, username } from "better-auth/plugins";
+import { admin, jwt, username } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
 
-import { SIGN_IN_LIMIT } from "@/constants/auth";
+import { LOGIN_PATH, SIGN_IN_LIMIT } from "@/constants/auth";
 import { DEFAULT_CALENDAR } from "@/constants/calendar";
+import { OAUTH_CONSENT_PATH, OAUTH_SCOPES } from "@/constants/connector";
 import { DEFAULT_RIAL_UNIT } from "@/constants/currency";
 import { DEFAULT_LOCALE } from "@/constants/locale";
 import {
@@ -21,11 +25,21 @@ import {
 import { db } from "@/db";
 import {
   authAccount,
+  jwks,
+  oauthAccessToken,
+  oauthClient,
+  oauthClientAssertion,
+  oauthClientResource,
+  oauthConsent,
+  oauthRefreshToken,
+  oauthResource,
   rateLimit,
   session,
   user,
   verification,
 } from "@/db/schema";
+
+import { getMcpResourceUrl } from "./urls";
 
 /**
  * The app's URL. Production and local development set BETTER_AUTH_URL. Preview deployments
@@ -56,6 +70,12 @@ function getBaseURL() {
  * - Sign-in is limited per IP, counted in the database so the limit holds across serverless
  *   instances. Rate limits apply to HTTP requests to /api/auth only, so the login form posts
  *   there instead of calling auth.api from a Server Action.
+ * - The Claude connector: an OAuth 2.1 authorization server for the MCP endpoint (`mcp`
+ *   plugin). Claude identifies itself with a Client ID Metadata Document (`cimd`), there is no
+ *   open client registration. Signing in goes through /login, then the consent page. Access
+ *   tokens are JWTs bound to the MCP endpoint's URL, signed with the `jwt` plugin's key; the
+ *   MCP route also checks the grant and the user in the database on every request
+ *   (src/mcp/auth.ts), so revoking or disabling takes effect at once.
  */
 export const auth = betterAuth({
   appName: "پول",
@@ -63,7 +83,21 @@ export const auth = betterAuth({
   // Read from BETTER_AUTH_SECRET.
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: { user, session, account: authAccount, verification, rateLimit },
+    schema: {
+      user,
+      session,
+      account: authAccount,
+      verification,
+      rateLimit,
+      jwks,
+      oauthClient,
+      oauthResource,
+      oauthClientResource,
+      oauthRefreshToken,
+      oauthAccessToken,
+      oauthConsent,
+      oauthClientAssertion,
+    },
   }),
   user: {
     additionalFields: {
@@ -78,6 +112,7 @@ export const auth = betterAuth({
         defaultValue: DEFAULT_RIAL_UNIT,
         input: false,
       },
+      timeZone: { type: "string", required: false, input: false },
     },
   },
   emailAndPassword: {
@@ -87,9 +122,15 @@ export const auth = betterAuth({
     minPasswordLength: PASSWORD_MIN_LENGTH,
     maxPasswordLength: PASSWORD_MAX_LENGTH,
   },
-  // Endpoints Money doesn't offer: public sign-up, sign-in by email (users have no real email)
-  // and the username availability check (it would reveal which usernames exist).
-  disabledPaths: ["/sign-up/email", "/sign-in/email", "/is-username-available"],
+  // Endpoints Money doesn't offer: public sign-up, sign-in by email (users have no real email),
+  // the username availability check (it would reveal which usernames exist) and the JWT
+  // plugin's session-to-JWT endpoint (its keys only sign OAuth access tokens).
+  disabledPaths: [
+    "/sign-up/email",
+    "/sign-in/email",
+    "/is-username-available",
+    "/token",
+  ],
   rateLimit: {
     enabled: true,
     storage: "database",
@@ -115,6 +156,22 @@ export const auth = betterAuth({
       roles: { admin: adminAc, editor: userAc, viewer: userAc },
       defaultRole: DEFAULT_USER_ROLE,
       adminRoles: ["admin"],
+    }),
+    jwt({ disableSettingJwtHeader: true }),
+    mcp({
+      resource: getMcpResourceUrl(),
+      loginPage: LOGIN_PATH,
+      consentPage: OAUTH_CONSENT_PATH,
+      scopes: [...OAUTH_SCOPES],
+      // Users sign in; no machine-to-machine tokens.
+      grantTypes: ["authorization_code", "refresh_token"],
+      // Nobody creates, edits or lists OAuth clients through the API (by default any signed-in
+      // user could). Clients come from Client ID Metadata Documents only.
+      clientPrivileges: () => false,
+    }),
+    cimd({
+      fetchClientMetadataResource,
+      metadataProfile: "mcp-2026-07-28",
     }),
     // Must be last: sets cookies when auth.api is called from Server Actions (sign-out).
     nextCookies(),

@@ -16,9 +16,15 @@ import { isTimeZone } from "@/utils/iso-date";
  * otherwise Asia/Tehran.
  */
 export const resolveTimeZone = cache(async (): Promise<string> => {
-  const saved = (await cookies()).get(TIME_ZONE_COOKIE)?.value;
-  if (saved && isTimeZone(saved)) return saved;
+  const saved = await reportedTimeZone();
+  if (saved) return saved;
   const fromIp = (await headers()).get(IP_TIME_ZONE_HEADER);
   if (fromIp && isTimeZone(fromIp)) return fromIp;
   return DEFAULT_TIME_ZONE;
 });
+
+/** The time zone the viewer's browser reported (TimeZoneSync's cookie), or null. */
+export async function reportedTimeZone(): Promise<string | null> {
+  const saved = (await cookies()).get(TIME_ZONE_COOKIE)?.value;
+  return saved && isTimeZone(saved) ? saved : null;
+}

@@ -1,8 +1,9 @@
 import {
   ChevronRightIcon,
   LandmarkIcon,
-  TagsIcon,
   type LucideIcon,
+  SparklesIcon,
+  TagsIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -12,32 +13,69 @@ import { Card } from "@/components/ui/card";
 
 import styles from "./styles.module.css";
 
-const LINKS: {
+type SettingsLink = {
   href: Route;
   icon: LucideIcon;
-  key: "accounts" | "categories";
+  /** Message keys of the link's title and description. */
+  title: "accounts.title" | "categories.title" | "connector.title";
+  description:
+    | "settings.data.accounts"
+    | "settings.data.categories"
+    | "settings.claude.connector";
+};
+
+const SECTIONS: {
+  title: "settings.data.title" | "settings.claude.title";
+  links: SettingsLink[];
 }[] = [
-  { href: "/settings/accounts", icon: LandmarkIcon, key: "accounts" },
-  { href: "/settings/categories", icon: TagsIcon, key: "categories" },
+  {
+    title: "settings.data.title",
+    links: [
+      {
+        href: "/settings/accounts",
+        icon: LandmarkIcon,
+        title: "accounts.title",
+        description: "settings.data.accounts",
+      },
+      {
+        href: "/settings/categories",
+        icon: TagsIcon,
+        title: "categories.title",
+        description: "settings.data.categories",
+      },
+    ],
+  },
+  {
+    title: "settings.claude.title",
+    links: [
+      {
+        href: "/settings/connector",
+        icon: SparklesIcon,
+        title: "connector.title",
+        description: "settings.claude.connector",
+      },
+    ],
+  },
 ];
 
-/** The settings section that leads to the book's accounts and categories pages. */
+/**
+ * The /settings sections that lead to subpages: the book's accounts and categories, and the
+ * Claude connector.
+ */
 export function SettingsLinks() {
   const t = useTranslations();
-  return (
-    <Card title={t("settings.data.title")} padding="none">
+  return SECTIONS.map((section) => (
+    <Card key={section.title} title={t(section.title)} padding="none">
       <ul className={styles.list}>
-        {LINKS.map(({ href, icon: Icon, key }) => (
-          <li key={key}>
+        {section.links.map(({ href, icon: Icon, title, description }) => (
+          <li key={href}>
             <Link href={href} className={styles.link}>
               <span className={styles.icon} aria-hidden="true">
                 <Icon className={styles.iconGlyph} />
               </span>
               <span className={styles.text}>
-                <span className={styles.title}>{t(`${key}.title`)}</span>
-                <span className={styles.description}>
-                  {t(`settings.data.${key}`)}
-                </span>
+                <span className={styles.title}>{t(title)}</span>
+                <span className={styles.description}>{t(description)}</span>
               </span>
               <ChevronRightIcon
                 className={`${styles.chevron} mirror-rtl`}
@@ -48,5 +86,5 @@ export function SettingsLinks() {
         ))}
       </ul>
     </Card>
-  );
+  ));
 }
