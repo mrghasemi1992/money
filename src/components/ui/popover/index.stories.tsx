@@ -41,7 +41,8 @@ export const WithActions: Story = {
     children: (
       <>
         <span>
-          شرح این تراکنش «؟» است. Claude می‌تواند از روی پیامک بانک حدس بزند.
+          این تراکنش دسته‌بندی ندارد. Claude می‌تواند از روی پیامک بانک حدس
+          بزند.
         </span>
         <Button size="sm">پرسیدن از Claude</Button>
       </>

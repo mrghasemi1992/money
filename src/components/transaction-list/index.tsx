@@ -1,23 +1,15 @@
 "use client";
 
-import {
-  ArrowLeftRightIcon,
-  CircleHelpIcon,
-  PencilIcon,
-  SparklesIcon,
-  TagIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PencilIcon, SparklesIcon, TagIcon, Trash2Icon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { TransactionTile } from "@/components/transaction-tile";
+import { TransactionTitle } from "@/components/transaction-title";
 import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CategoryChip } from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
-import { isUnknownDescription } from "@/helpers/transaction";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { Transaction, TransactionDayTotal } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
@@ -59,10 +51,11 @@ function groupByDay(transactions: Transaction[]): Day[] {
 
 /**
  * The transactions of a period grouped by day in the viewer's calendar, each day with its
- * net. A row shows the description (or a «؟» mark and «ناشناس» for unknown ones), the
- * category or the transfer's route, the account, tags, a Claude mark and the signed amount.
- * Clicking a row opens its detail. On phones each row starts with a tile and the category and
- * account move under the description; from 62rem of list width the account gets a column.
+ * net. A row starts with its tile, then the category and subcategory (a transfer's route, or
+ * the «ناشناس» tag without a category) with a Claude mark, the description under it in a
+ * smaller, lighter style, the tags, and at the end the signed amount. The account sits next
+ * to the description until the list is 62rem wide, then gets its own column. Clicking a row
+ * opens its detail.
  */
 export function TransactionList({
   transactions,
@@ -118,12 +111,8 @@ export function TransactionList({
   return (
     <div className={cx(styles.root, canWrite && styles.writable)}>
       <div className={styles.columns} aria-hidden="true">
-        <span>{t("transactions.list.description")}</span>
-        <span className={styles.narrowOnly}>
-          {t("transactions.list.categoryAndAccount")}
-        </span>
-        <span className={styles.wideOnly}>
-          {t("transactions.list.category")}
+        <span className={styles.transactionHead}>
+          {t("transactions.list.transaction")}
         </span>
         <span className={styles.wideOnly}>
           {t("transactions.list.account")}
@@ -190,51 +179,28 @@ function TransactionRow({
   onDelete,
 }: TransactionRowProps) {
   const t = useTranslations();
-  const unknown = isUnknownDescription(transaction.description);
   const isTransfer = transaction.type === "transfer";
-  const { category, account, toAccount } = transaction;
-  const route =
-    isTransfer && toAccount
-      ? t("transactions.list.route", {
-          from: account.name,
-          to: toAccount.name,
-        })
-      : null;
-  const categoryText = category
-    ? category.parentName
-      ? `${category.parentName} / ${category.name}`
-      : category.name
-    : t("transactions.list.noCategory");
+  const { account, description } = transaction;
   const AccountIcon = ACCOUNT_TYPE_ICONS[account.type];
-  const description = unknown
-    ? t("transactions.list.unknownDescription")
-    : transaction.description;
 
   return (
     <li className={styles.row}>
-      <span className={styles.tile}>
-        <TransactionTile transaction={transaction} />
-      </span>
+      <TransactionTile transaction={transaction} />
 
       <div className={styles.main}>
         <div className={styles.titleLine}>
-          {unknown ? (
-            <span className={styles.unknownMark} aria-hidden="true">
-              ؟
-            </span>
-          ) : null}
           <button
             type="button"
-            className={cx(styles.open, unknown && styles.openUnknown)}
+            className={styles.open}
             onClick={() => onOpen(transaction)}
           >
-            <span className={styles.description}>{description}</span>
+            <TransactionTitle
+              type={transaction.type}
+              category={transaction.category}
+              from={account.name}
+              to={transaction.toAccount?.name}
+            />
           </button>
-          {unknown ? (
-            <Badge tone="warning" size="sm" icon={CircleHelpIcon}>
-              {t("transactions.list.unknown")}
-            </Badge>
-          ) : null}
           {transaction.source === "mcp" ? (
             <>
               <Badge
@@ -258,15 +224,24 @@ function TransactionRow({
             </>
           ) : null}
         </div>
-        <div className={styles.meta}>
-          <span className={styles.metaText}>{route ?? categoryText}</span>
-          {isTransfer ? null : (
-            <>
-              <i className={styles.metaDot} aria-hidden="true" />
-              <span className={styles.metaText}>{account.name}</span>
-            </>
-          )}
-        </div>
+        {description || !isTransfer ? (
+          <div className={cx(styles.meta, !description && styles.narrowOnly)}>
+            {description ? (
+              <span className={styles.description}>{description}</span>
+            ) : null}
+            {description && !isTransfer ? (
+              <i
+                className={cx(styles.metaDot, styles.narrowOnly)}
+                aria-hidden="true"
+              />
+            ) : null}
+            {isTransfer ? null : (
+              <span className={cx(styles.metaAccount, styles.narrowOnly)}>
+                {account.name}
+              </span>
+            )}
+          </div>
+        ) : null}
         {transaction.tags.length > 0 ? (
           <div className={styles.tags}>
             {transaction.tags.map((tag) => (
@@ -276,35 +251,6 @@ function TransactionRow({
             ))}
           </div>
         ) : null}
-      </div>
-
-      <div className={styles.category}>
-        {isTransfer ? (
-          <span className={styles.route}>
-            <span className={styles.routeIcon}>
-              <ArrowLeftRightIcon aria-hidden="true" />
-            </span>
-            <span className={styles.routeText}>{route}</span>
-          </span>
-        ) : category ? (
-          <CategoryChip
-            size="sm"
-            name={category.parentName ?? category.name}
-            sub={category.parentName ? category.name : undefined}
-            color={category.color}
-            className={styles.chip}
-          />
-        ) : (
-          <span className={styles.noCategory}>
-            {t("transactions.list.noCategory")}
-          </span>
-        )}
-        {isTransfer ? null : (
-          <span className={cx(styles.accountLine, styles.narrowOnly)}>
-            <AccountIcon className={styles.accountIcon} aria-hidden="true" />
-            {account.name}
-          </span>
-        )}
       </div>
 
       <div className={cx(styles.account, styles.wideOnly)}>

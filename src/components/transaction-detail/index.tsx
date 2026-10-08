@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { MOBILE_QUERY } from "@/constants/media";
-import { isUnknownDescription } from "@/helpers/transaction";
+import { isUnknownTransaction } from "@/helpers/transaction";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { Transaction, TransactionSource } from "@/types/transaction";
@@ -44,8 +44,8 @@ type TransactionDetailProps = {
 };
 
 /**
- * Everything about one transaction: the amount, description, type, date, accounts, category,
- * tags and note, and who added it (with Claude, when it came through the connector) and who
+ * Everything about one transaction: the amount, description, type, date, accounts, category
+ * (or the «ناشناس» tag, with a note to pick one), tags and note, and who added it (with Claude, when it came through the connector) and who
  * last changed it, if someone else. Editors and admins can edit or delete from here.
  */
 export function TransactionDetail({
@@ -63,7 +63,7 @@ export function TransactionDetail({
 
   if (!transaction) return null;
 
-  const unknown = isUnknownDescription(transaction.description);
+  const unknown = isUnknownTransaction(transaction);
   const isTransfer = transaction.type === "transfer";
   const { category } = transaction;
   const day = (timestamp: string) =>
@@ -126,9 +126,9 @@ export function TransactionDetail({
             size="hero"
             icon
           />
-          {unknown ? null : (
+          {transaction.description ? (
             <p className={styles.description}>{transaction.description}</p>
-          )}
+          ) : null}
           {transaction.source === "mcp" ? (
             <Badge tone="brand" size="sm" icon={SparklesIcon}>
               Claude
@@ -184,9 +184,9 @@ export function TransactionDetail({
                     color={category.color}
                   />
                 ) : (
-                  <span className={styles.muted}>
-                    {t("transactions.list.noCategory")}
-                  </span>
+                  <Badge tone="warning" size="sm" icon={CircleHelpIcon}>
+                    {t("transactions.unknownTag")}
+                  </Badge>
                 )}
               </dd>
               <dt>{t("transactions.detail.account")}</dt>

@@ -8,7 +8,6 @@ const meta = {
   args: {
     transaction: {
       type: "expense",
-      description: "خرید هفتگی",
       category: { name: "سوپرمارکت", parentName: "خوراک", color: "orange" },
     },
   },
@@ -25,7 +24,6 @@ export const Income: Story = {
   args: {
     transaction: {
       type: "income",
-      description: "حقوق مهر",
       category: { name: "حقوق", parentName: null, color: "green" },
     },
   },
@@ -33,19 +31,13 @@ export const Income: Story = {
 
 export const Transfer: Story = {
   args: {
-    transaction: { type: "transfer", description: "", category: null },
+    transaction: { type: "transfer", category: null },
   },
 };
 
-/** A «؟» transaction, still to be identified. */
+/** An expense without a category, still to be identified. */
 export const Unknown: Story = {
   args: {
-    transaction: { type: "expense", description: "؟", category: null },
-  },
-};
-
-export const NoCategory: Story = {
-  args: {
-    transaction: { type: "expense", description: "کارمزد", category: null },
+    transaction: { type: "expense", category: null },
   },
 };

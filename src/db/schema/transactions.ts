@@ -42,9 +42,12 @@ export const transactions = pgTable(
       .references(() => accounts.id),
     /** Transfers only: the account the money goes to. */
     toAccountId: uuid().references(() => accounts.id),
-    /** A category or subcategory of the same type. Null for transfers and unsorted ones. */
+    /**
+     * A category or subcategory of the same type. Null for transfers, and for income or
+     * expense that still needs to be identified (shown with the «ناشناس» tag).
+     */
     categoryId: uuid(),
-    /** «؟» or empty marks a transaction that still needs to be identified. */
+    /** Optional; '' when empty. */
     description: text().notNull().default(""),
     note: text().notNull().default(""),
     tags: text()

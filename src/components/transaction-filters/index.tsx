@@ -22,7 +22,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Field } from "@/components/ui/field";
 import { SearchField } from "@/components/ui/search-field";
 import { Select, type SelectOption } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Tag } from "@/components/ui/tag";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import {
@@ -46,6 +45,12 @@ import styles from "./styles.module.css";
 /** Select value for «همه» (no account or tag filter). */
 const ALL = "*";
 
+/**
+ * Tag select value for «ناشناس», which is the `unknown` filter (no category), not a stored
+ * tag. Tags are trimmed, so none starts with a space.
+ */
+const UNKNOWN_TAG = " unknown";
+
 /** How long typing pauses before the search runs. */
 const SEARCH_DELAY_MS = 350;
 
@@ -64,9 +69,9 @@ type TransactionFiltersProps = {
 
 /**
  * The «فیلترها» button, the active filters as removable chips and a «پاک کردن همه», then the
- * panel (closed by default): search, date range, type, account, category, tag and «فقط
- * تراکنش‌های ناشناس». Every change goes straight to `onChange`; the search waits for a pause
- * in typing.
+ * panel (closed by default): search, date range, type, account, category and tag, where
+ * «ناشناس» (no category) comes first. Every change goes straight to `onChange`; the search
+ * waits for a pause in typing.
  */
 export function TransactionFilters({
   params,
@@ -77,6 +82,7 @@ export function TransactionFilters({
   today: todayProp,
 }: TransactionFiltersProps) {
   const t = useTranslations("transactions.filters");
+  const tTransactions = useTranslations("transactions");
   const tType = useTranslations("transactionType");
   const locale = useLocale();
   const { calendar, timeZone } = usePreferences();
@@ -169,10 +175,13 @@ export function TransactionFilters({
     params.tag && !options.tags.includes(params.tag)
       ? [params.tag, ...options.tags]
       : options.tags;
+  const unknownTag = tTransactions("unknownTag");
   const tagOptions: SelectOption[] = [
     { value: ALL, label: t("allTags"), icon: TagsIcon },
+    { value: UNKNOWN_TAG, label: unknownTag, icon: CircleHelpIcon },
     ...tags.map((tag) => ({ value: tag, label: tag, icon: TagIcon })),
   ];
+  const tagValue = params.tag ?? (params.unknownOnly ? UNKNOWN_TAG : ALL);
 
   const short = (date: string) =>
     formatDate(date, { locale, calendar, format: "short" });
@@ -246,7 +255,7 @@ export function TransactionFilters({
     chips.push({
       key: "unknown",
       icon: CircleHelpIcon,
-      label: t("chips.unknown"),
+      label: t("chips.tag", { name: unknownTag }),
       remove: () => set({ unknownOnly: false }),
     });
   }
@@ -382,20 +391,21 @@ export function TransactionFilters({
               <Field label={t("tag")}>
                 <Select
                   options={tagOptions}
-                  value={params.tag ?? ALL}
+                  value={tagValue}
                   onValueChange={(value) =>
-                    set({ tag: value && value !== ALL ? value : null })
+                    set(
+                      value === UNKNOWN_TAG
+                        ? { tag: null, unknownOnly: true }
+                        : {
+                            tag: value && value !== ALL ? value : null,
+                            unknownOnly: false,
+                          },
+                    )
                   }
                 />
               </Field>
             </div>
             <div className={styles.footer}>
-              <Switch
-                size="sm"
-                label={t("unknownOnly")}
-                checked={params.unknownOnly}
-                onCheckedChange={(unknownOnly) => set({ unknownOnly })}
-              />
               <Button
                 variant="ghost"
                 size="sm"

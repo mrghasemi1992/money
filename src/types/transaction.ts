@@ -23,7 +23,7 @@ export type TransactionInput = {
   toAccountId: string | null;
   /** Income and expense only: a category or subcategory of the same type. */
   categoryId: string | null;
-  /** «؟» when it isn't known yet. */
+  /** Optional: '' when empty. Shown under the category in lists. */
   description: string;
   note: string;
   tags: string[];

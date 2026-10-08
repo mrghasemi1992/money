@@ -166,7 +166,7 @@ const en: Messages = {
       title:
         "{countNumber, plural, one {You have {count} unidentified transaction} other {You have {count} unidentified transactions}}",
       description:
-        "It isn’t clear yet what they were for. Identify them to keep your reports accurate.",
+        "They don’t have a category yet. Categorize them to keep your reports accurate.",
       action: "Review transactions",
     },
     balances: {
@@ -238,6 +238,7 @@ const en: Messages = {
     },
   },
   transactions: {
+    unknownTag: "unknown",
     net: "Net",
     monthSwitcher: "Month",
     count:
@@ -256,7 +257,6 @@ const en: Messages = {
       account: "Account",
       category: "Category",
       tag: "Tag",
-      unknownOnly: "Unknown transactions only",
       allAccounts: "All accounts",
       allCategories: "All categories",
       allOfCategory: "All",
@@ -271,19 +271,13 @@ const en: Messages = {
         category: "Category: {name}",
         tag: "Tag: {name}",
         search: "“{text}”",
-        unknown: "Unknown",
       },
     },
     list: {
       label: "Transactions",
-      description: "Description",
-      category: "Category",
-      categoryAndAccount: "Category & account",
+      transaction: "Transaction",
       account: "Account",
       amount: "Amount",
-      unknown: "Unknown",
-      unknownDescription: "Unknown transaction",
-      noCategory: "No category",
       claudeTip: "Added by Claude",
       route: "{from} → {to}",
       edit: "Edit",
@@ -324,8 +318,7 @@ const en: Messages = {
       description: "Description",
       descriptionPlaceholder:
         "{type, select, income {e.g. October salary} transfer {e.g. Monthly savings} other {e.g. Weekly groceries}}",
-      descriptionHint:
-        "Not sure what it was? Leave it empty and it’s saved as “؟”.",
+      descriptionHint: "Optional. Shown under the category.",
       tags: "Tags",
       tagPlaceholder: "Type and press Enter",
       tagSuggestions: "Existing tags",
@@ -376,9 +369,8 @@ const en: Messages = {
       addedByImport: "Imported by {name} from a CSV file",
       lastEdited: "Last edited by {name}",
       unknownTitle: "This transaction is unidentified",
-      unknownEdit:
-        "Add a description and category so reports count it correctly.",
-      unknownView: "It has no description or category yet.",
+      unknownEdit: "Pick a category so reports and budgets count it correctly.",
+      unknownView: "It has no category yet.",
       edit: "Edit",
       delete: "Delete",
     },
@@ -1153,6 +1145,8 @@ const en: Messages = {
         addAll: "Add all",
         similar:
           "Matches “{description}” on {date} in {account}, with the same amount and type.",
+        similarNoDescription:
+          "Matches a transaction on {date} in {account}, with the same amount and type.",
         errorFileName: "{name}-errors.csv",
         errorColumn: "Error",
       },

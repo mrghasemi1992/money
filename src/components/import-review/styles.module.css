@@ -170,15 +170,14 @@
 }
 
 .rowTitle {
-  overflow: hidden;
-  font: var(--type-body);
-  font-weight: var(--weight-semibold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
-.rowTitle[data-unknown] {
-  color: var(--text-muted);
+.rowDescription {
+  color: var(--text-secondary);
 }
 
 .rowMeta {

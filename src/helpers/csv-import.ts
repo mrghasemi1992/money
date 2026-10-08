@@ -13,10 +13,9 @@ import {
   TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
-  UNKNOWN_DESCRIPTION,
 } from "@/constants/transaction";
 import { nextCategoryColor } from "@/helpers/category";
-import { isUnknownDescription } from "@/helpers/transaction";
+import { tidyDescription } from "@/helpers/transaction";
 import type { CalendarSystem } from "@/types/calendar";
 import type { Category, CategoryColor, CategoryType } from "@/types/category";
 import type {
@@ -260,11 +259,14 @@ export function importRowSchema({
       toAccount: text(),
       category: text(),
       subcategory: text(),
-      description: text().pipe(
-        z
-          .string()
-          .max(TRANSACTION_DESCRIPTION_MAX_LENGTH, "descriptionTooLong"),
-      ),
+      description: z
+        .string()
+        .transform(tidyDescription)
+        .pipe(
+          z
+            .string()
+            .max(TRANSACTION_DESCRIPTION_MAX_LENGTH, "descriptionTooLong"),
+        ),
       tags: z
         .string()
         .transform(parseImportTags)
@@ -308,9 +310,7 @@ export function importRowSchema({
         toAccount: isTransfer ? row.toAccount : null,
         category: isTransfer ? null : row.category || null,
         subcategory: isTransfer ? null : row.subcategory || null,
-        description: isUnknownDescription(row.description)
-          ? UNKNOWN_DESCRIPTION
-          : row.description,
+        description: row.description,
         note: row.note,
         tags: row.tags,
       };

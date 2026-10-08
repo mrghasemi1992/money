@@ -62,11 +62,13 @@ export const EditTransfer: Story = {
   },
 };
 
-/** Identifying an unknown transaction: the description starts empty. */
+/** Identifying an unknown transaction: the category starts empty. */
 export const EditUnknown: Story = {
   args: {
     transaction:
-      SAMPLE_TRANSACTIONS.find((item) => item.description === "؟") ?? null,
+      SAMPLE_TRANSACTIONS.find(
+        (item) => item.type !== "transfer" && !item.categoryId,
+      ) ?? null,
   },
 };
 

@@ -7,7 +7,7 @@ const options: RadioOption[] = [
   {
     value: "unknown",
     label: "ناشناخته‌ها",
-    description: "شرحشان «؟» یا خالی است.",
+    description: "هنوز دسته‌بندی ندارند.",
   },
   { value: "claude", label: "ثبت‌شده با Claude" },
   { value: "csv", label: "واردشده از CSV", disabled: true },

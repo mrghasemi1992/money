@@ -6,9 +6,9 @@ import {
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
   TRANSACTION_TYPES,
-  UNKNOWN_DESCRIPTION,
+  UNKNOWN_DESCRIPTION_MARKS,
 } from "@/constants/transaction";
-import type { TransactionInput } from "@/types/transaction";
+import type { TransactionInput, TransactionType } from "@/types/transaction";
 import { isIsoDate } from "@/utils/iso-date";
 import { tidyName } from "@/utils/text";
 
@@ -46,10 +46,31 @@ function uniqueTags(tags: string[]): string[] {
   return [...new Set(tags)];
 }
 
-/** Whether a description marks a transaction that still needs to be identified. */
-export function isUnknownDescription(description: string): boolean {
-  const tidy = description.trim();
-  return tidy === "" || tidy === UNKNOWN_DESCRIPTION || tidy === "?";
+/**
+ * Whether a transaction still needs to be identified: an income or expense without a
+ * category. It shows the «ناشناس» / “unknown” tag, which is never stored in `tags`.
+ */
+export function isUnknownTransaction(transaction: {
+  type: TransactionType;
+  categoryId: string | null;
+}): boolean {
+  return transaction.type !== "transfer" && !transaction.categoryId;
+}
+
+/** «خوراک / رستوران» for a subcategory, the category's own name otherwise. */
+export function categoryLabel(category: {
+  name: string;
+  parentName: string | null;
+}): string {
+  return category.parentName
+    ? `${category.parentName} / ${category.name}`
+    : category.name;
+}
+
+/** A description tidied for saving; «؟» or «?» alone (don't know) becomes empty. */
+export function tidyDescription(description: string): string {
+  const tidy = tidyName(description);
+  return UNKNOWN_DESCRIPTION_MARKS.includes(tidy) ? "" : tidy;
 }
 
 /** Options of the transaction rules. */
@@ -94,8 +115,8 @@ function crossFieldError(
  * is the viewer's today: dates can't be in the future. Messages are `TransactionError` keys.
  * The Claude connector uses the same rules, without requiring a category.
  *
- * The output is ready to save: names tidied, an empty description becomes «؟», a transfer
- * has no category and income or expense no destination account.
+ * The output is ready to save: names tidied, a description of «؟» alone becomes empty, a
+ * transfer has no category and income or expense no destination account.
  */
 export function transactionSchema(
   today: string,
@@ -118,7 +139,7 @@ export function transactionSchema(
       categoryId: z.uuid().nullable(),
       description: z
         .string()
-        .transform(tidyName)
+        .transform(tidyDescription)
         .pipe(
           z
             .string()
@@ -144,9 +165,6 @@ export function transactionSchema(
     })
     .transform((value): TransactionInput => ({
       ...value,
-      description: isUnknownDescription(value.description)
-        ? UNKNOWN_DESCRIPTION
-        : value.description,
       toAccountId: value.type === "transfer" ? value.toAccountId : null,
       categoryId: value.type === "transfer" ? null : value.categoryId,
     }));

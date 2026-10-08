@@ -6,9 +6,9 @@ import { alias } from "drizzle-orm/pg-core";
 import {
   TRANSACTION_PAGE_SIZE,
   TRANSACTION_TAG_SUGGESTIONS_MAX,
-  UNKNOWN_DESCRIPTION,
 } from "@/constants/transaction";
 import { NO_TRANSACTION_FILTERS } from "@/helpers/transaction-filters";
+import { MESSAGES } from "@/messages";
 import type { ExportedTransaction } from "@/types/csv";
 import type {
   AccountOption,
@@ -48,10 +48,33 @@ function folded(value: SQL): SQL {
   return sql`translate(lower(${value}), ${"يىك‌"}, ${"ییک "})`;
 }
 
+/** A search folded like the SQL above: normalizePersian, one space between words. */
+function searchNeedle(search: string): string {
+  return normalizePersian(search).replace(/\s+/g, " ").trim();
+}
+
 /** Escapes LIKE's wildcards so a search for «50%» means the characters. */
 function likePattern(search: string): string {
-  const needle = normalizePersian(search).replace(/\s+/g, " ").trim();
-  return `%${needle.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
+  return `%${searchNeedle(search).replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
+}
+
+/**
+ * Unknown transactions: income and expense without a category. They show the «ناشناس» /
+ * “unknown” tag, which is derived from this and never stored in `tags`.
+ */
+const UNKNOWN = sql`(${column("type")} <> 'transfer' and ${column("category_id")} is null)`;
+
+/** The unknown tag's word in every language, folded for the search. */
+const UNKNOWN_TAG_WORDS = Object.values(MESSAGES).map((messages) =>
+  normalizePersian(messages.transactions.unknownTag),
+);
+
+/** Whether a search is the start of the unknown tag («ناش», “unkn”), in either language. */
+function searchesUnknownTag(search: string): boolean {
+  const needle = searchNeedle(search);
+  return (
+    needle !== "" && UNKNOWN_TAG_WORDS.some((word) => word.startsWith(needle))
+  );
 }
 
 /** WHERE conditions for the filters. Works with or without joins: columns are qualified. */
@@ -79,11 +102,7 @@ function filterConditions(filters: TransactionFilters): SQL | undefined {
   if (filters.tag) {
     conditions.push(sql`${column("tags")} @> array[${filters.tag}]::text[]`);
   }
-  if (filters.unknownOnly) {
-    conditions.push(
-      sql`btrim(${column("description")}) in ('', ${UNKNOWN_DESCRIPTION}, '?')`,
-    );
-  }
+  if (filters.unknownOnly) conditions.push(UNKNOWN);
   if (filters.search) {
     const pattern = likePattern(filters.search);
     conditions.push(sql`(
@@ -96,6 +115,7 @@ function filterConditions(filters: TransactionFilters): SQL | undefined {
         where c.id = ${column("category_id")}
           and (${folded(sql`c.name`)} like ${pattern} or ${folded(sql`coalesce(p.name, '')`)} like ${pattern})
       )
+      ${searchesUnknownTag(filters.search) ? sql`or ${UNKNOWN}` : sql``}
     )`);
   }
   return and(...conditions);
@@ -291,8 +311,9 @@ export async function bookHasTransactions(): Promise<boolean> {
 }
 
 /**
- * How many transactions in the whole book are still unknown (a «؟» or empty description) and
- * the date of the oldest, so a link can list them all (`?from=<oldest>&unknown=1`).
+ * How many transactions in the whole book are still unknown (income or expense without a
+ * category) and the date of the oldest, so a link can list them all
+ * (`?from=<oldest>&unknown=1`).
  */
 export async function unknownTransactionSummary(): Promise<{
   count: number;

@@ -1,0 +1,23 @@
+.root {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.separator {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+
+.sub {
+  color: var(--text-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.unknown {
+  vertical-align: middle;
+}

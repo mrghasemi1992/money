@@ -1,17 +1,17 @@
 "use client";
 
-import { ChevronRightIcon, CircleHelpIcon, SparklesIcon } from "lucide-react";
+import { ChevronRightIcon, SparklesIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { TransactionDetail } from "@/components/transaction-detail";
 import { TransactionTile } from "@/components/transaction-tile";
+import { TransactionTitle } from "@/components/transaction-title";
 import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isUnknownDescription } from "@/helpers/transaction";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { Transaction } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
@@ -31,9 +31,10 @@ type RecentTransactionsProps = {
 const noop = () => {};
 
 /**
- * The latest transactions in one compact list: the tile, the description (or «ناشناس»), a
- * Claude mark, the category or the transfer's route, the account and the day, and the signed
- * amount. A row opens the transaction's detail; changes are made on the transactions page.
+ * The latest transactions in one compact list: the tile, the category and subcategory (a
+ * transfer's route, or the «ناشناس» tag) with a Claude mark, then the description, the
+ * account and the day, and the signed amount. A row opens the transaction's detail; changes
+ * are made on the transactions page.
  */
 export function RecentTransactions({
   transactions,
@@ -75,20 +76,8 @@ export function RecentTransactions({
     >
       <ul className={styles.list}>
         {transactions.map((transaction) => {
-          const unknown = isUnknownDescription(transaction.description);
-          const { category, account, toAccount } = transaction;
-          const where =
-            transaction.type === "transfer" && toAccount
-              ? t("transactions.list.route", {
-                  from: account.name,
-                  to: toAccount.name,
-                })
-              : null;
-          const categoryText = category
-            ? category.parentName
-              ? `${category.parentName} / ${category.name}`
-              : category.name
-            : t("transactions.list.noCategory");
+          const isTransfer = transaction.type === "transfer";
+          const { account, description } = transaction;
           return (
             <li key={transaction.id} className={styles.row}>
               <TransactionTile transaction={transaction} />
@@ -96,23 +85,19 @@ export function RecentTransactions({
                 <div className={styles.titleLine}>
                   <button
                     type="button"
-                    className={cx(styles.open, unknown && styles.openUnknown)}
+                    className={styles.open}
                     onClick={() => {
                       setTarget(transaction);
                       setOpen(true);
                     }}
                   >
-                    <span className={styles.description}>
-                      {unknown
-                        ? t("transactions.list.unknownDescription")
-                        : transaction.description}
-                    </span>
+                    <TransactionTitle
+                      type={transaction.type}
+                      category={transaction.category}
+                      from={account.name}
+                      to={transaction.toAccount?.name}
+                    />
                   </button>
-                  {unknown ? (
-                    <Badge tone="warning" size="sm" icon={CircleHelpIcon}>
-                      {t("transactions.list.unknown")}
-                    </Badge>
-                  ) : null}
                   {transaction.source === "mcp" ? (
                     <Badge
                       tone="brand"
@@ -125,18 +110,22 @@ export function RecentTransactions({
                   ) : null}
                 </div>
                 <div className={styles.meta}>
-                  {where ? (
-                    <span className={styles.metaText}>{where}</span>
-                  ) : (
+                  {description ? (
                     <>
-                      <span className={styles.metaText}>{categoryText}</span>
+                      <span className={cx(styles.metaText, styles.description)}>
+                        {description}
+                      </span>
                       <i className={styles.metaDot} aria-hidden="true" />
+                    </>
+                  ) : null}
+                  {isTransfer ? null : (
+                    <>
                       <span className={cx(styles.metaText, styles.account)}>
                         {account.name}
                       </span>
+                      <i className={styles.metaDot} aria-hidden="true" />
                     </>
                   )}
-                  <i className={styles.metaDot} aria-hidden="true" />
                   <span className={styles.day}>{day(transaction.date)}</span>
                 </div>
               </div>

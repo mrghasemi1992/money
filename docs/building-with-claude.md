@@ -28,6 +28,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 8: Reports](#phase-8-reports)
 - [Phase 9: Dashboard](#phase-9-dashboard)
 - [Phase 10: CSV import and export](#phase-10-csv-import-and-export)
+- [Change: Category-first rows and the unknown tag](#change-category-first-rows-and-the-unknown-tag)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -83,23 +84,24 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 
 ## Timeline
 
-| Step                       | Dates              | Branch                                | PR                                                    |
-| -------------------------- | ------------------ | ------------------------------------- | ----------------------------------------------------- |
-| Planning                   | 2026-10-01         | none                                  | none (CLAUDE.md and docs/phases.md committed with 0a) |
-| 0a Project setup           | 2026-10-01         | `main`                                | none                                                  |
-| 0b Design system           | 2026-10-01 → 10-02 | `feature/phase-0-design-system`       | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
-| 1 Database and sign-in     | 2026-10-02         | `feature/phase-1-auth`                | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
-| One shared book with roles | 2026-10-02         | `feature/shared-book-roles`           | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
-| 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`           | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
-| 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`           | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
-| 3 User management          | 2026-10-06         | `feature/phase-3-users`               | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
-| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
-| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | [#10](https://github.com/mrghasemi1992/money/pull/10) |
-| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | [#11](https://github.com/mrghasemi1992/money/pull/11) |
-| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | [#12](https://github.com/mrghasemi1992/money/pull/12) |
-| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`             | [#13](https://github.com/mrghasemi1992/money/pull/13) |
-| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`           | [#43](https://github.com/mrghasemi1992/money/pull/43) |
-| 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                | (linked when opened)                                  |
+| Step                       | Dates              | Branch                                 | PR                                                    |
+| -------------------------- | ------------------ | -------------------------------------- | ----------------------------------------------------- |
+| Planning                   | 2026-10-01         | none                                   | none (CLAUDE.md and docs/phases.md committed with 0a) |
+| 0a Project setup           | 2026-10-01         | `main`                                 | none                                                  |
+| 0b Design system           | 2026-10-01 → 10-02 | `feature/phase-0-design-system`        | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
+| 1 Database and sign-in     | 2026-10-02         | `feature/phase-1-auth`                 | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
+| One shared book with roles | 2026-10-02         | `feature/shared-book-roles`            | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
+| 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`            | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
+| 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`            | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
+| 3 User management          | 2026-10-06         | `feature/phase-3-users`                | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
+| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories`  | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
+| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`         | [#10](https://github.com/mrghasemi1992/money/pull/10) |
+| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                  | [#11](https://github.com/mrghasemi1992/money/pull/11) |
+| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`              | [#12](https://github.com/mrghasemi1992/money/pull/12) |
+| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`              | [#13](https://github.com/mrghasemi1992/money/pull/13) |
+| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`            | [#43](https://github.com/mrghasemi1992/money/pull/43) |
+| 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                 | [#45](https://github.com/mrghasemi1992/money/pull/45) |
+| Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | (linked when opened)                                  |
 
 ---
 
@@ -1071,7 +1073,7 @@ The dashboard from the design: a greeting with today's date, a notice for unknow
 
 ## Phase 10: CSV import and export
 
-Branch: `feature/phase-10-csv`. Date: 2026-10-08. PR: linked when it is opened.
+Branch: `feature/phase-10-csv`. Date: 2026-10-08. PR [#45](https://github.com/mrghasemi1992/money/pull/45).
 
 ### Claude Design prompt
 
@@ -1112,6 +1114,35 @@ Check that build, lint, typecheck, format:check and build-storybook pass, and te
 ### Result
 
 `/settings/import-export`: an export card for every role (range presets in the viewer's calendar, an account, the count, a streamed UTF-8 CSV with both calendars) and, for editors and admins, a five-step import (upload, columns, names, review with errors and possible duplicates, result) saved in one database transaction with `source = "csv"`. Errors can be downloaded as a CSV to fix. The transaction detail names imported rows. Stories for the page and every step. CLAUDE.md updated.
+
+## Change: Category-first rows and the unknown tag
+
+Branch: `feature/issue-30-category-first-rows`. Date: 2026-10-08. PR: linked when it is opened. Not a planned phase: GitHub issue [#30](https://github.com/mrghasemi1992/money/issues/30), the first of the issues opened after Phase 10. No Claude Design step: the rows were redesigned in code, with the existing components.
+
+### Claude Code prompt
+
+```text
+lets resolve github isssues. start with #30
+```
+
+The issue asked for rows that show the category and subcategory first with the description optional under them, no more «؟» descriptions, and a searchable, filterable «ناشناس» / “unknown” tag for transactions whose category can't be determined, in the form, list, detail, filters, search, MCP tools and the existing data.
+
+### Questions Claude asked
+
+Before asking, Claude counted the book's transactions (read only): every «؟» transaction also had no category, and 17 more had no category but a description.
+
+| Question                                                                                  | Answer                                                                                          |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| How should «ناشناس» work in the data: derived from no category, or a stored reserved tag? | **Derived from no category**: shown as a tag, filtered and searched, but never stored in `tags` |
+| Should the web form allow saving an income or expense without a category?                 | **No, keep it required**: only Claude and the CSV import create unknown transactions            |
+
+### Result
+
+- **Unknown = no category.** An income or expense without a category is unknown (`isUnknownTransaction`); transfers never are. Descriptions are optional and an empty one stays empty; «؟» or «?» alone is saved as empty (`tidyDescription`), in the form, the CSV import and the MCP tools. Migration `0006` clears the stored «؟» descriptions.
+- **Rows** (`TransactionTitle`, shared by the list, the dashboard's recent transactions and the CSV review): the tile, then the category and subcategory (a transfer's route, or the «ناشناس» tag), with the description under it, smaller and lighter, next to the account until the list is 62rem wide. The tile now shows on desktop too, and the list's separate category column is gone. The detail shows the tag in place of the category.
+- **Filters and search.** `unknown=1` now means no category. «ناشناس» is the first option of the tag filter (the «فقط تراکنش‌های ناشناس» switch is gone) and its chip reads «برچسب: ناشناس». A search for the start of the tag's word in either language («ناش», “unkn”) also finds unknown transactions.
+- **MCP.** The instructions say to leave `category_id` out when it can't be told and never to write «؟»; `description` is optional in `add_transactions`; results mark unknown transactions with `unknown: true`; `unknown_only` lists the ones without a category.
+- Checked in Storybook (Persian and English, light and dark, desktop, wide and phone) and with read-only queries against the book: 31 unknown transactions, all found by `unknown=1`, «ناش», «ناشناس» and “unkn”.
 
 ---
 

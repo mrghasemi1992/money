@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { TransactionTitle } from "@/components/transaction-title";
 import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import {
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
-import { isUnknownDescription } from "@/helpers/transaction";
 import { usePreferences } from "@/hooks/use-preferences";
 import type {
   ImportDuplicate,
@@ -150,6 +150,25 @@ export function ImportReview({
   const names = nameLookup(plan, book);
   const errorMessage = useImportErrorMessage();
 
+  /** A row's first line, as in the transactions list: its category, route or «ناشناس». */
+  function rowTitle(row: ImportRow) {
+    const category = row.category ? names.category(row.category) : null;
+    return category ? (
+      <CategoryChip
+        name={category.name}
+        sub={category.sub}
+        color={category.color}
+      />
+    ) : (
+      <TransactionTitle
+        type={row.type}
+        category={null}
+        from={names.account(row.account)}
+        to={row.toAccount ? names.account(row.toAccount) : null}
+      />
+    );
+  }
+
   const duplicateLines = new Set((duplicates ?? []).map((d) => d.line));
   const ready = plan.rows.filter((row) => !duplicateLines.has(row.line));
   const rowsByLine = new Map(plan.rows.map((row) => [row.line, row]));
@@ -224,46 +243,33 @@ export function ImportReview({
         ) : (
           <ul className={styles.list}>
             {ready.slice(0, CSV_REVIEW_ROWS).map((row) => {
-              const category = row.category
-                ? names.category(row.category)
-                : null;
-              const unknown = isUnknownDescription(row.description);
               return (
                 <li key={row.line} className={styles.row}>
                   <div className={styles.rowMain}>
-                    <span
-                      className={styles.rowTitle}
-                      data-unknown={unknown || undefined}
-                    >
-                      {row.description}
-                    </span>
-                    <span className={styles.rowMeta}>
-                      {category ? (
-                        <>
-                          <CategoryChip
-                            size="sm"
-                            name={category.name}
-                            sub={category.sub}
-                            color={category.color}
-                          />
-                          <span className={styles.dot} aria-hidden="true" />
-                        </>
-                      ) : null}
-                      <span>
-                        {row.toAccount
-                          ? t("transactions.list.route", {
-                              from: names.account(row.account),
-                              to: names.account(row.toAccount),
-                            })
-                          : names.account(row.account)}
-                      </span>
-                      <span className={styles.dot} aria-hidden="true" />
-                      <span>{day(row.date)}</span>
+                    <span className={styles.rowTitle}>
+                      {rowTitle(row)}
                       {isNew(row) ? (
                         <Badge tone="brand" size="sm">
                           {t("importExport.import.review.new")}
                         </Badge>
                       ) : null}
+                    </span>
+                    <span className={styles.rowMeta}>
+                      {row.description ? (
+                        <>
+                          <span className={styles.rowDescription}>
+                            {row.description}
+                          </span>
+                          <span className={styles.dot} aria-hidden="true" />
+                        </>
+                      ) : null}
+                      {row.toAccount ? null : (
+                        <>
+                          <span>{names.account(row.account)}</span>
+                          <span className={styles.dot} aria-hidden="true" />
+                        </>
+                      )}
+                      <span>{day(row.date)}</span>
                     </span>
                   </div>
                   <Amount value={row.amount} type={row.type} icon />
@@ -385,9 +391,12 @@ export function ImportReview({
                         <Badge tone="warning" size="sm">
                           {rowLabel}
                         </Badge>
-                        <span className={styles.rowTitle}>
-                          {row.description}
-                        </span>
+                        <span className={styles.rowTitle}>{rowTitle(row)}</span>
+                        {row.description ? (
+                          <span className={styles.rowDescription}>
+                            {row.description}
+                          </span>
+                        ) : null}
                         <Amount value={row.amount} type={row.type} size="sm" />
                       </span>
                       <span className={styles.similar}>
@@ -396,14 +405,19 @@ export function ImportReview({
                           aria-hidden="true"
                         />
                         <span>
-                          {t("importExport.import.review.similar", {
-                            description: duplicate.description,
-                            date: day(duplicate.date),
-                            account: names.account({
-                              kind: "existing",
-                              id: duplicate.accountId,
-                            }),
-                          })}
+                          {t(
+                            duplicate.description
+                              ? "importExport.import.review.similar"
+                              : "importExport.import.review.similarNoDescription",
+                            {
+                              description: duplicate.description,
+                              date: day(duplicate.date),
+                              account: names.account({
+                                kind: "existing",
+                                id: duplicate.accountId,
+                              }),
+                            },
+                          )}
                         </span>
                       </span>
                     </div>

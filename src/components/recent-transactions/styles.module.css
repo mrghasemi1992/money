@@ -67,24 +67,6 @@
   outline-offset: calc(-1 * var(--ring-width));
 }
 
-.description {
-  display: block;
-  overflow: hidden;
-  font: var(--type-body);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* An unknown transaction reads as its «؟» tile and badge; the name is for screen readers. */
-.openUnknown .description {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
 .meta {
   display: flex;
   align-items: center;
@@ -101,7 +83,12 @@
   text-overflow: ellipsis;
 }
 
-/* The category gives way first; the account keeps most of its name. */
+/* The description, if any: lighter than the title, and the first to give way. */
+.description {
+  color: var(--text-secondary);
+}
+
+/* The account keeps most of its name. */
 .account {
   flex-shrink: 0;
   max-width: 45%;

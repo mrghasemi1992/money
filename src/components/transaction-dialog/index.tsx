@@ -34,7 +34,6 @@ import {
 } from "@/constants/transaction";
 import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
 import {
-  isUnknownDescription,
   type TransactionError,
   type TransactionField,
   transactionErrors,
@@ -108,9 +107,7 @@ function fromTransaction(transaction: Transaction): TransactionFormValues {
     accountId: transaction.accountId,
     toAccountId: transaction.toAccountId,
     categoryId: transaction.categoryId,
-    description: isUnknownDescription(transaction.description)
-      ? ""
-      : transaction.description,
+    description: transaction.description,
     note: transaction.note,
     tags: transaction.tags,
   };

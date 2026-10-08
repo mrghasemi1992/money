@@ -15,7 +15,6 @@ import {
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
   TRANSACTION_TYPES,
-  UNKNOWN_DESCRIPTION,
 } from "@/constants/transaction";
 import { WEEKDAY_NAMES } from "@/constants/calendar";
 import { listAccounts } from "@/db/accounts";
@@ -42,6 +41,7 @@ import {
 } from "@/helpers/connector";
 import { canWrite } from "@/helpers/role";
 import {
+  isUnknownTransaction,
   type TransactionError,
   transactionErrors,
   transactionSchema,
@@ -188,7 +188,11 @@ function view(
           to_account:
             listed?.toAccount?.name ?? names?.account(row.toAccountId) ?? null,
         }
-      : { category_id: row.categoryId, category }),
+      : {
+          category_id: row.categoryId,
+          category,
+          ...(isUnknownTransaction(row) ? { unknown: true } : {}),
+        }),
     description: row.description,
     ...(row.note ? { note: row.note } : {}),
     tags: row.tags,
@@ -244,8 +248,9 @@ const newTransactionInput = z.object({
   description: z
     .string()
     .max(TRANSACTION_DESCRIPTION_MAX_LENGTH)
+    .optional()
     .describe(
-      `Short label in the user's language; "${UNKNOWN_DESCRIPTION}" when unknown`,
+      "Optional short label in the user's language, e.g. the shop; shown under the category",
     ),
   note: z.string().max(TRANSACTION_NOTE_MAX_LENGTH).optional(),
   tags: tagsInput.optional(),
@@ -413,7 +418,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           .boolean()
           .optional()
           .describe(
-            `Only transactions whose description is "${UNKNOWN_DESCRIPTION}"`,
+            "Only unknown transactions: income and expense without a category",
           ),
         limit: z
           .number()
@@ -501,7 +506,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
               accountId: item.account_id,
               toAccountId: item.to_account_id ?? null,
               categoryId: item.category_id ?? null,
-              description: item.description,
+              description: item.description ?? "",
               note: item.note ?? "",
               tags: item.tags ?? [],
             },
@@ -556,7 +561,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     {
       title: "Update a transaction",
       description:
-        "Change fields of one saved transaction, e.g. fill in the description and category of an unknown one. Only the given fields change.",
+        "Change fields of one saved transaction, e.g. give an unknown one its category. Only the given fields change.",
       inputSchema: z.object({
         id: z.uuid(),
         type: typeInput.optional(),
@@ -568,7 +573,9 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           .uuid()
           .nullable()
           .optional()
-          .describe("null removes the category"),
+          .describe(
+            "null removes the category (the transaction becomes unknown)",
+          ),
         description: z
           .string()
           .max(TRANSACTION_DESCRIPTION_MAX_LENGTH)

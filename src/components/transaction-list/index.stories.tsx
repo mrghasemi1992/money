@@ -39,8 +39,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Days with their net; an unknown transaction («؟»), a transfer with its route, Claude's
- * mark, tags, and a subcategory chip. Edit and delete on each row for editors and admins.
+ * Days with their net; an unknown transaction (no category: the «ناشناس» tag), one without
+ * a description, a transfer with its route, Claude's mark, tags and subcategories. Edit and delete on each row for editors and admins.
  */
 export const Default: Story = {};
 

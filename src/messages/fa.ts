@@ -163,7 +163,7 @@ const fa = {
     unknown: {
       title: "{countNumber, plural, other {{count} تراکنش ناشناس دارید}}",
       description:
-        "هنوز معلوم نیست این تراکنش‌ها بابت چه بوده‌اند. شناسایی‌شان کنید تا گزارش‌ها دقیق بمانند.",
+        "این تراکنش‌ها هنوز دسته‌بندی ندارند. دسته‌بندی‌شان کنید تا گزارش‌ها دقیق بمانند.",
       action: "بررسی تراکنش‌ها",
     },
     balances: {
@@ -235,6 +235,7 @@ const fa = {
     },
   },
   transactions: {
+    unknownTag: "ناشناس",
     net: "خالص",
     monthSwitcher: "ماه",
     count: "{countNumber, plural, =0 {بدون تراکنش} other {{count} تراکنش}}",
@@ -252,7 +253,6 @@ const fa = {
       account: "حساب",
       category: "دسته‌بندی",
       tag: "برچسب",
-      unknownOnly: "فقط تراکنش‌های ناشناس",
       allAccounts: "همه حساب‌ها",
       allCategories: "همه دسته‌ها",
       allOfCategory: "همه",
@@ -267,19 +267,13 @@ const fa = {
         category: "دسته: {name}",
         tag: "برچسب: {name}",
         search: "«{text}»",
-        unknown: "ناشناس",
       },
     },
     list: {
       label: "تراکنش‌ها",
-      description: "توضیح",
-      category: "دسته‌بندی",
-      categoryAndAccount: "دسته‌بندی و حساب",
+      transaction: "تراکنش",
       account: "حساب",
       amount: "مبلغ",
-      unknown: "ناشناس",
-      unknownDescription: "تراکنش ناشناس",
-      noCategory: "بدون دسته",
       claudeTip: "ثبت‌شده با Claude",
       route: "{from} ← {to}",
       edit: "ویرایش",
@@ -320,8 +314,7 @@ const fa = {
       description: "توضیح",
       descriptionPlaceholder:
         "{type, select, income {مثلاً حقوق مهر} transfer {مثلاً پس‌انداز ماهانه} other {مثلاً خرید هفتگی}}",
-      descriptionHint:
-        "اگر نمی‌دانید بابت چه بوده، خالی بگذارید تا «؟» ثبت شود.",
+      descriptionHint: "اختیاری. زیر دسته‌بندی نمایش داده می‌شود.",
       tags: "برچسب‌ها",
       tagPlaceholder: "بنویسید و Enter بزنید",
       tagSuggestions: "برچسب‌های موجود",
@@ -372,8 +365,8 @@ const fa = {
       lastEdited: "آخرین ویرایش: {name}",
       unknownTitle: "این تراکنش شناسایی نشده",
       unknownEdit:
-        "توضیح و دسته‌بندی را اضافه کنید تا در گزارش‌ها درست حساب شود.",
-      unknownView: "هنوز توضیح و دسته‌بندی ندارد.",
+        "یک دسته‌بندی انتخاب کنید تا در گزارش‌ها و بودجه‌ها درست حساب شود.",
+      unknownView: "هنوز دسته‌بندی ندارد.",
       edit: "ویرایش",
       delete: "حذف",
     },
@@ -1143,6 +1136,8 @@ const fa = {
         addAll: "افزودن همه",
         similar:
           "مشابه «{description}» در {date} در حساب {account}، با همان مبلغ و نوع.",
+        similarNoDescription:
+          "مشابه تراکنشی در {date} در حساب {account}، با همان مبلغ و نوع.",
         errorFileName: "{name}-خطاها.csv",
         errorColumn: "خطا",
       },
