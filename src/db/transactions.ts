@@ -27,7 +27,7 @@ import { accounts, categories, transactions, user } from "./schema";
 
 /*
  * Transactions of the shared book. The callers check the role first (requireUser() to read,
- * requireWrite() to change, and in Phase 6 the MCP tools with the token's user); these
+ * requireWrite() to change, and the MCP tools with the token's user, src/mcp); these
  * functions only read and write, and take the acting user's id for created_by / updated_by.
  * The database enforces the type rules too (see the schema), so a bug here can't store a
  * transfer with a category or an expense in an income category.
@@ -454,4 +454,76 @@ export async function deleteTransaction(
       tags: transactions.tags,
     });
   return row ?? null;
+}
+
+/** Adds several transactions in one statement (all or none). Returns their ids, in order. */
+export async function createTransactions(
+  inputs: TransactionInput[],
+  actorId: string,
+  source: TransactionSource,
+): Promise<string[]> {
+  if (inputs.length === 0) return [];
+  const rows = await db
+    .insert(transactions)
+    .values(
+      inputs.map((input) => ({
+        ...input,
+        source,
+        createdBy: actorId,
+        updatedBy: actorId,
+      })),
+    )
+    .returning({ id: transactions.id });
+  return rows.map((row) => row.id);
+}
+
+/** A stored transaction's fields with its id. */
+export type StoredTransaction = TransactionInput & { id: string };
+
+const storedColumns = {
+  id: transactions.id,
+  type: transactions.type,
+  amount: transactions.amount,
+  date: transactions.date,
+  accountId: transactions.accountId,
+  toAccountId: transactions.toAccountId,
+  categoryId: transactions.categoryId,
+  description: transactions.description,
+  note: transactions.note,
+  tags: transactions.tags,
+};
+
+/**
+ * Transactions that look like the given ones: the same date, account, amount and type. Used to
+ * warn about possible duplicates before adding (a bank SMS sent twice).
+ */
+export async function findSimilarTransactions(
+  inputs: Pick<TransactionInput, "date" | "accountId" | "amount" | "type">[],
+): Promise<StoredTransaction[]> {
+  if (inputs.length === 0) return [];
+  const keys = sql.join(
+    inputs.map(
+      (input) =>
+        sql`(${input.date}::date, ${input.accountId}::uuid, ${input.amount}::bigint, ${input.type}::text)`,
+    ),
+    sql`, `,
+  );
+  return db
+    .select(storedColumns)
+    .from(transactions)
+    .where(
+      sql`(${transactions.date}, ${transactions.accountId}, ${transactions.amount}, ${transactions.type}) in (${keys})`,
+    )
+    .orderBy(desc(transactions.date), desc(transactions.createdAt));
+}
+
+/** Deletes several transactions. Returns the ones that existed, with what they stored. */
+export async function deleteTransactions(
+  ids: string[],
+): Promise<StoredTransaction[]> {
+  if (ids.length === 0) return [];
+  return db
+    .delete(transactions)
+    .where(inArray(transactions.id, ids))
+    .returning(storedColumns);
 }

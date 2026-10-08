@@ -52,16 +52,28 @@ export function isUnknownDescription(description: string): boolean {
   return tidy === "" || tidy === UNKNOWN_DESCRIPTION || tidy === "?";
 }
 
+/** Options of the transaction rules. */
+export type TransactionRuleOptions = {
+  /**
+   * Whether income and expense need a category. The web form asks for one; Claude may save a
+   * transaction it can't place yet without one (the database allows it).
+   */
+  categoryRequired?: boolean;
+};
+
 /**
  * The rules between fields: a transfer needs a different destination account, income and
- * expense a category. Null when they hold.
+ * expense a category (unless `categoryRequired` is false). Null when they hold.
  */
-function crossFieldError(value: {
-  type?: unknown;
-  accountId?: unknown;
-  toAccountId?: unknown;
-  categoryId?: unknown;
-}): { path: [TransactionField]; message: TransactionError } | null {
+function crossFieldError(
+  value: {
+    type?: unknown;
+    accountId?: unknown;
+    toAccountId?: unknown;
+    categoryId?: unknown;
+  },
+  { categoryRequired = true }: TransactionRuleOptions = {},
+): { path: [TransactionField]; message: TransactionError } | null {
   if (value.type === "transfer") {
     if (!value.toAccountId) {
       return { path: ["toAccountId"], message: "toAccountMissing" };
@@ -71,7 +83,7 @@ function crossFieldError(value: {
     }
     return null;
   }
-  return value.categoryId
+  return value.categoryId || !categoryRequired
     ? null
     : { path: ["categoryId"], message: "categoryMissing" };
 }
@@ -80,11 +92,15 @@ function crossFieldError(value: {
  * The transaction form's rules, shared by the form (errors before sending) and the Server
  * Actions (which check again, then check the account and category in the database). `today`
  * is the viewer's today: dates can't be in the future. Messages are `TransactionError` keys.
+ * The Claude connector uses the same rules, without requiring a category.
  *
  * The output is ready to save: names tidied, an empty description becomes «؟», a transfer
  * has no category and income or expense no destination account.
  */
-export function transactionSchema(today: string) {
+export function transactionSchema(
+  today: string,
+  options: TransactionRuleOptions = {},
+) {
   return z
     .object({
       type: z.enum(TRANSACTION_TYPES),
@@ -123,7 +139,7 @@ export function transactionSchema(today: string) {
         .pipe(z.array(z.string()).max(TRANSACTION_TAGS_MAX, "tooManyTags")),
     })
     .superRefine((value, context) => {
-      const found = crossFieldError(value);
+      const found = crossFieldError(value, options);
       if (found) context.addIssue({ code: "custom", ...found });
     })
     .transform((value): TransactionInput => ({
@@ -140,8 +156,9 @@ export function transactionSchema(today: string) {
 export function transactionErrors(
   input: unknown,
   today: string,
+  options: TransactionRuleOptions = {},
 ): Partial<Record<TransactionField, TransactionError>> {
-  const parsed = transactionSchema(today).safeParse(input);
+  const parsed = transactionSchema(today, options).safeParse(input);
   if (parsed.success) return {};
   const errors: Partial<Record<TransactionField, TransactionError>> = {};
   for (const issue of parsed.error.issues) {
@@ -152,7 +169,9 @@ export function transactionErrors(
   }
   // Zod skips the rules between fields while another field is invalid; show them too.
   const crossField =
-    typeof input === "object" && input !== null ? crossFieldError(input) : null;
+    typeof input === "object" && input !== null
+      ? crossFieldError(input, options)
+      : null;
   if (crossField && !errors[crossField.path[0]]) {
     errors[crossField.path[0]] = crossField.message;
   }
