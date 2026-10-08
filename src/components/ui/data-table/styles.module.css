@@ -1,0 +1,62 @@
+/* Reaches the card's edges, so the rows' lines run the full width of the card. */
+.root {
+  margin-inline: calc(-1 * var(--pad-card));
+  overflow-x: auto;
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  color: var(--text-primary);
+  font: var(--type-body);
+}
+
+.head {
+  padding: var(--space-2) var(--space-4);
+  border-block-end: var(--border-width) solid var(--border-default);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.cell {
+  padding: var(--space-2-5) var(--space-4);
+  border-block-end: var(--border-width) solid var(--border-subtle);
+  font-weight: var(--weight-regular);
+  font-feature-settings: var(--font-features-tabular);
+  text-align: start;
+  white-space: nowrap;
+}
+
+th.cell {
+  font-weight: var(--weight-semibold);
+}
+
+.end {
+  text-align: end;
+}
+
+tbody tr:last-child .cell {
+  border-block-end: 0;
+}
+
+.sub .cell {
+  color: var(--text-secondary);
+}
+
+.sub th.cell {
+  padding-inline-start: var(--data-table-indent);
+  font-weight: var(--weight-regular);
+}
+
+/* Amounts in a sub-row follow the row's quieter color. */
+.sub .cell > * {
+  --amount-color: var(--text-secondary);
+}

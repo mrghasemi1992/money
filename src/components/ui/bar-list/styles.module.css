@@ -1,0 +1,175 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  margin: 0;
+  /* Rows reach the card's padding, so their hover fill has room around the content. */
+  margin-inline: calc(-1 * var(--space-2));
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  --bar-fill: var(--brand-solid);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  inline-size: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+.button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.button:active {
+  background: var(--surface-hover);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  inline-size: 100%;
+}
+
+.label {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--bar-list-tile);
+  block-size: var(--bar-list-tile);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.tileIcon {
+  inline-size: var(--icon-size-sm);
+  block-size: var(--icon-size-sm);
+}
+
+.amount {
+  flex: none;
+}
+
+.percent {
+  flex: none;
+  inline-size: var(--bar-list-percent-w);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+  text-align: end;
+}
+
+.chevronSlot {
+  display: flex;
+  flex: none;
+  inline-size: var(--icon-size-sm);
+  color: var(--text-muted);
+}
+
+.chevron {
+  inline-size: var(--icon-size-sm);
+  block-size: var(--icon-size-sm);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.button[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.track {
+  display: block;
+  overflow: hidden;
+  block-size: var(--bar-list-h);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+
+.fill {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--bar-fill);
+  transition: inline-size var(--duration-slow) var(--ease-out);
+}
+
+.subs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  margin: 0;
+  padding-block: var(--space-1) var(--space-3);
+  padding-inline: var(--bar-list-indent) var(--space-2);
+  list-style: none;
+}
+
+.subs[hidden] {
+  display: none;
+}
+
+.sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.subName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font: var(--type-label);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Two classes, so the color wins over Amount's own. */
+.sub .subAmount {
+  --amount-color: var(--text-secondary);
+
+  flex: none;
+  font-weight: var(--weight-medium);
+}
+
+/* Ends where the category's bar ends, before the chevron's column. */
+.subTrack {
+  block-size: var(--bar-list-h-sub);
+  margin-inline-end: calc(var(--icon-size-sm) + var(--space-2));
+}

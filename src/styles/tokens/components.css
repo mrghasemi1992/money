@@ -102,6 +102,36 @@
   --budget-edit-gutter: 44px; /* room for the edit button at the end of a card row */
   --budget-summary-cell-min: 190px; /* a total and its unit: «۳۷۹٬۰۰۰٬۰۰۰ ریال» */
 
+  /* Reports and charts */
+  --reports-max: 1160px; /* the reports page */
+  --report-summary-min: 220px; /* the summary cards side by side down to this width */
+  --report-column-min: 360px; /* the two columns of category and account cards, then stacked */
+  --report-tile: 36px; /* the icon tile of a summary card */
+  --bar-list-h: 10px; /* a ranked bar */
+  --bar-list-h-sub: 6px; /* a subcategory's bar, under its category */
+  --bar-list-percent-w: 40px; /* «۱۰۰٪», so the amounts end in a line */
+  --bar-list-indent: 28px; /* subcategory rows under their category's name */
+  --bar-list-tile: 28px; /* an account's icon tile */
+  --chart-h: 240px; /* the plot of the column chart */
+  --chart-axis-w: 40px; /* the value labels beside the plot */
+  --chart-axis-w-narrow: 28px;
+  --chart-bar-max: 20px; /* the widest column; columns narrow when many months share the width */
+  --chart-bar-min: 2px; /* a zero month still shows a stub on the baseline */
+  --chart-bar-gap: 3px; /* between a month's income and expense columns */
+  --chart-bar-radius: 4px;
+  --chart-band-radius: 6px; /* the highlight behind a month */
+  --chart-stripe: 5px; /* the expense columns' diagonal stripes */
+  --chart-stripe-gap: 8px;
+  --chart-stripe-sm: 3px; /* the same stripes in the legend's swatch */
+  --chart-stripe-gap-sm: 5px;
+  --chart-bar-inset: 12%; /* room between a month's columns and the next month's */
+  --chart-dot: 10px; /* a month's point on the net line */
+  --chart-line: 2px; /* the net line */
+  --chart-swatch: 12px; /* the legend's income and expense marks */
+  --chart-swatch-line: 18px; /* the legend's net line */
+  --chart-swatch-dot: 8px;
+  --data-table-indent: 32px; /* a subcategory's row under its category */
+
   /* Sign-in page */
   --login-max: 400px;
 

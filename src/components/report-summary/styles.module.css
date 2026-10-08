@@ -1,0 +1,74 @@
+.root {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--report-summary-min)), 1fr)
+  );
+  gap: var(--space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+}
+
+.tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--report-tile);
+  block-size: var(--report-tile);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.income {
+  background: var(--amount-income-soft);
+  color: var(--amount-income);
+}
+
+.expense {
+  background: var(--amount-expense-soft);
+  color: var(--amount-expense);
+}
+
+.icon {
+  inline-size: var(--icon-size-md);
+  block-size: var(--icon-size-md);
+}
+
+.label {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-label);
+}
+
+.compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1-5) var(--space-2);
+}
+
+.previous {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+/* Reads as part of the quiet line, not as a figure of its own. */
+.previous .previousAmount {
+  --amount-color: var(--text-muted);
+
+  font: inherit;
+}
