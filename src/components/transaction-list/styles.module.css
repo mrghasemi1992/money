@@ -1,7 +1,7 @@
 /*
- * Rows are a grid. From 768px up: description | category (and account) | amount | actions;
- * from 62rem of list width the account gets its own column. On phones: a tile, then the
- * description with the category and account under it, and the amount at the end.
+ * Rows are a grid: tile | category, description and tags | amount | actions (from 768px up).
+ * From 62rem of list width the account moves from beside the description to its own column
+ * before the amount. On phones the actions go (the detail has them) and rows align to the top.
  */
 
 .root {
@@ -12,16 +12,16 @@
 .row {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.6fr) minmax(0, 1.4fr)
+    var(--transaction-tile) minmax(0, 1fr)
     minmax(var(--transaction-amount-col), auto);
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3) var(--space-4);
 }
 
 .writable .columns,
 .writable .row {
   grid-template-columns:
-    minmax(0, 1.6fr) minmax(0, 1.4fr)
+    var(--transaction-tile) minmax(0, 1fr)
     minmax(var(--transaction-amount-col), auto)
     var(--transaction-actions-col);
 }
@@ -33,6 +33,11 @@
   font-weight: var(--weight-semibold);
 }
 
+/* Over the tile and the text. */
+.transactionHead {
+  grid-column: span 2;
+}
+
 .amountHead {
   text-align: end;
 }
@@ -41,19 +46,20 @@
   .columns,
   .row {
     grid-template-columns:
-      minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 0.8fr)
+      var(--transaction-tile) minmax(0, 2.5fr) minmax(0, 1fr)
       minmax(var(--transaction-amount-col-wide), auto);
   }
 
   .writable .columns,
   .writable .row {
     grid-template-columns:
-      minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 0.8fr)
+      var(--transaction-tile) minmax(0, 2.5fr) minmax(0, 1fr)
       minmax(var(--transaction-amount-col-wide), auto)
       var(--transaction-actions-col);
   }
 
-  .narrowOnly {
+  /* Two classes, so this wins over the display of .meta and the rest, listed later. */
+  .row .narrowOnly {
     display: none;
   }
 
@@ -120,22 +126,17 @@
   }
 }
 
-.tile {
-  display: none;
-}
-
 .main {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-0-5);
   min-width: 0;
 }
 
 .titleLine {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -169,36 +170,39 @@
   outline-offset: calc(-1 * var(--ring-width));
 }
 
-.description {
-  display: block;
+/* The description, if any: under the title, smaller and lighter. */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
   overflow: hidden;
-  font: var(--type-body);
-  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  font: var(--type-caption);
   white-space: nowrap;
+}
+
+.description {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
   text-overflow: ellipsis;
 }
 
-/* An unknown transaction reads as its «؟» mark and badge; the name is for screen readers. */
-.openUnknown .description {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+/* The description gives way first; the account keeps most of its name. */
+.metaAccount {
+  flex-shrink: 0;
+  max-width: 45%;
   overflow: hidden;
-  clip-path: inset(50%);
+  text-overflow: ellipsis;
 }
 
-.unknownMark {
-  display: inline-flex;
+.metaDot {
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--transaction-unknown-mark);
-  height: var(--transaction-unknown-mark);
-  border: var(--transaction-unknown-border) dashed var(--status-warning-border);
+  width: var(--meta-dot);
+  height: var(--meta-dot);
   border-radius: var(--radius-pill);
-  background: var(--status-warning-soft);
-  color: var(--status-warning-text);
-  font-weight: var(--weight-heavy);
+  background: var(--text-placeholder);
 }
 
 .claudeIcon {
@@ -209,84 +213,18 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-}
-
-.meta {
-  display: none;
-}
-
-.category {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-0-5);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.chip {
-  max-width: 100%;
-}
-
-.route {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-  font: var(--type-body);
-  font-weight: var(--weight-medium);
-}
-
-.routeIcon {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--cat-icon-sm);
-  height: var(--cat-icon-sm);
-  border-radius: var(--radius-md);
-  background: var(--amount-transfer-soft);
-  color: var(--amount-transfer);
-}
-
-.routeIcon svg {
-  width: var(--icon-size-xs);
-  height: var(--icon-size-xs);
-}
-
-.routeText {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.noCategory {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  height: var(--cat-soft-h);
-  padding-inline: var(--space-2-5);
-  border: var(--border-width) dashed var(--border-strong);
-  border-radius: var(--radius-pill);
-  color: var(--text-muted);
-  font: var(--type-caption);
-  white-space: nowrap;
-}
-
-.accountLine,
-.account {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
-  overflow: hidden;
-  color: var(--text-muted);
-  font: var(--type-caption);
-  white-space: nowrap;
+  margin-block-start: var(--space-0-5);
 }
 
 .account {
+  display: flex;
+  align-items: center;
   gap: var(--space-1-5);
+  min-width: 0;
+  overflow: hidden;
   color: var(--text-secondary);
+  font: var(--type-caption);
+  white-space: nowrap;
 }
 
 /* Wide-only columns; the container query above shows them. Listed after their own rules. */
@@ -302,11 +240,6 @@
 
 .accountIcon {
   flex: none;
-  width: var(--icon-size-2xs);
-  height: var(--icon-size-2xs);
-}
-
-.account .accountIcon {
   width: var(--icon-size-xs);
   height: var(--icon-size-xs);
 }
@@ -330,7 +263,6 @@
 
 @media (--mobile) {
   .columns,
-  .category,
   .account,
   .actions,
   .claudeBadge {
@@ -349,16 +281,7 @@
     padding-inline: var(--space-3);
   }
 
-  .tile {
-    display: flex;
-  }
-
-  .unknownMark {
-    display: none;
-  }
-
   .titleLine {
-    flex-wrap: nowrap;
     gap: var(--space-1-5);
   }
 
@@ -371,30 +294,6 @@
   .claudeIcon svg {
     width: var(--icon-size-xs);
     height: var(--icon-size-xs);
-  }
-
-  .meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1-5);
-    min-width: 0;
-    overflow: hidden;
-    color: var(--text-muted);
-    font: var(--type-caption);
-    white-space: nowrap;
-  }
-
-  .metaText {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .metaDot {
-    flex: none;
-    width: var(--meta-dot);
-    height: var(--meta-dot);
-    border-radius: var(--radius-pill);
-    background: var(--text-placeholder);
   }
 
   .amount {

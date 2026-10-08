@@ -10,7 +10,7 @@ import { formatNumber } from "@/utils/number";
 import styles from "./styles.module.css";
 
 type UnknownNoticeProps = {
-  /** Unknown transactions in the book («؟» or empty description). */
+  /** Unknown transactions in the book (income or expense without a category). */
   count: number;
   /** The transactions page listing them (unknownTransactionsHref). */
   href: string;

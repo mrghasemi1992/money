@@ -5,10 +5,11 @@ export const TRANSACTION_TYPES = ["expense", "income", "transfer"] as const;
 export const TRANSACTION_SOURCES = ["web", "mcp", "csv"] as const;
 
 /**
- * The description of a transaction that still needs to be identified (as in
- * daily-transactions). An empty description is saved as this; both count as unknown.
+ * Descriptions that only say «don't know» (daily-transactions marked unknown transactions
+ * with «؟»). They are saved as an empty description: what makes a transaction unknown is a
+ * missing category, not its description.
  */
-export const UNKNOWN_DESCRIPTION = "؟";
+export const UNKNOWN_DESCRIPTION_MARKS: readonly string[] = ["؟", "?"];
 
 /** Descriptions show on one line in lists; long ones are cut off with an ellipsis. */
 export const TRANSACTION_DESCRIPTION_MAX_LENGTH = 100;

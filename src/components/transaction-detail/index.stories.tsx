@@ -37,9 +37,14 @@ export const WithNote: Story = {
   args: { transaction: byDescription("اقامت در رامسر") },
 };
 
-/** An unknown transaction asks to be identified. */
+/** An unknown transaction (no category) asks to be identified. */
 export const Unknown: Story = {
-  args: { transaction: byDescription("؟") },
+  args: {
+    transaction:
+      SAMPLE_TRANSACTIONS.find(
+        (item) => item.type !== "transfer" && !item.categoryId,
+      ) ?? null,
+  },
 };
 
 export const Transfer: Story = {

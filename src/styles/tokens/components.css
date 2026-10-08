@@ -80,12 +80,11 @@
   /* Transactions */
   --transactions-max: 1160px; /* the transactions page */
   --month-switcher-label: 128px; /* the month between the arrows, so they don't move */
-  --transaction-tile: 40px; /* the tile at the start of a row on phones */
+  --transaction-tile: 40px; /* the tile at the start of a row */
   --transaction-row-min-h: 56px;
   --transaction-amount-col: 130px; /* the amount column, wide enough for a large rial amount */
   --transaction-amount-col-wide: 150px;
   --transaction-actions-col: 72px; /* edit and delete */
-  --transaction-unknown-mark: 26px; /* the dashed «؟» circle */
   --transaction-unknown-border: 1.5px;
   --meta-dot: 3px; /* the dot between the category and the account on phones */
 

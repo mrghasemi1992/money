@@ -119,7 +119,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     date: "2026-10-07",
     amount: 2300000,
     from: 1,
-    description: "؟",
+    description: "",
     note: "پیامک بانک: خرید کارتی.",
     claude: true,
   }),
@@ -180,7 +180,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     amount: 45000000,
     from: 0,
     category: "حقوق / حقوق ماهانه",
-    description: "حقوق مهر",
+    description: "",
   }),
 ];
 
@@ -244,7 +244,7 @@ export const SAMPLE_ADD_TRANSACTION_ACTIONS = {
         accountId: SAMPLE_ACCOUNTS[0].id,
         toAccountId: null,
         categoryId: null,
-        description: "؟",
+        description: "",
         note: "",
         tags: [],
       },

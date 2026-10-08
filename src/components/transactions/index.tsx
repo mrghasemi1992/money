@@ -32,10 +32,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { formatMoney } from "@/helpers/money";
-import {
-  isUnknownDescription,
-  type TransactionField,
-} from "@/helpers/transaction";
+import { categoryLabel, type TransactionField } from "@/helpers/transaction";
 import {
   countFilters,
   formatMonthParam,
@@ -379,11 +376,22 @@ export function Transactions({
     );
   }
 
+  // Without a description, the transaction is named by its first line in the list.
+  const deleteName = !target
+    ? ""
+    : target.description
+      ? target.description
+      : target.type === "transfer"
+        ? t("transactions.list.route", {
+            from: target.account.name,
+            to: target.toAccount?.name ?? "",
+          })
+        : target.category
+          ? categoryLabel(target.category)
+          : t("transactions.unknownTag");
   const deleteDescription = target
     ? t("transactions.delete.description", {
-        description: isUnknownDescription(target.description)
-          ? t("transactions.list.unknownDescription")
-          : target.description,
+        description: deleteName,
         amount: formatMoney(target.amount, moneyUnit, locale),
       })
     : "";

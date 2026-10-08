@@ -69,10 +69,6 @@
   overflow-wrap: anywhere;
 }
 
-.muted {
-  color: var(--text-muted);
-}
-
 .tags {
   display: flex;
   flex-wrap: wrap;
