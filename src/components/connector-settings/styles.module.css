@@ -1,0 +1,361 @@
+/*
+ * Two columns from wide pages down: the URL and the connected apps, then the examples beside
+ * them; the examples wrap below when the page is narrow (flex-wrap, so it follows the space,
+ * not the viewport).
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--connector-max);
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.main {
+  display: flex;
+  flex: 1.8 1 var(--connector-main-min);
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.side {
+  display: flex;
+  flex: 1 1 var(--connector-side-min);
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* The URL */
+
+.urlSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-block-end: var(--space-5);
+  border-block-end: var(--border-width) solid var(--border-subtle);
+}
+
+.urlRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.url {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: var(--control-h-md);
+  padding-inline: var(--space-3);
+  border: var(--border-width) solid var(--border-input);
+  border-radius: var(--radius-control);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+}
+
+.urlIcon {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--text-muted);
+}
+
+.urlText {
+  overflow: hidden;
+  font: var(--type-body);
+  font-family: var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: all;
+}
+
+.hint,
+.roleNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1-5);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.noteGlyph {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  margin-block-start: var(--space-0-5);
+}
+
+/* The steps */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block-start: var(--space-5);
+}
+
+.stepsTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-heading);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.stepNumber {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--connector-step);
+  height: var(--connector-step);
+  border-radius: var(--radius-pill);
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  font: var(--type-label);
+  font-weight: var(--weight-bold);
+}
+
+.stepText {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-block-start: var(--space-0-5);
+  color: var(--text-primary);
+  font: var(--type-body);
+  line-height: var(--leading-relaxed);
+}
+
+/* «Settings › Connectors» stays on one line. */
+.path {
+  white-space: nowrap;
+}
+
+/* «Settings», «Connectors»: the words of Claude's own interface, in English. */
+.chip {
+  display: inline-block;
+  margin-inline: var(--space-0-5);
+  padding: 0 var(--space-1-5);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--connector-chip-radius);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-family: var(--font-jakarta), var(--font-sans);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.separator {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  margin-inline: var(--space-0-5);
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+/* Connected apps */
+
+.empty {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.apps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3-5) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.appIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--connector-app-icon);
+  height: var(--connector-app-icon);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+
+.appGlyph {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}
+
+.appText {
+  display: flex;
+  flex: 1 1 var(--form-col-min);
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.appTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.appName {
+  color: var(--text-primary);
+  font: var(--type-body);
+  font-weight: var(--weight-semibold);
+}
+
+.appMeta {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.revoke {
+  flex: none;
+}
+
+.roleNote {
+  padding: var(--space-3) var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  border-end-start-radius: var(--radius-card);
+  border-end-end-radius: var(--radius-card);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+}
+
+/* Examples */
+
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.exampleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.exampleLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-eyebrow);
+}
+
+.exampleIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+.bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bubbleItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+/* A message the user sends: rounded, with the corner nearest the start squared off. */
+.bubble {
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3-5);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--connector-bubble-radius);
+  border-start-start-radius: var(--radius-xs);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: var(--type-body);
+  font-weight: var(--weight-medium);
+}
+
+.bubbleHint {
+  padding-inline: var(--space-1-5);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.badgeNote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin: 0;
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-width) solid var(--border-subtle);
+  color: var(--text-secondary);
+  font: var(--type-caption);
+}
+
+/* Loading */
+
+.skeletonStack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3-5) var(--space-4);
+}
+
+.skeletonRow + .skeletonRow {
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+@media (--mobile) {
+  .urlRow {
+    flex-direction: column;
+  }
+
+  .revoke {
+    width: 100%;
+  }
+}

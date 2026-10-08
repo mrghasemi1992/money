@@ -92,6 +92,23 @@
   /* Sign-in page */
   --login-max: 400px;
 
+  /* Claude connector: the settings page and the consent page */
+  --connector-max: 1160px; /* the /settings/connector page */
+  --connector-main-min: 440px; /* the URL and apps column, before the examples wrap below */
+  --connector-side-min: 280px; /* the examples column */
+  --connector-tile: 32px; /* the icon tiles next to «Claude is asking…» and each permission */
+  --connector-app-icon: 40px; /* a connected app's tile */
+  --connector-step: 26px; /* the numbered circles of the steps */
+  --connector-chip-radius: 6px; /* «Settings», «Connectors», … in the steps */
+  --connector-bubble-radius: 16px; /* an example message */
+  --connector-link-line: 22px; /* the dotted line between Money and Claude */
+  --connector-link-width: 2px;
+  --consent-max: 440px;
+  --consent-mark: 52px; /* Money's and Claude's marks at the top */
+  --consent-mark-radius: 14px;
+  --consent-link: 28px; /* the circle between the marks */
+  --consent-result-icon: 56px;
+
   /* Layers */
   --z-shell: 20; /* the mobile top bar and tab bar, the skip link */
   --z-overlay: 100;

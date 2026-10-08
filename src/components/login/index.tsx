@@ -6,6 +6,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   LanguagesIcon,
+  SparklesIcon,
   TimerIcon,
   UserRoundXIcon,
 } from "lucide-react";
@@ -43,9 +44,19 @@ export type LoginState = {
   busy: boolean;
 };
 
+/** An app (Claude) waiting for the user to sign in, so it can ask for access. */
+export type LoginOAuth = {
+  /** The signed authorization request, sent along with the sign-in. */
+  query: string;
+  /** The app's name, «Claude». */
+  clientName: string;
+};
+
 type LoginProps = {
   /** A path on this site to go to after signing in. Already checked by the page. */
   returnTo?: string;
+  /** Signing in for Claude's connector: after signing in, Better Auth continues to consent. */
+  oauth?: LoginOAuth | null;
   /** Switches the interface language (the changeLocale Server Action). Without it, no switch is shown. */
   onChangeLocale?: (locale: Locale) => Promise<void>;
   /** Starting state, for stories. */
@@ -55,6 +66,7 @@ type LoginProps = {
 /** The sign-in screen: a centered card on larger screens, the whole screen on phones. */
 export function Login({
   returnTo = "/",
+  oauth = null,
   onChangeLocale,
   initialState,
 }: LoginProps) {
@@ -97,12 +109,15 @@ export function Login({
     setMissing({ username: false, password: false });
     setAlert(null);
     setBusy(true);
-    const result = await signInWithUsername(name, password);
+    const result = await signInWithUsername(name, password, oauth?.query);
 
     if (result.status === "success") {
       // Stay busy until the next page replaces this one.
       setAlert("success");
-      router.replace(returnTo);
+      // Claude's sign-in continues on the consent page, or straight back to Claude when the
+      // user already allowed it: a full page load, possibly on another site.
+      if (result.redirectTo) window.location.assign(result.redirectTo);
+      else router.replace(returnTo);
       return;
     }
 
@@ -121,7 +136,23 @@ export function Login({
         <header className={styles.header}>
           <LogoMark size="lg" className={styles.logo} />
           <h1 className={styles.title}>{t("title")}</h1>
+          {oauth ? (
+            <p className={styles.subtitle}>
+              {t("oauth.subtitle", { client: oauth.clientName })}
+            </p>
+          ) : null}
         </header>
+
+        {oauth ? (
+          <div className={styles.context}>
+            <span className={styles.contextIcon} aria-hidden="true">
+              <SparklesIcon className={styles.contextGlyph} />
+            </span>
+            <p className={styles.contextText}>
+              {t("oauth.context", { client: oauth.clientName })}
+            </p>
+          </div>
+        ) : null}
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           {visibleAlert ? (
@@ -195,7 +226,7 @@ export function Login({
             disabled={locked}
             className={styles.submit}
           >
-            {t("submit")}
+            {oauth ? t("oauth.submit") : t("submit")}
           </Button>
         </form>
       </div>
