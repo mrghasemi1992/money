@@ -60,6 +60,15 @@ export function formatNumber(
   return rounded < 0 ? MINUS_SIGN + digits : digits;
 }
 
+/** 2345678 → "۲٫۳ میلیون" (fa) or "2.3M" (en): a rounded number for small spaces. */
+export function formatCompactNumber(value: number, locale: Locale): string {
+  const digits = numberFormat(locale, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(value));
+  return value < 0 ? MINUS_SIGN + digits : digits;
+}
+
 /** 85 → "۸۵٪" (fa) or "85%" (en). Takes a percentage (0–100+), not a ratio. */
 export function formatPercent(percent: number, locale: Locale): string {
   return numberFormat(locale, {

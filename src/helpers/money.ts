@@ -4,6 +4,7 @@ import type { Locale } from "@/types/locale";
 import {
   MINUS_SIGN,
   decimalSeparator,
+  formatCompactNumber,
   formatNumber,
   parseDecimalInput,
   toLocaleDigits,
@@ -76,6 +77,25 @@ export function formatMoney(
 }
 
 /**
+ * An amount rounded for small spaces, such as a change in a badge: «۲٫۳ میلیون ریال»,
+ * «$2.3M», «850K rial». Without a sign: the words around it give the direction.
+ */
+export function formatCompactMoney(
+  minor: number,
+  unit: MoneyUnit,
+  locale: Locale,
+): string {
+  const number = formatCompactNumber(
+    Math.abs(minor) / MONEY_UNITS[unit].minorPerUnit,
+    locale,
+  );
+  const symbol = getMoneySymbol(unit, locale);
+  return symbol.position === "prefix"
+    ? `${symbol.text}${number}`
+    : `${number} ${symbol.text}`;
+}
+
+/**
  * Reads what someone typed into an AmountField. Accepts Persian, Arabic and Latin digits, any
  * thousands separators, and «.» or «٫» before decimals when the unit has them. Returns the
  * stored value (smallest unit, never negative) and the text to show back, which keeps a
@@ -101,4 +121,28 @@ export function parseMoneyInput(
       ? ""
       : decimalSeparator(locale) + toLocaleDigits(fraction, locale));
   return { value, text: shown };
+}
+
+/** Powers of a thousand that axis labels are written in, named for the axis caption. */
+export type AxisScale = "none" | "thousand" | "million" | "billion";
+
+const AXIS_SCALES: { scale: AxisScale; divisor: number; from: number }[] = [
+  { scale: "billion", divisor: 1e9, from: 1e9 },
+  { scale: "million", divisor: 1e6, from: 1e6 },
+  { scale: "thousand", divisor: 1e3, from: 1e4 },
+];
+
+/**
+ * The scale a money axis is labeled in, so its labels stay short («۲۰» with «میلیون ریال»
+ * under the axis): from the largest value, in the smallest unit, shown in `unit`.
+ */
+export function moneyAxisScale(
+  largest: number,
+  unit: MoneyUnit,
+): { scale: AxisScale; divisor: number } {
+  const shown = Math.abs(largest) / MONEY_UNITS[unit].minorPerUnit;
+  const match = AXIS_SCALES.find(({ from }) => shown >= from);
+  return match
+    ? { scale: match.scale, divisor: match.divisor }
+    : { scale: "none", divisor: 1 };
 }

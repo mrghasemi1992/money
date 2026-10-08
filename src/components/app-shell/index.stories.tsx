@@ -23,11 +23,11 @@ const meta = {
     children: (
       <>
         <PageHeader
-          title="گزارش‌ها"
+          title="داشبورد"
           subtitle="مهر ۱۴۰۵"
           actions={<AddTransactionButton />}
         />
-        <PagePlaceholder section="reports" />
+        <PagePlaceholder section="dashboard" />
       </>
     ),
   },
@@ -39,7 +39,7 @@ const meta = {
   parameters: {
     layout: "fullscreen",
     // The App Router mock's current path marks the active link.
-    nextjs: { navigation: { pathname: "/reports" } },
+    nextjs: { navigation: { pathname: "/" } },
   },
 } satisfies Meta<typeof AppShell>;
 
@@ -60,8 +60,8 @@ export const Viewer: Story = {
     user: { name: "سارا محمدی", role: "viewer" },
     children: (
       <>
-        <PageHeader title="گزارش‌ها" subtitle="مهر ۱۴۰۵" />
-        <PagePlaceholder section="reports" />
+        <PageHeader title="داشبورد" subtitle="مهر ۱۴۰۵" />
+        <PagePlaceholder section="dashboard" />
       </>
     ),
   },

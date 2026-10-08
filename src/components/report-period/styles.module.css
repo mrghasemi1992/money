@@ -1,0 +1,44 @@
+.switch {
+  max-inline-size: 100%;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-block-size: var(--control-h-sm);
+}
+
+.range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.date {
+  inline-size: auto;
+}
+
+.compare {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin: 0;
+  margin-inline-start: auto;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.compareIcon {
+  flex: none;
+  inline-size: var(--icon-size-xs);
+  block-size: var(--icon-size-xs);
+}
+
+@media (--mobile) {
+  .compare {
+    margin-inline-start: 0;
+  }
+}

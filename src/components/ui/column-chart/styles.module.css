@@ -1,0 +1,299 @@
+/*
+ * The plot is a grid of one column per point (flowing in the page's direction), with the grid
+ * lines, the net line and its dots stacked over it. Labels under the columns thin out by
+ * container width, since the sidebar changes the room too.
+ */
+/* Expense is striped wherever it is drawn, so it reads apart from income without color. */
+.root,
+.legend {
+  --expense-stripes: repeating-linear-gradient(
+    135deg,
+    var(--amount-expense) 0 var(--stripe),
+    color-mix(in oklab, var(--amount-expense) 70%, var(--surface-card))
+      var(--stripe) var(--stripe-gap)
+  );
+}
+
+.root {
+  --stripe: var(--chart-stripe);
+  --stripe-gap: var(--chart-stripe-gap);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  container: column-chart / inline-size;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1-5) var(--space-5);
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+
+.readoutLabel {
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+}
+
+.readoutValue {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1-5);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.axisNote {
+  order: 9;
+  margin-inline-start: auto;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.chart {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.axis {
+  position: relative;
+  flex: none;
+  inline-size: var(--chart-axis-w);
+  block-size: var(--chart-h);
+}
+
+.tick {
+  position: absolute;
+  inset-inline-end: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.plot {
+  position: relative;
+  isolation: isolate;
+  block-size: var(--chart-h);
+}
+
+.gridLine {
+  position: absolute;
+  inset-inline: 0;
+  border-block-start: var(--border-width) solid var(--border-subtle);
+}
+
+.zeroLine {
+  border-block-start-color: var(--border-strong);
+}
+
+.columns,
+.dots,
+.labels {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+}
+
+.columns,
+.dots {
+  position: absolute;
+  inset: 0;
+}
+
+.column {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.column:focus-visible {
+  outline: none;
+}
+
+.band {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: var(--space-0-5);
+  border-radius: var(--chart-band-radius);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.column[data-selected] .band {
+  background: var(--surface-selected);
+}
+
+.column[data-hovered] .band {
+  background: var(--surface-hover);
+}
+
+.column:focus-visible .band {
+  box-shadow: var(--shadow-focus);
+}
+
+.bars {
+  position: absolute;
+  inset-inline: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--chart-bar-gap);
+  padding-inline: var(--chart-bar-inset);
+}
+
+.bar {
+  flex: 0 1 var(--chart-bar-max);
+  min-block-size: var(--chart-bar-min);
+  border-start-start-radius: var(--chart-bar-radius);
+  border-start-end-radius: var(--chart-bar-radius);
+  transition: block-size var(--duration-slow) var(--ease-out);
+}
+
+.income {
+  background: var(--amount-income);
+}
+
+.expense {
+  background: var(--expense-stripes);
+}
+
+.line {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.line polyline {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: var(--chart-line);
+  stroke-linejoin: round;
+}
+
+.dots {
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dotCell {
+  position: relative;
+}
+
+.dot {
+  position: absolute;
+  inset-inline-start: 50%;
+  box-sizing: border-box;
+  inline-size: var(--chart-dot);
+  block-size: var(--chart-dot);
+  margin-block-start: calc(var(--chart-dot) / -2);
+  margin-inline-start: calc(var(--chart-dot) / -2);
+  border: var(--chart-line) solid var(--text-primary);
+  border-radius: 50%;
+  background: var(--surface-card);
+}
+
+.dot[data-active] {
+  background: var(--text-primary);
+}
+
+.label {
+  overflow: hidden;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.root[data-thin-wide] .label {
+  overflow: visible;
+}
+
+.label[data-active] {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.label[data-wide-hidden] {
+  visibility: hidden;
+}
+
+@container column-chart (width < 30rem) {
+  .axis {
+    inline-size: var(--chart-axis-w-narrow);
+  }
+}
+
+@container column-chart (width < 40rem) {
+  .label[data-narrow-hidden] {
+    visibility: hidden;
+  }
+
+  .root[data-thin-narrow] .label {
+    overflow: visible;
+  }
+}
+
+.legend {
+  --stripe: var(--chart-stripe-sm);
+  --stripe-gap: var(--chart-stripe-gap-sm);
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  font: var(--type-caption);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.swatch {
+  display: inline-block;
+  inline-size: var(--chart-swatch);
+  block-size: var(--chart-swatch);
+  border-radius: var(--radius-xs);
+}
+
+.swatchLine {
+  position: relative;
+  display: inline-block;
+  inline-size: var(--chart-swatch-line);
+  block-size: var(--chart-line);
+  background: var(--text-primary);
+}
+
+.swatchDot {
+  position: absolute;
+  inset-block-start: calc(var(--chart-swatch-dot) / -2 + var(--chart-line) / 2);
+  inset-inline-start: calc(50% - var(--chart-swatch-dot) / 2);
+  box-sizing: border-box;
+  inline-size: var(--chart-swatch-dot);
+  block-size: var(--chart-swatch-dot);
+  border: var(--chart-line) solid var(--text-primary);
+  border-radius: 50%;
+  background: var(--surface-card);
+}
