@@ -29,6 +29,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 9: Dashboard](#phase-9-dashboard)
 - [Phase 10: CSV import and export](#phase-10-csv-import-and-export)
 - [Change: Category-first rows and the unknown tag](#change-category-first-rows-and-the-unknown-tag)
+- [Change: License](#change-license)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -101,7 +102,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`              | [#13](https://github.com/mrghasemi1992/money/pull/13) |
 | 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`            | [#43](https://github.com/mrghasemi1992/money/pull/43) |
 | 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                 | [#45](https://github.com/mrghasemi1992/money/pull/45) |
-| Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | (linked when opened)                                  |
+| Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | [#46](https://github.com/mrghasemi1992/money/pull/46) |
+| Issue #36: license         | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
 
 ---
 
@@ -1117,7 +1119,7 @@ Check that build, lint, typecheck, format:check and build-storybook pass, and te
 
 ## Change: Category-first rows and the unknown tag
 
-Branch: `feature/issue-30-category-first-rows`. Date: 2026-10-08. PR: linked when it is opened. Not a planned phase: GitHub issue [#30](https://github.com/mrghasemi1992/money/issues/30), the first of the issues opened after Phase 10. No Claude Design step: the rows were redesigned in code, with the existing components.
+Branch: `feature/issue-30-category-first-rows`. Date: 2026-10-08. PR: [#46](https://github.com/mrghasemi1992/money/pull/46). Not a planned phase: GitHub issue [#30](https://github.com/mrghasemi1992/money/issues/30), the first of the issues opened after Phase 10. No Claude Design step: the rows were redesigned in code, with the existing components.
 
 ### Claude Code prompt
 
@@ -1143,6 +1145,37 @@ Before asking, Claude counted the book's transactions (read only): every «؟» 
 - **Filters and search.** `unknown=1` now means no category. «ناشناس» is the first option of the tag filter (the «فقط تراکنش‌های ناشناس» switch is gone) and its chip reads «برچسب: ناشناس». A search for the start of the tag's word in either language («ناش», “unkn”) also finds unknown transactions.
 - **MCP.** The instructions say to leave `category_id` out when it can't be told and never to write «؟»; `description` is optional in `add_transactions`; results mark unknown transactions with `unknown: true`; `unknown_only` lists the ones without a category.
 - Checked in Storybook (Persian and English, light and dark, desktop, wide and phone) and with read-only queries against the book: 31 unknown transactions, all found by `unknown=1`, «ناش», «ناشناس» and “unkn”.
+
+---
+
+## Change: License
+
+Branch: `chore/issue-36-license`. Date: 2026-10-09. PR: linked when it is opened. Not a planned phase: GitHub issue [#36](https://github.com/mrghasemi1992/money/issues/36). No Claude Design step.
+
+### Claude Code prompt
+
+```text
+list hight priority issues
+```
+
+Claude listed the seven open `priority:high` issues and suggested starting with #36, the quickest. Then:
+
+```text
+start with #36
+```
+
+The issue asked for a `LICENSE` like the one in the Orange repo: copyright Mohammad Reza Ghasemi, commercial use requires a separate license.
+
+### Questions Claude asked
+
+None: the issue named the license to copy.
+
+### Result
+
+- **`LICENSE`**: Orange's PolyForm Noncommercial License 1.0.0, with its two `Required Notice:` lines (copyright with a link to this repository, and commercial use needs a separate license).
+- **`package.json`**: `"license": "PolyForm-Noncommercial-1.0.0"`.
+- **README**: a License section like Orange's: noncommercial use is free, credit is required, commercial use needs a paid license; the name «پول» / "Money" and the logo aren't covered; libraries and fonts keep their own licenses, and Money isn't affiliated with Anthropic.
+- `CLAUDE.md` names the license under What this is.
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## What this is
 
-Money is a personal accounting app with a Persian (right-to-left) and English (left-to-right) interface. Users record income, expenses and transfers by hand in the web app, or by talking to Claude, which saves them through the app's MCP connector. Built by Mohammad Reza Ghasemi.
+Money is a personal accounting app with a Persian (right-to-left) and English (left-to-right) interface. Users record income, expenses and transfers by hand in the web app, or by talking to Claude, which saves them through the app's MCP connector. Built by Mohammad Reza Ghasemi. The source is under the PolyForm Noncommercial License 1.0.0 (`LICENSE`, same as `orange`): free for noncommercial use with credit, commercial use needs a separate license; the name and logo aren't covered.
 
 - Two languages: Persian (the default and the design's language; RTL, Persian digits) and English (LTR, Latin digits), with next-intl and no locale in the URL (see Languages, calendars and currency).
 - Each user picks their language, their calendar (Jalali or Gregorian) and, in an IRR book, whether amounts show in rial or toman.
