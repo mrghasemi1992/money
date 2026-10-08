@@ -89,6 +89,20 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Page:** `PageHeader` with the period as its subtitle and `ReportPeriodSwitch` (`SegmentedControl`: ماه · ۳ ماه · ۶ ماه · ۱۲ ماه · بازه دلخواه, short labels on phones) as its action; `ReportPeriodBar` (the month switcher, or two DatePickers for a custom range, and «در مقایسه با …»); `ReportSummary` (income, expense, net, each with a badge for the change: a percent for income and expense, a compact amount for the net, `formatCompactMoney`; green when good news, red otherwise, and always «بیشتر» / «کمتر» in words; no badge when the previous period had none); `CategoryReport` for expense and income (a category opens to its subcategories and «بدون زیردسته»; «بدون دسته‌بندی» for uncategorized); `AccountReport` (spending by account); `MonthlyReport`. Each is a `ReportCard`: a title, a «نمودار / جدول» switch and the chart or a `DataTable` of the same figures. The empty state (no income or expense in the period) offers the add-transaction form to writers (`useAddTransaction`). Changing the period pushes the URL in a transition and shows the skeleton meanwhile.
 - **Charts are hand-written** (no chart library): see Charts under Design system.
 
+## Dashboard
+
+`/` (page in `src/app/(app)/page.tsx`, layout `Dashboard` in `src/components/dashboard`). Every role reads; the header greets by first name («سلام، سارا», `firstName` in `src/utils/text.ts`) with today's date, and writers get «افزودن تراکنش».
+
+- **First run:** the page first reads `getBookProgress(userId)` (`src/db/dashboard.ts`: whether the book has accounts, categories and transactions and whether this user has connected Claude, one statement). Until the book has accounts and transactions it shows `FirstRun` instead («خوش آمدید، …»): editors and admins get four steps (accounts → `/settings/accounts`, categories → `/settings/categories`, a first transaction through the add form, blocked until there is an account, Claude → `/settings/connector`), each marked done from the progress, the next open one primary; viewers get a short note.
+- **Sections stream:** after that every section is an async Server Component in the page file with its own `<Suspense>` and skeleton (`…Skeleton` from each component), so the queries run in parallel and a slow one holds up only its card. «This month» is the viewer's current month (`resolveBudgetMonth(null, …)`, a Gregorian range).
+  - `UnknownNotice`: «۳ تراکنش ناشناس دارید» when the book has unknown transactions (`unknownTransactionSummary`: count and oldest date), linking to `/transactions?from=<oldest>&unknown=1` (`unknownTransactionsHref`). No fallback: it appears when it has something to say.
+  - `BalanceOverview`: the royal card (the screen's one brand card) with the total of the active accounts and a tile per account (`listAccounts`), scrolling sideways, edge to edge on phones.
+  - `MonthOverview`: income, expense and net of the month (`transactionTotals`).
+  - `RecentTransactions`: the last 8 (`listTransactions` without filters, `DASHBOARD_RECENT_COUNT`), compact rows with `TransactionTile` (shared with the transactions list's phone rows); a row opens `TransactionDetail` read only, changes happen on `/transactions`.
+  - `BudgetProgress`: the 4 budgets closest to or over their limit (`listBudgetCategories` + `closestBudgets`), each a `ProgressBar`; without budgets a note (and «تعیین بودجه» for writers).
+  - `TopSpending`: the month's expenses by top-level category (`categoryTotals`), the 4 largest plus «سایر» (`spendingSlices`, `DASHBOARD_SPENDING_SLICES`), as one stacked bar in the categories' hues and a list with amounts and shares; links to `/reports?month=…` (`monthReportHref`).
+- Sizes are `--dashboard-*` tokens; the layout is two flex rows (balance beside this month, recent beside budgets and spending) that stack below their minimum widths.
+
 ## Claude connector (MCP)
 
 Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add custom connector), sign in to Money once and allow access; Claude then works on the shared book as that user, with that user's role. The URL and the steps are on `/settings/connector` (and in the README).
@@ -133,7 +147,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - Claude connector (MCP) with OAuth sign-in. Claude acts as the signed-in user with that user's role: everyone can read, editors and admins can also add, edit and delete transactions. Dates in the user's calendar, amounts in the book currency
 - Budgets: a monthly limit per category, repeating every month of the viewer's calendar
 - Reports: income, expense and net against the previous period, by category (with subcategories), by account and month by month, each chart with a table view
-- Dashboard: balances, this month's totals, budget progress, recent transactions
+- Dashboard: balances, this month's totals, budget progress, top spending, recent transactions, unknown transactions, and first-run steps for an empty book
 - CSV import and export
 - Later: one-time import of the `daily-transactions` data
 
@@ -225,7 +239,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
   - The sidebar collapses to an icon rail (tooltips show the labels). The choice is saved in `localStorage` (`money-sidebar`); an inline `<head>` script (`SIDEBAR_SCRIPT`) sets `<html data-sidebar="collapsed">` before the first paint, and CSS draws the rail from that attribute (`:global(html[data-sidebar="collapsed"])`), so it never flashes open. `useSidebarCollapsed` gives components the same value.
   - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form (`TransactionDialog`, see Transactions).
   - Forms and confirmations opened from a page use `ResponsiveDialog` (`src/components/responsive-dialog`: a Dialog from 768px up, a Sheet on phones; `initialFocus` puts the focus on a form's first field) or `ConfirmDialog` (cancel plus one button that names the outcome).
-  - Pages start with `PageHeader` (h1 title = the nav label, subtitle, actions). Unbuilt pages show `PagePlaceholder`. `loading.tsx` shows `PageSkeleton`, `error.tsx` `PageError` (retry), `not-found.tsx` `PageNotFound`, all inside the shell; the `[...rest]` catch-all sends unknown paths to that not-found page. Page titles are `<nav label> | پول` / `<nav label> | Money` (the root layout's title template).
+  - Pages start with `PageHeader` (h1 title = the nav label, subtitle, actions; the dashboard's is the greeting). `loading.tsx` shows `PageSkeleton`, `error.tsx` `PageError` (retry), `not-found.tsx` `PageNotFound`, all inside the shell; the `[...rest]` catch-all sends unknown paths to that not-found page. Page titles are `<nav label> | پول` / `<nav label> | Money` (the root layout's title template).
 - **Money semantics:** income and expense must be told apart by sign and wording too, not by color alone.
   - Income: green, `+`, ↓ `ArrowDownIcon`, «درآمد» / «Income». Expense: red, `−` (U+2212), ↑ `ArrowUpIcon`, «هزینه» / «Expense». Transfer: royal, no sign, ⇄ `ArrowLeftRightIcon`, «انتقال» / «Transfer». Balances: neutral text, `−` only when negative. The `Amount` component does all of this.
   - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian: Persian digits, «٬» (U+066C) thousands, «٫» (U+066B) decimals, «٪» percent. English: Latin digits, «,», «.», «%».
@@ -280,7 +294,7 @@ src/
     mcp/                The MCP endpoint (route.ts: withMcpAuth + the tools)
     .well-known/        OAuth protected resource and authorization server metadata
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
-                        page.tsx (dashboard), transactions (+ actions.ts, loading.tsx, error.tsx), budgets
+                        page.tsx (dashboard, with its streamed sections), transactions (+ actions.ts, loading.tsx, error.tsx), budgets
                         (+ actions.ts, loading.tsx, error.tsx), reports, settings (+ actions.ts;
                         accounts/, categories/ and connector/ with actions.ts, loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
@@ -292,9 +306,10 @@ src/
   db/                   Drizzle client (index.ts), schema/ (auth, oauth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
-                        categories.ts, transactions.ts (list, totals, tags, options, create / update / delete),
+                        categories.ts, transactions.ts (list, totals, unknown summary, tags, options, create / update / delete),
                         budgets.ts (listBudgetCategories, saveBudget, deleteBudget),
                         reports.ts (compareTotals, categoryTotals, rangeTotals, accountExpenseTotals),
+                        dashboard.ts (getBookProgress),
                         connector.ts (checkMcpGrant, listConnections, revokeConnection, revokeGrants),
                         errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
@@ -329,8 +344,12 @@ src/
                         expense / net cards with the change, a card with the chart / table switch
     category-report/, account-report/, monthly-report/   Income or expense by category, spending by account,
                         month by month
-    page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
-                        loading, error and not-found)
+    dashboard/          The / page's layout (+ sample-dashboard.tsx for stories)
+    balance-overview/, month-overview/, recent-transactions/, budget-progress/, top-spending/, unknown-notice/
+                        The dashboard's sections, each with its skeleton
+    first-run/          The dashboard of an empty book: setup steps (writers) or a note (viewers)
+    transaction-tile/   The tile at the start of a transaction row (category hue, transfer, «؟»)
+    page-header/, page-skeleton/, page-status/   Page building blocks (title, loading, error and not-found)
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
                         role-dialog/, reset-password-dialog/ (confirm, then the password once)
     responsive-dialog/, confirm-dialog/   Dialog on larger screens, Sheet on phones; a confirmation with one action
@@ -347,18 +366,18 @@ src/
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
-                        settings), calendar (names, week start), category, connector (paths, scope, tool limits), currency (units, symbols), locale, media
+                        settings), calendar (names, week start), category, connector (paths, scope, tool limits), currency (units, symbols), dashboard (section sizes), locale, media
                         queries, navigation (NAV_ITEMS), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
                         user
   helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
                         month, transactions link), category color
-                        style and name rules, money formatting (also compact, and axis scales) and input, navigation (getNavItems,
+                        style and name rules, dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), preferences, reports (URL params,
                         resolveReportPeriod, period text, compareAmounts), role permissions,
                         connector (dates and amounts at the MCP boundary), oauth-consent (consent requests),
                         sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
-                        params, period), user (placeholder email, temporary password)
+                        params, period, NO_TRANSACTION_FILTERS), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
                         useThemePreference
   styles/
@@ -368,11 +387,11 @@ src/
     media.css           @custom-media breakpoints
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
-  types/                account, action (ActionResult), book, budget, calendar, category, connector, currency, locale, navigation, preferences,
+  types/                account, action (ActionResult), book, budget, calendar, category, connector, currency, dashboard, locale, navigation, preferences,
                         report, theme, transaction, user
   utils/                calendar (both calendars, formatDate), chart (niceAxis, axisShare), cx, duration, env, focus, iso-date, jalali (math),
                         locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
-                        state), text, theme, url
+                        state), text (also firstName), theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log)
 scripts/                create-user.ts (`pnpm user:create`)
@@ -416,7 +435,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 6 | Claude connector (MCP + OAuth) | Done |
 | 7 | Budgets | Done |
 | 8 | Reports | Done |
-| 9 | Dashboard | Not started |
+| 9 | Dashboard | Done |
 | 10 | CSV import and export | Not started |
 | 11 | Import from `daily-transactions` | Later |
 | 12 | Tests | Later |
@@ -426,7 +445,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | Route | Page | Phase |
 |-------|------|-------|
 | `/login` | Sign in | 1 |
-| `/` | Dashboard (داشبورد) | 2 (placeholder until 9) |
+| `/` | Dashboard (داشبورد) | 9 |
 | `/transactions` | Transactions (تراکنش‌ها) | 5 |
 | `/budgets` | Budgets (بودجه), `?month=` | 7 |
 | `/reports` | Reports (گزارش‌ها), `?period=` / `?month=` / `?from=&to=` | 8 |
