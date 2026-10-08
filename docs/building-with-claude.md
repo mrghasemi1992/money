@@ -25,6 +25,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 5: Transactions](#phase-5-transactions)
 - [Phase 6: Claude connector](#phase-6-claude-connector)
 - [Phase 7: Budgets](#phase-7-budgets)
+- [Phase 8: Reports](#phase-8-reports)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -93,7 +94,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories` | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
 | 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`        | [#10](https://github.com/mrghasemi1992/money/pull/10) |
 | 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                 | [#11](https://github.com/mrghasemi1992/money/pull/11) |
-| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | (linked when opened)                                  |
+| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`             | [#12](https://github.com/mrghasemi1992/money/pull/12) |
+| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`             | (linked when opened)                                  |
 
 ---
 
@@ -910,7 +912,7 @@ The Claude connector: Money is an OAuth 2.1 authorization server for its MCP end
 
 ## Phase 7: Budgets
 
-Branch: `feature/phase-7-budgets`. Date: 2026-10-08. PR: linked when it is opened.
+Branch: `feature/phase-7-budgets`. Date: 2026-10-08. PR [#12](https://github.com/mrghasemi1992/money/pull/12).
 
 ### Claude Design prompt
 
@@ -957,9 +959,73 @@ The budgets page from the design: a month of the viewer's calendar in the URL, t
 
 ---
 
+## Phase 8: Reports
+
+Branch: `feature/phase-8-reports`. Date: 2026-10-08. PR: linked when it is opened.
+
+### Claude Design prompt
+
+As planned in [phases.md](phases.md#phase-8-reports).
+
+### Claude Code prompt (handoff)
+
+The handoff, with the design file `https://claude.ai/design/p/ebd1fda5-ba44-40d8-ad37-96c6c85e6663?file=Reports+Overview.dc.html` (a canvas of `Reports.dc.html` frames: both languages, light and dark, desktop and mobile, a donut variant, loading and empty), the design system bundle and tokens it imports, and `support.js`. The design files were read through the design MCP. This time the handoff came with a question first:
+
+```text
+This is phase 8. How do you want to implement the report charts? tell me your approach after my approval start to code
+```
+
+The prompt in the handoff is the one in phases.md:
+
+```text
+Phase 8: reports. Read CLAUDE.md first. Create branch feature/phase-8-reports from main.
+
+1. Pick a chart approach: a small library that supports RTL and LTR, custom styling from our tokens and both themes, or hand-written SVG components if that's simpler for these few chart types. Tell me the choice and why before building, and record it in CLAUDE.md.
+2. Aggregation queries in src/db/reports.ts (the whole book, requireUser(), transfers excluded from income and expense): totals by category with subcategory roll-up, totals per month of the viewer's calendar (a Gregorian range per month from monthRange; don't do calendar math in SQL), totals by account, and the previous period for comparison.
+3. Implement the attached design at /reports, with the period in the URL. Every chart has a table view.
+4. Stories for the chart components with sample data.
+
+Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md. Show me the changes and proposed commits, and wait for my OK.
+```
+
+### Questions Claude asked
+
+| Question                                                                                           | Answer                             |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| The proposal: hand-written charts, no library. Should the design's donut variant be built as well? | "ok go ahead, bars only, no donut" |
+
+### Follow-ups
+
+1. Before approving, a question about the proposal: "so you think no library is better. why?" Claude's answer: the design has two chart forms (ranked bars, which are a styled list, and one column chart with a line), so a library would mostly save the scale math, about 30 lines; libraries draw in a left-to-right coordinate space, so right to left means reversing axes, tooltips and legends by hand, while HTML with CSS grid and logical properties flips with `dir`; canvas libraries can't read the color tokens or use Dana and its digit features; colors as CSS variables switch themes without JavaScript; there is no measuring container, so no blank first paint; and CLAUDE.md already rules out component libraries. A library would be worth it for many chart types, zooming or large data, and `d3-scale` or visx would then be the middle ground.
+2. "ok go ahead, bars only, no donut".
+
+### Decisions and where the implementation differs from the prompt and the design
+
+- **Charts.** Hand-written, recorded in CLAUDE.md: `BarList` (ranked bars), `ColumnChart` (income and expense columns with the net line) and `DataTable` in the design system. The bars and labels are HTML and CSS; only the net line is SVG. Bars only: the design's donut variant was left out.
+- **Period in the URL.** No parameter is the last 6 months (the design's default); `?period=3m` / `12m`, `?month=1405-07` (the transactions page's month parameter) or `?from=…&to=…`. Choosing «بازه دلخواه» starts from the dates of the period shown. A custom range stops at today and covers at most 36 months; a month in the future opens the current month.
+- **Previous period.** As in the design: the same number of months before, cut at today's day of the month when the period runs to today; a custom range compares with as many days just before it.
+- **Net.** «خالص», as on the transactions page, instead of the design's «مانده», which the budgets page uses for "remaining". Its change is a compact amount («۳۰٫۲ میلیون ریال بیشتر», "$302K more"), since the net can cross zero, as in the design. Income and expense get no badge when the previous period had nothing (the design shows «—»).
+- **Categories.** Transactions saved without a category (Claude may do that) are counted as «بدون دسته‌بندی», and a category whose subcategories don't hold all its amount opens to «بدون زیردسته» for the rest, so the rows always add up to the total. Every category starts closed (the design shows one open). In the chart a subcategory's share is of its category, as in the design; in the table, under «سهم از کل», it is of the total.
+- **Spending by account** counts expenses only, as in the design's title; transfers between accounts count nowhere.
+- **Month by month.** The month picked in the month period is shaded and read out first; hovering shades a month. Each column is a button that reads its month's amounts to screen readers, with one tab stop and arrow keys that follow the reading direction. On narrow cards every other month label is left out once there are more than six.
+- **Empty state.** "No income or expenses in this period" rather than «تراکنشی ثبت نشده», since a period may hold only transfers. Viewers get no add button and a shorter invitation.
+- **Header.** As in the design, the period switch replaces «افزودن تراکنش» in the header (phones keep the tab bar's button). The app shell's story now shows the dashboard placeholder, the only unbuilt page left.
+
+### Testing
+
+The production book has no transactions yet, so the queries ran against it (read only) and returned zeros without errors, and the category roll-up statement was also run on synthetic rows in a CTE (subcategories under their parent, the part on the category itself, uncategorized rows, transfers and dates outside the range left out). `resolveReportPeriod` was run for every kind of period in the Jalali calendar to check the ranges, the previous periods and the months. The page and its parts were checked in Storybook with sample data: Persian and English, light and dark, rial and dollars, desktop and phone, expanding a category, the table views, and the chart's hover and arrow keys. The real `/reports` was only checked to redirect signed-out visitors: the preview browser had no session, and the only accounts are on the production book.
+
+Bugs found this way and fixed: month labels cut off on phones when every other one is hidden, too much space between the header and the period bar, and the month read out by default being shaded like a hovered one.
+
+### Result
+
+The reports page from the design: a period in the URL (a month, the last 3, 6 or 12 months, or a custom range) compared with the period before; income, expense and net with the change; expenses and income by category with subcategories; spending by account; month by month with the net line. Every chart has a table view. Four aggregation queries in `src/db/reports.ts` with every sum in Postgres, and the period math in `src/helpers/report.ts`. Hand-written chart components with stories, and stories for the report components. CLAUDE.md updated.
+
+---
+
 ## Next phases
 
-Phases 8 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
+Phases 9 to 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
 
 ```markdown
 ## Phase N: <name>

@@ -77,6 +77,18 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - **Page:** `BudgetSummary` (spent in the month, total budget, remaining or over, one bar for all of it with a line for today in the current month: ProgressBar's `marker`), `BudgetList` (most used first: chip, bar, percent, spent of limit, status; a table from 56rem of list width, cards below; each row links to `/transactions?month=…&category=…` through `budgetTransactionsHref`, and writers get an edit button), `UnbudgetedList` (active expense categories without a budget, what they spent, «تعیین بودجه»), `BudgetDialog` (category, fixed when editing; monthly limit; a note naming the subcategories that count; «حذف بودجه» opens a ConfirmDialog over it). The empty state follows the role; without expense categories it links to `/settings/categories`.
 - A budget whose category is archived keeps its row (marked «بایگانی‌شده») and can be changed or removed; an archived category can't get a new budget.
 
+## Reports
+
+`/reports` (`Reports` in `src/components/reports`, page in `src/app/(app)/reports/page.tsx`). Every role reads the whole book; there is nothing to write, so no badge. Transfers count nowhere: only income and expense.
+
+- **Period in the URL** (`src/helpers/report.ts`, `REPORT_PARAMS`): nothing = the last 6 months (`DEFAULT_REPORT_PERIOD`), `?period=3m` / `12m`, `?month=YYYY-MM` (read with `parseMonthParam`, like the transactions page) or `?from=…&to=…` (ISO dates). `parseReportParams` reads it (a range wins over a month, a month over `period`), `reportParamsToSearch` writes it. `resolveReportPeriod` turns it into Gregorian ranges in the viewer's calendar with `monthRange`: the period (never past today), the **previous period** and the months of the chart (`ReportPeriod`).
+  - 3, 6, 12 months: that many months up to and including the current one; the previous period is as many months before, and when the period runs to today it stops at today's day of the month («1–16 Mehr» against «1–16 Shahrivar»).
+  - A month: that month (another calendar's month becomes the viewer's month around its middle; a future month becomes the current one), compared with the month before (cut the same way); the chart shows it with the 5 months before (`REPORT_TREND_MONTHS`), highlighted.
+  - A custom range: cut to today and to at most 36 months (`REPORT_MAX_MONTHS`, an earlier start is moved up and shown); the previous period is as many days just before. Its months are cut to the range.
+- **Queries** in `src/db/reports.ts` (server-only; the page calls `requireUser()` and runs them in parallel; every sum is in Postgres, no calendar math in SQL): `compareTotals` (income and expense of the period and the previous one in one statement), `categoryTotals` (both types, subcategories rolled up with `coalesce(parent_id, id)` and listed under their parent as JSON, plus `direct`, the part recorded on the category itself; transactions without a category are one row with a null id), `rangeTotals` (income and expense per month range, from a `values` list joined to the transactions, in the ranges' order) and `accountExpenseTotals` (expenses per account).
+- **Page:** `PageHeader` with the period as its subtitle and `ReportPeriodSwitch` (`SegmentedControl`: ماه · ۳ ماه · ۶ ماه · ۱۲ ماه · بازه دلخواه, short labels on phones) as its action; `ReportPeriodBar` (the month switcher, or two DatePickers for a custom range, and «در مقایسه با …»); `ReportSummary` (income, expense, net, each with a badge for the change: a percent for income and expense, a compact amount for the net, `formatCompactMoney`; green when good news, red otherwise, and always «بیشتر» / «کمتر» in words; no badge when the previous period had none); `CategoryReport` for expense and income (a category opens to its subcategories and «بدون زیردسته»; «بدون دسته‌بندی» for uncategorized); `AccountReport` (spending by account); `MonthlyReport`. Each is a `ReportCard`: a title, a «نمودار / جدول» switch and the chart or a `DataTable` of the same figures. The empty state (no income or expense in the period) offers the add-transaction form to writers (`useAddTransaction`). Changing the period pushes the URL in a transition and shows the skeleton meanwhile.
+- **Charts are hand-written** (no chart library): see Charts under Design system.
+
 ## Claude connector (MCP)
 
 Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add custom connector), sign in to Money once and allow access; Claude then works on the shared book as that user, with that user's role. The URL and the steps are on `/settings/connector` (and in the README).
@@ -120,7 +132,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - Transactions: income, expense and transfer between own accounts, with category, subcategory, account, tags, description and note
 - Claude connector (MCP) with OAuth sign-in. Claude acts as the signed-in user with that user's role: everyone can read, editors and admins can also add, edit and delete transactions. Dates in the user's calendar, amounts in the book currency
 - Budgets: a monthly limit per category, repeating every month of the viewer's calendar
-- Reports: charts by category and by month
+- Reports: income, expense and net against the previous period, by category (with subcategories), by account and month by month, each chart with a table view
 - Dashboard: balances, this month's totals, budget progress, recent transactions
 - CSV import and export
 - Later: one-time import of the `daily-transactions` data
@@ -143,7 +155,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - **UI primitives:** Base UI (`@base-ui/react`, unstyled). Use it for interactive parts like Dialog, Menu, Popover, Select, Combobox, Tooltip, Tabs, Switch, Checkbox.
 - **Styling:** CSS Modules + CSS custom properties as design tokens. No Tailwind. No component libraries (no shadcn/ui, no MUI).
 - **Icons:** lucide-react
-- **Charts:** chosen in Phase 8 (Reports)
+- **Charts:** hand-written React components (HTML and CSS, SVG only for the net line), no chart library: the two chart forms are simple, CSS grid and logical properties flip them with `dir`, colors are tokens so both themes need no JavaScript, all text uses our formatting (digits, calendars, units, Dana) and they render on the server without measuring. If later charts need scales, axes or zooming beyond this, add `d3-scale` or visx for the math and keep our own markup.
 - **Design system docs:** Storybook
 - **Formatting:** Prettier (default options) with `eslint-config-prettier`
 - **Hosting:** Vercel. Two projects from this one repo: `money` (the app) and `money-storybook` (the design system docs, https://money-storybook.vercel.app: Storybook preset, `pnpm build-storybook`, output `storybook-static`), same as `orange` / `orange-storybook`.
@@ -219,6 +231,10 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
   - Numbers in amounts are an isolated left-to-right run (`<bdi dir="ltr">`). Persian: Persian digits, «٬» (U+066C) thousands, «٫» (U+066B) decimals, «٪» percent. English: Latin digits, «,», «.», «%».
   - Unit marks (`MONEY_UNIT_SYMBOLS`): Persian writes the unit's name after the number («۲٬۵۰۰٬۰۰۰ ریال», «… تومان», «… دلار», «… یورو», «… پوند»); English writes «$», «€», «£» before it, inside the left-to-right run, after the sign («−$1,234.56»), and «rial» / «toman» after it.
   - Budgets: ok (royal) → near the limit from 80% (amber, ⚠, «نزدیک به سقف») → over (red with diagonal stripes, «… بیش از بودجه»). `getBudgetStatus` in `src/helpers/budget.ts`.
+- **Charts** (`BarList`, `ColumnChart`, `DataTable` in `src/components/ui/`; scale math in `src/utils/chart.ts`): every chart has a table view with the same figures (`ReportCard`).
+  - `BarList`: ranked rows (label, `Amount`, share of the total, a bar as long as the row's part of the largest), the bar in the category's hue (`--cat-<hue>`) or brand royal. A row with sub-items is a button (`aria-expanded`) that opens them, each with its share of that row. Shares are written out, so bars are never the only reading.
+  - `ColumnChart`: income and expense columns per month (expense striped, so the two read without color) and the net as a line with dots. Columns are a CSS grid, so they flow in the page's direction; the SVG line is drawn left to right and mirrored with `mirror-rtl`. The axis has round ticks (`niceAxis`) in a scale named under it (`moneyAxisScale`: «محور عمودی: میلیون ریال», "Axis: thousands of dollars"). Hover, tap or focus a month to read it above the plot; the columns are one tab stop (roving tabindex), arrow keys follow the reading direction, and each column's label reads its amounts. Labels thin to every other one when months crowd (container queries).
+  - Sizes are `--chart-*`, `--bar-list-*` and `--report-*` tokens in `tokens/components.css`.
 - **Dates in the UI** (`formatDate` in `src/utils/calendar.ts`, the `DateText` component): long «۹ مهر ۱۴۰۵» / «9 Mehr 1405» / «1 October 2026» (Persian Gregorian: «۱ اکتبر ۲۰۲۶»), weekday «پنج‌شنبه ۹ مهر ۱۴۰۵» / «Thursday, 1 October 2026», «امروز» / «دیروز» (Today / Yesterday) in lists, numeric «۱۴۰۵/۰۷/۰۹» / «2026/10/01» only in dense tables. Month and weekday names are written out in `src/constants/calendar.ts`, not taken from Intl. The month grid starts the week and tints the weekend per calendar (see Languages, calendars and currency). `AmountField` takes and returns the stored integer (rials or cents); `Calendar` and `DatePicker` take and return ISO date strings.
 - **Copy:** every string the user sees comes from the messages (see Conventions). Calm and short in both languages. No emoji. Claude is written «Claude», in Latin.
   - Persian: polite plural. Buttons are verbs that name the outcome («ثبت هزینه», never «تأیید»); cancel is always «انصراف». Labels are nouns without a colon. Errors are one specific sentence ending with a period, no exclamation mark. Toasts confirm in past tense and offer «واگرد» after add/delete.
@@ -278,6 +294,7 @@ src/
                         (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
                         categories.ts, transactions.ts (list, totals, tags, options, create / update / delete),
                         budgets.ts (listBudgetCategories, saveBudget, deleteBudget),
+                        reports.ts (compareTotals, categoryTotals, rangeTotals, accountExpenseTotals),
                         connector.ts (checkMcpGrant, listConnections, revokeConnection, revokeGrants),
                         errors.ts (isUniqueViolation)
   i18n/                 next-intl request config (request.ts), resolveLocale (locale.ts), resolveTimeZone
@@ -289,8 +306,8 @@ src/
                         logo, logo-mark, button, icon-button, tooltip, field, text-field, textarea, amount-field,
                         search-field, select, combobox, checkbox, switch, radio-group, segmented-control, calendar,
                         date-picker, date-text, dialog, sheet, menu, popover, toast, skeleton, empty-state, card,
-                        badge, tag, tag-input, category-chip, avatar, divider, amount, progress-bar, foundations
-                        (Storybook only)
+                        badge, tag, tag-input, category-chip, avatar, divider, amount, progress-bar, bar-list,
+                        column-chart, data-table, foundations (Storybook only)
     login/              The sign-in screen (Components/Login)
     app-shell/          The frame of signed-in pages: skip link, sidebar, top bar, tab bar, add-transaction form
     sidebar/, top-bar/, tab-bar/, user-menu/   Its parts (desktop sidebar and rail; phone top and bottom bars;
@@ -306,6 +323,12 @@ src/
                         budget, dialogs (+ skeleton, error)
     budget-summary/, budget-list/, budget-dialog/   The month's spent / budget / remaining with today's line,
                         the budget rows and the unbudgeted categories (+ sample-budgets.ts for stories), the form
+    reports/            The /reports page: header with the period switch, period bar, summary, category, account
+                        and month by month cards (+ skeleton, error, sample-reports.ts for stories)
+    report-period/, report-summary/, report-card/   The period switch and bar (usePeriodText), the income /
+                        expense / net cards with the change, a card with the chart / table switch
+    category-report/, account-report/, monthly-report/   Income or expense by category, spending by account,
+                        month by month
     page-header/, page-placeholder/, page-skeleton/, page-status/   Page building blocks (title, unbuilt page,
                         loading, error and not-found)
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
@@ -325,13 +348,14 @@ src/
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
                         settings), calendar (names, week start), category, connector (paths, scope, tool limits), currency (units, symbols), locale, media
-                        queries, navigation (NAV_ITEMS), sidebar (storage key, script), starter-categories, theme
+                        queries, navigation (NAV_ITEMS), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟», limits, page size), transaction-icons,
                         user
   helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
                         month, transactions link), category color
-                        style and name rules, money formatting and input, navigation (getNavItems,
-                        isNavItemActive), new-user form rules (newUserSchema), preferences, role permissions,
+                        style and name rules, money formatting (also compact, and axis scales) and input, navigation (getNavItems,
+                        isNavItemActive), new-user form rules (newUserSchema), preferences, reports (URL params,
+                        resolveReportPeriod, period text, compareAmounts), role permissions,
                         connector (dates and amounts at the MCP boundary), oauth-consent (consent requests),
                         sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
                         params, period), user (placeholder email, temporary password)
@@ -345,8 +369,8 @@ src/
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
   types/                account, action (ActionResult), book, budget, calendar, category, connector, currency, locale, navigation, preferences,
-                        theme, transaction, user
-  utils/                calendar (both calendars, formatDate), cx, duration, env, focus, iso-date, jalali (math),
+                        report, theme, transaction, user
+  utils/                calendar (both calendars, formatDate), chart (niceAxis, axisShare), cx, duration, env, focus, iso-date, jalali (math),
                         locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
                         state), text, theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
@@ -391,7 +415,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | 5 | Transactions | Done |
 | 6 | Claude connector (MCP + OAuth) | Done |
 | 7 | Budgets | Done |
-| 8 | Reports | Not started |
+| 8 | Reports | Done |
 | 9 | Dashboard | Not started |
 | 10 | CSV import and export | Not started |
 | 11 | Import from `daily-transactions` | Later |
@@ -405,7 +429,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/` | Dashboard (داشبورد) | 2 (placeholder until 9) |
 | `/transactions` | Transactions (تراکنش‌ها) | 5 |
 | `/budgets` | Budgets (بودجه), `?month=` | 7 |
-| `/reports` | Reports (گزارش‌ها) | 2 (placeholder until 8) |
+| `/reports` | Reports (گزارش‌ها), `?period=` / `?month=` / `?from=&to=` | 8 |
 | `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |
 | `/settings/accounts` | Accounts (viewers read only) | 4 |
 | `/settings/categories` | Categories (viewers read only) | 4 |
