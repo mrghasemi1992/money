@@ -887,11 +887,11 @@ const fa = {
     },
     chatgptSteps: {
       title: "افزودن در ChatGPT",
-      one: "در ChatGPT از <path><chip>Settings</chip><sep></sep><chip>Apps</chip><sep></sep><chip>Advanced settings</chip></path> حالت <chip>Developer mode</chip> را روشن کنید. این حالت به طرح و دسترسی حساب شما بستگی دارد.",
-      two: "به <chip>Plugins</chip> بروید، روی + بزنید و <chip>Add custom MCP server</chip> را انتخاب کنید.",
+      one: "در ChatGPT روی نامتان (پایین سمت چپ) بزنید و به <path><chip>Settings</chip><sep></sep><chip>Security and login</chip></path> بروید. پایین صفحه <chip>Developer mode</chip> را روشن کنید.",
+      two: "از منوی کناری <chip>Plugins</chip> را باز کنید، روی + بالای صفحه بزنید و <chip>Add custom MCP server</chip> را انتخاب کنید.",
       three:
-        "نامی مثل «پول» بنویسید، نشانی بالا را در نشانی سرور بچسبانید، احراز هویت را <chip>OAuth</chip> بگذارید (شناسه و رمز کلاینت را خالی بگذارید)، <chip>I understand and want to continue</chip> را بزنید و بعد <chip>Create as a plugin</chip>.",
-      four: "اگر خواست وصل شوید، وارد پول شوید و اجازهٔ دسترسی بدهید.",
+        "نامی مثل «پول» بنویسید. در <chip>Connection</chip> گزینهٔ <chip>Server URL</chip> را بگذارید و نشانی بالا را بچسبانید. احراز هویت را روی <chip>OAuth</chip> بگذارید، تیک <chip>I understand and want to continue</chip> را بزنید و <chip>Create</chip> را بزنید.",
+      four: "وارد پول شوید و اجازهٔ دسترسی بدهید.",
     },
     apps: {
       title: "برنامه‌های متصل",

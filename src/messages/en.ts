@@ -891,11 +891,11 @@ const en: Messages = {
     },
     chatgptSteps: {
       title: "Add it in ChatGPT",
-      one: "In ChatGPT, go to <path><chip>Settings</chip><sep></sep><chip>Apps</chip><sep></sep><chip>Advanced settings</chip></path> and turn on <chip>Developer mode</chip>. It depends on your plan and workspace.",
-      two: "Open <chip>Plugins</chip>, click + and choose <chip>Add custom MCP server</chip>.",
+      one: "In ChatGPT, click your name (bottom left) and go to <path><chip>Settings</chip><sep></sep><chip>Security and login</chip></path>. Scroll down and turn on <chip>Developer mode</chip>.",
+      two: "Open <chip>Plugins</chip> in the sidebar, click + at the top of the page and choose <chip>Add custom MCP server</chip>.",
       three:
-        "Name it “Money”, paste the URL above into the server URL, set authentication to <chip>OAuth</chip> (leave the client ID and secret empty), click <chip>I understand and want to continue</chip>, then <chip>Create as a plugin</chip>.",
-      four: "When asked to connect, sign in to Money and allow access.",
+        "Name it “Money”. Under <chip>Connection</chip> keep <chip>Server URL</chip> and paste the URL above. Set <chip>Authentication</chip> to <chip>OAuth</chip>, tick <chip>I understand and want to continue</chip> and click <chip>Create</chip>.",
+      four: "Sign in to Money and allow access.",
     },
     apps: {
       title: "Connected apps",
