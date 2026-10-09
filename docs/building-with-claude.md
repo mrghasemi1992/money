@@ -1230,6 +1230,7 @@ None.
 
 - Research: ChatGPT supports Client ID Metadata Documents (`https://chatgpt.com/oauth/client.json`), needs PKCE S256, the `resource` parameter, the RFC 9207 issuer parameter and discovery metadata. The authorization server already advertises all of it, and the plugin's validator accepts ChatGPT's document, so no server change was needed.
 - `/settings/connector` has a second steps list «افزودن در ChatGPT» / “Add it in ChatGPT” (Developer mode → Create app → URL + OAuth), and the page copy names both apps. README and CLAUDE.md describe it.
+- Follow-up: transactions ChatGPT adds are recorded with their own source `chatgpt` (migration `0008`; `mcp` stays Claude), chosen from the token's client id, and show a ChatGPT badge in the list, dashboard and detail. The connector page's note names both badges.
 - Not tested from ChatGPT itself (needs a public deployment and a ChatGPT plan with Developer mode): to be checked on the preview.
 
 ---

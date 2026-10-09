@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { usePreferences } from "@/hooks/use-preferences";
+import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction, TransactionDayTotal } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
@@ -201,24 +202,30 @@ function TransactionRow({
               to={transaction.toAccount?.name}
             />
           </button>
-          {transaction.source === "mcp" ? (
+          {assistantName(transaction.source) ? (
             <>
               <Badge
                 tone="brand"
                 size="sm"
                 icon={SparklesIcon}
-                title={t("transactions.list.claudeTip")}
+                title={t("transactions.list.assistantTip", {
+                  name: assistantName(transaction.source) ?? "",
+                })}
                 className={styles.claudeBadge}
               >
-                Claude
+                {assistantName(transaction.source)}
               </Badge>
               <span
                 className={styles.claudeIcon}
-                title={t("transactions.list.claudeTip")}
+                title={t("transactions.list.assistantTip", {
+                  name: assistantName(transaction.source) ?? "",
+                })}
               >
                 <SparklesIcon aria-hidden="true" />
                 <span className="visually-hidden">
-                  {t("transactions.list.claudeTip")}
+                  {t("transactions.list.assistantTip", {
+                    name: assistantName(transaction.source) ?? "",
+                  })}
                 </span>
               </span>
             </>

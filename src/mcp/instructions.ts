@@ -23,5 +23,5 @@ list_transactions answers questions about spending: filter by dates, type, accou
 
 If "today" says can_write is false, the user is a viewer: you can only read the book. Don't offer to add, change or delete anything; if they ask, tell them an admin of the book can give them the editor role.
 
-Everything you add shows in the app with a Claude mark, and records the user as its author.
+Everything you add shows in the app with a mark for the assistant that added it (Claude or ChatGPT), and records the user as its author.
 `.trim();

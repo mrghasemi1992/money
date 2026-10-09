@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePreferences } from "@/hooks/use-preferences";
+import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
@@ -98,14 +99,16 @@ export function RecentTransactions({
                       to={transaction.toAccount?.name}
                     />
                   </button>
-                  {transaction.source === "mcp" ? (
+                  {assistantName(transaction.source) ? (
                     <Badge
                       tone="brand"
                       size="sm"
                       icon={SparklesIcon}
-                      title={t("transactions.list.claudeTip")}
+                      title={t("transactions.list.assistantTip", {
+                        name: assistantName(transaction.source) ?? "",
+                      })}
                     >
-                      Claude
+                      {assistantName(transaction.source)}
                     </Badge>
                   ) : null}
                 </div>

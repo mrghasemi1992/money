@@ -4,6 +4,7 @@ import { createMcpHandler } from "mcp-handler";
 
 import { DEFAULT_TIME_ZONE } from "@/constants/time-zone";
 import { getBookSettings } from "@/db/book";
+import { sourceForMcpClient } from "@/helpers/transaction-source";
 import type { McpUser } from "@/types/connector";
 import { isTimeZone } from "@/utils/iso-date";
 
@@ -18,6 +19,7 @@ import { registerTools } from "./tools";
 export async function handleMcpRequest(
   request: Request,
   user: McpUser,
+  clientId: string,
 ): Promise<Response> {
   const { currency } = await getBookSettings();
   const timeZone =
@@ -25,7 +27,13 @@ export async function handleMcpRequest(
       ? user.timeZone
       : DEFAULT_TIME_ZONE;
   const handler = createMcpHandler(
-    (server) => registerTools(server, { user, currency, timeZone }),
+    (server) =>
+      registerTools(server, {
+        user,
+        currency,
+        timeZone,
+        source: sourceForMcpClient(clientId),
+      }),
     {
       serverInfo: { name: "money", version: "1.0.0" },
       instructions: MCP_INSTRUCTIONS,

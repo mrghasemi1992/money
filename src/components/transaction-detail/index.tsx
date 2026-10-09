@@ -24,16 +24,18 @@ import { isUnknownTransaction } from "@/helpers/transaction";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
+import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction, TransactionSource } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { todayIso } from "@/utils/iso-date";
 
 import styles from "./styles.module.css";
 
-/** «ثبت توسط …», with how: in the app, with Claude or from a CSV import. */
+/** «ثبت توسط …», with how: in the app, with Claude or ChatGPT or from a CSV import. */
 const ADDED_BY = {
   web: "transactions.detail.addedBy",
-  mcp: "transactions.detail.addedByClaude",
+  mcp: "transactions.detail.addedByAssistant",
+  chatgpt: "transactions.detail.addedByAssistant",
   csv: "transactions.detail.addedByImport",
 } as const satisfies Record<TransactionSource, string>;
 
@@ -147,9 +149,9 @@ export function TransactionDetail({
           {transaction.description ? (
             <p className={styles.description}>{transaction.description}</p>
           ) : null}
-          {transaction.source === "mcp" ? (
+          {assistantName(transaction.source) ? (
             <Badge tone="brand" size="sm" icon={SparklesIcon}>
-              Claude
+              {assistantName(transaction.source)}
             </Badge>
           ) : null}
         </div>
@@ -253,6 +255,7 @@ export function TransactionDetail({
               <span className={styles.personLine}>
                 {t(ADDED_BY[transaction.source], {
                   name: transaction.createdBy.name,
+                  assistant: assistantName(transaction.source) ?? "",
                 })}
               </span>
               <span className={styles.personDate}>

@@ -1,8 +1,11 @@
 /** Transaction types, in the order forms list them. Stored as text in `transactions.type`. */
 export const TRANSACTION_TYPES = ["expense", "income", "transfer"] as const;
 
-/** Where a transaction was recorded. Stored in `transactions.source`. */
-export const TRANSACTION_SOURCES = ["web", "mcp", "csv"] as const;
+/**
+ * Where a transaction was recorded. Stored in `transactions.source`. «mcp» is Claude (the
+ * first connector), «chatgpt» is ChatGPT through the same MCP endpoint.
+ */
+export const TRANSACTION_SOURCES = ["web", "mcp", "chatgpt", "csv"] as const;
 
 /**
  * Descriptions that only say «don't know» (daily-transactions marked unknown transactions

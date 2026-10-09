@@ -41,6 +41,7 @@ import {
 } from "@/helpers/connector";
 import { maskIdentifier } from "@/helpers/account-identifier";
 import { canWrite } from "@/helpers/role";
+import { assistantName } from "@/helpers/transaction-source";
 import {
   isUnknownTransaction,
   type TransactionError,
@@ -50,6 +51,7 @@ import {
 import type { CategoryTree } from "@/types/category";
 import type { McpUser } from "@/types/connector";
 import type { Currency } from "@/types/currency";
+import type { TransactionSource } from "@/types/transaction";
 import type {
   AccountOption,
   Transaction,
@@ -71,6 +73,8 @@ export type McpContext = {
   currency: Currency;
   /** The user's time zone: what their browser last reported, otherwise Asia/Tehran. */
   timeZone: string;
+  /** What rows added in this request are recorded as: Claude or ChatGPT, by the token's client. */
+  source: TransactionSource;
 };
 
 type ToolResult = {
@@ -200,7 +204,7 @@ function view(
     ...(listed
       ? {
           added_by: listed.createdBy.name,
-          added_with_claude: listed.source === "mcp",
+          added_with_assistant: assistantName(listed.source) !== null,
         }
       : {}),
   };
@@ -540,7 +544,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
         (input): input is TransactionInput => input !== null,
       );
       const similar = await findSimilarTransactions(data);
-      const ids = await createTransactions(data, ctx.user.id, "mcp");
+      const ids = await createTransactions(data, ctx.user.id, ctx.source);
       const names = await loadNames();
       const saved = data.map((input, index) => ({ ...input, id: ids[index]! }));
       const sameKey = (a: TransactionInput, b: TransactionInput) =>

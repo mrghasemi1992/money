@@ -325,6 +325,10 @@ function ExamplesCard() {
           <Badge tone="brand" size="sm" icon={SparklesIcon}>
             Claude
           </Badge>
+          <span>{t("badgeOr")}</span>
+          <Badge tone="brand" size="sm" icon={SparklesIcon}>
+            ChatGPT
+          </Badge>
           <span>{t("badgeAfter")}</span>
         </p>
       </div>
