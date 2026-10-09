@@ -1291,6 +1291,19 @@ const en: Messages = {
       open: "You can change it until the first amount is recorded.",
       changed: "Book currency changed",
     },
+    about: {
+      title: "About {app}",
+      subtitle: "The version of the app this book runs on.",
+      version: "Version",
+      commit: "Commit",
+      releaseNotes: "Release notes",
+      updateGuide: "How to update",
+      upToDate: "You have the latest version.",
+      updateTitle: "Version {version} is available",
+      updateDescription:
+        "Update your copy with “Sync fork” on GitHub. Vercel deploys the new version on its own.",
+      whatsNew: "What’s new",
+    },
   },
 };
 

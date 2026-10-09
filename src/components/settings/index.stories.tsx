@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import type { ActionResult } from "@/types/action";
+import type { UpdateCheck } from "@/types/release";
 
 import { Settings } from "./index";
 
@@ -22,6 +23,12 @@ const meta = {
     onChangeLocale: wait,
     onSavePreferences: saved,
     onSaveCurrency: saved,
+    version: { version: "0.2.0", commit: "77b0954" },
+    updateCheck: Promise.resolve<UpdateCheck>({
+      latest: "0.2.0",
+      url: "https://github.com/mrghasemi1992/money/releases",
+      available: false,
+    }),
   },
 } satisfies Meta<typeof Settings>;
 
@@ -33,11 +40,23 @@ export const Admin: Story = {};
 
 export const AdminNewBook: Story = { args: { currencyLocked: false } };
 
-/** Editors and viewers: profile, password and display only. */
+/** A newer release is out: admins see the notice under the version. */
+export const AdminUpdateAvailable: Story = {
+  args: {
+    updateCheck: Promise.resolve<UpdateCheck>({
+      latest: "0.3.0",
+      url: "https://github.com/mrghasemi1992/money/releases",
+      available: true,
+    }),
+  },
+};
+
+/** Editors and viewers: profile, password, display and the version, without the update check. */
 export const Viewer: Story = {
   args: {
     user: { name: "سارا محمدی", username: "sara.mohammadi" },
     isAdmin: false,
+    updateCheck: undefined,
   },
 };
 

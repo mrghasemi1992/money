@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev -H money.localhost",
     "build": "next build",
-    "vercel-build": "drizzle-kit migrate && next build",
+    "vercel-build": "next build && drizzle-kit migrate",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",

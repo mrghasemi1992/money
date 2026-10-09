@@ -110,6 +110,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | Issue #50: transaction id  | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
 | Issue #33: ChatGPT         | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
 | Fix: ChatGPT token request | 2026-10-09         | `bugfix/chatgpt-token-exchange`        | (linked when opened)                                  |
+| Issue #34: releases        | 2026-10-09         | `feature/releases-and-app-version`     | (linked when opened)                                  |
 
 ---
 
@@ -1258,6 +1259,40 @@ None.
 
 - Cause, from the production logs (`vercel logs`): every `POST /api/auth/oauth2/token` from ChatGPT answered 500. ChatGPT authenticates with `private_key_jwt`, and Better Auth stores each assertion's id (a digest of its `jti`) in `oauth_client_assertion` to stop replays. With `generateId: "uuid"` Better Auth's adapter drops any id it is handed that isn't a UUID, so the insert had no id and failed the not-null constraint. Claude uses no client assertion, so it never reached this code.
 - Fix: `generateId: () => crypto.randomUUID()` in `src/auth/index.ts`. Ids stay UUIDs (made in the app instead of by Postgres) and ids Better Auth picks itself are kept. No migration.
+
+---
+
+## Change: Releases, database migrations and the app version
+
+Branch: `feature/releases-and-app-version`. Date: 2026-10-09. Not a planned phase: GitHub issue [#34](https://github.com/mrghasemi1992/money/issues/34). No Claude Design step.
+
+### Claude Code prompt
+
+```text
+issue#34
+```
+
+### Questions Claude asked
+
+Claude first researched and shared its findings: Vercel's Deploy button makes a clone, not a fork, so only a real fork can follow updates with «Sync fork»; `vercel-build` migrated before building, so a failed build left the old code on a new schema; drizzle-kit applies pending migrations in one transaction.
+
+| Question                                                                                           | Answer           |
+| -------------------------------------------------------------------------------------------------- | ---------------- |
+| Should the app check GitHub for a newer release and tell admins? (version only / yes, admins only) | Yes, admins only |
+| How should releases be cut? (release-please / manual)                                              | release-please   |
+| Which branch should self-hosted forks follow? (main / a stable branch)                             | main             |
+
+### Follow-ups
+
+None.
+
+### Result
+
+- **Process** (`docs/releases.md`, maintainers; `docs/updating.md`, self-hosters in English and Persian): forks follow `main`, which stays releasable; release-please (`.github/workflows/release.yml`, only in this repository) opens a release PR from the Conventional Commits (version in `package.json`, `CHANGELOG.md`); merging it tags and publishes the GitHub release; owners click «Sync fork» and Vercel deploys. `BREAKING CHANGE:` footers carry the steps self-hosters must take.
+- **Deploy order:** `vercel-build` is now `next build && drizzle-kit migrate`. A failed build migrates nothing, a failed migration rolls back, and the previous version keeps running either way. A build against an unreachable database still succeeds (the only access is Better Auth's idempotent `oauth_resource` seed, which tolerates failure).
+- **Migration rules** in CLAUDE.md and `docs/releases.md`: expand, then contract; backfill before tightening; nothing that can't run in a transaction; regenerate a migration after rebasing onto a newer one (drizzle-kit skips older timestamps).
+- **Settings → About Money** (`AboutSettings`): the version and the deployed commit, links to the release notes and the update guide; for admins, the latest GitHub release compared with this copy (cached for a day, streamed, silent when GitHub can't tell).
+- To do on GitHub: allow GitHub Actions to create pull requests (Settings → Actions → General). The first release PR starts after the last commit before this change (`bootstrap-sha`).
 
 ---
 
