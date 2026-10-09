@@ -2,6 +2,7 @@
 
 import type { ComponentProps } from "react";
 
+import { AboutSettings } from "@/components/about-settings";
 import { BookSettings } from "@/components/book-settings";
 import { DisplaySettings } from "@/components/display-settings";
 import { PasswordSettings } from "@/components/password-settings";
@@ -9,6 +10,7 @@ import { ProfileSettings } from "@/components/profile-settings";
 import { SettingsLinks } from "@/components/settings-links";
 import type { Currency } from "@/types/currency";
 import type { ActionResult } from "@/types/action";
+import type { AppVersion, UpdateCheck } from "@/types/release";
 
 import styles from "./styles.module.css";
 
@@ -25,11 +27,15 @@ type SettingsProps = {
     typeof DisplaySettings
   >["onSavePreferences"];
   onSaveCurrency: (currency: Currency) => Promise<ActionResult>;
+  /** The version this copy runs. */
+  version: AppVersion;
+  /** Admins only: whether a newer release is out (streamed from GitHub). */
+  updateCheck?: Promise<UpdateCheck | null>;
 };
 
 /**
  * The /settings page's sections: links to accounts and categories, profile, password,
- * display and, for admins, the book.
+ * display, for admins the book, and the app's version.
  */
 export function Settings({
   user,
@@ -40,6 +46,8 @@ export function Settings({
   onChangeLocale,
   onSavePreferences,
   onSaveCurrency,
+  version,
+  updateCheck,
 }: SettingsProps) {
   return (
     <div className={styles.root}>
@@ -57,6 +65,7 @@ export function Settings({
       {isAdmin ? (
         <BookSettings locked={currencyLocked} onSaveCurrency={onSaveCurrency} />
       ) : null}
+      <AboutSettings version={version} updateCheck={updateCheck} />
     </div>
   );
 }

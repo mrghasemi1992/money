@@ -5,6 +5,7 @@ import { requireUser } from "@/auth/session";
 import { PageHeader } from "@/components/page-header";
 import { Settings } from "@/components/settings";
 import { bookHoldsAmounts } from "@/db/book";
+import { checkForUpdate, getAppVersion } from "@/helpers/release";
 import { canManageUsers, toUserRole } from "@/helpers/role";
 import { changeLocale } from "@/i18n/actions";
 
@@ -26,6 +27,10 @@ export default async function SettingsPage() {
   // Book settings belong to admins, like user management.
   const isAdmin = canManageUsers(toUserRole(user.role));
   const currencyLocked = isAdmin ? await bookHoldsAmounts() : true;
+  const version = getAppVersion();
+  // Admins update the copy, so only they are told about a newer release. Not awaited: the
+  // notice streams in when GitHub answers.
+  const updateCheck = isAdmin ? checkForUpdate(version.version) : undefined;
 
   return (
     <>
@@ -42,6 +47,8 @@ export default async function SettingsPage() {
         onChangeLocale={changeLocale}
         onSavePreferences={updateDisplayPreferences}
         onSaveCurrency={updateBookCurrency}
+        version={version}
+        updateCheck={updateCheck}
       />
     </>
   );

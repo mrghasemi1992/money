@@ -133,6 +133,16 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - **Time zone:** MCP requests have no browser, so `today` uses `user.time_zone`, which the app layout saves (after the response) when the browser's reported zone (TimeZoneSync's cookie) differs; otherwise Asia/Tehran.
 - **Connected apps** (`/settings/connector`, `ConnectorSettings`): every role sees their own connections (`listConnections`: one per OAuth client, connected and last used days in the viewer's time zone) and can revoke one (`revokeConnection`: deletes its consent, refresh and access tokens in one statement).
 
+## Releases and updates
+
+Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` on GitHub, deployed on their own Vercel project with Neon. The process is in `docs/releases.md` (maintainers) and `docs/updating.md` (self-hosters, English and Persian).
+
+- **Forks follow `main`**, so `main` is always releasable. Self-hosters update with GitHub's «Sync fork»; the push makes their Vercel project deploy. A copy made with Vercel's Deploy button is a clone, not a fork, and can't sync (the guide explains moving it to a fork).
+- **Releases** are cut by release-please (`.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json`; runs only in `mrghasemi1992/money`): a release PR bumps `package.json` and writes `CHANGELOG.md` from the Conventional Commits; merging it tags `vX.Y.Z` and publishes the GitHub release. SemVer, `bump-minor-pre-major` before 1.0. A change that asks something of self-hosters (a new env variable, a release to install first, a manual step) gets a `BREAKING CHANGE:` footer that says what to do.
+- **Deploy order:** `vercel-build` is `next build && drizzle-kit migrate`, and Vercel switches the domain only after it succeeds. A failed build migrates nothing; drizzle-kit applies all pending migrations in one transaction, so a failed migration rolls back; either way the previous version keeps running. The build runs no page queries (only Better Auth's idempotent `oauth_resource` seed, which tolerates failure).
+- **Migrations stay backward compatible:** the previous version runs on the migrated database for a moment, and longer after a rollback. Expand, then contract: add freely; drop or rename only a release after the code stopped using it, with a `BREAKING CHANGE:` footer. Backfill before tightening a constraint. Nothing that can't run in a transaction (no `CREATE INDEX CONCURRENTLY`). drizzle-kit skips a migration older than the last one applied, so regenerate a branch's migration after rebasing onto a newer one.
+- **Version in the app:** Settings ends with `AboutSettings` (`src/components/about-settings`): `package.json`'s version and the deployed commit (`VERCEL_GIT_COMMIT_SHA`), from `getAppVersion` (`src/helpers/release.ts`), and links to the release notes and the update guide. For admins, `checkForUpdate` asks GitHub for the latest release (`LATEST_RELEASE_API`, cached a day; only successful answers are cached; 3 s timeout; never throws), compares it (`isNewerVersion` in `src/utils/semver.ts`) and is streamed to the page as a promise: «نسخهٔ … منتشر شده است» / “Version … is available”, or «آخرین نسخه را دارید.»; nothing when GitHub can't tell. URLs and limits in `src/constants/release.ts`.
+
 ## Languages, calendars and currency
 
 | Setting | Values | Default | Who | Stored in |
@@ -156,7 +166,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 - Sign in with username and password (invite only)
 - Roles: admin, editor, viewer (see Roles)
 - Admin user management: create users, reset passwords, disable accounts, change roles
-- Settings: profile, password, language (فارسی / English), calendar (Jalali / Gregorian), rial or toman (IRR books), theme (light / dark / system); for admins also the book's currency
+- Settings: profile, password, language (فارسی / English), calendar (Jalali / Gregorian), rial or toman (IRR books), theme (light / dark / system); for admins also the book's currency; the app's version (admins are told when a newer release is out)
 - Accounts (bank cards, cash, …) with a starting balance and a live current balance
 - Categories with one optional level of subcategories, separate for income and expense
 - Transactions: income, expense and transfer between own accounts, with category, subcategory, account, tags, description and note
@@ -171,7 +181,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 
 - **Framework:** Next.js with the App Router, React, TypeScript (strict mode). Chosen over Vite because the MCP endpoint, the OAuth server, sign-in and database access all live in the same project as Route Handlers and Server Actions, with no separate backend.
 - **Database:** Postgres on Neon, connected through the Vercel Neon integration (env prefix `DATABASE`: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`). Production and Development use the main Neon branch, so **local development works on the production database**. Every Preview deployment gets its own Neon branch (copied from main). Local variables come from `vercel env pull .env.local`; `.env.example` lists them all.
-- **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `drizzle-kit migrate` before `next build`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview).
+- **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `next build`, then `drizzle-kit migrate`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview) and a failed build migrates nothing (see Releases and updates).
 - **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin. Setup in `src/auth/index.ts`:
   - Drizzle adapter, UUID ids made by `generateId: () => crypto.randomUUID()`, not `"uuid"`: with `"uuid"` Better Auth drops ids it is handed that aren't UUIDs, such as the jti digest of a `private_key_jwt` assertion (`oauth_client_assertion`), and ChatGPT's token request fails. The Better Auth tables are written by hand in `src/db/schema/auth.ts`; when a plugin adds fields, add them there.
   - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin on `/admin/users` (admin plugin) or with `pnpm user:create`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
@@ -383,7 +393,7 @@ src/
     settings-links/     The /settings sections that link to accounts, categories, import and export, and the Claude
                         connector
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
-                        book-settings/ (admins)
+                        book-settings/ (admins), about-settings/ (version, update notice for admins)
     connector-settings/, connector-consent/   The /settings/connector page and the OAuth consent page
     import-export/      The /settings/import-export page (+ skeleton, error)
     csv-export/, csv-import/   The export card; the import card with its steps and state (+ sample-import.ts,
@@ -396,7 +406,7 @@ src/
   constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
                         settings), calendar (names, week start), category, connector (paths, scope, tool limits), csv (limits,
                         fields, header and type words, export columns and presets), currency (units, symbols), dashboard (section sizes), locale, media
-                        queries, navigation (NAV_ITEMS), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
+                        queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
                         script, time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
                         user
   helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
@@ -407,6 +417,7 @@ src/
                         connector (dates and amounts at the MCP boundary), csv-values (dates, amounts, types, tags of
                         imported cells), csv-import (column guess, row schema, name matching, planImport, payload
                         schemas), csv-export (row, file name, presets), oauth-consent (consent requests),
+                        release (getAppVersion, checkForUpdate),
                         sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
                         params, period, NO_TRANSACTION_FILTERS), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
@@ -419,13 +430,15 @@ src/
     control.module.css, menu.module.css, choice.module.css, list.module.css   shared component styles
     fonts.ts, fonts/    Dana via next/font/local
   types/                account, action (ActionResult), book, budget, calendar, category, connector, csv, currency, dashboard, locale, navigation, preferences,
-                        report, theme, transaction, user
+                        release, report, theme, transaction, user
   utils/                calendar (both calendars, formatDate), chart (niceAxis, axisShare), csv (writing, BOM, formula
                         guard, download), csv-parse (Papa Parse), cx, duration, env, focus, iso-date, jalali (math),
-                        locale (Accept-Language), metadata (CORS for public metadata), number, sidebar (collapsed
+                        locale (Accept-Language), metadata (CORS for public metadata), number, semver (isNewerVersion), sidebar (collapsed
                         state), text (also firstName, isolate), theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
-docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log)
+docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log),
+                        releases.md (release process, migration rules), updating.md (updating a self-hosted copy)
+.github/workflows/      release.yml (release-please)
 scripts/                create-user.ts (`pnpm user:create`)
 ```
 
@@ -438,6 +451,8 @@ scripts/                create-user.ts (`pnpm user:create`)
 5. Commit on the phase branch and open a PR.
 6. Merge when `build`, `lint`, type check and format check pass (tests are added later).
 7. Move to the next phase.
+
+Releases: merge release-please's release PR when the changes since the last release should reach self-hosted copies (see Releases and updates).
 
 Phases without UI (0a) run in Claude Code only.
 
@@ -504,4 +519,4 @@ All pages except `/login` require a session (`/oauth/consent` sends signed-out v
 
 Tooling: pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`.
 
-Scripts: `dev`, `build`, `vercel-build` (Vercel only: migrate, then build), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create` (asks for username, display name, role, language and password at the prompt; run it in a terminal).
+Scripts: `dev`, `build`, `vercel-build` (Vercel only: build, then migrate), `start`, `lint`, `typecheck` (runs `next typegen` first, so route types exist), `format`, `format:check`, `storybook`, `build-storybook`, `db:generate`, `db:migrate`, `db:studio`, `user:create` (asks for username, display name, role, language and password at the prompt; run it in a terminal).
