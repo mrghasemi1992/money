@@ -14,7 +14,8 @@ import {
   setAccountArchived,
   updateAccount as saveAccount,
 } from "@/db/accounts";
-import { accountNameError, accountSchema } from "@/helpers/account";
+import { accountFormError, accountSchema } from "@/helpers/account";
+import type { AccountField } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 import { formatNumber } from "@/utils/number";
 
@@ -26,17 +27,17 @@ import { formatNumber } from "@/utils/number";
 
 const idSchema = z.object({ id: z.uuid() });
 
-/** The translated name error for an invalid account form, on its field. */
-async function nameError(
+/** The translated error for an invalid account form, on its field. */
+async function formError(
   input: unknown,
-): Promise<ActionResult<"name"> & { ok: false }> {
+): Promise<ActionResult<AccountField> & { ok: false }> {
   const t = await getTranslations("accounts");
-  const error = accountNameError(input);
-  if (!error) return { ok: false, error: t("failed") };
+  const found = accountFormError(input);
+  if (!found) return { ok: false, error: t("failed") };
   return {
     ok: false,
-    field: "name",
-    error: t(`form.errors.${error}`, {
+    field: found.field,
+    error: t(`form.errors.${found.key}`, {
       max: formatNumber(ACCOUNT_NAME_MAX_LENGTH, await getLocale()),
     }),
   };
@@ -45,11 +46,11 @@ async function nameError(
 /** Adds an account at the end of the list. Returns its id (for undo). */
 export async function createAccount(
   input: unknown,
-): Promise<ActionResult<"name", { id: string }>> {
+): Promise<ActionResult<AccountField, { id: string }>> {
   await requireWrite();
   const t = await getTranslations("accounts");
   const parsed = accountSchema.safeParse(input);
-  if (!parsed.success) return nameError(input);
+  if (!parsed.success) return formError(input);
   const taken = {
     ok: false,
     field: "name",
@@ -66,11 +67,11 @@ export async function createAccount(
 /** Changes an account's name, type and opening balance. */
 export async function updateAccount(
   input: unknown,
-): Promise<ActionResult<"name">> {
+): Promise<ActionResult<AccountField>> {
   await requireWrite();
   const t = await getTranslations("accounts");
   const parsed = accountSchema.extend(idSchema.shape).safeParse(input);
-  if (!parsed.success) return nameError(input);
+  if (!parsed.success) return formError(input);
   const { id, ...account } = parsed.data;
   const taken = {
     ok: false,

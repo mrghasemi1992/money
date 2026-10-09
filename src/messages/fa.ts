@@ -669,16 +669,21 @@ const fa = {
   },
   accounts: {
     title: "حساب‌ها",
-    subtitle: "کارت‌های بانکی، پول نقد و هر جای دیگری که پولتان آنجاست",
+    subtitle: "حساب‌های بانکی، پول نقد و هر جای دیگری که پولتان آنجاست",
     add: "افزودن حساب",
     list: "فهرست حساب‌ها",
     total: "موجودی کل",
     totalNote:
       "{archived, select, true {{count} حساب فعال، بدون حساب‌های بایگانی‌شده} other {{count} حساب فعال}}",
     types: {
-      card: "کارت بانکی",
+      bank: "حساب بانکی",
       cash: "نقدی",
       other: "سایر",
+    },
+    identifierKinds: {
+      accountNumber: "شماره حساب",
+      cardNumber: "شماره کارت",
+      sheba: "شبا",
     },
     menu: "گزینه‌های {name}",
     actions: {
@@ -702,6 +707,13 @@ const fa = {
       name: "نام",
       namePlaceholder: "مثلاً کارت بانک ملت",
       type: "نوع",
+      identifier: "شناسهٔ حساب (اختیاری)",
+      identifierOptional: "خالی بگذارید اگر لازم نیست",
+      identifierHints: {
+        accountNumber: "فقط رقم؛ فاصله و خط تیره حذف می‌شود.",
+        cardNumber: "۱۶ رقم.",
+        sheba: "IR و ۲۴ رقم؛ نوشتن IR لازم نیست.",
+      },
       opening: "موجودی اولیه",
       openingHint:
         "موجودی حساب در روزی که استفاده از پول را شروع می‌کنید. می‌تواند صفر یا منفی باشد.",
@@ -713,6 +725,9 @@ const fa = {
         nameMissing: "نام را وارد کنید.",
         nameTooLong: "نام حساب باید حداکثر {max} نویسه باشد.",
         nameTaken: "حسابی با این نام وجود دارد.",
+        accountNumberInvalid: "شمارهٔ حساب باید فقط رقم باشد، بین ۵ تا ۳۰ رقم.",
+        cardNumberInvalid: "شمارهٔ کارت باید ۱۶ رقم باشد.",
+        shebaInvalid: "شبا باید IR و ۲۴ رقم باشد.",
       },
     },
     delete: {

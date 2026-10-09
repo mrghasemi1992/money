@@ -18,10 +18,12 @@ import { Amount } from "@/components/ui/amount";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
+import { maskIdentifier } from "@/helpers/account-identifier";
 import list from "@/styles/list.module.css";
 import type { Account } from "@/types/account";
 import { cx } from "@/utils/cx";
 import { formatNumber } from "@/utils/number";
+import { isolate } from "@/utils/text";
 
 import styles from "./styles.module.css";
 
@@ -47,12 +49,18 @@ function moved(ids: string[], id: string, to: number): string[] {
   return [...rest.slice(0, index), id, ...rest.slice(index)];
 }
 
-/** The quiet line under an account's name: its type and how many transactions it has. */
+/** The quiet line under an account's name: its type, its masked identifier and how many transactions it has. */
 export function useAccountMeta() {
   const t = useTranslations();
   const locale = useLocale();
   return (account: Account) =>
     t(`accounts.types.${account.type}`) +
+    (account.identifier
+      ? t("common.listSeparator") +
+        t(`accounts.identifierKinds.${account.identifier.kind}`) +
+        " " +
+        isolate(maskIdentifier(account.identifier))
+      : "") +
     t("common.listSeparator") +
     t("common.transactionCount", {
       countNumber: account.transactionCount,

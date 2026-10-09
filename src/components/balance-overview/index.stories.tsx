@@ -26,7 +26,7 @@ export const Negative: Story = {
       {
         id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b99",
         name: "کارت اعتباری",
-        type: "card",
+        type: "bank",
         balance: -4200000,
         archived: false,
       },

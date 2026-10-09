@@ -28,7 +28,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
-import type { Account, AccountInput } from "@/types/account";
+import type { Account, AccountField, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 import { formatNumber } from "@/utils/number";
 
@@ -41,10 +41,10 @@ type AccountSettingsProps = {
   canWrite: boolean;
   onCreate: (
     input: AccountInput,
-  ) => Promise<ActionResult<"name", { id: string }>>;
+  ) => Promise<ActionResult<AccountField, { id: string }>>;
   onUpdate: (
     input: AccountInput & { id: string },
-  ) => Promise<ActionResult<"name">>;
+  ) => Promise<ActionResult<AccountField>>;
   onArchive: (input: {
     id: string;
     archived: boolean;
@@ -160,6 +160,7 @@ export function AccountSettings({
               onCreate({
                 name: account.name,
                 type: account.type,
+                identifier: account.identifier,
                 openingBalance: account.openingBalance,
               }),
             () =>
