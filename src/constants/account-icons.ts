@@ -13,7 +13,7 @@ import type { AccountType } from "@/types/account";
  * React components.
  */
 export const ACCOUNT_TYPE_ICONS: Record<AccountType, LucideIcon> = {
-  card: CreditCardIcon,
+  bank: CreditCardIcon,
   cash: BanknoteIcon,
   other: PiggyBankIcon,
 };

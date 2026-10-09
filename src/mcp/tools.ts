@@ -39,6 +39,7 @@ import {
   parseConnectorDate,
   toMinorUnits,
 } from "@/helpers/connector";
+import { maskIdentifier } from "@/helpers/account-identifier";
 import { canWrite } from "@/helpers/role";
 import {
   isUnknownTransaction,
@@ -343,7 +344,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     {
       title: "List accounts",
       description:
-        "The book's accounts (bank cards, cash, …) with their ids and current balances, in the user's order. Use it to map an account name to account_id.",
+        "The book's accounts (type bank, cash or other) with their ids and current balances, in the user's order. Bank accounts may carry an identifier (account number, card number or Sheba) shown masked to its last four characters; it is only a hint for telling accounts apart, e.g. a card ending in 6219 in a bank SMS. Use it to map an account name to account_id.",
       inputSchema: z.object({}),
       annotations: { readOnlyHint: true },
     },
@@ -360,6 +361,12 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           id: account.id,
           name: account.name,
           type: account.type,
+          ...(account.identifier
+            ? {
+                identifier_kind: account.identifier.kind,
+                identifier: maskIdentifier(account.identifier),
+              }
+            : {}),
           balance: fromMinorUnits(account.balance, ctx.currency),
           ...(account.archived ? { archived: true } : {}),
         })),

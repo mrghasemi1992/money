@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
-import type { AccountInput } from "@/types/account";
+import type { AccountField, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 
 import { AccountDialog } from "./index";
@@ -15,7 +15,9 @@ const meta = {
     open: true,
     onOpenChange: () => {},
     account: null,
-    onSubmit: async (input: AccountInput): Promise<ActionResult<"name">> => {
+    onSubmit: async (
+      input: AccountInput,
+    ): Promise<ActionResult<AccountField>> => {
       await wait();
       return SAMPLE_ACCOUNTS.some((account) => account.name === input.name)
         ? { ok: false, field: "name", error: "حسابی با این نام وجود دارد." }

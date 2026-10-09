@@ -674,16 +674,21 @@ const en: Messages = {
   },
   accounts: {
     title: "Accounts",
-    subtitle: "Bank cards, cash and anywhere else your money sits",
+    subtitle: "Bank accounts, cash and anywhere else your money sits",
     add: "Add account",
     list: "Accounts",
     total: "Total balance",
     totalNote:
       "{countNumber, plural, one {{count} active account} other {{count} active accounts}}{archived, select, true {, excluding archived} other {}}",
     types: {
-      card: "Bank card",
+      bank: "Bank account",
       cash: "Cash",
       other: "Other",
+    },
+    identifierKinds: {
+      accountNumber: "Account number",
+      cardNumber: "Card number",
+      sheba: "Sheba",
     },
     menu: "Options for {name}",
     actions: {
@@ -707,6 +712,13 @@ const en: Messages = {
       name: "Name",
       namePlaceholder: "e.g. Mellat Bank card",
       type: "Type",
+      identifier: "Account identifier (optional)",
+      identifierOptional: "Leave empty if you don’t need it",
+      identifierHints: {
+        accountNumber: "Digits only; spaces and dashes are removed.",
+        cardNumber: "16 digits.",
+        sheba: "IR and 24 digits; typing IR is optional.",
+      },
       opening: "Starting balance",
       openingHint:
         "The balance on the day you start using Money. Can be zero or negative.",
@@ -718,6 +730,10 @@ const en: Messages = {
         nameMissing: "Enter a name.",
         nameTooLong: "An account name can be at most {max} characters.",
         nameTaken: "An account with this name already exists.",
+        accountNumberInvalid:
+          "An account number is digits only, between 5 and 30.",
+        cardNumberInvalid: "A card number is 16 digits.",
+        shebaInvalid: "A Sheba is IR followed by 24 digits.",
       },
     },
     delete: {

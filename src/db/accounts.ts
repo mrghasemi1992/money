@@ -19,11 +19,13 @@ import { accounts, transactions } from "./schema";
 
 /** Every account, archived ones included, in their saved order, with balances. */
 export async function listAccounts(): Promise<Account[]> {
-  return db
+  const rows = await db
     .select({
       id: accounts.id,
       name: accounts.name,
       type: accounts.type,
+      identifierKind: accounts.identifierKind,
+      identifier: accounts.identifier,
       openingBalance: accounts.openingBalance,
       balance: accountBalance(),
       archived: accounts.archived,
@@ -35,6 +37,24 @@ export async function listAccounts(): Promise<Account[]> {
       asc(accounts.createdAt),
       asc(accounts.id),
     );
+  return rows.map(({ identifierKind, identifier, ...account }) => ({
+    ...account,
+    identifier:
+      identifierKind && identifier
+        ? { kind: identifierKind, value: identifier }
+        : null,
+  }));
+}
+
+/** The columns of an account's input; only bank accounts keep an identifier. */
+function accountValues(input: AccountInput) {
+  const { identifier, ...rest } = input;
+  const kept = input.type === "bank" ? identifier : null;
+  return {
+    ...rest,
+    identifierKind: kept?.kind ?? null,
+    identifier: kept?.value ?? null,
+  };
 }
 
 /** Whether another account has this name, ignoring case. */
@@ -66,7 +86,7 @@ export async function createAccount(
     const [row] = await db
       .insert(accounts)
       .values({
-        ...input,
+        ...accountValues(input),
         sortOrder: sql`(select coalesce(max(${accounts.sortOrder}), -1) + 1 from ${accounts})`,
       })
       .returning({ id: accounts.id });
@@ -78,7 +98,7 @@ export async function createAccount(
 }
 
 /**
- * Changes an account's name, type and opening balance. Returns "ok", "missing" (no such
+ * Changes an account's name, type, identifier and opening balance. Returns "ok", "missing" (no such
  * account) or "taken" (another account has the name).
  */
 export async function updateAccount(
@@ -88,7 +108,7 @@ export async function updateAccount(
   try {
     const rows = await db
       .update(accounts)
-      .set(input)
+      .set(accountValues(input))
       .where(eq(accounts.id, id))
       .returning({ id: accounts.id });
     return rows.length > 0 ? "ok" : "missing";

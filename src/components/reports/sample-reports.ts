@@ -140,13 +140,13 @@ export const SAMPLE_ACCOUNT_REPORT: AccountReportRow[] = [
   {
     id: "a0a80101-0000-4000-8000-000000000001",
     name: "بانک ملی",
-    type: "card",
+    type: "bank",
     amount: 160300000,
   },
   {
     id: "a0a80101-0000-4000-8000-000000000002",
     name: "بانک سامان",
-    type: "card",
+    type: "bank",
     amount: 60100000,
   },
   {
