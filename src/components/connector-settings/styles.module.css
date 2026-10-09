@@ -105,6 +105,10 @@
   padding-block-start: var(--space-5);
 }
 
+.stepsDivider {
+  margin-block-start: var(--space-5);
+}
+
 .stepsTitle {
   margin: 0;
   color: var(--text-primary);

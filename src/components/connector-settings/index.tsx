@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DateText } from "@/components/ui/date-text";
+import { Divider } from "@/components/ui/divider";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -206,6 +207,7 @@ function UrlCard({ url }: { url: string }) {
       </div>
 
       <StepList group="steps" />
+      <Divider className={styles.stepsDivider} />
       <StepList group="chatgptSteps" />
     </Card>
   );
