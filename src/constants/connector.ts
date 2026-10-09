@@ -4,6 +4,12 @@ export const MCP_PATH = "/mcp";
 /** The OAuth consent page Claude's sign-in opens after /login. */
 export const OAUTH_CONSENT_PATH = "/oauth/consent";
 
+/**
+ * ChatGPT's OAuth client_id is the URL of its Client ID Metadata Document, so a token whose
+ * client starts with this was issued to ChatGPT. Any other client is recorded as Claude.
+ */
+export const CHATGPT_CLIENT_ID_PREFIX = "https://chatgpt.com/";
+
 /** Settings page with the connector URL and the connected apps. */
 export const CONNECTOR_SETTINGS_PATH = "/settings/connector";
 

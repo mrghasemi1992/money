@@ -13,8 +13,10 @@ import { handleMcpRequest } from "@/mcp/handler";
 const handler = withMcpAuth(
   async (request) => {
     const user = getMcpUser(request.auth);
-    if (!user) return new Response("Unauthorized", { status: 401 });
-    return handleMcpRequest(request, user);
+    const clientId = request.auth?.clientId;
+    if (!user || !clientId)
+      return new Response("Unauthorized", { status: 401 });
+    return handleMcpRequest(request, user, clientId);
   },
   verifyMcpToken,
   {

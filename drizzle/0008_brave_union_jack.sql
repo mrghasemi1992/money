@@ -1,0 +1,2 @@
+ALTER TABLE "transactions" DROP CONSTRAINT "transactions_source_check";--> statement-breakpoint
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_source_check" CHECK ("transactions"."source" in ('web', 'mcp', 'chatgpt', 'csv'));

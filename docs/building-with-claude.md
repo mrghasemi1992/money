@@ -106,6 +106,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | [#46](https://github.com/mrghasemi1992/money/pull/46) |
 | Issue #36: license         | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
 | Issue #50: transaction id  | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
+| Issue #33: ChatGPT         | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
 
 ---
 
@@ -1204,6 +1205,33 @@ Which branch to use: the current branch already held an unrelated commit, so the
 ### Result
 
 - `TransactionDetail` shows the transaction's id (the same one the MCP tools return and accept) in a row above the «added by» section, always left to right, with a copy button (`useClipboard`) and a toast. Every role sees it.
+
+---
+
+## Change: ChatGPT as a connector
+
+Branch: `feature/chatgpt-connector`. Date: 2026-10-09. PR [#53](https://github.com/mrghasemi1992/money/pull/53). Not a planned phase: GitHub issue [#33](https://github.com/mrghasemi1992/money/issues/33). No Claude Design step.
+
+### Claude Code prompt
+
+```text
+handle github issue #33
+```
+
+### Questions Claude asked
+
+None.
+
+### Follow-ups
+
+None.
+
+### Result
+
+- Research: ChatGPT supports Client ID Metadata Documents (`https://chatgpt.com/oauth/client.json`), needs PKCE S256, the `resource` parameter, the RFC 9207 issuer parameter and discovery metadata. The authorization server already advertises all of it, and the plugin's validator accepts ChatGPT's document, so no server change was needed.
+- `/settings/connector` has a second steps list «افزودن در ChatGPT» / “Add it in ChatGPT” (Developer mode → Create app → URL + OAuth), and the page copy names both apps. README and CLAUDE.md describe it.
+- Follow-up: transactions ChatGPT adds are recorded with their own source `chatgpt` (migration `0008`; `mcp` stays Claude), chosen from the token's client id, and show a ChatGPT badge in the list, dashboard and detail. The connector page's note names both badges.
+- Not tested from ChatGPT itself (needs a public deployment and a ChatGPT plan with Developer mode): to be checked on the preview.
 
 ---
 

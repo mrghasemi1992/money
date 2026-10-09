@@ -57,6 +57,13 @@
       "when": 1791535281036,
       "tag": "0007_dashing_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791544412771,
+      "tag": "0008_brave_union_jack",
+      "breakpoints": true
     }
   ]
 }

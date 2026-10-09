@@ -274,7 +274,7 @@ const fa = {
       transaction: "تراکنش",
       account: "حساب",
       amount: "مبلغ",
-      claudeTip: "ثبت‌شده با Claude",
+      assistantTip: "ثبت‌شده با {name}",
       route: "{from} ← {to}",
       edit: "ویرایش",
       delete: "حذف",
@@ -360,7 +360,7 @@ const fa = {
       tags: "برچسب‌ها",
       note: "یادداشت",
       addedBy: "ثبت توسط {name}",
-      addedByClaude: "ثبت توسط {name} با Claude",
+      addedByAssistant: "ثبت توسط {name} با {assistant}",
       addedByImport: "ثبت توسط {name} با درون‌ریزی فایل",
       lastEdited: "آخرین ویرایش: {name}",
       unknownTitle: "این تراکنش شناسایی نشده",
@@ -864,14 +864,15 @@ const fa = {
     },
   },
   connector: {
-    title: "اتصال به Claude",
+    title: "اتصال به Claude و ChatGPT",
     subtitle:
-      "با گفت‌وگو با Claude تراکنش ثبت کنید و دربارهٔ خرج‌هایتان بپرسید.",
+      "با گفت‌وگو با Claude یا ChatGPT تراکنش ثبت کنید و دربارهٔ خرج‌هایتان بپرسید.",
     error: "برنامه‌های متصل بارگذاری نشد",
     url: {
       title: "نشانی اتصال",
-      subtitle: "این نشانی را در Claude به‌عنوان کانکتور سفارشی اضافه کنید.",
-      hint: "ورود و اجازهٔ دسترسی بعد از افزودن، در خود پول انجام می‌شود. رمز عبورتان به Claude داده نمی‌شود.",
+      subtitle:
+        "این نشانی را در Claude یا ChatGPT به‌عنوان کانکتور سفارشی اضافه کنید.",
+      hint: "ورود و اجازهٔ دسترسی بعد از افزودن، در خود پول انجام می‌شود. رمز عبورتان به Claude یا ChatGPT داده نمی‌شود.",
       copy: "کپی",
       copied: "کپی شد",
       copyLabel: "کپی نشانی اتصال",
@@ -884,6 +885,14 @@ const fa = {
         "نامی مثل «پول» بنویسید، نشانی بالا را در <chip>Remote MCP server URL</chip> بچسبانید و <chip>Add</chip> را بزنید.",
       four: "روی <chip>Connect</chip> بزنید، وارد پول شوید و اجازهٔ دسترسی بدهید.",
     },
+    chatgptSteps: {
+      title: "افزودن در ChatGPT",
+      one: "در ChatGPT روی نامتان (پایین سمت چپ) بزنید و به <path><chip>Settings</chip><sep></sep><chip>Security and login</chip></path> بروید. پایین صفحه <chip>Developer mode</chip> را روشن کنید.",
+      two: "از منوی کناری <chip>Plugins</chip> را باز کنید، روی + بالای صفحه بزنید و <chip>Add custom MCP server</chip> را انتخاب کنید.",
+      three:
+        "نامی مثل «پول» بنویسید. در <chip>Connection</chip> گزینهٔ <chip>Server URL</chip> را بگذارید و نشانی بالا را بچسبانید. احراز هویت را روی <chip>OAuth</chip> بگذارید، تیک <chip>I understand and want to continue</chip> را بزنید و <chip>Create</chip> را بزنید.",
+      four: "وارد پول شوید و اجازهٔ دسترسی بدهید.",
+    },
     apps: {
       title: "برنامه‌های متصل",
       subtitle: "برنامه‌هایی که الان به حساب شما دسترسی دارند.",
@@ -895,7 +904,7 @@ const fa = {
       revoke: "قطع دسترسی",
       emptyTitle: "هنوز برنامه‌ای متصل نیست",
       emptyDescription:
-        "نشانی بالا را در Claude اضافه کنید تا اینجا نمایش داده شود.",
+        "نشانی بالا را در Claude یا ChatGPT اضافه کنید تا اینجا نمایش داده شود.",
       role: {
         viewer:
           "Claude با نقش شما (بیننده) کار می‌کند: فقط می‌تواند تراکنش‌ها را بخواند.",
@@ -924,7 +933,8 @@ const fa = {
       restaurants: "«این ماه چقدر خرج رستوران کردم؟»",
       unknown: "«تراکنش‌های ناشناس این ماه رو نشونم بده»",
       compare: "«خرج‌های مهر رو با شهریور مقایسه کن»",
-      badgeBefore: "تراکنش‌هایی که Claude ثبت می‌کند با نشان",
+      badgeBefore: "تراکنش‌هایی که Claude یا ChatGPT ثبت می‌کنند با نشان",
+      badgeOr: "یا",
       badgeAfter: "در فهرست دیده می‌شوند.",
     },
     consent: {
