@@ -1,6 +1,6 @@
 /*
  * Better Auth tables (core + username and admin plugins + database rate limiting), written by
- * hand to match what Better Auth 1.7 expects, with UUID ids (`generateId: "uuid"`) and
+ * hand to match what Better Auth 1.7 expects, with UUID ids (made by `generateId`) and
  * timestamptz columns. Field names are the ones Better Auth uses; `casing: "snake_case"` turns
  * them into snake_case columns. When a Better Auth upgrade or a new plugin adds fields, add
  * them here and run `pnpm db:generate`.

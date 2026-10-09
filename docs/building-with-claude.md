@@ -31,6 +31,8 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Change: Category-first rows and the unknown tag](#change-category-first-rows-and-the-unknown-tag)
 - [Change: License](#change-license)
 - [Change: Transaction id in the detail](#change-transaction-id-in-the-detail)
+- [Change: ChatGPT as a connector](#change-chatgpt-as-a-connector)
+- [Fix: ChatGPT's token request](#fix-chatgpts-token-request)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -107,6 +109,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | Issue #36: license         | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
 | Issue #50: transaction id  | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
 | Issue #33: ChatGPT         | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
+| Fix: ChatGPT token request | 2026-10-09         | `bugfix/chatgpt-token-exchange`        | (linked when opened)                                  |
 
 ---
 
@@ -1232,6 +1235,29 @@ None.
 - `/settings/connector` has a second steps list «افزودن در ChatGPT» / “Add it in ChatGPT” (Developer mode → Create app → URL + OAuth), and the page copy names both apps. README and CLAUDE.md describe it.
 - Follow-up: transactions ChatGPT adds are recorded with their own source `chatgpt` (migration `0008`; `mcp` stays Claude), chosen from the token's client id, and show a ChatGPT badge in the list, dashboard and detail. The connector page's note names both badges.
 - Not tested from ChatGPT itself (needs a public deployment and a ChatGPT plan with Developer mode): to be checked on the preview.
+
+---
+
+## Fix: ChatGPT's token request
+
+Branch: `bugfix/chatgpt-token-exchange`. Date: 2026-10-09. Not a planned phase. No Claude Design step.
+
+### Claude Code prompt
+
+```text
+فرآیند اتصال کلاد به اپ خیلی راحت بود ولی chatgpt خیلی سخته و الان که روی پروداکشن تست میکنم در مرحله آخر بعد از ورود به صفحه پول برای تایید دسترسی chatgpt و بعد ورود به خود chatgpt یه بنر قرمز میاد میگه در اتصال gpt به پول مشکلی پیش آمده. توی لیست پلاگین هاش هست ولی خب درست وصل نشده
+```
+
+(Connecting Claude was easy, but on production ChatGPT shows a red error banner after the consent page, and the app is listed but not connected.)
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- Cause, from the production logs (`vercel logs`): every `POST /api/auth/oauth2/token` from ChatGPT answered 500. ChatGPT authenticates with `private_key_jwt`, and Better Auth stores each assertion's id (a digest of its `jti`) in `oauth_client_assertion` to stop replays. With `generateId: "uuid"` Better Auth's adapter drops any id it is handed that isn't a UUID, so the insert had no id and failed the not-null constraint. Claude uses no client assertion, so it never reached this code.
+- Fix: `generateId: () => crypto.randomUUID()` in `src/auth/index.ts`. Ids stay UUIDs (made in the app instead of by Postgres) and ids Better Auth picks itself are kept. No migration.
 
 ---
 
