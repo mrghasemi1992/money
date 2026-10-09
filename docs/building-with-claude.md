@@ -30,6 +30,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Phase 10: CSV import and export](#phase-10-csv-import-and-export)
 - [Change: Category-first rows and the unknown tag](#change-category-first-rows-and-the-unknown-tag)
 - [Change: License](#change-license)
+- [Change: Transaction id in the detail](#change-transaction-id-in-the-detail)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -104,6 +105,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                 | [#45](https://github.com/mrghasemi1992/money/pull/45) |
 | Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | [#46](https://github.com/mrghasemi1992/money/pull/46) |
 | Issue #36: license         | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
+| Issue #50: transaction id  | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
 
 ---
 
@@ -1176,6 +1178,32 @@ None: the issue named the license to copy.
 - **`package.json`**: `"license": "PolyForm-Noncommercial-1.0.0"`.
 - **README**: a License section like Orange's: noncommercial use is free, credit is required, commercial use needs a paid license; the name «پول» / "Money" and the logo aren't covered; libraries and fonts keep their own licenses, and Money isn't affiliated with Anthropic.
 - `CLAUDE.md` names the license under What this is.
+
+---
+
+## Change: Transaction id in the detail
+
+Branch: `feature/transaction-id`. Date: 2026-10-09. PR [#52](https://github.com/mrghasemi1992/money/pull/52). Not a planned phase: GitHub issue [#50](https://github.com/mrghasemi1992/money/issues/50). No Claude Design step.
+
+### Claude Code prompt
+
+```text
+add new github issue, show each transaction id when i open it for when i want to talk about it with claude
+```
+
+Then: «implement the transaction id issue».
+
+### Questions Claude asked
+
+Which branch to use: the current branch already held an unrelated commit, so the change went on its own branch from `main`.
+
+### Follow-ups
+
+- «we have error on preview. fix it»: the branch had been cut from a stale local `main` (without the account types commit), while the shared database was already migrated, so the preview crashed on `/transactions`. Fixed by rebasing onto the current `main`.
+
+### Result
+
+- `TransactionDetail` shows the transaction's id (the same one the MCP tools return and accept) in a row above the «added by» section, always left to right, with a copy button (`useClipboard`) and a toast. Every role sees it.
 
 ---
 

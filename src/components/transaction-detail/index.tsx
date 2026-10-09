@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  CheckIcon,
   CircleHelpIcon,
+  CopyIcon,
   PencilIcon,
   SparklesIcon,
   TagIcon,
@@ -15,8 +17,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
+import { IconButton } from "@/components/ui/icon-button";
+import { useToast } from "@/components/ui/toast";
 import { MOBILE_QUERY } from "@/constants/media";
 import { isUnknownTransaction } from "@/helpers/transaction";
+import { useClipboard } from "@/hooks/use-clipboard";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { Transaction, TransactionSource } from "@/types/transaction";
@@ -60,8 +65,21 @@ export function TransactionDetail({
   const locale = useLocale();
   const { calendar, timeZone } = usePreferences();
   const isMobile = useMediaQuery(MOBILE_QUERY);
+  const toast = useToast();
+  const { copied, copy } = useClipboard();
 
   if (!transaction) return null;
+
+  async function copyId(id: string) {
+    if (await copy(id)) {
+      toast.show({ title: t("transactions.detail.idCopied"), tone: "success" });
+    } else {
+      toast.show({
+        title: t("transactions.detail.idCopyFailed"),
+        tone: "warning",
+      });
+    }
+  }
 
   const unknown = isUnknownTransaction(transaction);
   const isTransfer = transaction.type === "transfer";
@@ -214,6 +232,19 @@ export function TransactionDetail({
             </>
           ) : null}
         </dl>
+
+        <div className={styles.idRow}>
+          <span className={styles.idLabel}>{t("transactions.detail.id")}</span>
+          <code className={styles.id} dir="ltr">
+            {transaction.id}
+          </code>
+          <IconButton
+            size="sm"
+            icon={copied ? CheckIcon : CopyIcon}
+            label={t("transactions.detail.copyId")}
+            onClick={() => copyId(transaction.id)}
+          />
+        </div>
 
         <div className={styles.people}>
           <div className={styles.person}>
