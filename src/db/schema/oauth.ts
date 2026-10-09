@@ -216,8 +216,9 @@ export const oauthConsent = pgTable(
 );
 
 /**
- * Single-use `private_key_jwt` assertion ids. Money's clients don't use that method, but the
- * provider expects the table. Its id is a digest Better Auth computes, so it's text.
+ * Single-use `private_key_jwt` assertion ids (ChatGPT authenticates this way), so an assertion
+ * can't be replayed. Its id is a digest of the assertion's jti that Better Auth computes, so it's
+ * text.
  */
 export const oauthClientAssertion = pgTable("oauth_client_assertion", {
   id: text().primaryKey(),

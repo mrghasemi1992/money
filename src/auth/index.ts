@@ -142,7 +142,12 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    database: { generateId: "uuid" },
+    database: {
+      // UUIDs made here, not by Postgres: with `generateId: "uuid"` Better Auth drops every id it
+      // is handed that isn't a UUID, including the jti digest it uses as the id of a
+      // `private_key_jwt` assertion (`oauth_client_assertion`), so ChatGPT's token request failed.
+      generateId: () => crypto.randomUUID(),
+    },
     // Vercel overwrites this header with the client's IP, so it can't be spoofed.
     ipAddress: { ipAddressHeaders: ["x-forwarded-for"] },
   },
