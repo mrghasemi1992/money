@@ -179,7 +179,6 @@ export function ConnectorSettings({
 
 function UrlCard({ url }: { url: string }) {
   const t = useTranslations("connector");
-  const locale = useLocale();
   const { copied, copy } = useClipboard();
   return (
     <Card title={t("url.title")} subtitle={t("url.subtitle")} as="section">
@@ -206,37 +205,46 @@ function UrlCard({ url }: { url: string }) {
         </p>
       </div>
 
-      <div className={styles.steps}>
-        <h3 className={styles.stepsTitle}>{t("steps.title")}</h3>
-        <ol className={styles.stepList}>
-          {STEPS.map((step, index) => (
-            <li key={step} className={styles.step}>
-              <span className={styles.stepNumber} aria-hidden="true">
-                {formatNumber(index + 1, locale)}
-              </span>
-              <p className={styles.stepText}>
-                {t.rich(`steps.${step}`, {
-                  path: (chunks: ReactNode) => (
-                    <span className={styles.path}>{chunks}</span>
-                  ),
-                  chip: (chunks: ReactNode) => (
-                    <bdi dir="ltr" lang="en" className={styles.chip}>
-                      {chunks}
-                    </bdi>
-                  ),
-                  sep: () => (
-                    <ChevronRightIcon
-                      className={`${styles.separator} mirror-rtl`}
-                      aria-label="›"
-                    />
-                  ),
-                })}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <StepList group="steps" />
+      <StepList group="chatgptSteps" />
     </Card>
+  );
+}
+
+function StepList({ group }: { group: "steps" | "chatgptSteps" }) {
+  const t = useTranslations("connector");
+  const locale = useLocale();
+  return (
+    <div className={styles.steps}>
+      <h3 className={styles.stepsTitle}>{t(`${group}.title`)}</h3>
+      <ol className={styles.stepList}>
+        {STEPS.map((step, index) => (
+          <li key={step} className={styles.step}>
+            <span className={styles.stepNumber} aria-hidden="true">
+              {formatNumber(index + 1, locale)}
+            </span>
+            <p className={styles.stepText}>
+              {t.rich(`${group}.${step}`, {
+                path: (chunks: ReactNode) => (
+                  <span className={styles.path}>{chunks}</span>
+                ),
+                chip: (chunks: ReactNode) => (
+                  <bdi dir="ltr" lang="en" className={styles.chip}>
+                    {chunks}
+                  </bdi>
+                ),
+                sep: () => (
+                  <ChevronRightIcon
+                    className={`${styles.separator} mirror-rtl`}
+                    aria-label="›"
+                  />
+                ),
+              })}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 

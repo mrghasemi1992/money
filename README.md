@@ -11,14 +11,16 @@ pnpm dev
 
 Open [http://money.localhost:3000](http://money.localhost:3000).
 
-## Connect Claude
+## Connect Claude or ChatGPT
 
-Money is also a remote MCP server, so Claude can record transactions and answer questions about the book. Each user connects their own Claude and signs in to Money; Claude then works with that user's role (viewers can only read).
+Money is also a remote MCP server, so Claude or ChatGPT can record transactions and answer questions about the book. Each user connects their own Claude and signs in to Money; Claude then works with that user's role (viewers can only read).
 
 1. In Money, open **Settings → Connect to Claude** (`/settings/connector`) and copy the connector URL: `https://<your domain>/mcp`.
 2. In Claude, go to **Settings → Connectors → Add custom connector**. Name it (for example «پول» or "Money"), paste the URL into **Remote MCP server URL** and click **Add**. Leave the OAuth client ID and secret empty.
 3. Click **Connect**. A Money window opens: sign in with your username and password, then click **Allow** on the permission page.
 4. Ask Claude, for example: «این پیامک بانک رو ثبت کن» (with the SMS pasted), or "How much did I spend on restaurants this month?"
+
+To connect ChatGPT instead (it needs Developer mode, which depends on your plan and workspace): in ChatGPT go to **Settings → Apps → Advanced settings**, turn on **Developer mode**, click **Create app**, name it, paste the same URL into **MCP Server URL**, set authentication to **OAuth** and click **Create**; then **Connect**, sign in to Money and allow access. ChatGPT identifies itself with its own Client ID Metadata Document (`https://chatgpt.com/oauth/client.json`), so nothing is registered here either.
 
 Connected apps are listed on the same settings page, where you can revoke one. An admin disabling a user disconnects their apps too.
 

@@ -864,14 +864,15 @@ const fa = {
     },
   },
   connector: {
-    title: "اتصال به Claude",
+    title: "اتصال به Claude و ChatGPT",
     subtitle:
-      "با گفت‌وگو با Claude تراکنش ثبت کنید و دربارهٔ خرج‌هایتان بپرسید.",
+      "با گفت‌وگو با Claude یا ChatGPT تراکنش ثبت کنید و دربارهٔ خرج‌هایتان بپرسید.",
     error: "برنامه‌های متصل بارگذاری نشد",
     url: {
       title: "نشانی اتصال",
-      subtitle: "این نشانی را در Claude به‌عنوان کانکتور سفارشی اضافه کنید.",
-      hint: "ورود و اجازهٔ دسترسی بعد از افزودن، در خود پول انجام می‌شود. رمز عبورتان به Claude داده نمی‌شود.",
+      subtitle:
+        "این نشانی را در Claude یا ChatGPT به‌عنوان کانکتور سفارشی اضافه کنید.",
+      hint: "ورود و اجازهٔ دسترسی بعد از افزودن، در خود پول انجام می‌شود. رمز عبورتان به Claude یا ChatGPT داده نمی‌شود.",
       copy: "کپی",
       copied: "کپی شد",
       copyLabel: "کپی نشانی اتصال",
@@ -882,6 +883,14 @@ const fa = {
       two: "روی <chip>Add custom connector</chip> بزنید.",
       three:
         "نامی مثل «پول» بنویسید، نشانی بالا را در <chip>Remote MCP server URL</chip> بچسبانید و <chip>Add</chip> را بزنید.",
+      four: "روی <chip>Connect</chip> بزنید، وارد پول شوید و اجازهٔ دسترسی بدهید.",
+    },
+    chatgptSteps: {
+      title: "افزودن در ChatGPT",
+      one: "در ChatGPT به <path><chip>Settings</chip><sep></sep><chip>Apps</chip><sep></sep><chip>Advanced settings</chip></path> بروید و <chip>Developer mode</chip> را روشن کنید.",
+      two: "روی <chip>Create app</chip> بزنید.",
+      three:
+        "نامی مثل «پول» بنویسید، نشانی بالا را در <chip>MCP Server URL</chip> بچسبانید، احراز هویت را <chip>OAuth</chip> بگذارید و <chip>Create</chip> را بزنید.",
       four: "روی <chip>Connect</chip> بزنید، وارد پول شوید و اجازهٔ دسترسی بدهید.",
     },
     apps: {
@@ -895,7 +904,7 @@ const fa = {
       revoke: "قطع دسترسی",
       emptyTitle: "هنوز برنامه‌ای متصل نیست",
       emptyDescription:
-        "نشانی بالا را در Claude اضافه کنید تا اینجا نمایش داده شود.",
+        "نشانی بالا را در Claude یا ChatGPT اضافه کنید تا اینجا نمایش داده شود.",
       role: {
         viewer:
           "Claude با نقش شما (بیننده) کار می‌کند: فقط می‌تواند تراکنش‌ها را بخواند.",

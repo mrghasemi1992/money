@@ -869,14 +869,14 @@ const en: Messages = {
     },
   },
   connector: {
-    title: "Connect to Claude",
+    title: "Connect Claude and ChatGPT",
     subtitle:
-      "Record transactions and ask about your spending by chatting with Claude.",
+      "Record transactions and ask about your spending by chatting with Claude or ChatGPT.",
     error: "Couldn’t load connected apps",
     url: {
       title: "Connector URL",
-      subtitle: "Add this URL to Claude as a custom connector.",
-      hint: "Sign-in and permission happen in Money after you add it. Your password is never shared with Claude.",
+      subtitle: "Add this URL to Claude or ChatGPT as a custom connector.",
+      hint: "Sign-in and permission happen in Money after you add it. Your password is never shared with Claude or ChatGPT.",
       copy: "Copy",
       copied: "Copied",
       copyLabel: "Copy the connector URL",
@@ -889,6 +889,14 @@ const en: Messages = {
         "Name it “Money”, paste the URL above into <chip>Remote MCP server URL</chip> and click <chip>Add</chip>.",
       four: "Click <chip>Connect</chip>, sign in to Money and allow access.",
     },
+    chatgptSteps: {
+      title: "Add it in ChatGPT",
+      one: "In ChatGPT, go to <path><chip>Settings</chip><sep></sep><chip>Apps</chip><sep></sep><chip>Advanced settings</chip></path> and turn on <chip>Developer mode</chip>.",
+      two: "Click <chip>Create app</chip>.",
+      three:
+        "Name it “Money”, paste the URL above into <chip>MCP Server URL</chip>, set authentication to <chip>OAuth</chip> and click <chip>Create</chip>.",
+      four: "Click <chip>Connect</chip>, sign in to Money and allow access.",
+    },
     apps: {
       title: "Connected apps",
       subtitle: "Apps that currently have access to your account.",
@@ -899,7 +907,8 @@ const en: Messages = {
       write: "Read & write",
       revoke: "Revoke access",
       emptyTitle: "No apps connected yet",
-      emptyDescription: "Add the URL above in Claude and it will show up here.",
+      emptyDescription:
+        "Add the URL above in Claude or ChatGPT and it will show up here.",
       role: {
         viewer:
           "Claude works with your role (Viewer): it can only read transactions.",
