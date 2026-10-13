@@ -63,6 +63,15 @@ export function spendingSlices(
   ];
 }
 
+/**
+ * What the unknown notice says, as a string: the count and when the newest unknown transaction
+ * was added. Closing the notice saves it; a new unknown transaction changes it, so the notice
+ * shows again.
+ */
+export function unknownNoticeKey(count: number, latest: string | null): string {
+  return `${count}|${latest ?? ""}`;
+}
+
 /** Every unknown transaction of the book: from the oldest one on, unknown only. */
 export function unknownTransactionsHref(oldest: string | null): string {
   return `/transactions${transactionParamsToSearch({

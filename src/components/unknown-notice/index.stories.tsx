@@ -7,7 +7,11 @@ import { UnknownNotice } from "./index";
 const meta = {
   title: "Components/UnknownNotice",
   component: UnknownNotice,
-  args: { count: 3, href: unknownTransactionsHref("2026-09-02") },
+  args: {
+    count: 3,
+    href: unknownTransactionsHref("2026-09-02"),
+    closeKey: "3|2026-09-02 10:00:00+00",
+  },
   parameters: { layout: "padded" },
 } satisfies Meta<typeof UnknownNotice>;
 
