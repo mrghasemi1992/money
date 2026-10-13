@@ -12,6 +12,8 @@ How a new version of Money is made and reaches every self-hosted copy. Self-host
 
 The repository needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** for the workflow to open the release PR.
 
+The release PR's branch (`release-please--…`) gets no Vercel preview: it changes only `package.json`, the manifest and `CHANGELOG.md`, so a preview would test nothing and still cost a build and a Neon branch. `vercel.json` turns off Git deployments for it (`git.deploymentEnabled`, a minimatch pattern); every other branch keeps its preview.
+
 ### Versions
 
 [Semantic Versioning](https://semver.org/), from the commit types:
