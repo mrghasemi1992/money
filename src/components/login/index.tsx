@@ -232,7 +232,6 @@ export function Login({
       </div>
       <div className={cx(styles.spacer, styles.spacerEnd)} aria-hidden="true" />
       <footer className={styles.footer}>
-        <p className={styles.note}>{t("note")}</p>
         {onChangeLocale ? <LanguageSwitch onChange={onChangeLocale} /> : null}
       </footer>
     </main>

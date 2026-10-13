@@ -1,7 +1,7 @@
 /*
- * Larger screens: a card centered on the page with the note under it.
- * Phones: the whole screen, form a little above the middle, note at the bottom. When the
- * keyboard is open (a short viewport), the header shrinks to one row and the note hides, so the
+ * Larger screens: a card centered on the page with the language switch under it.
+ * Phones: the whole screen, form a little above the middle, language switch at the bottom. When
+ * the keyboard is open (a short viewport), the header shrinks to one row and the footer hides, so the
  * button stays above the keyboard.
  */
 
@@ -110,14 +110,6 @@
   align-items: center;
   gap: var(--space-2);
   max-width: var(--login-max);
-}
-
-.note {
-  margin: 0;
-  color: var(--text-muted);
-  font: var(--type-caption);
-  text-align: center;
-  text-wrap: pretty;
 }
 
 /* Password with the show/hide button inside the box, at the start (right in RTL). */
