@@ -34,6 +34,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Change: ChatGPT as a connector](#change-chatgpt-as-a-connector)
 - [Fix: ChatGPT's token request](#fix-chatgpts-token-request)
 - [Fix: Deleting an unused subcategory](#fix-deleting-an-unused-subcategory)
+- [Change: No preview for the release PR](#change-no-preview-for-the-release-pr)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -112,7 +113,8 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | Issue #33: ChatGPT            | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
 | Fix: ChatGPT token request    | 2026-10-09         | `bugfix/chatgpt-token-exchange`        | (linked when opened)                                  |
 | Issue #34: releases           | 2026-10-09         | `feature/releases-and-app-version`     | (linked when opened)                                  |
-| Issue #61: subcategory delete | 2026-10-13         | `bugfix/issue-61-delete-subcategory`   | (linked when opened)                                  |
+| Issue #61: subcategory delete | 2026-10-13         | `bugfix/issue-61-delete-subcategory`   | [#74](https://github.com/mrghasemi1992/money/pull/74) |
+| No release PR preview         | 2026-10-13         | `chore/skip-release-pr-preview`        | (linked when opened)                                  |
 
 ---
 
@@ -1318,6 +1320,29 @@ None.
 
 - Cause: `deleteCategories` deleted a subcategory only when its whole family (the top-level category and every subcategory) had no transactions, while the categories page offers delete from the subcategory's own count. «حمل‌ونقل» and its other subcategories have transactions, so the delete matched no row and the page said the category was in use. The SQL itself was fine (Drizzle qualifies the outer columns in a delete).
 - Fix: a subcategory now needs only itself unused. A category still needs its whole family unused and goes with its subcategories; a subcategory deleted with its parent (undoing «add all») follows the parent's rule, so a parent never loses its subcategories while it stays. No migration.
+
+---
+
+## Change: No preview for the release PR
+
+Branch: `chore/skip-release-pr-preview`. Date: 2026-10-13. Not a planned phase. No Claude Design step.
+
+### Claude Code prompt
+
+```text
+do Skip the Vercel preview for the release PR
+```
+
+It followed a conversation about the release flow. The questions were whether each merged PR makes a release, a branch and a preview (no: release-please keeps one release PR on one reused branch, and a release is cut only when that PR is merged), and whether this is good practice. Claude suggested two changes: skip the release PR's preview, and delete branches after merge (a GitHub setting, not part of this PR).
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- `vercel.json` with `git.deploymentEnabled: { "release-please--*": false }` (minimatch, from Vercel's Git configuration docs). The release branch changes only `package.json`, the manifest and `CHANGELOG.md`, so its preview tested nothing and still cost a build and a Neon branch. Every other branch keeps its preview, and `main` still deploys to Production. The file applies to both Vercel projects from this repo (`money` and `money-storybook`).
+- `docs/releases.md` and CLAUDE.md say so.
 
 ---
 
