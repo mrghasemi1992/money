@@ -35,6 +35,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Fix: ChatGPT's token request](#fix-chatgpts-token-request)
 - [Fix: Deleting an unused subcategory](#fix-deleting-an-unused-subcategory)
 - [Change: No preview for the release PR](#change-no-preview-for-the-release-pr)
+- [Change: Close button on the unknown transactions notice](#change-close-button-on-the-unknown-transactions-notice)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -115,6 +116,7 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 | Issue #34: releases           | 2026-10-09         | `feature/releases-and-app-version`     | (linked when opened)                                  |
 | Issue #61: subcategory delete | 2026-10-13         | `bugfix/issue-61-delete-subcategory`   | [#74](https://github.com/mrghasemi1992/money/pull/74) |
 | No release PR preview         | 2026-10-13         | `chore/skip-release-pr-preview`        | (linked when opened)                                  |
+| Issue #66: close unknown note | 2026-10-13         | `feature/dismiss-unknown-notice`       | (linked when opened)                                  |
 
 ---
 
@@ -1343,6 +1345,30 @@ None.
 
 - `vercel.json` with `git.deploymentEnabled: { "release-please--*": false }` (minimatch, from Vercel's Git configuration docs). The release branch changes only `package.json`, the manifest and `CHANGELOG.md`, so its preview tested nothing and still cost a build and a Neon branch. Every other branch keeps its preview, and `main` still deploys to Production. The file applies to both Vercel projects from this repo (`money` and `money-storybook`).
 - `docs/releases.md` and CLAUDE.md say so.
+
+---
+
+## Change: Close button on the unknown transactions notice
+
+Branch: `feature/dismiss-unknown-notice`. Date: 2026-10-13. Not a planned phase. No Claude Design step.
+
+### Claude Code prompt
+
+```text
+github issue #66
+```
+
+The session began with a request to start from `main` (checkout, pull, then branch); that is now a rule in CLAUDE.md. ([Issue #66](https://github.com/mrghasemi1992/money/issues/66): the dashboard notice «۳ تراکنش ناشناس دارید» should have a close button; once closed it stays hidden, and it shows again when new unknown transactions appear.)
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- `UnknownNotice` has a close button (`IconButton`, «بستن» / “Close”). Closing saves `unknownNoticeKey` (the count and the newest unknown transaction's `created_at`) in the `money-unknown-closed` cookie, and `UnknownSection` leaves the notice out while the cookie matches. A cookie rather than `localStorage`, so the server never renders a notice that is then hidden (no flash). The choice is per device, like the theme.
+- A new unknown transaction changes the key, so the notice returns; so does a change of the count (an edit that makes one unknown, or a delete). `unknownTransactionSummary` also returns `latest`. No migration.
+- CLAUDE.md: the Git bullet (pull `main` before branching) and the dashboard's `UnknownNotice` bullet.
 
 ---
 

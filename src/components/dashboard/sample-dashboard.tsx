@@ -89,6 +89,7 @@ export function SampleDashboard({
           <UnknownNotice
             count={unknownCount}
             href={unknownTransactionsHref("2026-09-02")}
+            closeKey={`${unknownCount}|sample`}
           />
         ) : null
       }

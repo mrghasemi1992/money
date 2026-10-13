@@ -318,15 +318,17 @@ export async function bookHasTransactions(): Promise<boolean> {
 export async function unknownTransactionSummary(): Promise<{
   count: number;
   oldest: string | null;
+  latest: string | null;
 }> {
   const [row] = await db
     .select({
       count: sql<number>`count(*)`.mapWith(Number),
       oldest: sql<string | null>`min(${transactions.date})::text`,
+      latest: sql<string | null>`max(${transactions.createdAt})::text`,
     })
     .from(transactions)
     .where(filterConditions({ ...NO_TRANSACTION_FILTERS, unknownOnly: true }));
-  return row ?? { count: 0, oldest: null };
+  return row ?? { count: 0, oldest: null, latest: null };
 }
 
 /** Tags in the book, most used first, for suggestions and the tag filter. */

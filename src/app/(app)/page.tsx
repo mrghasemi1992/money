@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
@@ -30,6 +31,7 @@ import {
   DASHBOARD_BUDGET_COUNT,
   DASHBOARD_RECENT_COUNT,
   DASHBOARD_SPENDING_SLICES,
+  UNKNOWN_NOTICE_COOKIE,
 } from "@/constants/dashboard";
 import { listAccounts } from "@/db/accounts";
 import { listBudgetCategories } from "@/db/budgets";
@@ -44,6 +46,7 @@ import { resolveBudgetMonth } from "@/helpers/budget";
 import {
   closestBudgets,
   spendingSlices,
+  unknownNoticeKey,
   unknownTransactionsHref,
 } from "@/helpers/dashboard";
 import { canWrite, toUserRole } from "@/helpers/role";
@@ -131,9 +134,18 @@ export default async function DashboardPage() {
 
 /** «۳ تراکنش ناشناس دارید», when there are any in the book. */
 async function UnknownSection() {
-  const { count, oldest } = await unknownTransactionSummary();
+  const { count, oldest, latest } = await unknownTransactionSummary();
   if (count === 0) return null;
-  return <UnknownNotice count={count} href={unknownTransactionsHref(oldest)} />;
+  const key = unknownNoticeKey(count, latest);
+  const closed = (await cookies()).get(UNKNOWN_NOTICE_COOKIE)?.value;
+  if (closed === key) return null;
+  return (
+    <UnknownNotice
+      count={count}
+      href={unknownTransactionsHref(oldest)}
+      closeKey={key}
+    />
+  );
 }
 
 async function BalancesSection() {
