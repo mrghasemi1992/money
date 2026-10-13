@@ -33,6 +33,7 @@ This file is a log. It is updated at the end of every phase, in the same PR. The
 - [Change: Transaction id in the detail](#change-transaction-id-in-the-detail)
 - [Change: ChatGPT as a connector](#change-chatgpt-as-a-connector)
 - [Fix: ChatGPT's token request](#fix-chatgpts-token-request)
+- [Fix: Deleting an unused subcategory](#fix-deleting-an-unused-subcategory)
 - [Next phases](#next-phases)
 - [Notes on working this way](#notes-on-working-this-way)
 
@@ -88,29 +89,30 @@ Implement: <the phase's Claude Code prompt from docs/phases.md>
 
 ## Timeline
 
-| Step                       | Dates              | Branch                                 | PR                                                    |
-| -------------------------- | ------------------ | -------------------------------------- | ----------------------------------------------------- |
-| Planning                   | 2026-10-01         | none                                   | none (CLAUDE.md and docs/phases.md committed with 0a) |
-| 0a Project setup           | 2026-10-01         | `main`                                 | none                                                  |
-| 0b Design system           | 2026-10-01 → 10-02 | `feature/phase-0-design-system`        | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
-| 1 Database and sign-in     | 2026-10-02         | `feature/phase-1-auth`                 | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
-| One shared book with roles | 2026-10-02         | `feature/shared-book-roles`            | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
-| 1b Languages and currency  | 2026-10-05         | `feature/i18n-and-currency`            | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
-| 2 App shell                | 2026-10-05         | `feature/phase-2-app-shell`            | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
-| 3 User management          | 2026-10-06         | `feature/phase-3-users`                | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
-| 4 Accounts and categories  | 2026-10-07         | `feature/phase-4-accounts-categories`  | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
-| 5 Transactions             | 2026-10-07         | `feature/phase-5-transactions`         | [#10](https://github.com/mrghasemi1992/money/pull/10) |
-| 6 Claude connector         | 2026-10-08         | `feature/phase-6-mcp`                  | [#11](https://github.com/mrghasemi1992/money/pull/11) |
-| 7 Budgets                  | 2026-10-08         | `feature/phase-7-budgets`              | [#12](https://github.com/mrghasemi1992/money/pull/12) |
-| 8 Reports                  | 2026-10-08         | `feature/phase-8-reports`              | [#13](https://github.com/mrghasemi1992/money/pull/13) |
-| 9 Dashboard                | 2026-10-08         | `feature/phase-9-dashboard`            | [#43](https://github.com/mrghasemi1992/money/pull/43) |
-| 10 CSV import and export   | 2026-10-08         | `feature/phase-10-csv`                 | [#45](https://github.com/mrghasemi1992/money/pull/45) |
-| Issue #30: unknown tag     | 2026-10-08         | `feature/issue-30-category-first-rows` | [#46](https://github.com/mrghasemi1992/money/pull/46) |
-| Issue #36: license         | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
-| Issue #50: transaction id  | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
-| Issue #33: ChatGPT         | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
-| Fix: ChatGPT token request | 2026-10-09         | `bugfix/chatgpt-token-exchange`        | (linked when opened)                                  |
-| Issue #34: releases        | 2026-10-09         | `feature/releases-and-app-version`     | (linked when opened)                                  |
+| Step                          | Dates              | Branch                                 | PR                                                    |
+| ----------------------------- | ------------------ | -------------------------------------- | ----------------------------------------------------- |
+| Planning                      | 2026-10-01         | none                                   | none (CLAUDE.md and docs/phases.md committed with 0a) |
+| 0a Project setup              | 2026-10-01         | `main`                                 | none                                                  |
+| 0b Design system              | 2026-10-01 → 10-02 | `feature/phase-0-design-system`        | [#1](https://github.com/mrghasemi1992/money/pull/1)   |
+| 1 Database and sign-in        | 2026-10-02         | `feature/phase-1-auth`                 | [#2](https://github.com/mrghasemi1992/money/pull/2)   |
+| One shared book with roles    | 2026-10-02         | `feature/shared-book-roles`            | [#3](https://github.com/mrghasemi1992/money/pull/3)   |
+| 1b Languages and currency     | 2026-10-05         | `feature/i18n-and-currency`            | [#5](https://github.com/mrghasemi1992/money/pull/5)   |
+| 2 App shell                   | 2026-10-05         | `feature/phase-2-app-shell`            | [#6](https://github.com/mrghasemi1992/money/pull/6)   |
+| 3 User management             | 2026-10-06         | `feature/phase-3-users`                | [#7](https://github.com/mrghasemi1992/money/pull/7)   |
+| 4 Accounts and categories     | 2026-10-07         | `feature/phase-4-accounts-categories`  | [#8](https://github.com/mrghasemi1992/money/pull/8)   |
+| 5 Transactions                | 2026-10-07         | `feature/phase-5-transactions`         | [#10](https://github.com/mrghasemi1992/money/pull/10) |
+| 6 Claude connector            | 2026-10-08         | `feature/phase-6-mcp`                  | [#11](https://github.com/mrghasemi1992/money/pull/11) |
+| 7 Budgets                     | 2026-10-08         | `feature/phase-7-budgets`              | [#12](https://github.com/mrghasemi1992/money/pull/12) |
+| 8 Reports                     | 2026-10-08         | `feature/phase-8-reports`              | [#13](https://github.com/mrghasemi1992/money/pull/13) |
+| 9 Dashboard                   | 2026-10-08         | `feature/phase-9-dashboard`            | [#43](https://github.com/mrghasemi1992/money/pull/43) |
+| 10 CSV import and export      | 2026-10-08         | `feature/phase-10-csv`                 | [#45](https://github.com/mrghasemi1992/money/pull/45) |
+| Issue #30: unknown tag        | 2026-10-08         | `feature/issue-30-category-first-rows` | [#46](https://github.com/mrghasemi1992/money/pull/46) |
+| Issue #36: license            | 2026-10-09         | `chore/issue-36-license`               | (linked when opened)                                  |
+| Issue #50: transaction id     | 2026-10-09         | `feature/transaction-id`               | [#52](https://github.com/mrghasemi1992/money/pull/52) |
+| Issue #33: ChatGPT            | 2026-10-09         | `feature/chatgpt-connector`            | [#53](https://github.com/mrghasemi1992/money/pull/53) |
+| Fix: ChatGPT token request    | 2026-10-09         | `bugfix/chatgpt-token-exchange`        | (linked when opened)                                  |
+| Issue #34: releases           | 2026-10-09         | `feature/releases-and-app-version`     | (linked when opened)                                  |
+| Issue #61: subcategory delete | 2026-10-13         | `bugfix/issue-61-delete-subcategory`   | (linked when opened)                                  |
 
 ---
 
@@ -1293,6 +1295,29 @@ None.
 - **Migration rules** in CLAUDE.md and `docs/releases.md`: expand, then contract; backfill before tightening; nothing that can't run in a transaction; regenerate a migration after rebasing onto a newer one (drizzle-kit skips older timestamps).
 - **Settings → About Money** (`AboutSettings`): the version and the deployed commit, links to the release notes and the update guide; for admins, the latest GitHub release compared with this copy (cached for a day, streamed, silent when GitHub can't tell).
 - To do on GitHub: allow GitHub Actions to create pull requests (Settings → Actions → General). The first release PR starts after the last commit before this change (`bootstrap-sha`).
+
+---
+
+## Fix: Deleting an unused subcategory
+
+Branch: `bugfix/issue-61-delete-subcategory`. Date: 2026-10-13. Not a planned phase. No Claude Design step.
+
+### Claude Code prompt
+
+```text
+fix github #61 issue
+```
+
+([Issue #61](https://github.com/mrghasemi1992/money/issues/61): the subcategory «سوخت» under «حمل و نقل» can't be deleted although no transaction uses it, archived or not.)
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- Cause: `deleteCategories` deleted a subcategory only when its whole family (the top-level category and every subcategory) had no transactions, while the categories page offers delete from the subcategory's own count. «حمل‌ونقل» and its other subcategories have transactions, so the delete matched no row and the page said the category was in use. The SQL itself was fine (Drizzle qualifies the outer columns in a delete).
+- Fix: a subcategory now needs only itself unused. A category still needs its whole family unused and goes with its subcategories; a subcategory deleted with its parent (undoing «add all») follows the parent's rule, so a parent never loses its subcategories while it stays. No migration.
 
 ---
 

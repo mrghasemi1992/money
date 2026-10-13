@@ -211,10 +211,10 @@ export async function setCategoryArchived(
 
 /**
  * Deletes categories (each with its subcategories) and subcategories, in one statement, but
- * only those whose whole family is unused: no transaction in the top-level category or any of
- * its subcategories. So a category is never deleted while a subcategory has transactions,
- * and a subcategory is only deleted when its family is unused too. Returns the ids deleted.
- * Budgets of a deleted category go with it (their foreign key cascades).
+ * only those no transaction uses. A subcategory needs only itself unused, whatever its
+ * siblings hold. A category goes only when its whole family is unused (no transaction in it
+ * or any of its subcategories), and its subcategories go with it or stay with it. Returns the
+ * ids deleted. Budgets of a deleted category go with it (their foreign key cascades).
  */
 export async function deleteCategories(ids: string[]): Promise<string[]> {
   if (ids.length === 0) return [];
@@ -223,11 +223,15 @@ export async function deleteCategories(ids: string[]): Promise<string[]> {
     .where(
       and(
         or(inArray(categories.id, ids), inArray(categories.parentId, ids)),
+        // Used: the row itself, a subcategory of it, or, for a subcategory deleted with its
+        // parent, anything in the parent's family.
         sql`not exists (
           select 1 from ${transactions} t
           join ${categories} used on used.id = t.category_id
-          where coalesce(used.parent_id, used.id)
-            = coalesce(${categories.parentId}, ${categories.id})
+          where used.id = ${categories.id}
+            or used.parent_id = ${categories.id}
+            or (${inArray(categories.parentId, ids)}
+              and coalesce(used.parent_id, used.id) = ${categories.parentId})
         )`,
       ),
     )
