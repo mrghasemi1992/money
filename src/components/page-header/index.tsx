@@ -1,5 +1,8 @@
+import { ArrowLeftIcon } from "lucide-react";
+import type { Route } from "next";
 import type { ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import { cx } from "@/utils/cx";
 
 import styles from "./styles.module.css";
@@ -11,6 +14,11 @@ type PageHeaderProps = {
   subtitle?: ReactNode;
   /** Buttons at the end, such as AddTransactionButton. They wrap below the title on narrow screens. */
   actions?: ReactNode;
+  /**
+   * A link back to the parent section, on subpages (/settings/connector). Shown from 768px up:
+   * on phones the top bar has the back button.
+   */
+  back?: { href: Route; label: ReactNode };
   className?: string;
 };
 
@@ -19,10 +27,24 @@ export function PageHeader({
   title,
   subtitle,
   actions,
+  back,
   className,
 }: PageHeaderProps) {
   return (
     <header className={cx(styles.root, className)}>
+      {back ? (
+        <div className={styles.back}>
+          <Button
+            href={back.href}
+            variant="ghost"
+            size="sm"
+            iconStart={ArrowLeftIcon}
+            mirrorIcons
+          >
+            {back.label}
+          </Button>
+        </div>
+      ) : null}
       <div className={styles.titles}>
         <h1 className={styles.title}>{title}</h1>
         {subtitle != null ? (
