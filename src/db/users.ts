@@ -27,6 +27,17 @@ export async function saveUserTimeZone(
     );
 }
 
+/**
+ * Whether anyone has an account yet. Until then /login sends visitors to /setup, which creates
+ * the first admin.
+ */
+export async function hasUsers(): Promise<boolean> {
+  const result = await db.execute<{ has_users: boolean }>(
+    sql`select exists (select 1 from ${user}) as has_users`,
+  );
+  return result.rows[0]?.has_users ?? false;
+}
+
 /** Saves some of a user's display preferences. The caller checks who may do this. */
 export async function updateUserPreferences(
   userId: string,

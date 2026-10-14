@@ -2,7 +2,7 @@
 
 [فارسی](#fa)
 
-Every person or family runs their own copy of Money: a fork of [mrghasemi1992/money](https://github.com/mrghasemi1992/money) on GitHub, deployed on Vercel with a Neon database. New versions come out as [releases](https://github.com/mrghasemi1992/money/releases).
+Every person or family runs their own copy of Money: a fork of [mrghasemi1992/money](https://github.com/mrghasemi1992/money) on GitHub, deployed on Vercel with a Neon database ([setting one up](self-hosting.md)). New versions come out as [releases](https://github.com/mrghasemi1992/money/releases).
 
 ## Which version you run
 
@@ -27,7 +27,7 @@ Skipping versions is fine: every update the database hasn't had yet runs in orde
 
 - **Your data isn't in the repository.** The book is in the Neon database, and the secrets are Vercel environment variables. Syncing the fork changes only the code.
 - **Don't change files in your fork.** «Sync fork» then can't merge cleanly. If GitHub reports conflicts, choose **Discard commits**: your fork returns to the released code, and your data and settings stay.
-- **Your copy isn't a fork?** A copy made with a "Deploy" button or by uploading the code has no link back, so it can't be synced. Move it once: fork the repository on GitHub, then in Vercel open the project → **Settings → Git**, disconnect the old repository and connect your fork. The project keeps its domain, environment variables and database.
+- **Your copy isn't a fork?** A copy made with the "Deploy" button or by uploading the code has no link back, so it can't be synced. Move it once: fork the repository on GitHub, then in Vercel open the project → **Settings → Git**, disconnect the old repository and connect your fork. The project keeps its domain, environment variables and database. The steps are in [self-hosting.md](self-hosting.md#5-switch-to-a-fork-so-you-can-update).
 - **Going back.** Vercel's **Instant Rollback** returns to the previous deployment. Database updates stay, and they are written so the previous version still works with them, unless the release notes say otherwise.
 
 ---
@@ -62,7 +62,7 @@ Skipping versions is fine: every update the database hasn't had yet runs in orde
 
 - **داده‌های شما در مخزن نیست.** دفتر در پایگاه دادهٔ Neon است و رمزها در متغیرهای محیطی Vercel. همگام کردن fork فقط کد را عوض می‌کند.
 - **فایل‌های fork خود را تغییر ندهید.** در این صورت «Sync fork» نمی‌تواند بی‌دردسر ادغام کند. اگر GitHub از تداخل (conflict) خبر داد، **Discard commits** را انتخاب کنید: fork شما به کد منتشرشده برمی‌گردد و داده‌ها و تنظیماتتان می‌مانند.
-- **نسخهٔ شما fork نیست؟** نسخه‌ای که با دکمهٔ «Deploy» یا با بارگذاری کد ساخته شده، به مخزن اصلی پیوندی ندارد و همگام نمی‌شود. یک بار جابه‌جایش کنید: در GitHub مخزن را fork کنید، بعد در Vercel پروژه را باز کنید ← **Settings ← Git**، مخزن قبلی را جدا (Disconnect) و fork خود را وصل کنید. دامنه، متغیرهای محیطی و پایگاه دادهٔ پروژه سر جایشان می‌مانند.
+- **نسخهٔ شما fork نیست؟** نسخه‌ای که با دکمهٔ «Deploy» یا با بارگذاری کد ساخته شده، به مخزن اصلی پیوندی ندارد و همگام نمی‌شود. یک بار جابه‌جایش کنید: در GitHub مخزن را fork کنید، بعد در Vercel پروژه را باز کنید ← **Settings ← Git**، مخزن قبلی را جدا (Disconnect) و fork خود را وصل کنید. دامنه، متغیرهای محیطی و پایگاه دادهٔ پروژه سر جایشان می‌مانند. مراحلش در [self-hosting.md](self-hosting.md#fa) آمده است.
 - **برگشت به نسخهٔ قبل.** **Instant Rollback** در Vercel به انتشار قبلی برمی‌گردد. به‌روزرسانی‌های پایگاه داده می‌مانند و طوری نوشته می‌شوند که نسخهٔ قبلی هم با آن‌ها کار کند، مگر یادداشت‌های انتشار چیز دیگری بگویند.
 
 </div>

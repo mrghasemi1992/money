@@ -1,7 +1,12 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { LOGIN_PATH, PATHNAME_HEADER, RETURN_TO_PARAM } from "@/constants/auth";
+import {
+  LOGIN_PATH,
+  PATHNAME_HEADER,
+  RETURN_TO_PARAM,
+  SETUP_PATH,
+} from "@/constants/auth";
 
 /**
  * Sends visitors without a session cookie to /login, remembering the page they asked for.
@@ -11,7 +16,10 @@ import { LOGIN_PATH, PATHNAME_HEADER, RETURN_TO_PARAM } from "@/constants/auth";
  */
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  if (pathname === LOGIN_PATH) return NextResponse.next();
+  // Signed-out pages: sign-in, and creating the first admin of a new copy.
+  if (pathname === LOGIN_PATH || pathname === SETUP_PATH) {
+    return NextResponse.next();
+  }
 
   // Only page loads are redirected. Server Actions (POST) check the session themselves and
   // answer with a redirect the client router understands.

@@ -8,3 +8,6 @@ export const RETURN_TO_PARAM = "next";
 
 /** Request header the proxy sets to the requested path, so pages can send it to /login. */
 export const PATHNAME_HEADER = "x-money-pathname";
+
+/** The page that creates the first admin. It only works while the book has no users. */
+export const SETUP_PATH = "/setup";

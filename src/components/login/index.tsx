@@ -238,8 +238,8 @@ export function Login({
   );
 }
 
-/** Offers the other language, written in that language. */
-function LanguageSwitch({
+/** Offers the other language, written in that language. Also on the setup page. */
+export function LanguageSwitch({
   onChange,
 }: {
   onChange: (locale: Locale) => Promise<void>;

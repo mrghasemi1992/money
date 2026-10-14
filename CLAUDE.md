@@ -28,6 +28,14 @@ Money is a personal accounting app with a Persian (right-to-left) and English (l
 - The role is checked on the server for every page, Server Action, Route Handler and MCP tool call, read from the user record at that moment (a role change applies right away, also to already connected Claude sessions). Hiding controls in the UI is only a convenience: a viewer sees no add, edit or delete controls, but the server is what enforces it.
 - Role names are in `src/constants/user.ts` (`USER_ROLES`); their labels are the `role` messages. What each role may do is in `src/helpers/role.ts` (`canWrite`, `canManageUsers`, and `toUserRole` for the plain string Better Auth stores), shared by the server checks, the MCP tools and the UI. The server checks are `requireUser()` (any role: reading, own settings), `requireWrite()` and `requireAdmin()` in `src/auth/session.ts`.
 
+## First admin
+
+A new copy has no users, so `/login` sends visitors to `/setup` (`Setup` in `src/components/setup`, page in `src/app/setup/page.tsx`, outside the app shell; the proxy lets it through without a session). It works only while the `user` table is empty (`hasUsers` in `src/db/users.ts`; afterwards the page and its action redirect to `/login`).
+
+- The form asks for the **setup code**, then a display name, username and password (`firstAdminSchema` in `src/helpers/first-admin.ts`, shared by the form and the action; messages are keys of `setup.errors`). The setup code is the deployment's `BETTER_AUTH_SECRET`, which only the person who deployed the copy knows (`isSetupCode` in `src/auth/setup.ts`: SHA-256 digests compared with `timingSafeEqual`). It keeps a stranger who finds a new copy's address first (new domains appear in public certificate logs) from claiming the book.
+- `createFirstAdmin` (`src/app/setup/actions.ts`) creates an `admin` with the admin plugin's `createUser` without a session (as `pnpm user:create` does), in the page's language with its calendar. The browser then signs in through `/api/auth/sign-in/username` (`signInWithUsername`) and opens the dashboard, whose first-run steps take over.
+- `pnpm user:create` still creates users from a terminal.
+
 ## User management
 
 `/admin/users` (`UserManagement` in `src/components/user-management`, Server Actions in `src/app/(app)/admin/users/actions.ts`). Every action calls `requireAdmin()` first and validates its input with Zod; the user record and the role are read fresh each time.
@@ -124,7 +132,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 
 - **Authorization server:** Better Auth's `mcp` plugin (the OAuth 2.1 provider, `@better-auth/mcp`), with `cimd` (`@better-auth/cimd`): Claude identifies itself with a Client ID Metadata Document (its `client_id` is a URL Money fetches), which claude.ai prefers when the metadata advertises it. There is no open dynamic client registration, and no one creates clients through the API (`clientPrivileges: () => false`). PKCE (S256) is required. Scopes: `money` (the MCP endpoint) and `offline_access` (refresh tokens); grants: authorization code and refresh token. The `jwt` plugin signs access tokens (its `/token` endpoint is in `disabledPaths`).
 - **ChatGPT** connects to the same endpoint with no extra code: it uses a Client ID Metadata Document too (`https://chatgpt.com/oauth/client.json`, `private_key_jwt` with its published JWKS, redirect `https://chatgpt.com/connector_platform_oauth_redirect`), sends `resource`, uses PKCE S256 and expects the issuer parameter (RFC 9207), all of which the authorization server already provides. The steps are on `/settings/connector` and in the README. Its connections show in the connected apps list under the name from its metadata document; write-tool access still follows the user's role.
-- **URLs** (`src/auth/urls.ts`): the app's URL is `BETTER_AUTH_URL`, on previews `https://$VERCEL_BRANCH_URL` (connect a preview through its branch URL). The MCP resource is `<app>/mcp` (locally `http://localhost:3000/mcp`: over plain HTTP only `localhost` is accepted, so `money.localhost` becomes `localhost`). The issuer is `<app>/api/auth`.
+- **URLs** (`src/auth/urls.ts`): the app's URL is `BETTER_AUTH_URL`; without it, in Vercel production `https://$VERCEL_PROJECT_PRODUCTION_URL` (the shortest custom domain, otherwise the vercel.app one; a domain added later applies from the next deployment, `getVercelProductionHost`) and on previews `https://$VERCEL_BRANCH_URL` (connect a preview through its branch URL). The MCP resource is `<app>/mcp` (locally `http://localhost:3000/mcp`: over plain HTTP only `localhost` is accepted, so `money.localhost` becomes `localhost`). The issuer is `<app>/api/auth`.
 - **Discovery:** `/mcp` answers unauthenticated requests with 401 and `WWW-Authenticate: Bearer … resource_metadata=…`. `/.well-known/oauth-protected-resource/mcp` (RFC 9728) and `/.well-known/oauth-authorization-server/api/auth` (RFC 8414) are route handlers (`src/app/.well-known/`), with CORS for browser-based clients. The proxy leaves `/mcp` and `/.well-known/` alone.
 - **Sign-in and consent:** Better Auth sends the browser to `/login` with a signed authorization request; the login page shows «Claude is asking to connect» and posts the request (`oauth_query`) with the sign-in, and Better Auth continues to `/oauth/consent` (`ConnectorConsent`, outside the app shell). The consent page shows who is signed in («تغییر حساب» signs out and back in), what Claude may do (follows the role: viewers read only) and where the answer goes, and posts the answer to `/api/auth/oauth2/consent`. `readOAuthRequest` (`src/auth/oauth.ts`) checks the request's signature for both pages. An existing consent skips the page.
 - **MCP endpoint** (`src/app/mcp/route.ts`): `mcp-handler`'s `withMcpAuth` with `verifyMcpToken` (`src/mcp/auth.ts`): the JWT is verified with the signing keys read through `auth.api.getJwks()` (not over HTTP), for this issuer and audience; DPoP-bound tokens are refused. Then `checkMcpGrant` (`src/db/connector.ts`) checks in one statement that the user still allows the app (`oauth_consent`), marks it used (`last_used_at`, Money's own column) and reads the user fresh; banned users are refused. So revoking and disabling take effect on the next request, although access tokens are self-contained JWTs (an hour), and a role change applies right away.
@@ -135,9 +143,10 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 
 ## Releases and updates
 
-Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` on GitHub, deployed on their own Vercel project with Neon. The process is in `docs/releases.md` (maintainers) and `docs/updating.md` (self-hosters, English and Persian).
+Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` on GitHub, deployed on their own Vercel project with Neon. The process is in `docs/releases.md` (maintainers), `docs/self-hosting.md` (setting up a copy) and `docs/updating.md` (updating one); the self-hosting guides are in English and Persian.
 
-- **Forks follow `main`**, so `main` is always releasable. Self-hosters update with GitHub's «Sync fork»; the push makes their Vercel project deploy. A copy made with Vercel's Deploy button is a clone, not a fork, and can't sync (the guide explains moving it to a fork).
+- **Forks follow `main`**, so `main` is always releasable. Self-hosters update with GitHub's «Sync fork»; the push makes their Vercel project deploy.
+- **Setting up a copy** (`docs/self-hosting.md`, linked from the README) needs no terminal: make a secret (generate-secret.vercel.app), click the **Deploy button** (Vercel's clone flow: `stores` adds a Neon database with the env prefix `DATABASE`, `env` asks for `BETTER_AUTH_SECRET`; `BETTER_AUTH_URL` isn't needed, see Claude connector → URLs), open the new address to create the first admin on `/setup` with the secret as setup code, then **switch to a fork**: the Deploy button makes a clone (`money-setup`), which can't sync, so the guide has the owner fork the repository and connect the fork in Vercel → Settings → Git (the project keeps its database and variables). The button's URL appears in the README and in both languages of the guide; keep them the same.
 - **Releases** are cut by release-please (`.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json`; runs only in `mrghasemi1992/money`): a release PR bumps `package.json` and writes `CHANGELOG.md` from the Conventional Commits; merging it tags `vX.Y.Z` and publishes the GitHub release. SemVer, `bump-minor-pre-major` before 1.0. The release PR's branch gets no Vercel preview (`vercel.json`: `git.deploymentEnabled` is false for `release-please--*`). A change that asks something of self-hosters (a new env variable, a release to install first, a manual step) gets a `BREAKING CHANGE:` footer that says what to do.
 - **Deploy order:** `vercel-build` is `next build && drizzle-kit migrate`, and Vercel switches the domain only after it succeeds. A failed build migrates nothing; drizzle-kit applies all pending migrations in one transaction, so a failed migration rolls back; either way the previous version keeps running. The build runs no page queries (only Better Auth's idempotent `oauth_resource` seed, which tolerates failure).
 - **Migrations stay backward compatible:** the previous version runs on the migrated database for a moment, and longer after a rollback. Expand, then contract: add freely; drop or rename only a release after the code stopped using it, with a `BREAKING CHANGE:` footer. Backfill before tightening a constraint. Nothing that can't run in a transaction (no `CREATE INDEX CONCURRENTLY`). drizzle-kit skips a migration older than the last one applied, so regenerate a branch's migration after rebasing onto a newer one.
@@ -163,7 +172,8 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
 
 ## Features (full scope)
 
-- Sign in with username and password (invite only)
+- Sign in with username and password (invite only); a new copy creates its first admin on `/setup` with a setup code
+- Self-hosting without a terminal: Deploy button with Neon, then a fork for updates (`docs/self-hosting.md`)
 - Roles: admin, editor, viewer (see Roles)
 - Admin user management: create users, reset passwords, disable accounts, change roles
 - Settings: profile, password, language (فارسی / English), calendar (Jalali / Gregorian), rial or toman (IRR books), theme (light / dark / system); for admins also the book's currency; the app's version (admins are told when a newer release is out)
@@ -184,10 +194,10 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
 - **Data access:** Drizzle ORM over the Neon serverless driver's HTTP mode (`drizzle-orm/neon-http`, `src/db/index.ts`): one stateless request per query, no interactive transactions (use `db.batch([...])` for writes that must succeed together). `casing: "snake_case"`: schema keys are camelCase, columns snake_case. Schema in `src/db/schema/` (one file per table group). Migrations with drizzle-kit in `drizzle/`, committed; generate with `pnpm db:generate` and never edit an applied migration. On Vercel the `vercel-build` script runs `next build`, then `drizzle-kit migrate`, so every deployment migrates its own database (main branch for Production, its Neon branch for a Preview) and a failed build migrates nothing (see Releases and updates).
 - **Auth:** Better Auth (self-hosted library, data in Neon, no paid service) with its username plugin (sign-in by username and password), admin plugin (user management) and OAuth 2.1 provider / MCP plugin (the Claude connector). Check the current Better Auth docs for the plugin names before using them: the MCP plugin is being replaced by the OAuth Provider plugin. Setup in `src/auth/index.ts`:
   - Drizzle adapter, UUID ids made by `generateId: () => crypto.randomUUID()`, not `"uuid"`: with `"uuid"` Better Auth drops ids it is handed that aren't UUIDs, such as the jti digest of a `private_key_jwt` assertion (`oauth_client_assertion`), and ChatGPT's token request fails. The Better Auth tables are written by hand in `src/db/schema/auth.ts`; when a plugin adds fields, add them there.
-  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin on `/admin/users` (admin plugin) or with `pnpm user:create`. Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
+  - No sign-up: `emailAndPassword.disableSignUp`, and `/sign-up/email`, `/sign-in/email` and `/is-username-available` are in `disabledPaths`. Users are created by an admin on `/admin/users` (admin plugin) or with `pnpm user:create`; the first admin of a new copy on `/setup` (see First admin). Better Auth requires an email, so users get a random `…@users.money.invalid` address (`placeholderEmail` in `src/helpers/user.ts`) that is never shown.
   - Roles `admin`, `editor` and `viewer` (admin plugin `roles`: `admin` gets the plugin's user management permissions, `editor` and `viewer` get none; default `viewer`). Banned users can't sign in (checked after the password, so a wrong password never reveals the account) and count as signed out in `getSession`.
   - Sign-in rate limit: 5 attempts per IP per 5 minutes (`SIGN_IN_LIMIT`), stored in the `rate_limit` table so it holds across serverless instances. Rate limits only apply to HTTP calls to `/api/auth`, so the login form posts to `/api/auth/sign-in/username` (`signInWithUsername` in `src/helpers/sign-in.ts`), not to a Server Action.
-  - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env. Previews leave `BETTER_AUTH_URL` unset and accept their own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts.
+  - `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` in env (the secret is also the setup code of `/setup`). On Vercel `BETTER_AUTH_URL` may be unset: the app then accepts its own `VERCEL_URL` / `VERCEL_BRANCH_URL` hosts, and in production `VERCEL_PROJECT_PRODUCTION_URL` too.
   - The OAuth 2.1 provider for the Claude connector: `jwt`, `mcp` and `cimd` plugins (see Claude connector).
 - **MCP:** `mcp-handler` + `@modelcontextprotocol/server` (same as `daily-transactions`), behind OAuth bearer tokens issued by Better Auth (`@better-auth/mcp`, `@better-auth/cimd`, see Claude connector). `@better-auth/utils` is a direct dependency pinned to the version Better Auth's core expects, so the plugins share one copy of `@better-auth/core`.
 - **i18n:** next-intl without i18n routing: the locale comes from the user record (signed in) or the `money-locale` cookie, then Accept-Language (signed out), never from the URL. Request config in `src/i18n/request.ts`, wired with the next-intl plugin in `next.config.ts`. Messages are typed (`AppConfig` in `src/i18n/types.d.ts`).
@@ -316,7 +326,8 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
 src/
   proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
   app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
-    login/              Sign-in page (also Claude's sign-in, with the signed OAuth request)
+    login/              Sign-in page (also Claude's sign-in, with the signed OAuth request; sends a new copy to /setup)
+    setup/              Creating the first admin of a new copy (+ actions.ts: createFirstAdmin)
     oauth/consent/      The OAuth consent page for Claude
     mcp/                The MCP endpoint (route.ts: withMcpAuth + the tools)
     .well-known/        OAuth protected resource and authorization server metadata
@@ -330,11 +341,11 @@ src/
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
   auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts),
-                        the connector's URLs (urls.ts), readOAuthRequest (oauth.ts)
+                        the connector's URLs (urls.ts), readOAuthRequest (oauth.ts), the setup code check (setup.ts)
   mcp/                  The Claude connector: token check (auth.ts), tools (tools.ts), instructions, per-request server (handler.ts)
   db/                   Drizzle client (index.ts), schema/ (auth, oauth, book, accounts, categories, transactions, budgets),
                         queries: book.ts (getBookSettings, bookHoldsAmounts, setBookCurrency), users.ts
-                        (updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
+                        (hasUsers, updateUserPreferences, listUsers, getUserStatus, setUserRole, disableUser), accounts.ts,
                         categories.ts, transactions.ts (list, totals, unknown summary, tags, options, create / update / delete,
                         exportTransactions),
                         budgets.ts (listBudgetCategories, saveBudget, deleteBudget),
@@ -355,6 +366,7 @@ src/
                         badge, tag, tag-input, category-chip, avatar, divider, amount, progress-bar, bar-list,
                         column-chart, data-table, foundations (Storybook only)
     login/              The sign-in screen (Components/Login)
+    setup/              The first-admin screen of a new copy (Components/Setup)
     app-shell/          The frame of signed-in pages: skip link, sidebar, top bar, tab bar, add-transaction form
     sidebar/, top-bar/, tab-bar/, user-menu/   Its parts (desktop sidebar and rail; phone top and bottom bars;
                         the account menu with settings, theme and sign-out)
@@ -412,7 +424,7 @@ src/
   helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
                         month, transactions link), category color
                         style and name rules, dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,
-                        isNavItemActive), new-user form rules (newUserSchema), preferences, reports (URL params,
+                        isNavItemActive), new-user form rules (newUserSchema), first-admin form rules (firstAdminSchema), preferences, reports (URL params,
                         resolveReportPeriod, period text, compareAmounts), role permissions,
                         connector (dates and amounts at the MCP boundary), csv-values (dates, amounts, types, tags of
                         imported cells), csv-import (column guess, row schema, name matching, planImport, payload
@@ -437,7 +449,8 @@ src/
                         state), text (also firstName, isolate), theme, url
 drizzle/                SQL migrations generated by drizzle-kit (committed)
 docs/                   phases.md (the plan: prompts per phase), building-with-claude.md (the development log),
-                        releases.md (release process, migration rules), updating.md (updating a self-hosted copy)
+                        releases.md (release process, migration rules), self-hosting.md (setting up a copy), updating.md (updating a
+                        self-hosted copy)
 .github/workflows/      release.yml (release-please)
 scripts/                create-user.ts (`pnpm user:create`)
 ```
@@ -492,6 +505,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | Route | Page | Phase |
 |-------|------|-------|
 | `/login` | Sign in | 1 |
+| `/setup` | Create the first admin (only while there are no users) | #35 |
 | `/` | Dashboard (داشبورد) | 9 |
 | `/transactions` | Transactions (تراکنش‌ها) | 5 |
 | `/budgets` | Budgets (بودجه), `?month=` | 7 |
@@ -508,7 +522,7 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/api/auth/[...all]` | Better Auth handler | 1 |
 | `/mcp` | MCP endpoint (OAuth bearer token) | 6 |
 
-All pages except `/login` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
+All pages except `/login` and `/setup` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
 
 ## Reference repositories (siblings of this folder)
 

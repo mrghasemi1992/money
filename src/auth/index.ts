@@ -39,16 +39,18 @@ import {
   verification,
 } from "@/db/schema";
 
-import { getMcpResourceUrl } from "./urls";
+import { getMcpResourceUrl, getVercelProductionHost } from "./urls";
 
 /**
- * The app's URL. Production and local development set BETTER_AUTH_URL. Preview deployments
- * have no fixed URL, so they accept their own Vercel hosts (deployment and branch URL), which
- * Vercel sets for every deployment.
+ * The app's URL. Local development (and a production domain chosen by hand) sets
+ * BETTER_AUTH_URL. Otherwise a Vercel deployment accepts its own hosts, which Vercel sets for
+ * every deployment: the deployment and branch URL, and in production the project's production
+ * domain, so a copy made with the Deploy button needs no URL setting.
  */
 function getBaseURL() {
   if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
   const vercelHosts = [
+    getVercelProductionHost(),
     process.env.VERCEL_URL,
     process.env.VERCEL_BRANCH_URL,
   ].filter((host): host is string => Boolean(host));
