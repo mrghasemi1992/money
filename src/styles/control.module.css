@@ -102,6 +102,20 @@
   box-shadow: none;
 }
 
+/*
+ * Browser autofill paints only the inner input, so the box's padding stays unpainted. Keep the
+ * input's own fill invisible and give the whole box the autofill color instead.
+ */
+.root:has(.input:-webkit-autofill) {
+  background: var(--brand-soft);
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  transition: background-color 600000s 0s;
+}
+
 .input::placeholder {
   color: var(--text-placeholder);
   opacity: 1;

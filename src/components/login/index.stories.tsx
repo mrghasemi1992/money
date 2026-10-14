@@ -49,7 +49,7 @@ export const ConnectionFailed: Story = {
   args: { initialState: { ...filled, alert: "failed" } },
 };
 
-/** Phone layout: the whole screen, the note at the bottom. */
+/** Phone layout: the whole screen, the language switch at the bottom. */
 export const Mobile: Story = {
   args: { initialState: filled },
   globals: { viewport: { value: "mobile2", isRotated: false } },

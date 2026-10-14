@@ -103,7 +103,6 @@ const en: Messages = {
     passwordMissing: "Enter your password.",
     showPassword: "Show password",
     submit: "Sign in",
-    note: "Only an admin can create accounts. Ask your admin for access.",
     retryIn: "Try again in",
     alerts: {
       wrong: "The username or password is incorrect.",
