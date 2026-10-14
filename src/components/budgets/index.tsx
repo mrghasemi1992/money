@@ -216,11 +216,7 @@ export function Budgets({
     if (!canWrite) return null;
     if (unbudgeted.length > 0) return addButton;
     return (
-      <Button
-        variant="secondary"
-        iconStart={PlusIcon}
-        href="/settings/categories"
-      >
+      <Button variant="secondary" iconStart={PlusIcon} href="/categories">
         {t("budgets.empty.addCategories")}
       </Button>
     );

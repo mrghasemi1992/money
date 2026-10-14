@@ -9,14 +9,16 @@ import { getNavItems } from "@/helpers/navigation";
 
 import { TabBar } from "./index";
 
-const tabs = getNavItems("editor").filter((item) => item.tab);
+const items = getNavItems("editor");
+const tabs = items.filter((item) => item.tab);
+const moreItems = items.filter((item) => !item.tab);
 
 /** Phones only: hidden from 768px up, so the stories use a phone viewport. */
 const meta = {
   title: "Components/TabBar",
   component: TabBar,
-  args: { items: tabs },
-  argTypes: { items: { control: false } },
+  args: { items: tabs, moreItems },
+  argTypes: { items: { control: false }, moreItems: { control: false } },
   parameters: {
     layout: "fullscreen",
     nextjs: { navigation: { pathname: "/budgets" } },
@@ -42,10 +44,16 @@ export const WithAddButton: Story = {
   ],
 };
 
-/** Viewers: the four tabs only. */
+/** Viewers: the four tabs and «More», without the add button. */
 export const Viewer: Story = {};
 
 export const OnDashboard: Story = {
   ...WithAddButton,
   parameters: { nextjs: { navigation: { pathname: "/" } } },
+};
+
+/** A page behind «More» (accounts, categories, settings) marks the «More» tab. */
+export const OnAccounts: Story = {
+  ...WithAddButton,
+  parameters: { nextjs: { navigation: { pathname: "/accounts" } } },
 };

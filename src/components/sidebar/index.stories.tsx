@@ -33,9 +33,9 @@ export const Editor: Story = {
   },
 };
 
-/** A subpage marks its section: /settings/accounts → Settings. */
+/** A subpage marks its section: /settings/connector → Settings. */
 export const SettingsSubpage: Story = {
-  parameters: { nextjs: { navigation: { pathname: "/settings/accounts" } } },
+  parameters: { nextjs: { navigation: { pathname: "/settings/connector" } } },
 };
 
 /** The icon rail. Hover or focus an icon for its label. */

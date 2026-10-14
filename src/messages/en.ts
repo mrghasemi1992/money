@@ -159,6 +159,9 @@ const en: Messages = {
     transactions: "Transactions",
     budgets: "Budget",
     reports: "Reports",
+    accounts: "Accounts",
+    categories: "Categories",
+    more: "More",
     settings: "Settings",
     users: "User management",
   },
@@ -1308,8 +1311,6 @@ const en: Messages = {
     },
     data: {
       title: "Book data",
-      accounts: "Cards, cash and the starting balance of each",
-      categories: "Expense and income categories and their subcategories",
       importExport: "Download transactions as CSV, or add them from a file",
     },
     claude: {

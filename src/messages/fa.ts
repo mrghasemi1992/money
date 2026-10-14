@@ -155,6 +155,9 @@ const fa = {
     transactions: "تراکنش‌ها",
     budgets: "بودجه",
     reports: "گزارش‌ها",
+    accounts: "حساب‌ها",
+    categories: "دسته‌بندی‌ها",
+    more: "بیشتر",
     settings: "تنظیمات",
     users: "مدیریت کاربران",
   },
@@ -1292,8 +1295,6 @@ const fa = {
     },
     data: {
       title: "داده‌های دفتر",
-      accounts: "کارت‌ها، پول نقد و موجودی اولیهٔ هر کدام",
-      categories: "دسته‌ها و زیردسته‌های هزینه و درآمد",
       importExport: "دریافت تراکنش‌ها در قالب CSV و افزودن از فایل",
     },
     claude: {

@@ -4,6 +4,7 @@ import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Fragment } from "react";
 
 import { UserMenu } from "@/components/user-menu";
 import { IconButton } from "@/components/ui/icon-button";
@@ -35,8 +36,10 @@ export function Sidebar({ items, user, onSignOut, className }: SidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useSidebarCollapsed();
-  const main = items.filter((item) => item.tab);
-  const more = items.filter((item) => !item.tab);
+  // The main pages, the book's setup, then the app's own pages, a line between groups.
+  const groups = (["main", "book", "app"] as const)
+    .map((group) => items.filter((item) => item.group === group))
+    .filter((group) => group.length > 0);
 
   function renderItem(item: NavItem) {
     const Icon = item.icon;
@@ -79,11 +82,14 @@ export function Sidebar({ items, user, onSignOut, className }: SidebarProps) {
       </div>
 
       <nav className={styles.nav} aria-label={t("shell.sections")}>
-        {main.map(renderItem)}
-        {more.length > 0 ? (
-          <div className={styles.separator} aria-hidden="true" />
-        ) : null}
-        {more.map(renderItem)}
+        {groups.map((group, index) => (
+          <Fragment key={group[0].group}>
+            {index > 0 ? (
+              <div className={styles.separator} aria-hidden="true" />
+            ) : null}
+            {group.map(renderItem)}
+          </Fragment>
+        ))}
       </nav>
 
       <div className={styles.foot}>

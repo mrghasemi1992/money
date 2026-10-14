@@ -98,7 +98,7 @@ type DialogKind = "form" | "delete" | "blocked";
 const TYPE_ICONS = { expense: ArrowUpIcon, income: ArrowDownIcon } as const;
 
 /**
- * The /settings/categories page: expense and income tabs, the categories with their
+ * The /categories page: expense and income tabs, the categories with their
  * subcategories, archived ones below, suggestions when a type has none, and the add, edit,
  * archive and delete dialogs. Every change goes through a Server Action passed in as a prop,
  * which checks the role and the rules again; adds, deletes and archiving offer «واگرد».

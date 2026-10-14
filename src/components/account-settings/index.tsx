@@ -56,7 +56,7 @@ type AccountSettingsProps = {
 type DialogKind = "form" | "delete" | "blocked";
 
 /**
- * The /settings/accounts page: the total balance of the active accounts, the accounts in
+ * The /accounts page: the total balance of the active accounts, the accounts in
  * their order (drag or the row menu to reorder), archived ones below, and the add, edit,
  * archive and delete dialogs. Every change goes through a Server Action passed in as a prop,
  * which checks the role again; adds, deletes and archiving offer «واگرد» in their toast.
