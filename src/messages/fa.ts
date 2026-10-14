@@ -118,6 +118,38 @@ const fa = {
       submit: "ورود و ادامه",
     },
   },
+  setup: {
+    title: "راه‌اندازی پول",
+    subtitle:
+      "حساب مدیر را بسازید. مدیر بقیه را به دفتر دعوت می‌کند و ارز دفتر را تعیین می‌کند.",
+    code: "کد راه‌اندازی",
+    codeHint:
+      "همان BETTER_AUTH_SECRET که هنگام ساختن این نسخه در Vercel وارد کردید.",
+    name: "نام نمایشی",
+    namePlaceholder: "مثلاً سارا رحیمی",
+    username: "نام کاربری",
+    usernameHint: "حروف لاتین، عدد، نقطه و زیرخط. با آن وارد می‌شوید.",
+    password: "رمز عبور",
+    passwordHint: "دست‌کم {min} نویسه.",
+    showPassword: "نمایش رمز عبور",
+    submit: "ساخت حساب مدیر",
+    created: "حساب مدیر ساخته شد.",
+    errors: {
+      codeMissing: "کد راه‌اندازی را وارد کنید.",
+      codeWrong: "کد راه‌اندازی درست نیست.",
+      nameMissing: "نام نمایشی را وارد کنید.",
+      nameTooLong: "نام نمایشی باید حداکثر {max} نویسه باشد.",
+      usernameMissing: "نام کاربری را وارد کنید.",
+      usernameTooShort: "نام کاربری باید دست‌کم {min} نویسه باشد.",
+      usernameTooLong: "نام کاربری باید حداکثر {max} نویسه باشد.",
+      usernameInvalid: "نام کاربری فقط حروف لاتین، عدد، نقطه و زیرخط می‌پذیرد.",
+      passwordMissing: "رمز عبور را وارد کنید.",
+      passwordTooShort: "رمز عبور باید دست‌کم {min} نویسه باشد.",
+      passwordTooLong: "رمز عبور باید حداکثر {max} نویسه باشد.",
+      failed:
+        "حساب ساخته نشد. اتصال اینترنت را بررسی کنید و دوباره امتحان کنید.",
+    },
+  },
   nav: {
     dashboard: "داشبورد",
     transactions: "تراکنش‌ها",

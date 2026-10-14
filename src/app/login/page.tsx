@@ -5,7 +5,8 @@ import { getTranslations } from "next-intl/server";
 import { readOAuthRequest } from "@/auth/oauth";
 import { getSession } from "@/auth/session";
 import { Login } from "@/components/login";
-import { LOGIN_PATH, RETURN_TO_PARAM } from "@/constants/auth";
+import { LOGIN_PATH, RETURN_TO_PARAM, SETUP_PATH } from "@/constants/auth";
+import { hasUsers } from "@/db/users";
 import { changeLocale } from "@/i18n/actions";
 import { getSafeRedirect } from "@/utils/url";
 
@@ -38,6 +39,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   // Already signed in (checked against the database, not just the cookie). Claude may ask the
   // user to sign in again (prompt=login), so its sign-in always shows the form.
   if (!oauth && (await getSession())) redirect(target);
+  // A new copy has nobody to sign in yet: create the first admin.
+  if (!(await hasUsers())) redirect(SETUP_PATH);
 
   return (
     <Login

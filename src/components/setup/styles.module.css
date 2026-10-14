@@ -1,0 +1,154 @@
+/*
+ * Laid out like the sign-in screen: a centered card on larger screens with the language switch
+ * under it, the whole screen on phones. The form is longer, so on phones it starts at the top
+ * and scrolls.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: 100dvh;
+  padding: var(--space-6);
+  background: var(--surface-page);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--login-max);
+  padding: var(--space-8);
+  border: var(--border-width) solid var(--border-card);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3-5);
+  padding-block-end: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font: var(--type-title-lg);
+  text-align: center;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-body);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.submit {
+  margin-block-start: var(--space-1);
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* Password with the show/hide button inside the box, at the start (right in RTL). */
+
+.password {
+  position: relative;
+}
+
+.password .passwordInput {
+  padding-inline-start: calc(var(--control-h-md) + var(--space-2));
+}
+
+.toggle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--space-1);
+  display: flex;
+  align-items: center;
+}
+
+/* Alerts */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-3-5);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-control);
+  font: var(--type-body);
+  font-weight: var(--weight-medium);
+}
+
+.alert p {
+  margin: 0;
+}
+
+.danger {
+  border-color: var(--status-danger-border);
+  background: var(--status-danger-soft);
+  color: var(--status-danger-text);
+}
+
+.success {
+  border-color: var(--status-success-border);
+  background: var(--status-success-soft);
+  color: var(--status-success-text);
+}
+
+.alertIcon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  margin-block-start: var(--space-0-5);
+}
+
+@media (--mobile) {
+  .root {
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--space-6);
+    padding: var(--space-8) var(--space-4)
+      max(var(--space-6), env(safe-area-inset-bottom));
+    background: var(--surface-card);
+  }
+
+  .panel {
+    gap: var(--space-7);
+    margin-inline: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .header {
+    padding: 0;
+  }
+
+  .password .passwordInput {
+    padding-inline-start: calc(var(--tap-min) + var(--space-2));
+  }
+
+  .toggle {
+    inset-inline-start: var(--space-0-5);
+  }
+}

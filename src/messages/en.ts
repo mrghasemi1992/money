@@ -120,6 +120,40 @@ const en: Messages = {
       submit: "Sign in and continue",
     },
   },
+  setup: {
+    title: "Set up Money",
+    subtitle:
+      "Create the admin account. The admin invites everyone else to the book and picks its currency.",
+    code: "Setup code",
+    codeHint:
+      "The BETTER_AUTH_SECRET you entered in Vercel when you deployed this copy.",
+    name: "Display name",
+    namePlaceholder: "e.g. Sara Rahimi",
+    username: "Username",
+    usernameHint:
+      "Latin letters, digits, dots and underscores. You’ll sign in with it.",
+    password: "Password",
+    passwordHint: "At least {min} characters.",
+    showPassword: "Show password",
+    submit: "Create admin account",
+    created: "Admin account created.",
+    errors: {
+      codeMissing: "Enter the setup code.",
+      codeWrong: "The setup code is incorrect.",
+      nameMissing: "Enter a display name.",
+      nameTooLong: "Use at most {max} characters for the display name.",
+      usernameMissing: "Enter a username.",
+      usernameTooShort: "Use at least {min} characters for the username.",
+      usernameTooLong: "Use at most {max} characters for the username.",
+      usernameInvalid:
+        "Use only Latin letters, digits, dots and underscores in the username.",
+      passwordMissing: "Enter a password.",
+      passwordTooShort: "Use at least {min} characters for the password.",
+      passwordTooLong: "Use at most {max} characters for the password.",
+      failed:
+        "Couldn’t create the account. Check your internet connection and try again.",
+    },
+  },
   nav: {
     dashboard: "Dashboard",
     transactions: "Transactions",

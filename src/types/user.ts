@@ -34,3 +34,6 @@ export type NewUserInput = {
 
 /** The fields of the new-user form, for errors that belong to one of them. */
 export type NewUserField = "name" | "username" | "password";
+
+/** The fields of the first-admin form on /setup. */
+export type FirstAdminField = "code" | "name" | "username" | "password";
