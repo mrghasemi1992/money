@@ -52,8 +52,9 @@ export function AppShell({
   const pathname = usePathname();
   const items = getNavItems(user.role);
   const tabs = items.filter((item) => item.tab);
+  const moreItems = items.filter((item) => !item.tab);
   const onTab = findNavItem(tabs, pathname) !== undefined;
-  // A subpage (/settings/accounts) goes back to its section, anything else to the dashboard.
+  // A subpage (/settings/connector) goes back to its section, anything else to the dashboard.
   const section = findNavItem(items, pathname);
   const backHref = section && section.href !== pathname ? section.href : "/";
 
@@ -79,7 +80,7 @@ export function AppShell({
           <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
             {children}
           </main>
-          <TabBar items={tabs} />
+          <TabBar items={tabs} moreItems={moreItems} />
         </div>
       </div>
     </AddTransactionProvider>

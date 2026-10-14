@@ -25,11 +25,20 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The «More» tab is a button; drop its native look. */
+button.tab {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
 .tab:hover {
   color: var(--text-secondary);
 }
 
-.tab[aria-current="page"] {
+.tab[aria-current="page"],
+.tab[data-active] {
   color: var(--brand-text);
   font-weight: var(--weight-bold);
 }
@@ -49,7 +58,8 @@
   transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-.tab[aria-current="page"] .pill {
+.tab[aria-current="page"] .pill,
+.tab[data-active] .pill {
   background: var(--surface-selected);
 }
 

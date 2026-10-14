@@ -9,7 +9,7 @@ export function getNavItems(role: UserRole): NavItem[] {
   return NAV_ITEMS.filter((item) => !item.adminOnly || canManageUsers(role));
 }
 
-/** Whether `href` is the current page or one of its subpages (/settings for /settings/accounts). */
+/** Whether `href` is the current page or one of its subpages (/settings for /settings/connector). */
 export function isNavItemActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);

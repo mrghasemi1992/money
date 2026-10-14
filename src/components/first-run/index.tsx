@@ -72,13 +72,13 @@ export function FirstRun({ canWrite, progress, className }: FirstRunProps) {
       key: "accounts",
       done: progress.hasAccounts,
       icon: PlusIcon,
-      href: "/settings/accounts",
+      href: "/accounts",
     },
     {
       key: "categories",
       done: progress.hasCategories,
       icon: TagsIcon,
-      href: "/settings/categories",
+      href: "/categories",
     },
     {
       key: "transaction",

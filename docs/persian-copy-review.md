@@ -1210,7 +1210,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `accounts`
 
-**Where:** Settings → Accounts (/settings/accounts).
+**Where:** Accounts (/accounts).
 
 | Key         | فارسی                                                                                               | English                                                                                                                                       | Where / what                              |
 | ----------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
@@ -1233,7 +1233,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `accounts`
 
-**Where:** Settings → Accounts (/settings/accounts).
+**Where:** Accounts (/accounts).
 
 | Key    | فارسی              | English              | Where / what                               |
 | ------ | ------------------ | -------------------- | ------------------------------------------ |
@@ -1254,7 +1254,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `accounts`
 
-**Where:** Settings → Accounts (/settings/accounts).
+**Where:** Accounts (/accounts).
 
 | Key            | فارسی                                                                                               | English                                                                                     | Where / what                             |
 | -------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------- |
@@ -1325,7 +1325,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `accounts`
 
-**Where:** Settings → Accounts (/settings/accounts).
+**Where:** Accounts (/accounts).
 
 | Key      | فارسی                                                                   | English                                                                                  | Where / what                                                    |
 | -------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -1349,7 +1349,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `categories`
 
-**Where:** Settings → Categories (/settings/categories), with an expense / income switch.
+**Where:** Categories (/categories), with an expense / income switch.
 
 | Key                   | فارسی                                            | English                                                                          | Where / what                                        |
 | --------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- | --------------------------------------------------- |
@@ -1378,7 +1378,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `categories`
 
-**Where:** Settings → Categories (/settings/categories), with an expense / income switch.
+**Where:** Categories (/categories), with an expense / income switch.
 
 | Key            | فارسی                                                        | English                                               | Where / what                               |
 | -------------- | ------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------ |
@@ -1468,7 +1468,7 @@ Source files: `src/messages/fa.ts` (Persian, the source) and `src/messages/en.ts
 
 ### `categories`
 
-**Where:** Settings → Categories (/settings/categories), with an expense / income switch.
+**Where:** Categories (/categories), with an expense / income switch.
 
 | Key      | فارسی                                                                                | English                                                                                          | Where / what                                                    |
 | -------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |

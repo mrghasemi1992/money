@@ -49,7 +49,7 @@ A new copy has no users, so `/login` sends visitors to `/setup` (`Setup` in `src
 
 ## Accounts and categories
 
-`/settings/accounts` (`AccountSettings` in `src/components/account-settings`) and `/settings/categories` (`CategorySettings` in `src/components/category-settings`), linked from the first section of `/settings` (`SettingsLinks`). Every role can open them; viewers get them without write controls and a «فقط مشاهده» badge. Server Actions in `src/app/(app)/settings/accounts/actions.ts` and `.../categories/actions.ts`: each calls `requireWrite()` first, validates with Zod and returns translated errors; adds, deletes, archiving and restoring offer «واگرد» in their toast (undoing a delete adds the item again under a new id).
+`/accounts` (`AccountSettings` in `src/components/account-settings`) and `/categories` (`CategorySettings` in `src/components/category-settings`), each with its own entry in the main navigation (sidebar; on phones behind the «More» tab, see App shell). They used to live under `/settings`: `/settings/accounts` and `/settings/categories` redirect permanently (308, `redirects` in `next.config.ts`). Every role can open them; viewers get them without write controls and a «فقط مشاهده» badge. Server Actions in `src/app/(app)/accounts/actions.ts` and `.../categories/actions.ts`: each calls `requireWrite()` first, validates with Zod and returns translated errors; adds, deletes, archiving and restoring offer «واگرد» in their toast (undoing a delete adds the item again under a new id).
 
 - **Accounts** (`src/db/accounts.ts`): name (unique ignoring case), type (`bank`, `cash`, `other`: the icon and label, and only bank accounts can carry an identifier; `ACCOUNT_TYPES`), an optional identifier of a bank account (`ACCOUNT_IDENTIFIER_KINDS`: account number (5–30 digits), card number (16 digits) or Sheba (`IR` + 24 digits); `normalizeIdentifier` / `checkIdentifier` in `src/helpers/account-identifier.ts` accept Persian digits, spaces and dashes and store Latin digits; lists, the MCP `list_accounts` and everything but the edit form show it masked, `maskIdentifier`: «•••• 6219»), starting balance (may be 0 or negative; AmountField `allowNegative`). The list shows the total of the active accounts and each account's live balance and transaction count. **Balances** come from `accountBalance()` (`src/helpers/account-balance.ts`): one SQL expression, opening + income − expense − transfers out + transfers in, summed in Postgres; never add balances up in JavaScript.
 - **Order**: `sort_order`, set for the whole list in one statement (`reorderAccounts`). Drag by the handle from 768px up (native drag and drop), «انتقال به بالا / پایین» in the row menu everywhere. New accounts go to the end; archived ones keep their position. Forms list accounts in this order.
@@ -271,8 +271,9 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
 - **Direction:** `<html lang dir>` follows the language (`fa` → `rtl`, `en` → `ltr`, `LOCALE_DIRECTIONS`), and Base UI's `DirectionProvider` (in `src/components/providers`) follows it for keyboard navigation and popup placement. Every layout must work in both directions. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, `text-align: start`, …), never `left`/`right`. Where an element forces `direction: ltr` (number inputs), align it against the page's start edge with `:global(html[dir="rtl"])`.
   - Directional icons (back/forward arrows and chevrons) are written in LTR terms (`ChevronLeftIcon` = back) and get the global `mirror-rtl` class (`mirrorIcon` / `mirrorIcons` props on IconButton and Button), so they point the right way in either direction. Money-direction icons (`ArrowUpIcon`, `ArrowDownIcon`, `ArrowLeftRightIcon`) are direction-neutral and never mirrored.
 - **Themes:** light and dark, both defined as tokens. Users choose light, dark or system (follow the OS) in settings and in the user menu (`useThemePreference`, `setThemePreference` in `src/utils/theme.ts`; «system» clears the saved choice). No flash of the wrong theme on load (inline script in `<head>` sets `data-theme` from the saved choice, otherwise the OS setting), same setup as `orange`.
-- **App shell** (`AppShell`, `src/components/app-shell`, rendered by `src/app/(app)/layout.tsx` around every signed-in page): a skip link to `#main`; from 768px up the `Sidebar` on the start side (logo, sections, `UserMenu`); on phones the `TopBar` (logo, back on non-tab pages: to the section for a subpage such as `/settings/accounts`, otherwise to the dashboard; settings, user menu) and the fixed `TabBar` with the floating add button. Each part hides itself at the other breakpoint with CSS.
-  - The sections are `NAV_ITEMS` (`src/constants/navigation.ts`: label = `nav` message key, href, icon, `tab`, `adminOnly`), filtered by `getNavItems(role)` and marked active by `isNavItemActive` (`src/helpers/navigation.ts`, subpages count: `/settings/accounts` → Settings). The layout passes the role from the user record; the pages check it again.
+- **App shell** (`AppShell`, `src/components/app-shell`, rendered by `src/app/(app)/layout.tsx` around every signed-in page): a skip link to `#main`; from 768px up the `Sidebar` on the start side (logo, sections, `UserMenu`); on phones the `TopBar` (logo, back on non-tab pages: to the section for a subpage such as `/settings/connector`, otherwise to the dashboard; settings, user menu) and the fixed `TabBar` with the floating add button. Each part hides itself at the other breakpoint with CSS.
+  - **Phone tabs:** the four main pages (`tab: true`: dashboard, transactions, budgets, reports), the floating add button for editors and admins, and a last «More» tab (`MoreSheet`, `src/components/more-sheet`: a bottom Sheet of links to the other sections, the current one marked; it closes on choosing one). The «More» tab is marked while the current page is one of its sections. Six columns at most; add a main page only by moving another behind «More».
+  - The sections are `NAV_ITEMS` (`src/constants/navigation.ts`: label = `nav` message key, href, icon, `group`, `tab`, `adminOnly`), filtered by `getNavItems(role)` and marked active by `isNavItemActive` (`src/helpers/navigation.ts`, subpages count: `/settings/connector` → Settings). The sidebar lists three groups with a line between them (`group`: `main` = the tab pages, `book` = accounts and categories, `app` = settings and user management); the sections that aren't tabs are the «More» sheet's links on phones. The layout passes the role from the user record; the pages check it again.
   - The sidebar collapses to an icon rail (tooltips show the labels). The choice is saved in `localStorage` (`money-sidebar`); an inline `<head>` script (`SIDEBAR_SCRIPT`) sets `<html data-sidebar="collapsed">` before the first paint, and CSS draws the rail from that attribute (`:global(html[data-sidebar="collapsed"])`), so it never flashes open. `useSidebarCollapsed` gives components the same value.
   - Add transaction: `AddTransactionProvider` (enabled for editors and admins) holds the form, a Dialog from 768px up and a Sheet on phones (`useMediaQuery(MOBILE_QUERY)`). `AddTransactionButton` goes in page headers (hidden on phones), the tab bar's floating button opens the same form (`TransactionDialog`, see Transactions).
   - Forms and confirmations opened from a page use `ResponsiveDialog` (`src/components/responsive-dialog`: a Dialog from 768px up, a Sheet on phones; `initialFocus` puts the focus on a form's first field) or `ConfirmDialog` (cancel plus one button that names the outcome).
@@ -334,9 +335,9 @@ src/
     (app)/              Signed-in pages inside the app shell: layout.tsx (AppShell), loading, error, not-found,
                         page.tsx (dashboard, with its streamed sections), transactions (+ actions.ts, loading.tsx, error.tsx,
                         export/route.ts: the CSV export), budgets
-                        (+ actions.ts, loading.tsx, error.tsx), reports, settings (+ actions.ts;
-                        accounts/, categories/, connector/ and import-export/ with actions.ts, loading.tsx,
-                        error.tsx), admin/users
+                        (+ actions.ts, loading.tsx, error.tsx), reports, accounts and categories
+                        (+ actions.ts, loading.tsx, error.tsx), settings (+ actions.ts;
+                        connector/ and import-export/ with loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
@@ -370,6 +371,7 @@ src/
     app-shell/          The frame of signed-in pages: skip link, sidebar, top bar, tab bar, add-transaction form
     sidebar/, top-bar/, tab-bar/, user-menu/   Its parts (desktop sidebar and rail; phone top and bottom bars;
                         the account menu with settings, theme and sign-out)
+    more-sheet/         The phone «More» tab's sheet: links to the sections that aren't tabs
     add-transaction/    AddTransactionProvider (the add form, dialog / sheet), AddTransactionButton, useAddTransaction
     transactions/       The /transactions page: header with the month switcher, summary, filters, list, dialogs
                         (+ skeleton, error)
@@ -402,8 +404,7 @@ src/
     category-list/, category-dialog/, category-color-picker/, starter-categories/   Category rows with
                         subcategories, the category / subcategory form, the palette swatches, the suggestions
     archived-section/   «بایگانی‌شده (n)» toggle with the archived rows
-    settings-links/     The /settings sections that link to accounts, categories, import and export, and the Claude
-                        connector
+    settings-links/     The /settings sections that link to import and export and the Claude connector
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
                         book-settings/ (admins), about-settings/ (version, update notice for admins)
     connector-settings/, connector-consent/   The /settings/connector page and the OAuth consent page
@@ -511,8 +512,8 @@ The full plan with the Claude Design and Claude Code prompts for every phase is 
 | `/budgets` | Budgets (بودجه), `?month=` | 7 |
 | `/reports` | Reports (گزارش‌ها), `?period=` / `?month=` / `?from=&to=` | 8 |
 | `/settings` | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) | 2 |
-| `/settings/accounts` | Accounts (viewers read only) | 4 |
-| `/settings/categories` | Categories (viewers read only) | 4 |
+| `/accounts` | Accounts (viewers read only); `/settings/accounts` redirects here | 4 |
+| `/categories` | Categories (viewers read only); `/settings/categories` redirects here | 4 |
 | `/settings/connector` | Claude connector: URL, steps, connected apps (revoke), examples | 6 |
 | `/settings/import-export` | CSV export (every role) and import (editors and admins) | 10 |
 | `/transactions/export` | CSV export Route Handler (`?from=&to=&account=`) | 10 |

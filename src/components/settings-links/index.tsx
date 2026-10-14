@@ -1,10 +1,8 @@
 import {
   ArrowDownUpIcon,
   ChevronRightIcon,
-  LandmarkIcon,
   type LucideIcon,
   SparklesIcon,
-  TagsIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -18,16 +16,8 @@ type SettingsLink = {
   href: Route;
   icon: LucideIcon;
   /** Message keys of the link's title and description. */
-  title:
-    | "accounts.title"
-    | "categories.title"
-    | "importExport.title"
-    | "connector.title";
-  description:
-    | "settings.data.accounts"
-    | "settings.data.categories"
-    | "settings.data.importExport"
-    | "settings.claude.connector";
+  title: "importExport.title" | "connector.title";
+  description: "settings.data.importExport" | "settings.claude.connector";
 };
 
 const SECTIONS: {
@@ -37,18 +27,6 @@ const SECTIONS: {
   {
     title: "settings.data.title",
     links: [
-      {
-        href: "/settings/accounts",
-        icon: LandmarkIcon,
-        title: "accounts.title",
-        description: "settings.data.accounts",
-      },
-      {
-        href: "/settings/categories",
-        icon: TagsIcon,
-        title: "categories.title",
-        description: "settings.data.categories",
-      },
       {
         href: "/settings/import-export",
         icon: ArrowDownUpIcon,
@@ -71,8 +49,7 @@ const SECTIONS: {
 ];
 
 /**
- * The /settings sections that lead to subpages: the book's accounts and categories, CSV import
- * and export, and the Claude connector.
+ * The /settings sections that lead to subpages: CSV import and export, and the Claude connector.
  */
 export function SettingsLinks() {
   const t = useTranslations();
