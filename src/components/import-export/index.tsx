@@ -50,11 +50,13 @@ export function ImportExport({
   onDownload,
 }: ImportExportProps) {
   const t = useTranslations("importExport");
+  const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
       <PageHeader
         title={t("title")}
         subtitle={canWrite ? t("subtitle") : t("subtitleViewer")}
+        back={{ href: "/settings", label: tNav("settings") }}
       />
       <CsvExport
         accounts={book.accounts}
@@ -80,11 +82,13 @@ export function ImportExport({
 /** The page while it loads (loading.tsx): the header and the two cards. */
 export function ImportExportSkeleton() {
   const t = useTranslations();
+  const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
       <PageHeader
         title={t("importExport.title")}
         subtitle={t("importExport.subtitle")}
+        back={{ href: "/settings", label: tNav("settings") }}
       />
       <div role="status" aria-busy="true" className={styles.root}>
         <span className="visually-hidden">{t("page.loading")}</span>
@@ -110,9 +114,14 @@ export function ImportExportSkeleton() {
 /** The page's data didn't load: the header, and a retry. */
 export function ImportExportError({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations("importExport");
+  const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        back={{ href: "/settings", label: tNav("settings") }}
+      />
       <ListError title={t("error")} onRetry={onRetry} />
     </div>
   );
