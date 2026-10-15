@@ -1049,6 +1049,12 @@ None.
 
 `PageHeader` takes an optional `back` link («‹ تنظیمات» / “‹ Settings”) shown from 768px up, above the title. `/settings/connector` and `/settings/import-export` use it, in their loading and error states too. On phones the top bar's back button stays. Accounts and categories had moved to the main navigation (#25), so they no longer need one. CLAUDE.md updated.
 
+### Follow-ups
+
+1. > when i enter the settings page, accounts, categories and user managements, i dont need the back button, just when i in inner pages of settings page: import-export and connector
+
+   The phone top bar showed a back button (to the dashboard) on every page that isn't a tab. It now shows one only on subpages, to their section; `TopBar` takes `backHref` alone (no `showBack`).
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
