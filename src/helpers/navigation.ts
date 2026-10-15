@@ -9,6 +9,16 @@ export function getNavItems(role: UserRole): NavItem[] {
   return NAV_ITEMS.filter((item) => !item.adminOnly || canManageUsers(role));
 }
 
+/** The sections with their own tab in the mobile bottom bar. */
+export function getPhoneTabs(items: readonly NavItem[]): NavItem[] {
+  return items.filter((item) => item.tab);
+}
+
+/** The sections behind the mobile bottom bar's «More» tab: not tabs, and not in the top bar. */
+export function getMoreItems(items: readonly NavItem[]): NavItem[] {
+  return items.filter((item) => !item.tab && !item.topBar);
+}
+
 /** Whether `href` is the current page or one of its subpages (/settings for /settings/connector). */
 export function isNavItemActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";

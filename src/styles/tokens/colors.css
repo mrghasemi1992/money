@@ -111,6 +111,8 @@
   --surface-scrim: rgb(16 27 79 / 0.44);
   --surface-tooltip: var(--slate-900);
   --surface-brand: var(--royal-600);
+  /* The phone tab bar, floating over the page: see-through with a blur (solid when blur is off) */
+  --surface-floating: color-mix(in srgb, var(--slate-0) 84%, transparent);
 
   --border-subtle: var(--slate-100);
   --border-default: var(--slate-200);
@@ -233,6 +235,7 @@
   --surface-disabled: #1f242c;
   --surface-inverse: var(--slate-100);
   --surface-scrim: rgb(5 7 12 / 0.66);
+  --surface-floating: color-mix(in srgb, #222732 84%, transparent);
   --surface-tooltip: #2d3440;
   --surface-brand: #2a40b8;
 

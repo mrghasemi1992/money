@@ -23,78 +23,70 @@ type TabBarProps = {
 };
 
 /**
- * The phone layout's bottom bar: the main pages, with the floating add-transaction button in
- * the middle for editors and admins (inside an enabled AddTransactionProvider), and a «More»
- * tab at the end that opens the other sections (accounts, categories, settings, …). Hidden from
- * 768px up.
+ * The phone layout's bottom bar: a capsule floating over the page with the main pages and a
+ * «More» tab at the end that opens the other sections (budgets, accounts, categories, …), and
+ * beside it, for editors and admins (inside an enabled AddTransactionProvider), a round
+ * add-transaction button. Hidden from 768px up.
  */
 export function TabBar({ items, moreItems = [], className }: TabBarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const openAddTransaction = useAddTransaction();
-  const half = Math.ceil(items.length / 2);
   const [moreOpen, setMoreOpen] = useState(false);
   const hasMore = moreItems.length > 0;
   const moreActive = moreItems.some((item) =>
     isNavItemActive(pathname, item.href),
   );
-  const columns =
-    items.length + (openAddTransaction ? 1 : 0) + (hasMore ? 1 : 0);
-
-  function renderTab(item: NavItem) {
-    const Icon = item.icon;
-    const active = isNavItemActive(pathname, item.href);
-    return (
-      <NextLink
-        key={item.href}
-        href={item.href}
-        className={styles.tab}
-        aria-current={active ? "page" : undefined}
-      >
-        <span className={styles.pill}>
-          <Icon className={styles.icon} aria-hidden="true" />
-        </span>
-        <span className={styles.label}>{t(`nav.${item.label}`)}</span>
-      </NextLink>
-    );
-  }
+  const columns = items.length + (hasMore ? 1 : 0);
 
   return (
-    <nav
-      className={cx(styles.root, className)}
-      aria-label={t("shell.sections")}
-      style={{ "--tab-columns": columns } as CSSProperties}
-    >
-      {items.slice(0, half).map(renderTab)}
-      {openAddTransaction ? (
-        <div className={styles.fabSlot}>
+    <div className={cx(styles.root, className)}>
+      <nav
+        className={styles.bar}
+        aria-label={t("shell.sections")}
+        style={{ "--tab-columns": columns } as CSSProperties}
+      >
+        {items.map((item) => {
+          const Icon = item.icon;
+          const active = isNavItemActive(pathname, item.href);
+          return (
+            <NextLink
+              key={item.href}
+              href={item.href}
+              className={styles.tab}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon className={styles.icon} aria-hidden="true" />
+              <span className={styles.label}>
+                {item.shortLabel
+                  ? t(`nav.short.${item.shortLabel}`)
+                  : t(`nav.${item.label}`)}
+              </span>
+            </NextLink>
+          );
+        })}
+        {hasMore ? (
           <button
             type="button"
-            className={styles.fab}
-            aria-label={t("addTransaction.title")}
-            onClick={openAddTransaction}
+            className={styles.tab}
+            data-active={moreActive ? "" : undefined}
+            aria-haspopup="dialog"
+            aria-expanded={moreOpen}
+            onClick={() => setMoreOpen(true)}
           >
-            <PlusIcon className={styles.fabIcon} aria-hidden="true" />
+            <EllipsisIcon className={styles.icon} aria-hidden="true" />
+            <span className={styles.label}>{t("nav.more")}</span>
           </button>
-          <span className={styles.fabLabel} aria-hidden="true">
-            {t("addTransaction.short")}
-          </span>
-        </div>
-      ) : null}
-      {items.slice(half).map(renderTab)}
-      {hasMore ? (
+        ) : null}
+      </nav>
+      {openAddTransaction ? (
         <button
           type="button"
-          className={styles.tab}
-          data-active={moreActive ? "" : undefined}
-          aria-haspopup="dialog"
-          aria-expanded={moreOpen}
-          onClick={() => setMoreOpen(true)}
+          className={styles.fab}
+          aria-label={t("addTransaction.title")}
+          onClick={openAddTransaction}
         >
-          <span className={styles.pill}>
-            <EllipsisIcon className={styles.icon} aria-hidden="true" />
-          </span>
-          <span className={styles.label}>{t("nav.more")}</span>
+          <PlusIcon className={styles.fabIcon} aria-hidden="true" />
         </button>
       ) : null}
       {hasMore ? (
@@ -104,6 +96,6 @@ export function TabBar({ items, moreItems = [], className }: TabBarProps) {
           items={moreItems}
         />
       ) : null}
-    </nav>
+    </div>
   );
 }

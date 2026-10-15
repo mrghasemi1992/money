@@ -46,12 +46,20 @@
   --nav-item-h: 40px;
   --rail-item-w: 48px; /* nav item and account button in the collapsed sidebar */
   --topbar-h: 56px;
-  --tabbar-h: 64px;
-  --tab-pill-w: 52px;
-  --tab-pill-h: 28px;
-  --fab-size: 60px;
-  --fab-ring: 4px; /* page-colored ring that cuts the button out of the tab bar */
-  --fab-rise: 24px; /* how far the button rises above the tab bar */
+  --tabbar-h: 64px; /* the floating capsule; the add button beside it is a circle as tall */
+  --tabbar-inset: var(--space-4); /* from the screen's sides */
+  --tabbar-offset: max(
+    var(--space-3),
+    env(safe-area-inset-bottom)
+  ); /* from the screen's bottom */
+  --tabbar-space: calc(
+    var(--tabbar-h) + var(--tabbar-offset)
+  ); /* what the bar covers, for pages and toasts */
+  --tabbar-pad: var(
+    --space-1
+  ); /* inside the capsule, around the current tab's pill */
+  --tabbar-blur: 20px;
+  --fab-size: var(--tabbar-h);
   --user-menu-w: 256px;
   --placeholder-min-h: 360px;
   --status-min-h: 60vh; /* error and not-found messages, centered */

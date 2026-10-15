@@ -1,14 +1,50 @@
+/* A strip above the screen's bottom edge: the capsule, then the add button at the end. */
 .root {
   position: fixed;
-  inset-inline: 0;
-  inset-block-end: 0;
+  inset-inline: var(--tabbar-inset);
+  inset-block-end: var(--tabbar-offset);
   z-index: var(--z-shell);
+  display: flex;
+  gap: var(--space-2);
+  height: var(--tabbar-h);
+}
+
+/* The capsule and the add button share one floating material. */
+.bar,
+.fab {
+  border: var(--border-width) solid var(--border-card);
+  border-radius: var(--radius-pill);
+  background: var(--surface-floating);
+  box-shadow: var(--shadow-lg);
+  -webkit-backdrop-filter: blur(var(--tabbar-blur));
+  backdrop-filter: blur(var(--tabbar-blur));
+}
+
+.bar {
   display: grid;
+  flex: 1;
   grid-template-columns: repeat(var(--tab-columns), minmax(0, 1fr));
-  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
-  padding-block-end: env(safe-area-inset-bottom);
-  border-block-start: var(--border-width) solid var(--border-default);
-  background: var(--surface-card);
+  min-width: 0;
+  padding: var(--tabbar-pad);
+}
+
+/* Without a blur, or when the device asks for less transparency, both are solid. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .bar,
+  .fab {
+    background: var(--surface-card);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bar,
+  .fab {
+    background: var(--surface-card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 .tab {
@@ -17,53 +53,46 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-0-5);
+  min-width: 0;
   min-height: var(--tap-min);
-  color: var(--text-muted);
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
   font: var(--type-caption);
   font-weight: var(--weight-medium);
   text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 
 /* The «More» tab is a button; drop its native look. */
 button.tab {
-  padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
 }
 
 .tab:hover {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
+/* One pill behind the icon and the label of the current page. */
 .tab[aria-current="page"],
 .tab[data-active] {
+  background: var(--surface-selected);
   color: var(--brand-text);
   font-weight: var(--weight-bold);
 }
 
 .tab:focus-visible {
   outline: none;
-  box-shadow: inset var(--shadow-focus);
-}
-
-.pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tab-pill-w);
-  height: var(--tab-pill-h);
-  border-radius: var(--radius-pill);
-  transition: background-color var(--duration-fast) var(--ease-out);
-}
-
-.tab[aria-current="page"] .pill,
-.tab[data-active] .pill {
-  background: var(--surface-selected);
+  box-shadow: var(--shadow-focus);
 }
 
 .icon {
+  flex-shrink: 0;
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
 }
@@ -75,43 +104,24 @@ button.tab {
   text-overflow: ellipsis;
 }
 
-.fabSlot {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-block-end: var(--space-2);
-}
-
-/* Rises above the bar; the page-colored ring cuts it out of the bar's top edge. */
+/* The capsule's sibling: its material, with the plus in royal so it still reads as the action. */
 .fab {
-  position: absolute;
-  inset-block-start: calc(var(--fab-rise) * -1);
-  inset-inline: 0;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: var(--fab-size);
   height: var(--fab-size);
-  margin-inline: auto;
   padding: 0;
-  border: var(--fab-ring) solid var(--surface-page);
-  border-radius: var(--radius-pill);
-  background: var(--brand-solid);
-  box-shadow: var(--shadow-lg);
-  color: var(--text-on-brand);
+  color: var(--brand-text);
   cursor: pointer;
   transition: var(--transition-control);
   -webkit-tap-highlight-color: transparent;
 }
 
-.fab:hover {
-  background: var(--brand-solid-hover);
-}
-
+.fab:hover,
 .fab:active {
-  background: var(--brand-solid-active);
-  box-shadow: none;
+  background: var(--surface-selected);
 }
 
 .fab:focus-visible {
@@ -122,12 +132,6 @@ button.tab {
 .fabIcon {
   width: var(--icon-size-xl);
   height: var(--icon-size-xl);
-}
-
-.fabLabel {
-  color: var(--text-secondary);
-  font: var(--type-caption);
-  font-weight: var(--weight-medium);
 }
 
 @media (--tablet-up) {

@@ -164,6 +164,10 @@ const en: Messages = {
     more: "More",
     settings: "Settings",
     users: "User management",
+    short: {
+      dashboard: "Home",
+      transactions: "Activity",
+    },
   },
   shell: {
     skipToContent: "Skip to main content",
@@ -177,7 +181,6 @@ const en: Messages = {
   },
   addTransaction: {
     title: "Add transaction",
-    short: "Add",
   },
   page: {
     loading: "Loading",

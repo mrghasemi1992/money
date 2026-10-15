@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { getNavItems } from "@/helpers/navigation";
+import { getMoreItems, getNavItems } from "@/helpers/navigation";
 
 import { MoreSheet } from "./index";
 
 const more = (role: Parameters<typeof getNavItems>[0]) =>
-  getNavItems(role).filter((item) => !item.tab);
+  getMoreItems(getNavItems(role));
 
 /** Phones only: the sheet opens from the tab bar's «More» tab. */
 const meta = {

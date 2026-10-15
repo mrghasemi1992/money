@@ -48,8 +48,8 @@
 
 @media (--mobile) {
   .main {
-    /* Room for the tab bar and the floating button above it. */
+    /* Room for the floating tab bar, so the last row scrolls clear of it. */
     padding: var(--space-1) var(--space-4)
-      calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--space-10));
+      calc(var(--tabbar-space) + var(--space-6));
   }
 }
