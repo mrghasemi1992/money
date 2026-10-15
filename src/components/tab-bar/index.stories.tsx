@@ -5,13 +5,13 @@ import {
   SAMPLE_ADD_TRANSACTION_ACTIONS,
   SAMPLE_TRANSACTION_OPTIONS_PROMISE,
 } from "@/components/transaction-list/sample-transactions";
-import { getNavItems } from "@/helpers/navigation";
+import { getMoreItems, getNavItems, getPhoneTabs } from "@/helpers/navigation";
 
 import { TabBar } from "./index";
 
 const items = getNavItems("editor");
-const tabs = items.filter((item) => item.tab);
-const moreItems = items.filter((item) => !item.tab);
+const tabs = getPhoneTabs(items);
+const moreItems = getMoreItems(items);
 
 /** Phones only: hidden from 768px up, so the stories use a phone viewport. */
 const meta = {
@@ -21,7 +21,7 @@ const meta = {
   argTypes: { items: { control: false }, moreItems: { control: false } },
   parameters: {
     layout: "fullscreen",
-    nextjs: { navigation: { pathname: "/budgets" } },
+    nextjs: { navigation: { pathname: "/transactions" } },
   },
   globals: { viewport: { value: "mobile2", isRotated: false } },
 } satisfies Meta<typeof TabBar>;
@@ -44,7 +44,7 @@ export const WithAddButton: Story = {
   ],
 };
 
-/** Viewers: the four tabs and «More», without the add button. */
+/** Viewers: the tabs and «More», without the add button. */
 export const Viewer: Story = {};
 
 export const OnDashboard: Story = {
@@ -52,7 +52,7 @@ export const OnDashboard: Story = {
   parameters: { nextjs: { navigation: { pathname: "/" } } },
 };
 
-/** A page behind «More» (accounts, categories, settings) marks the «More» tab. */
+/** A page behind «More» (budgets, accounts, categories) marks the «More» tab. */
 export const OnAccounts: Story = {
   ...WithAddButton,
   parameters: { nextjs: { navigation: { pathname: "/accounts" } } },

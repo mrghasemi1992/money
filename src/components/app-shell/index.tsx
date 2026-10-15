@@ -11,7 +11,12 @@ import {
 import { Sidebar } from "@/components/sidebar";
 import { TabBar } from "@/components/tab-bar";
 import { TopBar } from "@/components/top-bar";
-import { findNavItem, getNavItems } from "@/helpers/navigation";
+import {
+  findNavItem,
+  getMoreItems,
+  getNavItems,
+  getPhoneTabs,
+} from "@/helpers/navigation";
 import { canManageUsers, canWrite } from "@/helpers/role";
 import type { TransactionOptions } from "@/types/transaction";
 import type { UserRole } from "@/types/user";
@@ -51,8 +56,8 @@ export function AppShell({
   const t = useTranslations("shell");
   const pathname = usePathname();
   const items = getNavItems(user.role);
-  const tabs = items.filter((item) => item.tab);
-  const moreItems = items.filter((item) => !item.tab);
+  const tabs = getPhoneTabs(items);
+  const moreItems = getMoreItems(items);
   const onTab = findNavItem(tabs, pathname) !== undefined;
   // A subpage (/settings/connector) goes back to its section, anything else to the dashboard.
   const section = findNavItem(items, pathname);

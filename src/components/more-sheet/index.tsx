@@ -14,7 +14,7 @@ import styles from "./styles.module.css";
 type MoreSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** The sections that aren't tabs (accounts, categories, settings, user management). */
+  /** The sections that aren't tabs or in the top bar (budgets, accounts, categories, user management). */
   items: readonly NavItem[];
 };
 

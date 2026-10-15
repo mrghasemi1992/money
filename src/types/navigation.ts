@@ -21,8 +21,10 @@ export type NavItem = {
   href: Route;
   icon: LucideIcon;
   group: NavGroup;
-  /** One of the four main pages: a tab in the mobile bottom bar. The other sections are behind its «More» tab. */
+  /** A main page with its own tab in the mobile bottom bar. The other sections are behind its «More» tab. */
   tab?: boolean;
+  /** On phones the top bar links to it (settings), so the «More» sheet leaves it out. */
+  topBar?: boolean;
   /** Only admins see it (user management). The page itself checks the role with requireAdmin(). */
   adminOnly?: boolean;
 };
