@@ -1033,6 +1033,34 @@ Check that build, lint, typecheck, format:check and build-storybook pass, and te
 
 `/settings/import-export`: an export card for every role (range presets in the viewer's calendar, an account, the count, a streamed UTF-8 CSV with both calendars) and, for editors and admins, a five-step import (upload, columns, names, review with errors and possible duplicates, result) saved in one database transaction with `source = "csv"`. Errors can be downloaded as a CSV to fix. The transaction detail names imported rows. Stories for the page and every step. CLAUDE.md updated.
 
+## Phone navigation in the style of Telegram
+
+Branch: `feature/mobile-navigation`. Date: 2026-10-15.
+
+### Claude Code prompt (as sent)
+
+> now i want to do some things. do them in current brach or another branch:
+>
+> - first remove settings from more section of the mobile navbar
+> - then i want to put budgers in mobile navbar into more section
+> - and i want to redesign mobile navbar like telegram (ask me to attach its screenshot)
+
+A screenshot of Telegram for iOS followed (the floating tab bar), with "what is your suggestion, keep current design or follow telegram?".
+
+### Questions Claude asked
+
+| Question                                                                                                                                                                                                                                         | Answer |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ |
+| The proposal: follow Telegram's floating capsule (see-through with a light blur, solid when transparency is reduced, one pill for the current tab), with the add button as a separate round button beside it instead of in the middle. Go ahead? | "yes"  |
+
+### Result
+
+- Settings left the «More» sheet (the phone top bar already links to it; `topBar: true`), and budgets moved into it, so the tabs are dashboard, transactions and reports, then «More» (`getPhoneTabs`, `getMoreItems`).
+- `TabBar` is a capsule floating above the safe area, see-through with a blur (`--surface-floating`, solid without `backdrop-filter` or under `prefers-reduced-transparency`); the current tab is one pill behind its icon and label. The add button is a round button as tall as the capsule at its end, in the same material; viewers get the capsule alone. The old raised button with its page-colored ring and its «افزودن» label are gone.
+- The add button first was solid royal. After "i think the add new transaction floating button is very bold, what do you think?" and "update it", it takes the capsule's material with the plus in royal (`--surface-selected` on hover), so the dashboard's balance card stays the one brand block.
+- English tab labels were cut off at 390px, so the dashboard and transactions tabs use short labels there («Home», «Activity», `nav.short`); Persian keeps its words.
+- Pages and phone toasts keep `--tabbar-space` clear. Checked in Storybook at 390px and 360px, Persian and English, light and dark. CLAUDE.md updated.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

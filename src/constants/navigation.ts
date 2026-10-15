@@ -26,6 +26,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: LayoutDashboardIcon,
     group: "main",
     tab: true,
+    shortLabel: "dashboard",
   },
   {
     label: "transactions",
@@ -33,6 +34,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: ReceiptIcon,
     group: "main",
     tab: true,
+    shortLabel: "transactions",
   },
   {
     label: "budgets",

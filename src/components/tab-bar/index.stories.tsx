@@ -29,7 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Editors and admins: the floating add button in the middle opens the add-transaction sheet. */
+/** Editors and admins: the round add button beside the capsule opens the add-transaction sheet. */
 export const WithAddButton: Story = {
   decorators: [
     (Story) => (

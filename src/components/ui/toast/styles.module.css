@@ -146,7 +146,7 @@
 @media (--mobile) {
   .viewport {
     inset-inline: var(--space-4);
-    inset-block-end: calc(var(--tabbar-h) + var(--space-3));
+    inset-block-end: calc(var(--tabbar-space) + var(--space-3));
     width: auto;
     max-width: none;
   }
