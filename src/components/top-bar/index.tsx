@@ -14,9 +14,7 @@ import styles from "./styles.module.css";
 
 type TopBarProps = {
   user: { name: string; role: UserRole };
-  /** A back button to the dashboard, on pages that aren't tabs (settings, user management, not found). */
-  showBack?: boolean;
-  /** Where the back button goes: the dashboard, or the parent section of a subpage (/settings). */
+  /** A back button to this section, on subpages (/settings for /settings/connector). */
   backHref?: Route;
   /** Adds user management to the user menu (admins). */
   showUsersLink?: boolean;
@@ -27,8 +25,7 @@ type TopBarProps = {
 /** The phone layout's top bar: the logo, settings and the user menu. Hidden from 768px up. */
 export function TopBar({
   user,
-  showBack = false,
-  backHref = "/",
+  backHref,
   showUsersLink = false,
   onSignOut,
   className,
@@ -37,7 +34,7 @@ export function TopBar({
   return (
     <header className={cx(styles.root, className)}>
       <div className={styles.start}>
-        {showBack ? (
+        {backHref ? (
           <IconButton
             href={backHref}
             icon={ArrowLeftIcon}

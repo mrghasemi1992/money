@@ -1033,6 +1033,28 @@ Check that build, lint, typecheck, format:check and build-storybook pass, and te
 
 `/settings/import-export`: an export card for every role (range presets in the viewer's calendar, an account, the count, a streamed UTF-8 CSV with both calendars) and, for editors and admins, a five-step import (upload, columns, names, review with errors and possible duplicates, result) saved in one database transaction with `source = "csv"`. Errors can be downloaded as a CSV to fix. The transaction detail names imported rows. Stories for the page and every step. CLAUDE.md updated.
 
+## Back button on settings subpages (#64)
+
+Branch: `feature/back-button-inner-settings-pages`. Date: 2026-10-14.
+
+### Claude Code prompt (as sent)
+
+> handle github issue #64
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+`PageHeader` takes an optional `back` link («‹ تنظیمات» / “‹ Settings”) shown from 768px up, above the title. `/settings/connector` and `/settings/import-export` use it, in their loading and error states too. On phones the top bar's back button stays. Accounts and categories had moved to the main navigation (#25), so they no longer need one. CLAUDE.md updated.
+
+### Follow-ups
+
+1. > when i enter the settings page, accounts, categories and user managements, i dont need the back button, just when i in inner pages of settings page: import-export and connector
+
+   The phone top bar showed a back button (to the dashboard) on every page that isn't a tab. It now shows one only on subpages, to their section; `TopBar` takes `backHref` alone (no `showBack`).
+
 ## Phone navigation in the style of Telegram
 
 Branch: `feature/mobile-navigation`. Date: 2026-10-15.

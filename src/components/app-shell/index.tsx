@@ -58,10 +58,10 @@ export function AppShell({
   const items = getNavItems(user.role);
   const tabs = getPhoneTabs(items);
   const moreItems = getMoreItems(items);
-  const onTab = findNavItem(tabs, pathname) !== undefined;
-  // A subpage (/settings/connector) goes back to its section, anything else to the dashboard.
+  // Only a subpage (/settings/connector) gets a back button, to its section.
   const section = findNavItem(items, pathname);
-  const backHref = section && section.href !== pathname ? section.href : "/";
+  const backHref =
+    section && section.href !== pathname ? section.href : undefined;
 
   return (
     <AddTransactionProvider
@@ -77,7 +77,6 @@ export function AppShell({
         <div className={styles.column}>
           <TopBar
             user={user}
-            showBack={!onTab}
             backHref={backHref}
             showUsersLink={canManageUsers(user.role)}
             onSignOut={onSignOut}

@@ -91,6 +91,7 @@ export function ConnectorSettings({
   onRevoke,
 }: ConnectorSettingsProps) {
   const t = useTranslations("connector");
+  const tNav = useTranslations("nav");
   const toast = useToast();
   const [target, setTarget] = useState<ConnectedApp | null>(null);
   const [open, setOpen] = useState(false);
@@ -115,7 +116,11 @@ export function ConnectorSettings({
 
   return (
     <div className={styles.root}>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        back={{ href: "/settings", label: tNav("settings") }}
+      />
 
       <div className={styles.columns}>
         <div className={styles.main}>
@@ -341,11 +346,13 @@ function ExamplesCard() {
 /** The page while it loads (loading.tsx). */
 export function ConnectorSettingsSkeleton() {
   const t = useTranslations();
+  const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
       <PageHeader
         title={t("connector.title")}
         subtitle={t("connector.subtitle")}
+        back={{ href: "/settings", label: tNav("settings") }}
       />
       <div role="status" aria-busy="true" className={styles.columns}>
         <span className="visually-hidden">{t("page.loading")}</span>
@@ -387,9 +394,14 @@ export function ConnectorSettingsSkeleton() {
 /** The connected apps didn't load (error.tsx): the page's header and a retry. */
 export function ConnectorSettingsError({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations("connector");
+  const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        back={{ href: "/settings", label: tNav("settings") }}
+      />
       <ListError title={t("error")} onRetry={onRetry} />
     </div>
   );

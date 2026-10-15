@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 export const OnTab: Story = {};
 
 /** On other pages, a back button leads to the dashboard. */
-export const WithBack: Story = { args: { showBack: true } };
+export const WithBack: Story = { args: { backHref: "/settings" } };
 
 export const Viewer: Story = {
   args: {

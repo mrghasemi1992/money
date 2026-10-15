@@ -26,6 +26,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A subpage: a link back to its section from 768px up (phones use the top bar's back button). */
+export const WithBack: Story = {
+  args: {
+    title: "اتصال Claude",
+    subtitle: "Claude را به دفتر خود وصل کنید.",
+    back: { href: "/settings", label: "تنظیمات" },
+  },
+};
+
 export const TitleOnly: Story = { args: { title: "گزارش‌ها" } };
 
 /** The dashboard: today's date in the viewer's calendar, and the add button for editors and admins. */
