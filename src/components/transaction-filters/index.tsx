@@ -92,12 +92,15 @@ export function TransactionFilters({
   const toId = useId();
   const [open, setOpen] = useState(defaultOpen);
 
-  // The search box keeps what's typed; the URL gets it after a pause.
+  // The search box keeps what's typed; the URL gets it after a pause. A change of
+  // `params.search` that this box sent itself must not overwrite text typed since.
   const [search, setSearch] = useState(params.search);
   const [syncedSearch, setSyncedSearch] = useState(params.search);
+  const [sentSearch, setSentSearch] = useState<string | null>(null);
   if (params.search !== syncedSearch) {
     setSyncedSearch(params.search);
-    setSearch(params.search);
+    if (params.search !== sentSearch) setSearch(params.search);
+    setSentSearch(null);
   }
   const latest = useRef({ params, onChange });
   useEffect(() => {
@@ -107,6 +110,7 @@ export function TransactionFilters({
     const trimmed = search.trim();
     if (trimmed === latest.current.params.search) return;
     const timer = setTimeout(() => {
+      setSentSearch(trimmed);
       latest.current.onChange({ ...latest.current.params, search: trimmed });
     }, SEARCH_DELAY_MS);
     return () => clearTimeout(timer);
