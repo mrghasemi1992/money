@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/mrghasemi1992/money/compare/v0.3.0...v0.3.1) (2026-10-16)
+
+
+### Bug fixes
+
+* show chosen transaction filters at once and keep typed search text ([#85](https://github.com/mrghasemi1992/money/issues/85)) ([027a083](https://github.com/mrghasemi1992/money/commit/027a083dd5f2c3c21d20d7bae8f52312e69f0655)), closes [#62](https://github.com/mrghasemi1992/money/issues/62) [#63](https://github.com/mrghasemi1992/money/issues/63)
+
 ## [0.3.0](https://github.com/mrghasemi1992/money/compare/v0.2.1...v0.3.0) (2026-10-15)
 
 
