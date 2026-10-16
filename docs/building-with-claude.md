@@ -1083,6 +1083,23 @@ A screenshot of Telegram for iOS followed (the floating tab bar), with "what is 
 - English tab labels were cut off at 390px, so the dashboard and transactions tabs use short labels there («Home», «Activity», `nav.short`); Persian keeps its words.
 - Pages and phone toasts keep `--tabbar-space` clear. Checked in Storybook at 390px and 360px, Persian and English, light and dark. CLAUDE.md updated.
 
+## Transaction filters: instant values and search debounce (#62, #63)
+
+Branch: `bugfix/transaction-filters-responsiveness`. Date: 2026-10-16.
+
+### Claude Code prompt (as sent)
+
+> start github issue #62 and #63
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- #62: `Transactions` keeps the filters in `useOptimistic` and sets them inside the navigation transition, so a chosen account, category, tag or type shows at once; the list's skeleton (`navigating`) is the only loading state.
+- #63: the search box no longer overwrites what is typed when its own earlier search comes back through the URL (`sentSearch` in `TransactionFilters`); only a change that didn't come from the box (a chip, «پاک کردن همه», back) replaces the text.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

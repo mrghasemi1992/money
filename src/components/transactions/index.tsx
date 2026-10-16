@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
 
 import {
   AddTransactionButton,
@@ -131,6 +131,8 @@ export function Transactions({
   const pathname = usePathname();
   const openAdd = useAddTransaction();
   const [navigating, startNavigation] = useTransition();
+  // The chosen filters show at once; the list's skeleton (`navigating`) covers the wait.
+  const [shownParams, setShownParams] = useOptimistic(params);
   const [loadingMore, startLoadingMore] = useTransition();
   const [deleting, startDeleting] = useTransition();
 
@@ -194,6 +196,7 @@ export function Transactions({
 
   function navigate(next: TransactionFilterParams) {
     startNavigation(() => {
+      setShownParams(next);
       router.push(`${pathname}${transactionParamsToSearch(next)}`, {
         scroll: false,
       });
@@ -431,7 +434,7 @@ export function Transactions({
       <TransactionSummary totals={navigating ? null : totals} />
 
       <TransactionFilters
-        params={params}
+        params={shownParams}
         onChange={navigate}
         options={options}
         countLabel={
