@@ -19,7 +19,7 @@ type LogoProps = Omit<ComponentProps<"span">, "children"> & {
 
 /**
  * The brand: the mark and the wordmark at weight 800, «پول» in Dana in the Persian interface,
- * «Money» in Plus Jakarta Sans in the English one. Works in Server and Client Components.
+ * «Money» in Manrope in the English one. Works in Server and Client Components.
  */
 export function Logo({
   variant = "lockup",

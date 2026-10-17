@@ -265,7 +265,7 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
   - Focus is a 3px ring drawn with `box-shadow: var(--shadow-focus)` (danger controls: `--shadow-focus-danger`).
 - **Fonts** (`src/styles/fonts.ts`, both variables on `<html>`):
   - Persian interface: Dana for everything (variable, `dana-variable.woff2`, copied from `daily-transactions`, `next/font/local`, `--font-dana`). Dana's default weight is 10 (hairline): every text style must set a weight. Declare `weight: "10 900"`.
-  - English interface: Plus Jakarta Sans (Kanvas's text face, `next/font/google`, `--font-jakarta`, weights 200–800), with Dana as the fallback for Persian text such as names and categories.
+  - English interface: Manrope (`next/font/google`, `--font-manrope`, variable weights 200–800), with Dana as the fallback for Persian text such as names and categories.
   - Tabular digits in amounts, dates and columns of numbers: `font-feature-settings: var(--font-features-tabular)` (helper class `.tabular`). It is `"ss03"` for Dana (no `tnum`) and `"tnum"` in English.
   - Never use Dana's `ss02` (it draws Latin digits as Persian glyphs and breaks copy and screen readers). Persian digits come from `Intl.NumberFormat("fa-IR")` (`formatNumber` in `src/utils/number.ts`).
 - **Direction:** `<html lang dir>` follows the language (`fa` → `rtl`, `en` → `ltr`, `LOCALE_DIRECTIONS`), and Base UI's `DirectionProvider` (in `src/components/providers`) follows it for keyboard navigation and popup placement. Every layout must work in both directions. Use CSS logical properties only (`margin-inline-start`, `inset-inline-end`, `text-align: start`, …), never `left`/`right`. Where an element forces `direction: ltr` (number inputs), align it against the page's start edge with `:global(html[dir="rtl"])`.
@@ -530,7 +530,7 @@ All pages except `/login` and `/setup` require a session (`/oauth/consent` sends
 - `../daily-transactions`: MCP with `mcp-handler`, Neon access, Jalali helpers (`src/lib/jalali.ts`), the Dana font file, the MCP tool set and instructions.
 - `../money-old` (GitHub `money-old`, formerly `money`): personal accounting features, Dana font notes, RTL and Persian number formatting rules.
 - `../orange`: the implementation process, folder layout, Storybook setup, theme script and PostCSS media setup.
-- `../kanvas`: Kanvas tokens (`src/styles/tokens.css`), the source of the royal blue ramp and of Plus Jakarta Sans.
+- `../kanvas`: Kanvas tokens (`src/styles/tokens.css`), the source of the royal blue ramp.
 
 Tooling: pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`.
 

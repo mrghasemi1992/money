@@ -169,7 +169,7 @@
   background: var(--surface-sunken);
   color: var(--text-primary);
   font: var(--type-label);
-  font-family: var(--font-jakarta), var(--font-sans);
+  font-family: var(--font-manrope), var(--font-sans);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
