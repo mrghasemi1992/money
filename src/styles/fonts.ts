@@ -1,4 +1,4 @@
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Manrope } from "next/font/google";
 import localFont from "next/font/local";
 
 /**
@@ -14,14 +14,14 @@ export const dana = localFont({
 });
 
 /**
- * Plus Jakarta Sans (Kanvas's text face), for Latin text in the English interface. Persian
+ * Manrope, for Latin text in the English interface. Persian
  * text there (names, categories) falls back to Dana. Variable, weights 200–800.
  */
-export const plusJakartaSans = Plus_Jakarta_Sans({
+export const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-jakarta",
+  variable: "--font-manrope",
 });
 
 /** Class names that define the font CSS variables. Put them on <html>. */
-export const fontVariables = `${dana.variable} ${plusJakartaSans.variable}`;
+export const fontVariables = `${dana.variable} ${manrope.variable}`;

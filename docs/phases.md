@@ -151,7 +151,7 @@ Make Money work in Persian (RTL, Jalali by default) and English (LTR, Gregorian 
 2. User preferences on the user record (Better Auth additionalFields, input: false): locale, calendar (jalali | gregorian), rial_unit (rial | toman). A one-row book table with the currency. CHECK constraints for all of them. A migration.
 3. Amounts become integers in the currency's smallest unit (rials, cents). Formatting and parsing helpers for every unit; Amount, AmountField and ProgressBar use the viewer's unit.
 4. Both calendars: conversion, month lengths, week start (Saturday for Jalali, Monday for Gregorian), weekend, names in both languages. Calendar, DatePicker and the date display (JalaliDate renamed to DateText) use the viewer's calendar. "Today" uses the device's OS time zone, reported by the browser in a cookie.
-5. English font: Plus Jakarta Sans, with Dana for Persian text; tabular digits in both.
+5. English font: Manrope, with Dana for Persian text; tabular digits in both.
 6. A language switch on the login page. Storybook toolbars for language, calendar and money unit.
 
 Check that build, lint, typecheck, format:check and build-storybook pass. Update CLAUDE.md and the later phases in this file. Show me the changes and proposed commits, and wait for my OK.

@@ -1100,6 +1100,24 @@ None.
 - #62: `Transactions` keeps the filters in `useOptimistic` and sets them inside the navigation transition, so a chosen account, category, tag or type shows at once; the list's skeleton (`navigating`) is the only loading state.
 - #63: the search box no longer overwrites what is typed when its own earlier search comes back through the URL (`sentSearch` in `TransactionFilters`); only a change that didn't come from the box (a chip, «پاک کردن همه», back) replaces the text.
 
+## English font: Manrope (#23)
+
+Branch: `feature/manrope-english-font`. Date: 2026-10-17.
+
+### Claude Code prompt (as sent)
+
+> i want to add manrope font. which github issue realted to that?
+>
+> so handle issue #23
+
+### Questions Claude asked
+
+None.
+
+### Result
+
+- The English interface uses Manrope (`next/font/google`, `--font-manrope`, variable weights 200–800) instead of Plus Jakarta Sans; Dana stays the fallback for Persian text and keeps `tnum` digits in English via `--font-features-tabular`. Storybook picks the font up through `fontVariables`. CLAUDE.md and `docs/phases.md` updated.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
