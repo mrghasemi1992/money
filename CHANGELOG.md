@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/mrghasemi1992/money/compare/v0.3.1...v0.4.0) (2026-10-17)
+
+
+### Features
+
+* switch the English font to Manrope ([#23](https://github.com/mrghasemi1992/money/issues/23)) ([#87](https://github.com/mrghasemi1992/money/issues/87)) ([e2650e9](https://github.com/mrghasemi1992/money/commit/e2650e9f0e0b5597df361d81f7c565c558abe6af))
+
 ## [0.3.1](https://github.com/mrghasemi1992/money/compare/v0.3.0...v0.3.1) (2026-10-16)
 
 
