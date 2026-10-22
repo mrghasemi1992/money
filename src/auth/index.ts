@@ -40,13 +40,17 @@ import {
   verification,
 } from "@/db/schema";
 
-import { getMcpResourceUrl, getVercelProductionHost } from "./urls";
+import { getAppUrl, getMcpResourceUrl, getVercelProductionHost } from "./urls";
 
 /**
  * The app's URL. Local development (and a production domain chosen by hand) sets
  * BETTER_AUTH_URL. Otherwise a Vercel deployment accepts its own hosts, which Vercel sets for
  * every deployment: the deployment and branch URL, and in production the project's production
  * domain, so a copy made with the Deploy button needs no URL setting.
+ *
+ * Calls to auth.api without request headers (creating the first admin on /setup, reading the
+ * signing keys for the MCP endpoint) have no host to pick from, so they use the connector's
+ * fixed URL (`getAppUrl`). Without it they failed with "Dynamic baseURL could not be resolved".
  */
 function getBaseURL() {
   if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
@@ -56,7 +60,11 @@ function getBaseURL() {
     process.env.VERCEL_BRANCH_URL,
   ].filter((host): host is string => Boolean(host));
   if (vercelHosts.length === 0) return undefined;
-  return { allowedHosts: vercelHosts, protocol: "https" as const };
+  return {
+    allowedHosts: vercelHosts,
+    protocol: "https" as const,
+    fallback: getAppUrl(),
+  };
 }
 
 /**
