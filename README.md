@@ -42,7 +42,7 @@ How it works: Money is its own OAuth 2.1 authorization server (Better Auth's MCP
 
 ## Updating your copy
 
-Each copy of Money is a fork of this repository on GitHub, deployed on Vercel (see [Run your own copy](#run-your-own-copy)). **Settings → About Money** shows the version you run, and admins see when a newer [release](https://github.com/mrghasemi1992/money/releases) is out. To update, click **Sync fork** on your fork: Vercel builds the new version, migrates the database, then switches over, and a failure leaves the previous version running. The steps, in English and Persian, are in [docs/updating.md](docs/updating.md); how releases are made and the rules for database migrations are in [docs/releases.md](docs/releases.md).
+Each copy of Money is a fork of this repository on GitHub, deployed on Vercel (see [Run your own copy](#run-your-own-copy)). **Settings → About Money** shows the version you run, and admins see when a newer [release](https://github.com/mrghasemi1992/money/releases) is out. To update, click **Sync fork** on your fork: Vercel builds the new version, migrates the database, then switches over, and a failure leaves the previous version running. The steps are in [docs/updating.md](docs/updating.md); how releases are made and the rules for database migrations are in [docs/releases.md](docs/releases.md).
 
 ## Scripts
 

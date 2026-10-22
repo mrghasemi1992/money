@@ -143,7 +143,7 @@ Users add `https://<domain>/mcp` in Claude (Settings → Connectors → Add cust
 
 ## Releases and updates
 
-Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` on GitHub, deployed on their own Vercel project with Neon. The process is in `docs/releases.md` (maintainers), `docs/self-hosting.md` (setting up a copy) and `docs/updating.md` (updating one); `docs/self-hosting.md` is in English only, `docs/updating.md` in English and Persian.
+Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` on GitHub, deployed on their own Vercel project with Neon. The process is in `docs/releases.md` (maintainers), `docs/self-hosting.md` (setting up a copy) and `docs/updating.md` (updating one); the docs (README and `docs/`) are in English, with Persian only where they quote the interface.
 
 - **Forks follow `main`**, so `main` is always releasable. Self-hosters update with GitHub's «Sync fork»; the push makes their Vercel project deploy.
 - **Setting up a copy** (`docs/self-hosting.md`, linked from the README) needs no terminal: make a secret (generate-secret.vercel.app), click the **Deploy button** (Vercel's clone flow: `stores` adds a Neon database with the env prefix `DATABASE`, `env` asks for `BETTER_AUTH_SECRET`; `BETTER_AUTH_URL` isn't needed, see Claude connector → URLs), open the new address to create the first admin on `/setup` with the secret as setup code, then **switch to a fork**: the Deploy button makes a clone (`money-setup`), which can't sync, so the guide has the owner fork the repository and connect the fork in Vercel → Settings → Git (the project keeps its database and variables). The button's URL appears in the README and in the guide; keep them the same.
