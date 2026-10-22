@@ -6,7 +6,7 @@ export const UPSTREAM_URL = `https://github.com/${UPSTREAM_REPOSITORY}`;
 /** The releases page, with each version's notes. */
 export const RELEASES_URL = `${UPSTREAM_URL}/releases`;
 
-/** How a self-hosted copy updates (docs/updating.md, in English and Persian). */
+/** How a self-hosted copy updates (docs/updating.md). */
 export const UPDATE_GUIDE_URL = `${UPSTREAM_URL}/blob/main/docs/updating.md`;
 
 /** GitHub's latest release, the one an update notice compares with. */

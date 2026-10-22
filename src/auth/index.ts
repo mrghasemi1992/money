@@ -8,6 +8,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { admin, jwt, username } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 import { LOGIN_PATH, SIGN_IN_LIMIT } from "@/constants/auth";
 import { DEFAULT_CALENDAR } from "@/constants/calendar";
@@ -39,13 +40,17 @@ import {
   verification,
 } from "@/db/schema";
 
-import { getMcpResourceUrl, getVercelProductionHost } from "./urls";
+import { getAppUrl, getMcpResourceUrl, getVercelProductionHost } from "./urls";
 
 /**
  * The app's URL. Local development (and a production domain chosen by hand) sets
  * BETTER_AUTH_URL. Otherwise a Vercel deployment accepts its own hosts, which Vercel sets for
  * every deployment: the deployment and branch URL, and in production the project's production
  * domain, so a copy made with the Deploy button needs no URL setting.
+ *
+ * Calls to auth.api without request headers (creating the first admin on /setup, reading the
+ * signing keys for the MCP endpoint) have no host to pick from, so they use the connector's
+ * fixed URL (`getAppUrl`). Without it they failed with "Dynamic baseURL could not be resolved".
  */
 function getBaseURL() {
   if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
@@ -55,7 +60,24 @@ function getBaseURL() {
     process.env.VERCEL_BRANCH_URL,
   ].filter((host): host is string => Boolean(host));
   if (vercelHosts.length === 0) return undefined;
-  return { allowedHosts: vercelHosts, protocol: "https" as const };
+  return {
+    allowedHosts: vercelHosts,
+    protocol: "https" as const,
+    fallback: getAppUrl(),
+  };
+}
+
+/**
+ * `next build` loads this module while it collects page data, and the `mcp` plugin's init
+ * seeds the MCP endpoint in `oauth_resource`. A new copy builds before its first migration, so
+ * the table didn't exist yet and the build log showed a NeonDbError. Nothing is served during
+ * the build, so the plugin skips its init there; at runtime it seeds as before.
+ */
+function withoutInitDuringBuild<Plugin extends { init?: unknown }>(
+  plugin: Plugin,
+): Plugin {
+  if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) return plugin;
+  return { ...plugin, init: undefined };
 }
 
 /**
@@ -165,17 +187,19 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
     jwt({ disableSettingJwtHeader: true }),
-    mcp({
-      resource: getMcpResourceUrl(),
-      loginPage: LOGIN_PATH,
-      consentPage: OAUTH_CONSENT_PATH,
-      scopes: [...OAUTH_SCOPES],
-      // Users sign in; no machine-to-machine tokens.
-      grantTypes: ["authorization_code", "refresh_token"],
-      // Nobody creates, edits or lists OAuth clients through the API (by default any signed-in
-      // user could). Clients come from Client ID Metadata Documents only.
-      clientPrivileges: () => false,
-    }),
+    withoutInitDuringBuild(
+      mcp({
+        resource: getMcpResourceUrl(),
+        loginPage: LOGIN_PATH,
+        consentPage: OAUTH_CONSENT_PATH,
+        scopes: [...OAUTH_SCOPES],
+        // Users sign in; no machine-to-machine tokens.
+        grantTypes: ["authorization_code", "refresh_token"],
+        // Nobody creates, edits or lists OAuth clients through the API (by default any signed-in
+        // user could). Clients come from Client ID Metadata Documents only.
+        clientPrivileges: () => false,
+      }),
+    ),
     cimd({
       fetchClientMetadataResource,
       metadataProfile: "mcp-2026-07-28",
