@@ -11,7 +11,7 @@ Each person or family runs their own copy of Money on free GitHub, Vercel and Ne
 3. Open your new address: **Set up Money** creates the first admin with the setup code.
 4. Fork this repository and connect the fork in Vercel (**Settings → Git**), so you can update with **Sync fork**.
 
-The full guide, in English and Persian: [docs/self-hosting.md](docs/self-hosting.md).
+The full guide: [docs/self-hosting.md](docs/self-hosting.md).
 
 ## Getting started (development)
 
