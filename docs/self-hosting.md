@@ -64,6 +64,7 @@ From now on, updating is one click: see [updating.md](updating.md).
 
 - **The deployment failed with “DATABASE_URL is not set”.** The database wasn't connected. In Vercel open the project → **Storage**, create a Neon database (or **Connect** an existing one) with the prefix `DATABASE`, then **Deployments → Redeploy**.
 - **“The setup code is incorrect.”** It must be exactly the `BETTER_AUTH_SECRET` from step 3. If you lost it, set a new one in Vercel → **Settings → Environment Variables** (edit `BETTER_AUTH_SECRET`), then **Redeploy** and use the new one. Changing it is harmless before anyone has signed in.
+- **The build log shows `NeonDbError: relation "oauth_resource" does not exist`.** This is harmless. Versions up to 0.4.0 logged it on a new copy's first build, before the database tables were created. The deployment still succeeds, and the build creates the tables right after.
 - **The build log says something else.** Open the failed deployment in Vercel → **Building**; the last red lines say why. You can ask for help in the repository's [issues](https://github.com/mrghasemi1992/money/issues).
 
 ---

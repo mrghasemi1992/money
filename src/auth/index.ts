@@ -8,6 +8,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { admin, jwt, username } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 import { LOGIN_PATH, SIGN_IN_LIMIT } from "@/constants/auth";
 import { DEFAULT_CALENDAR } from "@/constants/calendar";
@@ -56,6 +57,19 @@ function getBaseURL() {
   ].filter((host): host is string => Boolean(host));
   if (vercelHosts.length === 0) return undefined;
   return { allowedHosts: vercelHosts, protocol: "https" as const };
+}
+
+/**
+ * `next build` loads this module while it collects page data, and the `mcp` plugin's init
+ * seeds the MCP endpoint in `oauth_resource`. A new copy builds before its first migration, so
+ * the table didn't exist yet and the build log showed a NeonDbError. Nothing is served during
+ * the build, so the plugin skips its init there; at runtime it seeds as before.
+ */
+function withoutInitDuringBuild<Plugin extends { init?: unknown }>(
+  plugin: Plugin,
+): Plugin {
+  if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) return plugin;
+  return { ...plugin, init: undefined };
 }
 
 /**
@@ -165,17 +179,19 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
     jwt({ disableSettingJwtHeader: true }),
-    mcp({
-      resource: getMcpResourceUrl(),
-      loginPage: LOGIN_PATH,
-      consentPage: OAUTH_CONSENT_PATH,
-      scopes: [...OAUTH_SCOPES],
-      // Users sign in; no machine-to-machine tokens.
-      grantTypes: ["authorization_code", "refresh_token"],
-      // Nobody creates, edits or lists OAuth clients through the API (by default any signed-in
-      // user could). Clients come from Client ID Metadata Documents only.
-      clientPrivileges: () => false,
-    }),
+    withoutInitDuringBuild(
+      mcp({
+        resource: getMcpResourceUrl(),
+        loginPage: LOGIN_PATH,
+        consentPage: OAUTH_CONSENT_PATH,
+        scopes: [...OAUTH_SCOPES],
+        // Users sign in; no machine-to-machine tokens.
+        grantTypes: ["authorization_code", "refresh_token"],
+        // Nobody creates, edits or lists OAuth clients through the API (by default any signed-in
+        // user could). Clients come from Client ID Metadata Documents only.
+        clientPrivileges: () => false,
+      }),
+    ),
     cimd({
       fetchClientMetadataResource,
       metadataProfile: "mcp-2026-07-28",
