@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/mrghasemi1992/money/compare/v0.4.0...v0.4.1) (2026-10-22)
+
+
+### Bug fixes
+
+* make the first deploy of a new copy work ([#91](https://github.com/mrghasemi1992/money/issues/91)) ([384e2ff](https://github.com/mrghasemi1992/money/commit/384e2ff3e55782763eef2dadc3d24790d8671066))
+
 ## [0.4.0](https://github.com/mrghasemi1992/money/compare/v0.3.1...v0.4.0) (2026-10-17)
 
 
