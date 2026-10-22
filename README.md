@@ -4,12 +4,12 @@ A personal accounting app with a Persian (right-to-left) and English interface, 
 
 ## Run your own copy
 
-Each person or family runs their own copy of Money on free GitHub, Vercel and Neon accounts, with no terminal:
+Each person or family runs their own copy of Money on free GitHub, Vercel and Neon accounts, with no terminal. Your copy ends up as a fork of this repository, which is how it gets updates, but Vercel's Deploy button can't deploy a fork: it creates a new repository with a copy of the code. So you deploy with the button first, then switch the project to your fork (step 4).
 
 1. Make a secret at [generate-secret.vercel.app/32](https://generate-secret.vercel.app/32) and keep it: it is also the setup code for your admin account.
-2. [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney&project-name=money&repository-name=money-setup&env=BETTER_AUTH_SECRET&envDescription=A%20random%20secret%20of%20at%20least%2032%20characters.%20It%20is%20also%20the%20setup%20code%20for%20your%20first%20admin%20account%3A%20keep%20a%20copy.&envLink=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney%2Fblob%2Fmain%2Fdocs%2Fself-hosting.md%232-make-a-secret&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%2C%22envVarPrefix%22%3A%22DATABASE%22%7D%5D) (creates the Vercel project and the Neon database and asks for the secret).
+2. [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney&project-name=money&repository-name=money-setup&env=BETTER_AUTH_SECRET&envDescription=A%20random%20secret%20of%20at%20least%2032%20characters.%20It%20is%20also%20the%20setup%20code%20for%20your%20first%20admin%20account%3A%20keep%20a%20copy.&envLink=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney%2Fblob%2Fmain%2Fdocs%2Fself-hosting.md%232-make-a-secret&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%2C%22envVarPrefix%22%3A%22DATABASE%22%7D%5D) (creates a new repository `money-setup` with a copy of the code, the Vercel project and the Neon database, and asks for the secret).
 3. Open your new address: **Set up Money** creates the first admin with the setup code.
-4. Fork this repository and connect the fork in Vercel (**Settings → Git**), so you can update with **Sync fork**.
+4. Fork this repository (or use the fork you already have) and connect it in Vercel (**Settings → Git**) in place of `money-setup`, so you can update with **Sync fork**.
 
 The full guide: [docs/self-hosting.md](docs/self-hosting.md).
 

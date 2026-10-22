@@ -2,6 +2,14 @@
 
 Every person or family runs their own copy of Money, on their own free accounts. Setting one up takes about 15 minutes and no terminal: everything happens in the browser.
 
+**How it fits together.** Your copy is a **fork** of this repository on GitHub, which brings you new versions, deployed on a **Vercel project** with a Neon database, which runs the app. Vercel's Deploy button creates the project and the database in one go, but it can't deploy a fork: it always creates a new repository with a copy of the code (`money-setup`), which can't receive updates. So you set it up in this order:
+
+1. Deploy with the button (step 3). Vercel creates the copy, the project and the database.
+2. Create your admin account (step 4).
+3. Fork this repository and connect your fork to the Vercel project in place of the copy (step 5). From then on your fork is what runs.
+
+If you have already forked the repository, that's fine: the button still creates its own copy, and in step 5 you connect the fork you have.
+
 ## 1. What you need
 
 - A [GitHub](https://github.com/signup) account. Your copy of the code lives there.
@@ -22,7 +30,7 @@ Money needs one random secret to protect sign-ins. It is also the **setup code**
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney&project-name=money&repository-name=money-setup&env=BETTER_AUTH_SECRET&envDescription=A%20random%20secret%20of%20at%20least%2032%20characters.%20It%20is%20also%20the%20setup%20code%20for%20your%20first%20admin%20account%3A%20keep%20a%20copy.&envLink=https%3A%2F%2Fgithub.com%2Fmrghasemi1992%2Fmoney%2Fblob%2Fmain%2Fdocs%2Fself-hosting.md%232-make-a-secret&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%2C%22envVarPrefix%22%3A%22DATABASE%22%7D%5D)
 
 2. Sign in to Vercel with GitHub if it asks.
-3. **Create Git Repository:** keep the name `money-setup` and click **Create**. This repository is only for the first deployment; step 5 replaces it.
+3. **Create Git Repository:** Vercel creates a new repository with a copy of the code. It is not your fork, and Vercel offers no way to pick one here. Keep the name `money-setup` and click **Create**: this repository is only for the first deployment, and step 5 replaces it with your fork.
 4. **Add Products → Neon:** click **Add**, then:
    - **Region:** keep the one Vercel suggests (Washington, D.C., US East), so the database sits next to the app.
    - **Plan:** Free.
@@ -43,7 +51,7 @@ The page only works while the book has no users: once your account exists, it se
 
 New versions of Money come out as [releases](https://github.com/mrghasemi1992/money/releases). Your copy gets them through a **fork**, a copy of the code that GitHub keeps linked to the original. The repository Vercel made in step 3 has no such link, so switch once, right away:
 
-1. Open [github.com/mrghasemi1992/money/fork](https://github.com/mrghasemi1992/money/fork), keep the name `money` and click **Create fork**.
+1. Open [github.com/mrghasemi1992/money/fork](https://github.com/mrghasemi1992/money/fork), keep the name `money` and click **Create fork**. If you forked it before, skip this and use that fork.
 2. In Vercel, open your project → **Settings → Git**. Under **Connected Git Repository**, click **Disconnect**.
 3. Click **Connect** (GitHub), choose your fork `money` and confirm. If the fork isn't listed, click **Adjust GitHub App Permissions**, allow Vercel to see the fork, then choose it.
 4. Optional: delete the `money-setup` repository on GitHub (its **Settings → Danger Zone → Delete this repository**). Your app, database and settings stay in Vercel.
