@@ -14,7 +14,12 @@ import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
-import { categoryColorStyle } from "@/helpers/category";
+import { CATEGORY_ICONS } from "@/constants/category-icons";
+import {
+  categoryColorStyle,
+  categoryIcon,
+  knownCategoryIcon,
+} from "@/helpers/category";
 import list from "@/styles/list.module.css";
 import type { Category, Subcategory } from "@/types/category";
 import { cx } from "@/utils/cx";
@@ -65,8 +70,9 @@ type CategoryListProps = {
 };
 
 /**
- * Categories of one type, each with its color, how many subcategories and transactions it
- * has, and its active subcategories underneath in the parent's color. Editors and admins get
+ * Categories of one type, each with its icon on its color, how many subcategories and
+ * transactions it has, and its active subcategories underneath with their icons in the
+ * parent's color. Editors and admins get
  * a menu on each row and, from 768px up, a quick «+ زیردسته» button.
  */
 export function CategoryList({
@@ -103,6 +109,7 @@ export function CategoryList({
   return (
     <ul className={list.list} aria-label={ariaLabel}>
       {categories.map((category) => {
+        const Icon = CATEGORY_ICONS[knownCategoryIcon(category.icon)];
         const subcategories = category.subcategories.filter(
           (subcategory) => !subcategory.archived,
         );
@@ -122,7 +129,7 @@ export function CategoryList({
           >
             <div className={list.row}>
               <span className={styles.tile} aria-hidden="true">
-                <span className={styles.dot} />
+                <Icon className={styles.icon} />
               </span>
               <div className={list.text}>
                 <span className={list.name}>{category.name}</span>
@@ -171,39 +178,43 @@ export function CategoryList({
             </div>
             {subcategories.length > 0 ? (
               <ul className={styles.subcategories}>
-                {subcategories.map((subcategory) => (
-                  <li key={subcategory.id} className={styles.subcategory}>
-                    <span className={styles.subDot} aria-hidden="true" />
-                    <span className={styles.subName}>{subcategory.name}</span>
-                    <span className={styles.subMeta}>
-                      {counts.transactions(subcategory.transactionCount)}
-                    </span>
-                    {canWrite
-                      ? rowMenu(subcategory.name, [
-                          {
-                            label: t("categories.actions.rename"),
-                            icon: PencilIcon,
-                            onClick: () =>
-                              onRenameSubcategory(category, subcategory),
-                          },
-                          { separator: true },
-                          {
-                            label: t("categories.actions.archive"),
-                            icon: ArchiveIcon,
-                            onClick: () =>
-                              onArchiveSubcategory(category, subcategory),
-                          },
-                          {
-                            label: t("categories.actions.delete"),
-                            icon: Trash2Icon,
-                            danger: true,
-                            onClick: () =>
-                              onDeleteSubcategory(category, subcategory),
-                          },
-                        ])
-                      : null}
-                  </li>
-                ))}
+                {subcategories.map((subcategory) => {
+                  const SubIcon =
+                    CATEGORY_ICONS[knownCategoryIcon(subcategory.icon)];
+                  return (
+                    <li key={subcategory.id} className={styles.subcategory}>
+                      <SubIcon className={styles.subIcon} aria-hidden="true" />
+                      <span className={styles.subName}>{subcategory.name}</span>
+                      <span className={styles.subMeta}>
+                        {counts.transactions(subcategory.transactionCount)}
+                      </span>
+                      {canWrite
+                        ? rowMenu(subcategory.name, [
+                            {
+                              label: t("categories.actions.rename"),
+                              icon: PencilIcon,
+                              onClick: () =>
+                                onRenameSubcategory(category, subcategory),
+                            },
+                            { separator: true },
+                            {
+                              label: t("categories.actions.archive"),
+                              icon: ArchiveIcon,
+                              onClick: () =>
+                                onArchiveSubcategory(category, subcategory),
+                            },
+                            {
+                              label: t("categories.actions.delete"),
+                              icon: Trash2Icon,
+                              danger: true,
+                              onClick: () =>
+                                onDeleteSubcategory(category, subcategory),
+                            },
+                          ])
+                        : null}
+                    </li>
+                  );
+                })}
               </ul>
             ) : null}
           </li>
@@ -256,6 +267,7 @@ export function ArchivedCategoryList({
                   name={category.name}
                   sub={subcategory?.name}
                   color={category.color}
+                  icon={categoryIcon(subcategory?.icon ?? category.icon)}
                 />
                 <span className={list.meta}>{counts.transactions(usage)}</span>
               </div>

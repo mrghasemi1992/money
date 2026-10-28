@@ -127,6 +127,7 @@ export async function saveImport(
           type: category.type,
           name: category.name,
           color: category.color,
+          icon: category.icon,
           parentId: category.parent ? idOf(category.parent) : null,
         })),
       ),

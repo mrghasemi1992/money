@@ -1118,6 +1118,27 @@ None.
 
 - The English interface uses Manrope (`next/font/google`, `--font-manrope`, variable weights 200–800) instead of Plus Jakarta Sans; Dana stays the fallback for Persian text and keeps `tnum` digits in English via `--font-features-tabular`. Storybook picks the font up through `fontVariables`. CLAUDE.md and `docs/phases.md` updated.
 
+## Icons for categories and subcategories (#24)
+
+Branch: `feature/category-icons`. Date: 2026-10-27.
+
+### Claude Code prompt (as sent)
+
+> start to handle https://github.com/mrghasemi1992/money/issues/24
+
+### Questions Claude asked
+
+| Question                                                           | Answer                                                                                                                           |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Which icons should the picker offer? (curated set / all of Lucide) | **Curated set**: about 140 Lucide icons that suit money categories, grouped by theme, each with Persian and English search words |
+
+### Result
+
+- `categories.icon` (migration `0009`): a Lucide name from `CATEGORY_ICONS` (`src/constants/category-icons.ts`), default `shapes` (`DEFAULT_CATEGORY_ICON`). The app checks it with Zod; there is no CHECK constraint, so the set can grow without a migration, and a name it no longer has shows the default icon (`knownCategoryIcon`). The migration gives the existing categories an icon from their names (the same matching as the CSV import), and subcategories without a match their parent's.
+- Every category and subcategory has its own icon. The category form has `CategoryIconPicker`: a searchable grid grouped by theme, in the category's hue. Its words (`src/constants/category-icon-words.ts`: the theme and the Persian and English words of each icon) load only when it opens. While a new category's icon hasn't been picked, it follows the name («تاکسی» → taxi); a new subcategory starts with its parent's icon. «تغییر نام» became «ویرایش» in the row menus.
+- The app picks icons itself where it creates categories: the starter categories have their own icons, and the CSV import guesses one from each new name (`guessCategoryIcon`: a phrase beats a single word, then the head noun, which comes first in Persian and last in English), otherwise the default icon, or the parent's for a subcategory.
+- Icons show on the categories page (the row tile and each subcategory), in category chips (budgets, reports, dashboard, transaction detail, archived list, import review), in the transaction form's and the filters' category list (group labels, options and the chosen value), in the budget form's select and on transaction rows (the tile shows the category's or subcategory's icon in place of the type's arrow; the amount still carries the sign).
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

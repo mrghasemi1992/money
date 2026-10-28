@@ -22,3 +22,9 @@ export const CATEGORY_TYPES = ["expense", "income"] as const;
 
 /** Category and subcategory names appear in chips and reports; long ones are cut off. */
 export const CATEGORY_NAME_MAX_LENGTH = 40;
+
+/**
+ * The icon of a category nobody picked one for (Lucide's name, stored in `categories.icon`, also
+ * its database default). One of CATEGORY_ICONS (constants/category-icons.ts).
+ */
+export const DEFAULT_CATEGORY_ICON = "shapes";

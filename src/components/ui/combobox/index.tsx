@@ -1,7 +1,12 @@
 "use client";
 
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
-import { CheckIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  type LucideIcon,
+  SearchIcon,
+} from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 
@@ -16,13 +21,24 @@ import { normalizePersian } from "@/utils/text";
 
 export type ComboboxGroup = {
   label: string;
-  /** Category hue: a dot before the group label, and before the value once picked. */
+  /**
+   * Category hue: a dot before the group label, and before the value once picked. With
+   * icons, the icons take the hue instead of the dot.
+   */
   color?: CategoryColor;
+  /** The category's icon, before the group label. */
+  icon?: LucideIcon;
   /**
    * `selectedLabel` replaces «group / option» in the box once picked: an option that stands
-   * for the whole group («همه» → «خوراک»).
+   * for the whole group («همه» → «خوراک»). `icon` (a subcategory's) shows before the option,
+   * and before the value once picked.
    */
-  options: { value: string; label: string; selectedLabel?: string }[];
+  options: {
+    value: string;
+    label: string;
+    selectedLabel?: string;
+    icon?: LucideIcon;
+  }[];
 };
 
 /** One option as Base UI sees it: the option plus its group, so labels read «خوراک / رستوران». */
@@ -32,14 +48,36 @@ type Item = {
   selectedLabel?: string;
   groupLabel: string;
   color?: CategoryColor;
+  icon?: LucideIcon;
 };
 
 /** Base UI's group shape: an object with `items`. */
 type ItemGroup = {
   label: string;
   color?: CategoryColor;
+  icon?: LucideIcon;
   items: Item[];
 };
+
+/** The category mark before a group label, an option or the picked value: its icon or dot. */
+function CategoryMark({
+  color,
+  icon: Icon,
+}: {
+  color?: CategoryColor;
+  icon?: LucideIcon;
+}) {
+  if (!color) return null;
+  return Icon ? (
+    <Icon
+      className={menu.categoryIcon}
+      style={categoryColorStyle(color)}
+      aria-hidden="true"
+    />
+  ) : (
+    <span className={menu.dot} style={categoryColorStyle(color)} />
+  );
+}
 
 type ComboboxProps = {
   groups: ComboboxGroup[];
@@ -102,10 +140,12 @@ export function Combobox({
       groups.map((group) => ({
         label: group.label,
         color: group.color,
+        icon: group.icon,
         items: group.options.map((option) => ({
           ...option,
           groupLabel: group.label,
           color: group.color,
+          icon: option.icon ?? group.icon,
         })),
       })),
     [groups],
@@ -144,10 +184,7 @@ export function Combobox({
       >
         {selectedItem?.color ? (
           <span className={control.affix}>
-            <span
-              className={menu.dot}
-              style={categoryColorStyle(selectedItem.color)}
-            />
+            <CategoryMark color={selectedItem.color} icon={selectedItem.icon} />
           </span>
         ) : (
           <span className={control.affix}>
@@ -186,12 +223,7 @@ export function Combobox({
                   className={menu.group}
                 >
                   <BaseCombobox.GroupLabel className={menu.groupLabel}>
-                    {group.color ? (
-                      <span
-                        className={menu.dot}
-                        style={categoryColorStyle(group.color)}
-                      />
-                    ) : null}
+                    <CategoryMark color={group.color} icon={group.icon} />
                     {group.label}
                   </BaseCombobox.GroupLabel>
                   <BaseCombobox.Collection>
@@ -201,6 +233,9 @@ export function Combobox({
                         value={item}
                         className={cx(menu.item, menu.indent)}
                       >
+                        {item.icon ? (
+                          <CategoryMark color={item.color} icon={item.icon} />
+                        ) : null}
                         <span className={menu.text}>{item.label}</span>
                         <BaseCombobox.ItemIndicator className={menu.check}>
                           <CheckIcon

@@ -106,7 +106,7 @@ export const Default: Story = {
           }));
           return { ok: true, id };
         }}
-        onCreateSubcategory={async ({ parentId, name }) => {
+        onCreateSubcategory={async ({ parentId, name, icon }) => {
           await wait();
           if (
             find(parentId)?.subcategories.some((s) => s.name === name.trim())
@@ -124,6 +124,7 @@ export const Default: Story = {
                       {
                         id,
                         name: name.trim(),
+                        icon,
                         archived: false,
                         transactionCount: 0,
                       },
@@ -134,7 +135,7 @@ export const Default: Story = {
           );
           return { ok: true, id };
         }}
-        onUpdate={async ({ id, name, color }) => {
+        onUpdate={async ({ id, name, icon, color }) => {
           await wait();
           setTree((current) =>
             mapTree(current, (category) =>
@@ -142,12 +143,13 @@ export const Default: Story = {
                 ? {
                     ...category,
                     name: name.trim(),
+                    icon,
                     color: color ?? category.color,
                   }
                 : {
                     ...category,
                     subcategories: category.subcategories.map((sub) =>
-                      sub.id === id ? { ...sub, name: name.trim() } : sub,
+                      sub.id === id ? { ...sub, name: name.trim(), icon } : sub,
                     ),
                   },
             ),
@@ -189,7 +191,7 @@ export const Default: Story = {
           );
           return { ok: true };
         }}
-        onRestore={async ({ type, name, color, subcategories }) => {
+        onRestore={async ({ type, name, color, icon, subcategories }) => {
           await wait();
           const id = crypto.randomUUID();
           setTree((current) => ({
@@ -201,11 +203,13 @@ export const Default: Story = {
                 type,
                 name,
                 color,
+                icon,
                 archived: false,
                 transactionCount: 0,
                 subcategories: subcategories.map((sub) => ({
                   id: crypto.randomUUID(),
-                  name: sub,
+                  name: sub.name,
+                  icon: sub.icon,
                   archived: false,
                   transactionCount: 0,
                 })),
@@ -223,11 +227,13 @@ export const Default: Story = {
               type,
               name: starter.name.fa,
               color: starter.color,
+              icon: starter.icon,
               archived: false,
               transactionCount: 0,
               subcategories: starter.subcategories.map((sub) => ({
                 id: crypto.randomUUID(),
-                name: sub.fa,
+                name: sub.name.fa,
+                icon: sub.icon,
                 archived: false,
                 transactionCount: 0,
               })),

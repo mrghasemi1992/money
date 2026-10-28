@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { DEFAULT_CATEGORY_ICON } from "@/constants/category";
 import {
   CSV_CELL_MAX_LENGTH,
   CSV_FIELD_HEADERS,
@@ -15,9 +16,15 @@ import {
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
 import { nextCategoryColor } from "@/helpers/category";
+import { guessCategoryIcon } from "@/helpers/category-icon";
 import { tidyDescription } from "@/helpers/transaction";
 import type { CalendarSystem } from "@/types/calendar";
-import type { Category, CategoryColor, CategoryType } from "@/types/category";
+import type {
+  Category,
+  CategoryColor,
+  CategoryIcon,
+  CategoryType,
+} from "@/types/category";
 import type {
   CsvAmountMode,
   CsvColumnMap,
@@ -422,7 +429,10 @@ export function planImport(
 
   const names = new Map<string, UnknownName>();
   const newAccounts = new Map<string, NewImportAccount>();
-  const newCategories = new Map<string, Omit<NewImportCategory, "color">>();
+  const newCategories = new Map<
+    string,
+    Omit<NewImportCategory, "color" | "icon">
+  >();
   const rows: ImportRow[] = [];
   const errors: ImportRowError[] = [];
 
@@ -609,7 +619,9 @@ function sameRef(a: ImportRef, b: ImportRef): boolean {
  * The new accounts and categories the rows use (a subcategory's new parent counts as used).
  * Rows left out later (skipped duplicates) leave theirs out too.
  */
-export function usedNewItems<Item extends Omit<NewImportCategory, "color">>(
+export function usedNewItems<
+  Item extends Omit<NewImportCategory, "color" | "icon">,
+>(
   rows: ImportRow[],
   accounts: NewImportAccount[],
   categories: Item[],
@@ -636,33 +648,42 @@ export function usedNewItems<Item extends Omit<NewImportCategory, "color">>(
 
 /**
  * Colors new categories as the categories page would: the next free hue of their siblings
- * (`nextCategoryColor`); subcategories take their parent's.
+ * (`nextCategoryColor`); subcategories take their parent's. Each gets the icon its name
+ * suggests (`guessCategoryIcon`), otherwise the default icon, or a subcategory its parent's.
  */
 export function colorNewCategories(
-  categories: Omit<NewImportCategory, "color">[],
+  categories: Omit<NewImportCategory, "color" | "icon">[],
   book: TransactionOptions,
 ): NewImportCategory[] {
   const used: Record<CategoryType, CategoryColor[]> = {
     expense: book.categories.expense.map((category) => category.color),
     income: book.categories.income.map((category) => category.color),
   };
-  const colors = new Map<string, CategoryColor>();
+  const looks = new Map<string, { color: CategoryColor; icon: CategoryIcon }>();
   const colored: NewImportCategory[] = [];
   for (const category of categories) {
-    let color: CategoryColor;
+    let parent: { color: CategoryColor; icon: CategoryIcon } | undefined;
     if (!category.parent) {
-      color = nextCategoryColor(used[category.type]);
-      used[category.type].push(color);
+      parent = undefined;
     } else if (category.parent.kind === "new") {
-      color = colors.get(category.parent.key) ?? "slate";
+      parent = looks.get(category.parent.key);
     } else {
       const parentId = category.parent.id;
-      color =
-        book.categories[category.type].find((parent) => parent.id === parentId)
-          ?.color ?? "slate";
+      parent = book.categories[category.type].find(
+        (item) => item.id === parentId,
+      );
     }
-    colors.set(category.key, color);
-    colored.push({ ...category, color });
+    let color: CategoryColor;
+    if (category.parent) {
+      color = parent?.color ?? "slate";
+    } else {
+      color = nextCategoryColor(used[category.type]);
+      used[category.type].push(color);
+    }
+    const icon =
+      guessCategoryIcon(category.name) ?? parent?.icon ?? DEFAULT_CATEGORY_ICON;
+    looks.set(category.key, { color, icon });
+    colored.push({ ...category, color, icon });
   }
   return colored;
 }

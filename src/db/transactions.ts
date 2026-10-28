@@ -182,6 +182,7 @@ export async function listTransactions(
       toAccountType: toAccount.type,
       categoryName: categories.name,
       categoryColor: categories.color,
+      categoryIcon: categories.icon,
       parentName: parent.name,
       parentColor: parent.color,
       creatorId: creator.id,
@@ -240,11 +241,12 @@ export async function listTransactions(
             }
           : null,
       category:
-        row.categoryName && row.categoryColor
+        row.categoryName && row.categoryColor && row.categoryIcon
           ? {
               name: row.categoryName,
               parentName: row.parentName,
               color: row.parentColor ?? row.categoryColor,
+              icon: row.categoryIcon,
             }
           : null,
       createdBy: { id: row.creatorId, name: row.creatorName },

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categoryColorStyle } from "@/helpers/category";
+import { categoryColorStyle, categoryIcon } from "@/helpers/category";
 import { monthReportHref } from "@/helpers/dashboard";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { CalendarSystem } from "@/types/calendar";
@@ -111,6 +111,7 @@ export function TopSpending({
                       size="sm"
                       name={name(slice)}
                       color={slice.color}
+                      icon={slice.icon ? categoryIcon(slice.icon) : undefined}
                       className={styles.chip}
                     />
                   )}

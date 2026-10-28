@@ -8,7 +8,12 @@ const meta = {
   args: {
     transaction: {
       type: "expense",
-      category: { name: "سوپرمارکت", parentName: "خوراک", color: "orange" },
+      category: {
+        name: "سوپرمارکت",
+        parentName: "خوراک",
+        color: "orange",
+        icon: "shopping-basket",
+      },
     },
   },
   parameters: { layout: "centered" },
@@ -17,14 +22,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** An expense: the type's arrow on its category's hue. */
+/** An expense: its subcategory's icon on its category's hue. */
 export const Expense: Story = {};
 
 export const Income: Story = {
   args: {
     transaction: {
       type: "income",
-      category: { name: "حقوق", parentName: null, color: "green" },
+      category: {
+        name: "حقوق",
+        parentName: null,
+        color: "green",
+        icon: "briefcase-business",
+      },
     },
   },
 };

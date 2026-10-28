@@ -20,6 +20,7 @@ import {
 } from "@/db/categories";
 import {
   categoryColorSchema,
+  categoryIconSchema,
   categoryNameError,
   categoryNameSchema,
 } from "@/helpers/category";
@@ -29,7 +30,7 @@ import { formatNumber } from "@/utils/number";
 /*
  * Category Server Actions (editors and admins). Each one calls requireWrite() first, validates
  * its input with Zod and returns errors as translated sentences. The rules of the shape (one
- * level of subcategories with the parent's type and color, names unique per type and parent,
+ * level of subcategories with the parent's type and color (and an icon of their own), names unique per type and parent,
  * delete only when unused) are checked here for a clear message and again by the database.
  */
 
@@ -74,6 +75,7 @@ export async function createCategory(
       type: typeSchema,
       name: categoryNameSchema,
       color: categoryColorSchema,
+      icon: categoryIconSchema,
     })
     .safeParse(input);
   if (!parsed.success) return nameError(nameOf(input));
@@ -86,24 +88,31 @@ export async function createCategory(
   return { ok: true, id };
 }
 
-/** Adds a subcategory under a top-level category; it takes the parent's type and color. */
+/**
+ * Adds a subcategory under a top-level category, with its own icon; it takes the parent's type
+ * and color.
+ */
 export async function createSubcategory(
   input: unknown,
 ): Promise<NameResult<{ id: string }>> {
   await requireWrite();
   const t = await getTranslations("categories");
   const parsed = z
-    .object({ parentId: z.uuid(), name: categoryNameSchema })
+    .object({
+      parentId: z.uuid(),
+      name: categoryNameSchema,
+      icon: categoryIconSchema,
+    })
     .safeParse(input);
   if (!parsed.success) return nameError(nameOf(input));
-  const { parentId, name } = parsed.data;
+  const { parentId, name, icon } = parsed.data;
 
   const parent = await getCategory(parentId);
   // One level only: a subcategory can't have subcategories.
   if (!parent || parent.parentId) return { ok: false, error: t("failed") };
   if (await categoryNameTaken(parent.type, parentId, name)) return nameTaken();
 
-  const result = await insertSubcategory(parentId, name);
+  const result = await insertSubcategory(parentId, { name, icon });
   if (result === "taken") return nameTaken();
   if (result === "missing") return { ok: false, error: t("failed") };
   refresh();
@@ -111,17 +120,21 @@ export async function createSubcategory(
 }
 
 /**
- * Renames a category or subcategory. A top-level category may get a new color too, which its
- * subcategories take as well; a subcategory has no color of its own.
+ * Renames a category or subcategory and sets its icon. A top-level category may get a new
+ * color too, which its subcategories take as well; a subcategory has no color of its own.
  */
 export async function updateCategory(input: unknown): Promise<NameResult> {
   await requireWrite();
   const t = await getTranslations("categories");
   const parsed = idSchema
-    .extend({ name: categoryNameSchema, color: categoryColorSchema.optional() })
+    .extend({
+      name: categoryNameSchema,
+      icon: categoryIconSchema,
+      color: categoryColorSchema.optional(),
+    })
     .safeParse(input);
   if (!parsed.success) return nameError(nameOf(input));
-  const { id, name, color } = parsed.data;
+  const { id, name, icon, color } = parsed.data;
 
   const category = await getCategory(id);
   if (!category) return { ok: false, error: t("failed") };
@@ -130,6 +143,7 @@ export async function updateCategory(input: unknown): Promise<NameResult> {
   }
   const result = await saveCategory(id, {
     name,
+    icon,
     color: category.parentId ? undefined : color,
   });
   if (result === "taken") return nameTaken();
@@ -183,7 +197,10 @@ export async function restoreCategory(
       type: typeSchema,
       name: categoryNameSchema,
       color: categoryColorSchema,
-      subcategories: z.array(categoryNameSchema).max(MAX_DELETE),
+      icon: categoryIconSchema,
+      subcategories: z
+        .array(z.object({ name: categoryNameSchema, icon: categoryIconSchema }))
+        .max(MAX_DELETE),
     })
     .safeParse(input);
   if (!parsed.success) return { ok: false, error: t("failed") };
@@ -226,7 +243,11 @@ export async function addStarterCategories(
     .map((starter) => ({
       name: starter.name[locale],
       color: starter.color,
-      subcategories: starter.subcategories.map((name) => name[locale]),
+      icon: starter.icon,
+      subcategories: starter.subcategories.map((sub) => ({
+        name: sub.name[locale],
+        icon: sub.icon,
+      })),
     }))
     .filter((starter) => !existing.has(starter.name.toLowerCase()));
 

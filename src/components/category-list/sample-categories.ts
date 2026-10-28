@@ -1,4 +1,9 @@
-import type { Category, CategoryTree, Subcategory } from "@/types/category";
+import type {
+  Category,
+  CategoryIcon,
+  CategoryTree,
+  Subcategory,
+} from "@/types/category";
 
 /** Categories for stories: names stay Persian. */
 
@@ -7,10 +12,11 @@ const id = () => `7a1c2e90-3b4d-4f5a-8c6d-${String(++next).padStart(12, "0")}`;
 
 function sub(
   name: string,
+  icon: CategoryIcon,
   transactionCount: number,
   archived = false,
 ): Subcategory {
-  return { id: id(), name, transactionCount, archived };
+  return { id: id(), name, icon, transactionCount, archived };
 }
 
 function category(
@@ -26,38 +32,46 @@ export const SAMPLE_CATEGORIES: CategoryTree = {
       type: "expense",
       name: "خوراک",
       color: "orange",
+      icon: "utensils",
       subcategories: [
-        sub("سوپرمارکت", 31),
-        sub("رستوران و کافه", 14),
-        sub("میوه و تره‌بار", 6),
+        sub("سوپرمارکت", "shopping-basket", 31),
+        sub("رستوران و کافه", "coffee", 14),
+        sub("میوه و تره‌بار", "apple", 6),
       ],
     }),
     category({
       type: "expense",
       name: "حمل‌ونقل",
       color: "sky",
+      icon: "car-front",
       subcategories: [
-        sub("تاکسی اینترنتی", 22),
-        sub("سوخت", 8),
-        sub("مترو و اتوبوس", 0),
+        sub("تاکسی اینترنتی", "car-taxi-front", 22),
+        sub("سوخت", "fuel", 8),
+        sub("مترو و اتوبوس", "train-front", 0),
       ],
     }),
     category({
       type: "expense",
       name: "خانه",
       color: "brown",
-      subcategories: [sub("اجاره", 7), sub("قبوض", 19)],
+      icon: "house",
+      subcategories: [sub("اجاره", "key-round", 7), sub("قبوض", "receipt", 19)],
     }),
     category({
       type: "expense",
       name: "تفریح",
       color: "amber",
-      subcategories: [sub("سینما و تئاتر", 4), sub("سفر", 3, true)],
+      icon: "popcorn",
+      subcategories: [
+        sub("سینما و تئاتر", "film", 4),
+        sub("سفر", "luggage", 3, true),
+      ],
     }),
     category({
       type: "expense",
       name: "اشتراک‌ها",
       color: "violet",
+      icon: "repeat",
       transactionCount: 11,
       subcategories: [],
     }),
@@ -65,12 +79,14 @@ export const SAMPLE_CATEGORIES: CategoryTree = {
       type: "expense",
       name: "پوشاک",
       color: "pink",
+      icon: "shirt",
       subcategories: [],
     }),
     category({
       type: "expense",
       name: "آموزش",
       color: "teal",
+      icon: "graduation-cap",
       archived: true,
       transactionCount: 6,
       subcategories: [],
@@ -81,13 +97,18 @@ export const SAMPLE_CATEGORIES: CategoryTree = {
       type: "income",
       name: "حقوق",
       color: "green",
-      subcategories: [sub("حقوق ماهانه", 6), sub("پاداش", 1)],
+      icon: "briefcase-business",
+      subcategories: [
+        sub("حقوق ماهانه", "banknote", 6),
+        sub("پاداش", "award", 1),
+      ],
     }),
     category({
       type: "income",
       name: "کار آزاد",
       color: "lime",
-      subcategories: [sub("پروژه", 4)],
+      icon: "laptop",
+      subcategories: [sub("پروژه", "handshake", 4)],
     }),
   ],
 };

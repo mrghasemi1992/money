@@ -20,6 +20,7 @@ import { CategoryChip } from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { MOBILE_QUERY } from "@/constants/media";
+import { categoryIcon } from "@/helpers/category";
 import { isUnknownTransaction } from "@/helpers/transaction";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -202,6 +203,7 @@ export function TransactionDetail({
                     name={category.parentName ?? category.name}
                     sub={category.parentName ? category.name : undefined}
                     color={category.color}
+                    icon={categoryIcon(category.icon)}
                   />
                 ) : (
                   <Badge tone="warning" size="sm" icon={CircleHelpIcon}>
