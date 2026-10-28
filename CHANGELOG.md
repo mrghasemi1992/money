@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/mrghasemi1992/money/compare/v0.4.1...v0.5.0) (2026-10-28)
+
+
+### Features
+
+* icons for categories and subcategories ([#24](https://github.com/mrghasemi1992/money/issues/24)) ([#94](https://github.com/mrghasemi1992/money/issues/94)) ([584febd](https://github.com/mrghasemi1992/money/commit/584febd4d174cd00b6f2ff560416041ae3b2a8e8))
+
 ## [0.4.1](https://github.com/mrghasemi1992/money/compare/v0.4.0...v0.4.1) (2026-10-22)
 
 
