@@ -1,0 +1,109 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* A fixed height, so the dialog doesn't jump while the icons load or the search narrows them. */
+.scroller {
+  position: relative; /* the offset parent of the icons, for keeping the chosen one in view */
+  height: var(--icon-picker-h);
+  overflow-y: auto;
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  overscroll-behavior: contain;
+}
+
+.loading {
+  height: 100%;
+  padding: var(--space-2);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  color: var(--text-muted);
+  font: var(--type-body);
+  text-align: center;
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1-5) var(--space-2);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupLabel {
+  padding: var(--space-1-5) var(--space-1) var(--space-1);
+  color: var(--text-secondary);
+  font: var(--type-eyebrow);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(var(--icon-picker-cell), 1fr)
+  );
+  gap: var(--space-0-5);
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--icon-picker-cell);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  outline: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .cell:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+}
+
+/* The chosen icon: on the category's hue with a ring, so it doesn't depend on color alone. */
+.cell[data-checked] {
+  background: var(--cat-soft);
+  color: var(--cat-text);
+  box-shadow: inset 0 0 0 var(--swatch-ring) var(--cat);
+}
+
+.cell:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.cell[data-checked]:focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--swatch-ring) var(--cat),
+    var(--shadow-focus);
+}
+
+.cell[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.icon {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}

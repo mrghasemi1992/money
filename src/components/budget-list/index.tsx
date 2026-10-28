@@ -21,6 +21,7 @@ import {
   budgetTransactionsHref,
   getBudgetStatus,
 } from "@/helpers/budget";
+import { categoryIcon } from "@/helpers/category";
 import { formatMoney, formatMoneyNumber } from "@/helpers/money";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { BudgetCategory } from "@/types/budget";
@@ -128,6 +129,7 @@ export function BudgetList({
                   <CategoryChip
                     name={category.name}
                     color={category.color}
+                    icon={categoryIcon(category.icon)}
                     className={styles.chip}
                   />
                   {category.archived ? (
@@ -216,6 +218,7 @@ export function UnbudgetedList({
           <CategoryChip
             name={category.name}
             color={category.color}
+            icon={categoryIcon(category.icon)}
             className={styles.unbudgetedChip}
           />
           <span className={styles.unbudgetedSpent}>

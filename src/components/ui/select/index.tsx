@@ -16,7 +16,7 @@ export type SelectOption = {
   value: string;
   label: string;
   icon?: LucideIcon;
-  /** Shows a category dot before the label. */
+  /** A category's hue: its icon in that hue before the label, or a dot without one. */
   color?: CategoryColor;
   disabled?: boolean;
   /** Draws a line before this option. */
@@ -47,7 +47,13 @@ function OptionLabel({ option }: { option: SelectOption }) {
   const Icon = option.icon;
   return (
     <>
-      {option.color ? (
+      {option.color && Icon ? (
+        <Icon
+          className={menu.categoryIcon}
+          style={categoryColorStyle(option.color)}
+          aria-hidden="true"
+        />
+      ) : option.color ? (
         <span className={menu.dot} style={categoryColorStyle(option.color)} />
       ) : Icon ? (
         <Icon className={menu.icon} aria-hidden="true" />

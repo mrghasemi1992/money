@@ -24,6 +24,7 @@ import {
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
+import { categoryIcon } from "@/helpers/category";
 import { usePreferences } from "@/hooks/use-preferences";
 import type {
   ImportDuplicate,
@@ -32,7 +33,7 @@ import type {
   ImportRow,
   ImportRowError,
 } from "@/types/csv";
-import type { CategoryColor } from "@/types/category";
+import type { CategoryColor, CategoryIcon } from "@/types/category";
 import type { TransactionOptions } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { formatNumber } from "@/utils/number";
@@ -84,19 +85,21 @@ function nameLookup(plan: ImportPlan, book: TransactionOptions) {
   ]);
   const categories = new Map<
     string,
-    { name: string; sub?: string; color: CategoryColor }
+    { name: string; sub?: string; color: CategoryColor; icon: CategoryIcon }
   >();
   for (const type of ["expense", "income"] as const) {
     for (const category of book.categories[type]) {
       categories.set(category.id, {
         name: category.name,
         color: category.color,
+        icon: category.icon,
       });
       for (const sub of category.subcategories) {
         categories.set(sub.id, {
           name: category.name,
           sub: sub.name,
           color: category.color,
+          icon: sub.icon,
         });
       }
     }
@@ -112,8 +115,13 @@ function nameLookup(plan: ImportPlan, book: TransactionOptions) {
     categories.set(
       category.key,
       parentName === null
-        ? { name: category.name, color: category.color }
-        : { name: parentName, sub: category.name, color: category.color },
+        ? { name: category.name, color: category.color, icon: category.icon }
+        : {
+            name: parentName,
+            sub: category.name,
+            color: category.color,
+            icon: category.icon,
+          },
     );
   }
   const key = (ref: ImportRef) => (ref.kind === "existing" ? ref.id : ref.key);
@@ -158,6 +166,7 @@ export function ImportReview({
         name={category.name}
         sub={category.sub}
         color={category.color}
+        icon={categoryIcon(category.icon)}
       />
     ) : (
       <TransactionTitle

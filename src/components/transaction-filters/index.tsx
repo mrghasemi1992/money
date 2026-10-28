@@ -29,6 +29,7 @@ import {
   TRANSACTION_TYPES,
 } from "@/constants/transaction";
 import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
+import { categoryIcon } from "@/helpers/category";
 import { countFilters, toggleType } from "@/helpers/transaction-filters";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { CategoryColor } from "@/types/category";
@@ -148,6 +149,7 @@ export function TransactionFilters({
         (category) => ({
           label: category.name,
           color: category.color,
+          icon: categoryIcon(category.icon),
           options: [
             {
               value: category.id,
@@ -160,6 +162,7 @@ export function TransactionFilters({
             ...category.subcategories.map((sub) => ({
               value: sub.id,
               label: sub.name,
+              icon: categoryIcon(sub.icon),
             })),
           ],
         }),

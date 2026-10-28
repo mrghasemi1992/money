@@ -41,6 +41,7 @@ import type { ActionResult } from "@/types/action";
 import type {
   Category,
   CategoryColor,
+  CategoryIcon,
   CategoryTree,
   CategoryType,
   Subcategory,
@@ -62,14 +63,17 @@ type CategorySettingsProps = {
     type: CategoryType;
     name: string;
     color: CategoryColor;
+    icon: CategoryIcon;
   }) => Promise<NameResult<{ id: string }>>;
   onCreateSubcategory: (input: {
     parentId: string;
     name: string;
+    icon: CategoryIcon;
   }) => Promise<NameResult<{ id: string }>>;
   onUpdate: (input: {
     id: string;
     name: string;
+    icon: CategoryIcon;
     color?: CategoryColor;
   }) => Promise<NameResult>;
   onArchive: (input: {
@@ -82,7 +86,8 @@ type CategorySettingsProps = {
     type: CategoryType;
     name: string;
     color: CategoryColor;
-    subcategories: string[];
+    icon: CategoryIcon;
+    subcategories: { name: string; icon: CategoryIcon }[];
   }) => Promise<NameResult<{ id: string }>>;
   onAddStarters: (input: {
     type: CategoryType;
@@ -249,6 +254,7 @@ export function CategorySettings({
                   onCreateSubcategory({
                     parentId: category.id,
                     name: subcategory.name,
+                    icon: subcategory.icon,
                   }),
                 () =>
                   done(
@@ -269,7 +275,11 @@ export function CategorySettings({
                 type: category.type,
                 name: category.name,
                 color: category.color,
-                subcategories: category.subcategories.map((sub) => sub.name),
+                icon: category.icon,
+                subcategories: category.subcategories.map((sub) => ({
+                  name: sub.name,
+                  icon: sub.icon,
+                })),
               }),
             () =>
               done(t("categories.toasts.restored", { name: category.name })),
@@ -297,6 +307,7 @@ export function CategorySettings({
         const result = await onCreateSubcategory({
           parentId: mode.parent.id,
           name: values.name,
+          icon: values.icon,
         });
         if (result.ok) {
           undoable(t("categories.toasts.subAdded"), () =>
@@ -317,6 +328,7 @@ export function CategorySettings({
         const result = await onUpdate({
           id: mode.subcategory.id,
           name: values.name,
+          icon: values.icon,
         });
         if (result.ok) done(t("categories.toasts.saved"));
         return result;

@@ -98,7 +98,7 @@
   transition: background-color var(--duration-instant) var(--ease-out);
 }
 
-/* Subcategories under a group label line up with the label text, past the dot. */
+/* Subcategories under a group label line up with the label text, past the icon or dot. */
 .indent {
   padding-inline-start: calc(var(--space-2) + var(--menu-indent));
 }
@@ -201,6 +201,14 @@
 .checkIcon {
   width: var(--icon-size-sm);
   height: var(--icon-size-sm);
+}
+
+/* Category icon in options and group labels, in the category's hue */
+.categoryIcon {
+  flex: none;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--cat);
 }
 
 /* Category dot in options and group labels */

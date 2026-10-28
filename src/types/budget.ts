@@ -1,4 +1,4 @@
-import type { CategoryColor } from "./category";
+import type { CategoryColor, CategoryIcon } from "./category";
 
 /** What the budget form saves: a top-level expense category and its monthly limit. */
 export type BudgetInput = {
@@ -15,6 +15,7 @@ export type BudgetCategory = {
   id: string;
   name: string;
   color: CategoryColor;
+  icon: CategoryIcon;
   archived: boolean;
   /** Names of its active subcategories, whose spending counts toward its budget. */
   subcategories: string[];

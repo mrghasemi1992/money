@@ -1,11 +1,14 @@
+import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import { z } from "zod";
 
 import {
   CATEGORY_COLORS,
   CATEGORY_NAME_MAX_LENGTH,
+  DEFAULT_CATEGORY_ICON,
 } from "@/constants/category";
-import type { CategoryColor } from "@/types/category";
+import { CATEGORY_ICONS } from "@/constants/category-icons";
+import type { CategoryColor, CategoryIcon } from "@/types/category";
 import { tidyName } from "@/utils/text";
 
 /**
@@ -35,6 +38,25 @@ export const categoryNameSchema = z
   );
 
 export const categoryColorSchema = z.enum(CATEGORY_COLORS);
+
+export const categoryIconSchema = z.enum(
+  Object.keys(CATEGORY_ICONS) as [CategoryIcon, ...CategoryIcon[]],
+);
+
+/** A stored icon name the set has, or the default icon for one it no longer has. */
+export function knownCategoryIcon(name: string): CategoryIcon {
+  return Object.hasOwn(CATEGORY_ICONS, name)
+    ? (name as CategoryIcon)
+    : DEFAULT_CATEGORY_ICON;
+}
+
+/**
+ * The icon component of a stored name, to pass as a prop (`icon={categoryIcon(…)}`). To render
+ * one directly, read CATEGORY_ICONS[knownCategoryIcon(…)].
+ */
+export function categoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICONS[knownCategoryIcon(name)];
+}
 
 /** Keys of the `categories.form.errors` messages. */
 export type CategoryNameError = "nameMissing" | "nameTooLong" | "nameTaken";

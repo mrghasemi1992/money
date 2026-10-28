@@ -45,6 +45,7 @@ export function spendingSlices(
     kind: row.id === null ? "uncategorized" : "category",
     name: row.name,
     color: row.color,
+    icon: row.icon,
     amount: row.amount,
   });
   const positive = rows.filter((row) => row.amount > 0);
@@ -58,6 +59,7 @@ export function spendingSlices(
       kind: "other",
       name: "",
       color: "slate",
+      icon: null,
       amount: rest.reduce((sum, row) => sum + row.amount, 0),
     },
   ];

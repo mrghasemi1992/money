@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { categoryIcon } from "@/helpers/category";
 import type { BudgetCategory } from "@/types/budget";
 import type { MoneyUnit } from "@/types/currency";
 
@@ -70,6 +71,7 @@ export function BudgetProgress({
                     size="sm"
                     name={category.name}
                     color={category.color}
+                    icon={categoryIcon(category.icon)}
                   />
                 }
               />

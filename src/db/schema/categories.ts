@@ -11,7 +11,12 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { CATEGORY_COLORS, CATEGORY_TYPES } from "@/constants/category";
+import {
+  CATEGORY_COLORS,
+  CATEGORY_TYPES,
+  DEFAULT_CATEGORY_ICON,
+} from "@/constants/category";
+import type { CategoryIcon } from "@/types/category";
 
 import { id, oneOf, timestamps } from "./columns";
 
@@ -31,6 +36,11 @@ export const categories = pgTable(
     type: text({ enum: CATEGORY_TYPES }).notNull(),
     name: text().notNull(),
     color: text({ enum: CATEGORY_COLORS }).notNull(),
+    /**
+     * A Lucide icon name from CATEGORY_ICONS, checked by the app (not by a constraint, so the
+     * set can grow without a migration; a name it no longer has shows the default icon).
+     */
+    icon: text().$type<CategoryIcon>().notNull().default(DEFAULT_CATEGORY_ICON),
     /** Null for a category, set for a subcategory. */
     parentId: uuid(),
     archived: boolean().notNull().default(false),

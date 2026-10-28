@@ -4,18 +4,26 @@ import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useId, useRef, useState, useTransition } from "react";
 
 import { CategoryColorPicker } from "@/components/category-color-picker";
+import {
+  CategoryIconPicker,
+  loadIconCatalog,
+} from "@/components/category-icon-picker";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { Field } from "@/components/ui/field";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
-import { CATEGORY_NAME_MAX_LENGTH } from "@/constants/category";
-import { categoryNameError } from "@/helpers/category";
+import {
+  CATEGORY_NAME_MAX_LENGTH,
+  DEFAULT_CATEGORY_ICON,
+} from "@/constants/category";
+import { categoryIcon, categoryNameError } from "@/helpers/category";
 import type { ActionResult } from "@/types/action";
 import type {
   Category,
   CategoryColor,
+  CategoryIcon,
   CategoryType,
   Subcategory,
 } from "@/types/category";
@@ -30,7 +38,11 @@ export type CategoryDialogMode =
   | { kind: "newSub"; parent: Category }
   | { kind: "editSub"; parent: Category; subcategory: Subcategory };
 
-export type CategoryFormValues = { name: string; color: CategoryColor };
+export type CategoryFormValues = {
+  name: string;
+  color: CategoryColor;
+  icon: CategoryIcon;
+};
 
 type CategoryDialogProps = {
   open: boolean;
@@ -43,24 +55,42 @@ type CategoryDialogProps = {
 
 const NAME_INPUT = "category-name";
 
+/**
+ * The icon a new category or subcategory starts with, and keeps while its name suggests none:
+ * the default one, or the parent's.
+ */
+function startIcon(mode: CategoryDialogMode | null): CategoryIcon {
+  return mode?.kind === "newSub" ? mode.parent.icon : DEFAULT_CATEGORY_ICON;
+}
+
 function initial(mode: CategoryDialogMode | null): CategoryFormValues {
   switch (mode?.kind) {
-    case "new":
-      return { name: "", color: mode.color };
     case "edit":
-      return { name: mode.category.name, color: mode.category.color };
-    case "newSub":
-      return { name: "", color: mode.parent.color };
+      return {
+        name: mode.category.name,
+        color: mode.category.color,
+        icon: mode.category.icon,
+      };
     case "editSub":
-      return { name: mode.subcategory.name, color: mode.parent.color };
+      return {
+        name: mode.subcategory.name,
+        color: mode.parent.color,
+        icon: mode.subcategory.icon,
+      };
     default:
-      return { name: "", color: "slate" };
+      return {
+        name: "",
+        color:
+          mode?.kind === "new" ? mode.color : (mode?.parent.color ?? "slate"),
+        icon: startIcon(mode),
+      };
   }
 }
 
 /**
- * Adds or edits a category (name and color) or a subcategory (name only: it takes its
- * parent's color, shown as a chip).
+ * Adds or edits a category (name, color and icon) or a subcategory (name and icon: it takes
+ * its parent's color, shown as a chip). While a new one's icon hasn't been picked, it follows
+ * the name («تاکسی» → taxi).
  */
 export function CategoryDialog({
   open,
@@ -73,10 +103,13 @@ export function CategoryDialog({
   const toast = useToast();
   const formId = useId();
   const colorLabelId = useId();
+  const iconLabelId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [values, setValues] = useState(() => initial(mode));
   const [error, setError] = useState<string | undefined>();
+  /** Picked by hand: the name no longer changes it. */
+  const [iconPicked, setIconPicked] = useState(false);
 
   // Each opening starts from what is edited.
   const [openedFor, setOpenedFor] = useState<CategoryDialogMode | null>(null);
@@ -84,8 +117,24 @@ export function CategoryDialog({
     setOpenedFor(mode);
     setValues(initial(mode));
     setError(undefined);
+    setIconPicked(false);
   } else if (!open && openedFor) {
     setOpenedFor(null);
+  }
+
+  /** A new category's icon follows its name until one is picked. */
+  function suggestIcon(name: string) {
+    if (iconPicked || (mode?.kind !== "new" && mode?.kind !== "newSub")) {
+      return;
+    }
+    const fallback = startIcon(mode);
+    void loadIconCatalog().then(({ guess }) => {
+      const icon = guess(name) ?? fallback;
+      // Only for the name it was guessed from: a later keystroke makes its own guess.
+      setValues((current) =>
+        current.name === name ? { ...current, icon } : current,
+      );
+    });
   }
 
   function showError(message: string) {
@@ -179,12 +228,17 @@ export function CategoryDialog({
             onValueChange={(name) => {
               setValues((current) => ({ ...current, name }));
               setError(undefined);
+              suggestIcon(name);
             }}
           />
         </Field>
         {parent ? (
           <div className={styles.parentColor}>
-            <CategoryChip name={parent.name} color={parent.color} />
+            <CategoryChip
+              name={parent.name}
+              color={parent.color}
+              icon={categoryIcon(parent.icon)}
+            />
             <span className={styles.note}>
               {t("categories.form.colorFromParent")}
             </span>
@@ -209,6 +263,21 @@ export function CategoryDialog({
             ) : null}
           </div>
         )}
+        <div className={styles.colors}>
+          <span id={iconLabelId} className={styles.label}>
+            {t("categoryIcons.label")}
+          </span>
+          <CategoryIconPicker
+            aria-labelledby={iconLabelId}
+            value={values.icon}
+            color={values.color}
+            disabled={pending}
+            onValueChange={(icon) => {
+              setIconPicked(true);
+              setValues((current) => ({ ...current, icon }));
+            }}
+          />
+        </div>
       </form>
     </ResponsiveDialog>
   );

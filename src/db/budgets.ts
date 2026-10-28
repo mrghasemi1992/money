@@ -3,7 +3,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 
 import type { BudgetCategory, BudgetInput } from "@/types/budget";
-import type { CategoryColor } from "@/types/category";
+import type { CategoryColor, CategoryIcon } from "@/types/category";
 
 import { db } from "./index";
 import { budgets, categories, transactions } from "./schema";
@@ -28,6 +28,7 @@ export async function listBudgetCategories(
     id: string;
     name: string;
     color: CategoryColor;
+    icon: CategoryIcon;
     archived: boolean;
     subcategories: string[];
     spent: string;
@@ -41,7 +42,7 @@ export async function listBudgetCategories(
       group by 1
     )
     select
-      c.id, c.name, c.color, c.archived,
+      c.id, c.name, c.color, c.icon, c.archived,
       coalesce(
         (select array_agg(s.name order by s.created_at, s.id) from ${categories} s
           where s.parent_id = c.id and not s.archived),
@@ -59,6 +60,7 @@ export async function listBudgetCategories(
     id: row.id,
     name: row.name,
     color: row.color,
+    icon: row.icon,
     archived: row.archived,
     subcategories: row.subcategories,
     spent: Number(row.spent),

@@ -5,6 +5,7 @@ import { and, asc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import type {
   Category,
   CategoryColor,
+  CategoryIcon,
   CategoryTree,
   CategoryType,
 } from "@/types/category";
@@ -18,7 +19,7 @@ import { categories, transactions } from "./schema";
  * subcategories. The database enforces the shape (a subcategory's parent is a top-level
  * category of the same type, names are unique per type and parent, nothing in use can be
  * deleted); these functions add what it can't: case-insensitive names, the parent's color on
- * subcategories, and deleting a category together with its unused subcategories. The callers
+ * subcategories (their icons are their own), and deleting a category together with its unused subcategories. The callers
  * check the role first.
  */
 
@@ -28,6 +29,7 @@ export type CategoryRecord = {
   parentId: string | null;
   name: string;
   color: CategoryColor;
+  icon: CategoryIcon;
   archived: boolean;
 };
 
@@ -40,6 +42,7 @@ export async function listCategories(): Promise<CategoryTree> {
       parentId: categories.parentId,
       name: categories.name,
       color: categories.color,
+      icon: categories.icon,
       archived: categories.archived,
       // Qualified: an unqualified "id" in the subquery would be the transaction's.
       transactionCount: sql<number>`(
@@ -59,6 +62,7 @@ export async function listCategories(): Promise<CategoryTree> {
       type: row.type,
       name: row.name,
       color: row.color,
+      icon: row.icon,
       archived: row.archived,
       transactionCount: row.transactionCount,
       subcategories: [],
@@ -71,6 +75,7 @@ export async function listCategories(): Promise<CategoryTree> {
     parents.get(row.parentId)?.subcategories.push({
       id: row.id,
       name: row.name,
+      icon: row.icon,
       archived: row.archived,
       transactionCount: row.transactionCount,
     });
@@ -87,6 +92,7 @@ export async function getCategory(id: string): Promise<CategoryRecord | null> {
       parentId: categories.parentId,
       name: categories.name,
       color: categories.color,
+      icon: categories.icon,
       archived: categories.archived,
     })
     .from(categories)
@@ -126,6 +132,7 @@ export async function createCategory(input: {
   type: CategoryType;
   name: string;
   color: CategoryColor;
+  icon: CategoryIcon;
 }): Promise<string | null> {
   try {
     const [row] = await db
@@ -140,18 +147,18 @@ export async function createCategory(input: {
 }
 
 /**
- * Adds a subcategory with its parent's type and color, read in the same statement. Returns
- * its id, "missing" when the parent isn't a top-level category, or "taken" for a name its
- * parent already has.
+ * Adds a subcategory with its own icon and its parent's type and color, read in the same
+ * statement. Returns its id, "missing" when the parent isn't a top-level category, or "taken"
+ * for a name its parent already has.
  */
 export async function createSubcategory(
   parentId: string,
-  name: string,
+  input: { name: string; icon: CategoryIcon },
 ): Promise<string | "missing" | "taken"> {
   try {
     const result = await db.execute<{ id: string }>(sql`
-      insert into ${categories} (type, name, color, parent_id)
-      select type, ${name}, color, id from ${categories}
+      insert into ${categories} (type, name, color, icon, parent_id)
+      select type, ${input.name}, color, ${input.icon}, id from ${categories}
         where id = ${parentId} and parent_id is null
       returning id
     `);
@@ -163,12 +170,13 @@ export async function createSubcategory(
 }
 
 /**
- * Renames a category or subcategory. A top-level category may also get a new color, which its
- * subcategories take too (same statement). Returns "ok", "missing" or "taken".
+ * Renames a category or subcategory and sets its icon. A top-level category may also get a new
+ * color, which its subcategories take too (same statement; their names and icons stay).
+ * Returns "ok", "missing" or "taken".
  */
 export async function updateCategory(
   id: string,
-  input: { name: string; color?: CategoryColor },
+  input: { name: string; icon: CategoryIcon; color?: CategoryColor },
 ): Promise<"ok" | "missing" | "taken"> {
   try {
     const rows = input.color
@@ -176,13 +184,14 @@ export async function updateCategory(
           .update(categories)
           .set({
             name: sql`case when ${categories.id} = ${id} then ${input.name} else ${categories.name} end`,
+            icon: sql`case when ${categories.id} = ${id} then ${input.icon} else ${categories.icon} end`,
             color: input.color,
           })
           .where(or(eq(categories.id, id), eq(categories.parentId, id)))
           .returning({ id: categories.id })
       : await db
           .update(categories)
-          .set({ name: input.name })
+          .set({ name: input.name, icon: input.icon })
           .where(eq(categories.id, id))
           .returning({ id: categories.id });
     return rows.length > 0 ? "ok" : "missing";
@@ -250,33 +259,34 @@ export async function addCategoryTree(
   starters: {
     name: string;
     color: CategoryColor;
-    subcategories: string[];
+    icon: CategoryIcon;
+    subcategories: { name: string; icon: CategoryIcon }[];
   }[],
 ): Promise<string[]> {
   if (starters.length === 0) return [];
   let position = 0;
   const rows = starters.flatMap((starter, index) => [
-    sql`(${index}::int, null::int, ${starter.name}::text, ${starter.color}::text, ${position++}::int)`,
+    sql`(${index}::int, null::int, ${starter.name}::text, ${starter.color}::text, ${starter.icon}::text, ${position++}::int)`,
     ...starter.subcategories.map(
-      (name) =>
-        sql`(null::int, ${index}::int, ${name}::text, null::text, ${position++}::int)`,
+      (sub) =>
+        sql`(null::int, ${index}::int, ${sub.name}::text, null::text, ${sub.icon}::text, ${position++}::int)`,
     ),
   ]);
   const result = await db.execute<{ id: string }>(sql`
-    with input (key, parent_key, name, color, position) as (
+    with input (key, parent_key, name, color, icon, position) as (
       values ${sql.join(rows, sql`, `)}
     ),
     parents as (
-      insert into ${categories} (type, name, color, created_at)
-      select ${type}, name, color, now() + position * interval '1 microsecond'
+      insert into ${categories} (type, name, color, icon, created_at)
+      select ${type}, name, color, icon, now() + position * interval '1 microsecond'
         from input where key is not null
         order by position
       on conflict do nothing
       returning id, name, color
     ),
     children as (
-      insert into ${categories} (type, name, color, parent_id, created_at)
-      select ${type}, child.name, parents.color, parents.id,
+      insert into ${categories} (type, name, color, icon, parent_id, created_at)
+      select ${type}, child.name, parents.color, child.icon, parents.id,
           now() + child.position * interval '1 microsecond'
         from input child
         join input parent on parent.key = child.parent_key

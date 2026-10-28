@@ -8,6 +8,7 @@ import { Amount } from "@/components/ui/amount";
 import { type BarListItem, BarList } from "@/components/ui/bar-list";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { DataTable, type DataTableRow } from "@/components/ui/data-table";
+import { categoryIcon } from "@/helpers/category";
 import { formatMoney } from "@/helpers/money";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { CategoryReportRow } from "@/types/report";
@@ -55,7 +56,13 @@ export function CategoryReport({ type, rows, className }: CategoryReportProps) {
   const items: BarListItem[] = named.map(({ row, name, parts }) => ({
     id: row.id ?? "none",
     name,
-    label: <CategoryChip name={name} color={row.color} />,
+    label: (
+      <CategoryChip
+        name={name}
+        color={row.color}
+        icon={row.icon ? categoryIcon(row.icon) : undefined}
+      />
+    ),
     value: row.amount,
     color: row.color,
     items: parts.map((part) => ({

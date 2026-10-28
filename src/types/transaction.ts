@@ -5,7 +5,7 @@ import type {
 
 import type { AccountType } from "./account";
 import type { CalendarSystem } from "./calendar";
-import type { CategoryColor, CategoryTree } from "./category";
+import type { CategoryColor, CategoryIcon, CategoryTree } from "./category";
 
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 
@@ -46,12 +46,15 @@ export type Transaction = TransactionInput & {
   id: string;
   account: TransactionAccount;
   toAccount: TransactionAccount | null;
-  /** The category or subcategory, with its top-level parent's name and color. */
+  /**
+   * The category or subcategory with its own icon, and its top-level parent's name and color.
+   */
   category: {
     name: string;
     /** Set for a subcategory: the category it belongs to. */
     parentName: string | null;
     color: CategoryColor;
+    icon: CategoryIcon;
   } | null;
   source: TransactionSource;
   createdBy: { id: string; name: string };

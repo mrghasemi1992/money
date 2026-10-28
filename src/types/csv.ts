@@ -5,7 +5,7 @@ import type {
   IMPORT_STEPS,
 } from "@/constants/csv";
 
-import type { CategoryColor, CategoryType } from "./category";
+import type { CategoryColor, CategoryIcon, CategoryType } from "./category";
 import type { RialUnit } from "./currency";
 import type { TransactionInput } from "./transaction";
 
@@ -98,6 +98,8 @@ export type NewImportCategory = {
   parent: ImportRef | null;
   /** The next free hue of its siblings, or its parent's (see `colorNewCategories`). */
   color: CategoryColor;
+  /** Guessed from its name; otherwise the default, or its parent's (see `colorNewCategories`). */
+  icon: CategoryIcon;
 };
 
 /** A row ready to add: a transaction whose accounts and category may be new ones. */

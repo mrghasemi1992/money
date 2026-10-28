@@ -1,4 +1,4 @@
-import type { CategoryColor } from "./category";
+import type { CategoryColor, CategoryIcon } from "./category";
 
 /** How far the book is set up, for the dashboard's first-run steps. */
 export type BookProgress = {
@@ -16,6 +16,8 @@ export type SpendingSlice = {
   kind: "category" | "uncategorized" | "other";
   name: string;
   color: CategoryColor;
+  /** The category's icon; null for «سایر» and «بدون دسته‌بندی». */
+  icon: CategoryIcon | null;
   /** In the book currency's smallest unit. */
   amount: number;
 };

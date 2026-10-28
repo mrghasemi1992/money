@@ -12,6 +12,7 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { MOBILE_QUERY } from "@/constants/media";
 import { type BudgetField, budgetErrors } from "@/helpers/budget";
+import { categoryIcon } from "@/helpers/category";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { ActionResult } from "@/types/action";
@@ -199,6 +200,7 @@ export function BudgetDialog({
               value: item.id,
               label: item.name,
               color: item.color,
+              icon: categoryIcon(item.icon),
             }))}
             value={values.categoryId}
             placeholder={t("budgets.form.categoryPlaceholder")}

@@ -38,14 +38,24 @@ function category(type: CategoryType, path: string) {
   if (!subName) {
     return {
       id: parent.id,
-      info: { name: parent.name, parentName: null, color: parent.color },
+      info: {
+        name: parent.name,
+        parentName: null,
+        color: parent.color,
+        icon: parent.icon,
+      },
     };
   }
   const sub = parent.subcategories.find((item) => item.name === subName);
   if (!sub) throw new Error(`No sample subcategory ${path}`);
   return {
     id: sub.id,
-    info: { name: sub.name, parentName: parent.name, color: parent.color },
+    info: {
+      name: sub.name,
+      parentName: parent.name,
+      color: parent.color,
+      icon: sub.icon,
+    },
   };
 }
 

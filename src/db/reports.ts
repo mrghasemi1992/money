@@ -3,7 +3,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 
 import type { AccountType } from "@/types/account";
-import type { CategoryColor } from "@/types/category";
+import type { CategoryColor, CategoryIcon } from "@/types/category";
 import type {
   AccountReportRow,
   CategoryReport,
@@ -69,6 +69,7 @@ export async function categoryTotals({
     id: string | null;
     name: string | null;
     color: CategoryColor | null;
+    icon: CategoryIcon | null;
     amount: string;
     direct: string;
     subcategories: { id: string; name: string; amount: string }[];
@@ -85,7 +86,7 @@ export async function categoryTotals({
       group by 1, 2, 3
     )
     select
-      s.type, s.top_id as id, p.name, p.color,
+      s.type, s.top_id as id, p.name, p.color, p.icon,
       sum(s.amount) as amount,
       coalesce(sum(s.amount) filter (where s.sub_id is null), 0) as direct,
       coalesce(
@@ -98,7 +99,7 @@ export async function categoryTotals({
     from sums s
     left join ${categories} p on p.id = s.top_id
     left join ${categories} sub on sub.id = s.sub_id
-    group by s.type, s.top_id, p.name, p.color
+    group by s.type, s.top_id, p.name, p.color, p.icon
     order by amount desc, p.name
   `);
   const report: CategoryReport = { income: [], expense: [] };
@@ -107,6 +108,7 @@ export async function categoryTotals({
       id: row.id,
       name: row.name ?? "",
       color: row.color ?? "slate",
+      icon: row.icon,
       amount: Number(row.amount),
       direct: Number(row.direct),
       subcategories: row.subcategories.map((sub) => ({

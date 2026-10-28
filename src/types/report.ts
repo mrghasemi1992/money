@@ -2,7 +2,7 @@ import type { REPORT_PERIODS, REPORT_RECENT_MONTHS } from "@/constants/report";
 
 import type { AccountType } from "./account";
 import type { CalendarSystem } from "./calendar";
-import type { CategoryColor } from "./category";
+import type { CategoryColor, CategoryIcon } from "./category";
 
 export type ReportPeriodKind = (typeof REPORT_PERIODS)[number];
 
@@ -57,6 +57,8 @@ export type CategoryReportRow = {
   /** Empty when id is null. */
   name: string;
   color: CategoryColor;
+  /** Null when id is null. */
+  icon: CategoryIcon | null;
   /** The category and its subcategories together. */
   amount: number;
   /** Recorded on the category itself rather than a subcategory. */

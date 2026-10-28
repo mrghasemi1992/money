@@ -77,10 +77,12 @@
   --account-icon-radius: var(--radius-lg);
   --category-icon-radius: 10px;
   --subcategory-row-h: 40px;
-  --subcategory-indent: 64px; /* lines a subcategory's dot up under its parent's name */
+  --subcategory-indent: 64px; /* lines a subcategory's icon up under its parent's name */
   --swatch-size: 28px;
   --swatch-hit: 36px; /* the swatch's button, larger than the color */
   --swatch-ring: 2px;
+  --icon-picker-cell: 40px; /* an icon of the category icon picker */
+  --icon-picker-h: 232px; /* the picker's scrolling grid: about four rows */
   --drop-line: 2px; /* where a dragged account will land */
   --starters-max: 520px;
   --categories-tabs-w: 220px; /* the expense and income tabs from 768px up */
@@ -224,7 +226,7 @@
   --menu-min-w: 200px;
   --menu-max-h: 320px;
   --menu-item-h: 36px;
-  --menu-indent: 18px;
+  --menu-indent: 24px; /* past a group label's category icon and its gap */
   --menu-description-max: 240px; /* an item's description wraps at this width */
   --menu-icon-offset: 2px; /* lines the icon up with the label when a description follows */
   --popover-min-w: 240px;
@@ -309,5 +311,6 @@
     --menu-item-h: var(--tap-min);
     --subcategory-indent: 60px;
     --swatch-hit: var(--tap-min);
+    --icon-picker-cell: var(--tap-min);
   }
 }

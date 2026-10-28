@@ -31,6 +31,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000003",
       name: "خانه",
       color: "brown",
+      icon: "house",
       amount: 132600000,
       direct: 0,
       subcategories: [
@@ -43,6 +44,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000001",
       name: "خوراک",
       color: "orange",
+      icon: "utensils",
       amount: 37440000,
       direct: 1260000,
       subcategories: [
@@ -55,6 +57,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000005",
       name: "تفریح",
       color: "amber",
+      icon: "popcorn",
       amount: 25300000,
       direct: 0,
       subcategories: [
@@ -66,6 +69,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000002",
       name: "حمل‌ونقل",
       color: "sky",
+      icon: "car-front",
       amount: 16320000,
       direct: 0,
       subcategories: [
@@ -78,6 +82,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000006",
       name: "اشتراک‌ها",
       color: "violet",
+      icon: "repeat",
       amount: 10200000,
       direct: 10200000,
       subcategories: [],
@@ -86,6 +91,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000004",
       name: "سلامت",
       color: "red",
+      icon: "heart-pulse",
       amount: 7740000,
       direct: 0,
       subcategories: [
@@ -97,6 +103,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: null,
       name: "",
       color: "slate",
+      icon: null,
       amount: 12800000,
       direct: 12800000,
       subcategories: [],
@@ -107,6 +114,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000011",
       name: "حقوق",
       color: "green",
+      icon: "briefcase-business",
       amount: 290000000,
       direct: 0,
       subcategories: [
@@ -118,6 +126,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000012",
       name: "کار آزاد",
       color: "lime",
+      icon: "laptop",
       amount: 9800000,
       direct: 9800000,
       subcategories: [],
@@ -126,6 +135,7 @@ export const SAMPLE_CATEGORY_REPORT: CategoryReport = {
       id: "c0a80101-0000-4000-8000-000000000013",
       name: "سایر درآمدها",
       color: "slate",
+      icon: "coins",
       amount: 2600000,
       direct: 0,
       subcategories: [

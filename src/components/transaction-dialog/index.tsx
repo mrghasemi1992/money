@@ -33,6 +33,7 @@ import {
   TRANSACTION_TYPES,
 } from "@/constants/transaction";
 import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
+import { categoryIcon } from "@/helpers/category";
 import {
   type TransactionError,
   type TransactionField,
@@ -150,6 +151,7 @@ function categoryGroups(
       {
         label: category.name,
         color: category.color,
+        icon: categoryIcon(category.icon),
         options: [
           {
             value: category.id,
@@ -159,6 +161,7 @@ function categoryGroups(
           ...subcategories.map((subcategory) => ({
             value: subcategory.id,
             label: subcategory.name,
+            icon: categoryIcon(subcategory.icon),
           })),
         ],
       },

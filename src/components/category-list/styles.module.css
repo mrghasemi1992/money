@@ -12,13 +12,12 @@
   height: var(--cat-icon);
   border-radius: var(--category-icon-radius);
   background: var(--cat-soft);
+  color: var(--cat-text);
 }
 
-.dot {
-  width: var(--space-3);
-  height: var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--cat);
+.icon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
 }
 
 /* The quick add button; phones use the row menu. */
@@ -50,12 +49,11 @@
   }
 }
 
-.subDot {
+.subIcon {
   flex: none;
-  width: var(--cat-dot-sm);
-  height: var(--cat-dot-sm);
-  border-radius: var(--radius-pill);
-  background: var(--cat);
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--cat);
 }
 
 .subName {
