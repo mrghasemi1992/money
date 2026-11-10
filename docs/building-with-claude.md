@@ -1139,6 +1139,29 @@ Branch: `feature/category-icons`. Date: 2026-10-27.
 - The app picks icons itself where it creates categories: the starter categories have their own icons, and the CSV import guesses one from each new name (`guessCategoryIcon`: a phrase beats a single word, then the head noun, which comes first in Persian and last in English), otherwise the default icon, or the parent's for a subcategory.
 - Icons show on the categories page (the row tile and each subcategory), in category chips (budgets, reports, dashboard, transaction detail, archived list, import review), in the transaction form's and the filters' category list (group labels, options and the chosen value), in the budget form's select and on transaction rows (the tile shows the category's or subcategory's icon in place of the type's arrow; the amount still carries the sign).
 
+## Claude Code tools in the repo
+
+Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.
+
+### Claude Code prompt (as sent)
+
+> for money project i want to install all skills and mcp on its repo that are locally installed on my system so i can use them when i'm working with claude code in ios app. ios claude code use cloud environment.
+>
+> i detected these skills that used so far:
+>
+> - ponytail: https://github.com/dietrichgebert/ponytail
+> - vercel skills
+> - https://emilkowal.ski/skill
+> - https://impeccable.style/
+> - https://www.tasteskill.dev/
+> - https://www.uupm.cc/
+
+### Result
+
+- The skills installed on the desktop are copied into `.claude/skills/` (the ones switched off locally are left out), impeccable's agents into `.claude/agents/`. Impeccable comes without its 16 MB macOS engine binary; its launcher downloads the right one on first run.
+- `.claude/settings.json` adds the plugin marketplaces and enables `vercel`, `ponytail` and `ui-ux-pro-max`, and runs impeccable's hooks only where no user-level copy exists. `.mcp.json` adds `chrome-devtools`.
+- ESLint and Prettier ignore the vendored skills. CLAUDE.md has a «Claude Code setup» section.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
