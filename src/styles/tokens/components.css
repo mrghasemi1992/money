@@ -253,6 +253,8 @@
   /* Feedback */
   --toast-w: 360px;
   --toast-icon: 30px;
+  --toast-peek: 10px; /* how much of a toast behind the front one shows */
+  --toast-scale-step: 0.05;
   --spinner-border: 2px;
   --empty-max-w: 380px;
   --empty-icon: 56px;

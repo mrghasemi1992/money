@@ -1139,6 +1139,32 @@ Branch: `feature/category-icons`. Date: 2026-10-27.
 - The app picks icons itself where it creates categories: the starter categories have their own icons, and the CSV import guesses one from each new name (`guessCategoryIcon`: a phrase beats a single word, then the head noun, which comes first in Persian and last in English), otherwise the default icon, or the parent's for a subcategory.
 - Icons show on the categories page (the row tile and each subcategory), in category chips (budgets, reports, dashboard, transaction detail, archived list, import review), in the transaction form's and the filters' category list (group labels, options and the chosen value), in the budget form's select and on transaction rows (the tile shows the category's or subcategory's icon in place of the type's arrow; the amount still carries the sign).
 
+## Toasts: stacking, shorter timeouts, alignment (#14, #65)
+
+Branch: `feature/toast-redesign`. Date: 2026-10-28.
+
+### Claude Code prompt (as sent)
+
+> now handle #14 and #65 of github issues
+>
+> I often see toast messages stay on the screen until I press the close button. When there are several toasts we have no nice way to show them. Also check whether anything is misaligned and fix it.
+>
+> The issue descriptions must be read.
+
+(Translated from Persian. Issue #65 also has a comment: use shadcn/ui, sonner or react-hot-toast, or make the current toast better, like them.)
+
+### Follow-up messages
+
+1. «according to current git changes for toast component if everything is ok, commit changes and open pr». A review found that swiping an older toast sideways out of the spread-out stack made it drop to the bottom as it left (`--offset-y` was never set); it is now set in the expanded state. Checked again in Storybook before committing.
+
+### Result
+
+- `Toast` (`src/components/ui/toast`) keeps Base UI's toast but behaves like sonner: toasts **stack like a deck** (the newest in front, older ones peeking out behind, at most 3), the stack **spreads out and pauses its timers** on hover or focus, and a toast **swipes away** toward the start edge or down (`swipeDirection`, which follows the page's direction).
+- Every toast now **closes by itself**: 4 s by default, 6 s for errors, 8 s for a toast with an action such as «واگرد» (`DEFAULT_TIMEOUT`, `DANGER_TIMEOUT`, `ACTION_TIMEOUT`). Before, a toast with an action stayed until closed.
+- Alignment (#14): icon, text, action and close button sit on one centered row; the action is a small button at the end instead of a link under the text, and the old `padding-block-start` nudge is gone. Checked in Persian (RTL) in Storybook.
+- Exit animation: Base UI removes `--toast-height` while a toast leaves, so the exit slide no longer depends on it (it moves by its own height). Under `prefers-reduced-motion` a toast still fades in and out (the global rule would otherwise make it pop).
+- New tokens `--toast-peek` and `--toast-scale-step`.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

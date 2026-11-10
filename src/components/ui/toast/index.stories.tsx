@@ -66,5 +66,5 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Toasts confirm in past tense. Without an action they close after 5 s; with «واگرد» they stay. */
+/** Toasts confirm in past tense and stack like a deck; hover to spread them out, swipe to dismiss. Without an action they close after 4 s, errors after 6 s, with «واگرد» after 8 s. */
 export const Tones: Story = {};

@@ -1,5 +1,6 @@
 "use client";
 
+import { useDirection } from "@base-ui/react/direction-provider";
 import { Toast } from "@base-ui/react/toast";
 import {
   CircleAlertIcon,
@@ -23,7 +24,7 @@ export type ToastOptions = {
   title: ReactNode;
   description?: ReactNode;
   tone?: ToastTone;
-  /** One action, usually «واگرد» (undo) after an add or delete. A toast with an action stays until closed. */
+  /** One action, usually «واگرد» (undo) after an add or delete. A toast with an action stays a bit longer. */
   action?: { label: string; onClick: () => void };
   /** Auto-dismiss after this many ms; 0 keeps it open. */
   timeout?: number;
@@ -37,8 +38,12 @@ const TONE_ICONS: Record<ToastTone, LucideIcon> = {
   danger: CircleAlertIcon,
 };
 
-/** Auto-dismiss delay for toasts without an action, in ms. */
-const DEFAULT_TIMEOUT = 5000;
+/** Auto-dismiss delays in ms. Hovering or focusing the stack pauses them. */
+const DEFAULT_TIMEOUT = 4000;
+/** An undo needs time to be noticed and read. */
+const ACTION_TIMEOUT = 8000;
+/** Errors are read more slowly than confirmations. */
+const DANGER_TIMEOUT = 6000;
 const MAX_VISIBLE = 3;
 
 /** Shows toasts. Put it once around the app (Providers does). */
@@ -62,6 +67,12 @@ function isTone(value: string | undefined): value is ToastTone {
 function ToastList() {
   const t = useTranslations("common");
   const { toasts } = Toast.useToastManager();
+  const direction = useDirection();
+  // Swipe toward the corner's own edge (the start side), or down, to dismiss.
+  const swipeDirection =
+    direction === "rtl"
+      ? (["down", "right"] as const)
+      : (["down", "left"] as const);
   return toasts.map((toast) => {
     const tone = isTone(toast.type) ? toast.type : "neutral";
     const Icon = TONE_ICONS[tone];
@@ -69,6 +80,7 @@ function ToastList() {
       <Toast.Root
         key={toast.id}
         toast={toast}
+        swipeDirection={[...swipeDirection]}
         className={cx(styles.toast, styles[tone])}
       >
         <Toast.Content className={styles.content}>
@@ -78,10 +90,10 @@ function ToastList() {
           <div className={styles.body}>
             <Toast.Title className={styles.title} />
             <Toast.Description className={styles.description} />
-            {toast.actionProps ? (
-              <Toast.Action className={styles.action} />
-            ) : null}
           </div>
+          {toast.actionProps ? (
+            <Toast.Action className={styles.action} />
+          ) : null}
           <Toast.Close className={styles.close} aria-label={t("close")}>
             <XIcon className={styles.closeIcon} aria-hidden="true" />
           </Toast.Close>
@@ -106,7 +118,13 @@ export function useToast() {
         title,
         description,
         type: tone,
-        timeout: timeout ?? (action ? 0 : undefined),
+        timeout:
+          timeout ??
+          (action
+            ? ACTION_TIMEOUT
+            : tone === "danger"
+              ? DANGER_TIMEOUT
+              : undefined),
         priority: tone === "danger" ? "high" : "low",
         actionProps: action
           ? { children: action.label, onClick: action.onClick }
