@@ -6,7 +6,7 @@ import {
   InfoIcon,
   type LucideIcon,
   PlusIcon,
-  ReceiptIcon,
+  ReceiptTextIcon,
   SparklesIcon,
   TagsIcon,
 } from "lucide-react";
@@ -83,7 +83,7 @@ export function FirstRun({ canWrite, progress, className }: FirstRunProps) {
     {
       key: "transaction",
       done: progress.hasTransactions,
-      icon: ReceiptIcon,
+      icon: ReceiptTextIcon,
       blocked: !progress.hasAccounts,
     },
     {

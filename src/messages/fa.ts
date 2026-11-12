@@ -178,11 +178,6 @@ const fa = {
     more: "بیشتر",
     settings: "تنظیمات",
     users: "مدیریت کاربران",
-    /** Labels of the phone tab bar, where the full ones don't fit. */
-    short: {
-      dashboard: "داشبورد",
-      transactions: "تراکنش‌ها",
-    },
   },
   shell: {
     skipToContent: "رفتن به محتوای اصلی",

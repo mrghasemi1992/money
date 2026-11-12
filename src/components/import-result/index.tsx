@@ -5,7 +5,7 @@ import {
   CircleCheckIcon,
   DownloadIcon,
   FileUpIcon,
-  ReceiptIcon,
+  ReceiptTextIcon,
   SkipForwardIcon,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -102,7 +102,7 @@ export function ImportResult({
       </dl>
       <p className={styles.created}>{createdText}</p>
       <div className={styles.actions}>
-        <Button href={transactionsHref} iconStart={ReceiptIcon}>
+        <Button href={transactionsHref} iconStart={ReceiptTextIcon}>
           {t("viewTransactions")}
         </Button>
         {onDownloadFailed ? (

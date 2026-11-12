@@ -4,7 +4,7 @@ import {
   CalendarRangeIcon,
   CalendarXIcon,
   EyeIcon,
-  ReceiptIcon,
+  ReceiptTextIcon,
   SearchXIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -329,7 +329,7 @@ export function Transactions({
     if (bookIsEmpty) {
       return (
         <EmptyState
-          icon={ReceiptIcon}
+          icon={ReceiptTextIcon}
           title={t("transactions.empty.firstTitle")}
           description={t(
             canWrite
