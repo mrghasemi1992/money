@@ -55,9 +55,23 @@
   color: var(--text-secondary);
 }
 
+/* A flex box, so the amount's own line sets the height (and its placeholder matches it). */
 .value {
+  display: flex;
   min-width: 0;
   margin: 0;
+}
+
+/* Loading: one line of a large amount (on phones, the number and the unit under it). */
+.skeletonValue {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  font: var(--type-amount-lg);
+}
+
+.skeletonValue .skeletonUnit {
+  display: none;
 }
 
 /* Three narrow cells on phones: smaller digits, and the unit wraps under the number. */
@@ -71,5 +85,14 @@
     row-gap: 0;
     font: var(--type-amount);
     font-weight: var(--weight-bold);
+  }
+
+  .skeletonValue {
+    font: var(--type-amount);
+  }
+
+  .skeletonValue .skeletonUnit {
+    display: block;
+    font-size: 0.8em;
   }
 }

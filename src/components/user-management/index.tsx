@@ -7,16 +7,14 @@ import { type ComponentProps, useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { NewUserDialog } from "@/components/new-user-dialog";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ResetPasswordDialog } from "@/components/reset-password-dialog";
 import { RoleDialog } from "@/components/role-dialog";
 import { UserList, UserListSkeleton } from "@/components/user-list";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import type { ActionResult } from "@/types/action";
 import type { ManagedUser, UserRole } from "@/types/user";
-
-import styles from "./styles.module.css";
 
 type UserManagementProps = {
   users: ManagedUser[];
@@ -217,19 +215,24 @@ export function UserManagement({
 }
 
 /**
- * The page while the list loads. It names nothing (no title), because users who aren't admins
- * see it for a moment before «not found».
+ * The page while it loads (loading.tsx): the header with its button (off) and the list's
+ * skeleton. Only admins reach the page, so it names nothing that others couldn't see anyway.
  */
 export function UserManagementSkeleton() {
-  const t = useTranslations("page");
+  const t = useTranslations();
   return (
-    <div className={styles.skeleton} role="status" aria-busy="true">
-      <span className="visually-hidden">{t("loading")}</span>
-      <div className={styles.skeletonHeader}>
-        <Skeleton width="168px" height="26px" />
-        <Skeleton width="240px" height="14px" />
-      </div>
+    <>
+      <PageHeader
+        title={t("nav.users")}
+        subtitle={t("users.subtitle")}
+        actions={
+          <Button iconStart={UserPlusIcon} disabled>
+            {t("users.newUser")}
+          </Button>
+        }
+      />
+      <PageLoadingStatus />
       <UserListSkeleton />
-    </div>
+    </>
   );
 }

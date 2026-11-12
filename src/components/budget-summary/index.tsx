@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { Amount } from "@/components/ui/amount";
 import { Card } from "@/components/ui/card";
-import { ProgressBar } from "@/components/ui/progress-bar";
+import { ProgressBar, ProgressBarSkeleton } from "@/components/ui/progress-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { budgetRatio } from "@/helpers/budget";
 import { usePreferences } from "@/hooks/use-preferences";
@@ -98,26 +98,33 @@ export function BudgetSummary({
   );
 }
 
-/** The summary while the page loads. */
+/** The summary while the page loads: its real layout and labels, with placeholder figures. */
 export function BudgetSummarySkeleton() {
+  const t = useTranslations("budgets.summary");
   return (
-    <Card padding="lg">
+    <Card padding="lg" aria-hidden="true">
       <div className={styles.root}>
         <div className={styles.top}>
           <div className={styles.hero}>
-            <Skeleton width="110px" height="14px" />
-            <Skeleton width="240px" height="32px" />
+            <span className={styles.label}>
+              <Skeleton variant="text" width="120px" />
+            </span>
+            <span className={styles.skeletonHero}>
+              <Skeleton variant="text" width="min(240px, 100%)" />
+            </span>
           </div>
           <div className={styles.cells}>
-            {[0, 1].map((index) => (
-              <div key={index} className={styles.cell}>
-                <Skeleton width="70px" height="12px" />
-                <Skeleton width="130px" height="20px" />
+            {(["total", "remaining"] as const).map((key) => (
+              <div key={key} className={styles.cell}>
+                <span className={styles.cellLabel}>{t(key)}</span>
+                <span className={styles.skeletonValue}>
+                  <Skeleton variant="text" width="130px" />
+                </span>
               </div>
             ))}
           </div>
         </div>
-        <Skeleton width="100%" height="12px" />
+        <ProgressBarSkeleton size="lg" showValues />
       </div>
     </Card>
   );

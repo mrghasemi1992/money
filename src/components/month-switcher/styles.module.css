@@ -11,3 +11,8 @@
   text-align: center;
   white-space: nowrap;
 }
+
+.skeletonLabel {
+  display: flex;
+  justify-content: center;
+}

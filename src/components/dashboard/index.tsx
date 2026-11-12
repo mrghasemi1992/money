@@ -1,5 +1,15 @@
 import type { ReactNode } from "react";
 
+import { AddTransactionButton } from "@/components/add-transaction";
+import { BalanceOverviewSkeleton } from "@/components/balance-overview";
+import { BudgetProgressSkeleton } from "@/components/budget-progress";
+import { MonthOverviewSkeleton } from "@/components/month-overview";
+import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
+import { RecentTransactionsSkeleton } from "@/components/recent-transactions";
+import { TopSpendingSkeleton } from "@/components/top-spending";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { cx } from "@/utils/cx";
 
 import styles from "./styles.module.css";
@@ -52,5 +62,29 @@ export function Dashboard({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The dashboard while the page loads (loading.tsx): the greeting and date as placeholders, the
+ * add button for writers, and every section's skeleton in the dashboard's own layout.
+ */
+export function DashboardSkeleton() {
+  return (
+    <Dashboard
+      header={
+        <PageHeader
+          title={<Skeleton variant="text" width="160px" />}
+          subtitle={<Skeleton variant="text" width="136px" />}
+          actions={<AddTransactionButton />}
+        />
+      }
+      notice={<PageLoadingStatus />}
+      balances={<BalanceOverviewSkeleton />}
+      month={<MonthOverviewSkeleton />}
+      recent={<RecentTransactionsSkeleton />}
+      budgets={<BudgetProgressSkeleton />}
+      spending={<TopSpendingSkeleton />}
+    />
   );
 }

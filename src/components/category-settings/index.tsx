@@ -11,6 +11,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { useShellCanWrite } from "@/components/add-transaction";
 import { ArchivedSection } from "@/components/archived-section";
 import {
   CategoryDialog,
@@ -21,10 +22,12 @@ import {
   type ArchivedCategory,
   ArchivedCategoryList,
   CategoryList,
+  CategoryListSkeleton,
   categoryUsage,
 } from "@/components/category-list";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ListError } from "@/components/page-status";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { StarterCategories } from "@/components/starter-categories";
@@ -32,7 +35,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { CATEGORY_TYPES } from "@/constants/category";
 import { STARTER_CATEGORIES } from "@/constants/starter-categories";
@@ -539,33 +541,45 @@ export function CategorySettings({
   );
 }
 
-/** The categories page while it loads (loading.tsx): the header, the tabs and a few rows. */
+/**
+ * The categories page while it loads (loading.tsx): the header (with the add button for
+ * writers, the view-only badge for viewers), the type switch on expenses and the rows, each the
+ * size of the real one.
+ */
 export function CategorySettingsSkeleton() {
   const t = useTranslations();
+  const canWrite = useShellCanWrite();
   return (
     <div className={styles.root}>
       <PageHeader
         title={t("categories.title")}
         subtitle={t("categories.subtitle")}
+        actions={
+          canWrite ? (
+            <Button iconStart={PlusIcon} disabled>
+              {t("categories.add")}
+            </Button>
+          ) : (
+            <Badge icon={EyeIcon}>{t("common.viewOnly")}</Badge>
+          )
+        }
       />
-      <div role="status" aria-busy="true" className={styles.root}>
-        <span className="visually-hidden">{t("page.loading")}</span>
-        <Skeleton
-          width="var(--categories-tabs-w)"
-          height="var(--control-h-md)"
-        />
-        <Card padding="none">
-          {["140px", "110px", "160px", "120px"].map((width, index) => (
-            <div key={index} className={styles.skeletonRow}>
-              <Skeleton width="var(--cat-icon)" height="var(--cat-icon)" />
-              <div className={styles.skeletonText}>
-                <Skeleton width={width} height="14px" />
-                <Skeleton width="80px" height="12px" />
-              </div>
-            </div>
-          ))}
-        </Card>
-      </div>
+      <PageLoadingStatus />
+      <SegmentedControl
+        className={styles.tabs}
+        aria-label={t("categories.type")}
+        value={CATEGORY_TYPES[0]}
+        disabled
+        options={CATEGORY_TYPES.map((option) => ({
+          value: option,
+          label: t(`transactionType.${option}`),
+          icon: TYPE_ICONS[option],
+          tone: option,
+        }))}
+      />
+      <Card padding="none">
+        <CategoryListSkeleton canWrite={canWrite} />
+      </Card>
     </div>
   );
 }

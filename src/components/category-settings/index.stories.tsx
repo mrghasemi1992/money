@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 import { useRef, useState } from "react";
 
 import { SAMPLE_CATEGORIES } from "@/components/category-list/sample-categories";
@@ -266,7 +268,15 @@ export const EmptyViewer: Story = {
 };
 
 /** loading.tsx */
-export const Loading: Story = { render: () => <CategorySettingsSkeleton /> };
+export const Loading: Story = {
+  render: () => <CategorySettingsSkeleton />,
+  decorators: [withAddTransaction],
+};
+
+/** Viewers' skeleton: no write controls. */
+export const LoadingViewer: Story = {
+  render: () => <CategorySettingsSkeleton />,
+};
 
 /** error.tsx */
 export const LoadFailed: Story = {

@@ -26,21 +26,3 @@
   color: var(--text-secondary);
   font: var(--type-body);
 }
-
-.skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
-  padding: var(--space-4);
-  border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-xs);
-}
-
-.skeletonRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}

@@ -96,18 +96,37 @@ export function MonthOverview({
   );
 }
 
-/** This month's card while its totals load. */
+/** This month's card while its totals load: the real card and labels, placeholder figures. */
 export function MonthOverviewSkeleton() {
+  const t = useTranslations();
+  const rows = [
+    { key: "income", label: t("transactionType.income") },
+    { key: "expense", label: t("transactionType.expense") },
+    { key: "net", label: t("dashboard.month.net") },
+  ] as const;
   return (
-    <div className={styles.skeleton} aria-hidden="true">
-      <Skeleton width="30%" height="16px" />
-      {[0, 1, 2].map((index) => (
-        <div key={index} className={styles.skeletonRow}>
-          <Skeleton width="var(--report-tile)" height="var(--report-tile)" />
-          <Skeleton width="25%" height="14px" />
-          <Skeleton width="35%" height="18px" />
-        </div>
-      ))}
-    </div>
+    <Card
+      padding="none"
+      title={t("dashboard.month.title")}
+      subtitle={<Skeleton variant="text" width="96px" />}
+      aria-hidden="true"
+    >
+      <div className={styles.list}>
+        {rows.map((row) => (
+          <div key={row.key} className={styles.row}>
+            <Skeleton
+              width="var(--report-tile)"
+              height="var(--report-tile)"
+              radius="var(--radius-lg)"
+              className={styles.skeletonTile}
+            />
+            <span className={styles.label}>{row.label}</span>
+            <span className={styles.skeletonValue}>
+              <Skeleton variant="text" width="112px" />
+            </span>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }

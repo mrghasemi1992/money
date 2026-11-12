@@ -5,16 +5,26 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { useShellCanWrite } from "@/components/add-transaction";
 import { useReportNavigation } from "@/components/navigation-progress";
 import { BudgetDialog } from "@/components/budget-dialog";
-import { BudgetList, UnbudgetedList } from "@/components/budget-list";
+import {
+  BudgetList,
+  BudgetListSkeleton,
+  UnbudgetedList,
+  UnbudgetedListSkeleton,
+} from "@/components/budget-list";
 import {
   BudgetSummary,
   BudgetSummarySkeleton,
 } from "@/components/budget-summary";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { MonthSwitcher } from "@/components/month-switcher";
+import {
+  MonthSwitcher,
+  MonthSwitcherSkeleton,
+} from "@/components/month-switcher";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ListError } from "@/components/page-status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -335,34 +345,56 @@ export function Budgets({
   );
 }
 
-/** The summary and rows while a month loads. */
+/** The summary, rows and categories without a budget while a month loads. */
 function BudgetsContentSkeleton() {
-  const t = useTranslations("page");
+  const t = useTranslations("budgets");
+  const canWrite = useShellCanWrite();
   return (
-    <div role="status" aria-busy="true" className={styles.root}>
-      <span className="visually-hidden">{t("loading")}</span>
+    <>
+      <PageLoadingStatus />
       <BudgetSummarySkeleton />
-      <Card padding="none">
-        {["38%", "30%", "44%", "34%"].map((width, index) => (
-          <div key={index} className={styles.skeletonRow}>
-            <Skeleton width="120px" height="16px" />
-            <Skeleton width="100%" height="6px" />
-            <div className={styles.skeletonEnd}>
-              <Skeleton width={width} height="12px" />
-            </div>
-          </div>
-        ))}
+      <Card padding="none" className={styles.list}>
+        <BudgetListSkeleton canWrite={canWrite} />
       </Card>
-    </div>
+      <Card
+        padding="none"
+        title={t("unbudgeted.title")}
+        subtitle={<Skeleton variant="text" width="160px" />}
+        className={styles.list}
+        aria-hidden="true"
+      >
+        <UnbudgetedListSkeleton canWrite={canWrite} />
+      </Card>
+    </>
   );
 }
 
-/** The budgets page while it loads (loading.tsx): the header, the summary and rows. */
+/**
+ * The budgets page while it loads (loading.tsx): the header with its month switcher (and the add
+ * button for writers, the view-only badge for viewers), the summary and the lists.
+ */
 export function BudgetsSkeleton() {
-  const t = useTranslations("nav");
+  const t = useTranslations();
+  const canWrite = useShellCanWrite();
   return (
     <div className={styles.root}>
-      <PageHeader title={t("budgets")} />
+      <PageHeader
+        title={t("nav.budgets")}
+        subtitle={<Skeleton variant="text" width="220px" />}
+        actions={
+          <>
+            {canWrite ? null : (
+              <Badge icon={EyeIcon}>{t("common.viewOnly")}</Badge>
+            )}
+            <MonthSwitcherSkeleton />
+            {canWrite ? (
+              <Button iconStart={PlusIcon} disabled>
+                {t("budgets.add")}
+              </Button>
+            ) : null}
+          </>
+        }
+      />
       <BudgetsContentSkeleton />
     </div>
   );

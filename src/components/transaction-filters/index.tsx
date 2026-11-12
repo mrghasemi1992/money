@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Combobox, type ComboboxGroup } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -426,6 +427,29 @@ export function TransactionFilters({
           </div>
         </Card>
       ) : null}
+    </div>
+  );
+}
+
+/** The filter bar while the page loads: the filters button, off, and a placeholder count. */
+export function TransactionFiltersSkeleton() {
+  const t = useTranslations("transactions.filters");
+  return (
+    <div className={styles.root} aria-hidden="true">
+      <div className={styles.bar}>
+        <Button
+          variant="secondary"
+          size="sm"
+          iconStart={SlidersHorizontalIcon}
+          iconEnd={ChevronDownIcon}
+          disabled
+        >
+          {t("button")}
+        </Button>
+        <span className={styles.count}>
+          <Skeleton variant="text" width="64px" />
+        </span>
+      </div>
     </div>
   );
 }

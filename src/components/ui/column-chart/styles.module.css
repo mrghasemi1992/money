@@ -297,3 +297,19 @@
   border-radius: 50%;
   background: var(--surface-card);
 }
+
+/* Loading (ColumnChartSkeleton). Placeholders have no text baseline to line up on. */
+.skeletonReadout,
+.skeletonReadout .readoutValue {
+  align-items: center;
+}
+
+.skeletonAmount {
+  font: var(--type-amount);
+  font-size: var(--text-sm);
+}
+
+.skeletonLabel {
+  display: flex;
+  justify-content: center;
+}

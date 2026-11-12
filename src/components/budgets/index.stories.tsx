@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 import { useState } from "react";
 
 import {
@@ -104,7 +106,13 @@ export const EmptyViewer: Story = {
 /** No expense categories at all: budgets need them first. */
 export const NoCategories: Story = { args: { categories: [] } };
 
-export const Loading: Story = { render: () => <BudgetsSkeleton /> };
+export const Loading: Story = {
+  render: () => <BudgetsSkeleton />,
+  decorators: [withAddTransaction],
+};
+
+/** Viewers' skeleton: no write controls. */
+export const LoadingViewer: Story = { render: () => <BudgetsSkeleton /> };
 
 export const Error: Story = {
   render: () => <BudgetsError onRetry={() => {}} />,

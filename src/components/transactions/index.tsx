@@ -18,19 +18,27 @@ import {
 } from "@/components/add-transaction";
 import { useReportNavigation } from "@/components/navigation-progress";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { MonthSwitcher } from "@/components/month-switcher";
+import {
+  MonthSwitcher,
+  MonthSwitcherSkeleton,
+} from "@/components/month-switcher";
 import { PageHeader } from "@/components/page-header";
 import { ListError } from "@/components/page-status";
 import { TransactionDetail } from "@/components/transaction-detail";
 import { TransactionDialog } from "@/components/transaction-dialog";
-import { TransactionFilters } from "@/components/transaction-filters";
-import { TransactionList } from "@/components/transaction-list";
+import {
+  TransactionFilters,
+  TransactionFiltersSkeleton,
+} from "@/components/transaction-filters";
+import {
+  TransactionList,
+  TransactionListSkeleton,
+} from "@/components/transaction-list";
 import { TransactionSummary } from "@/components/transaction-summary";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { formatMoney } from "@/helpers/money";
 import { categoryLabel, type TransactionField } from "@/helpers/transaction";
@@ -451,7 +459,7 @@ export function Transactions({
 
       <Card padding="none" className={styles.list}>
         {navigating ? (
-          <TransactionListSkeleton />
+          <TransactionListSkeleton canWrite={canWrite} />
         ) : rows.length === 0 ? (
           emptyState()
         ) : (
@@ -504,39 +512,25 @@ export function Transactions({
   );
 }
 
-/** Rows of a loading list: a day header and a few rows. */
-function TransactionListSkeleton() {
-  const t = useTranslations("page");
-  return (
-    <div role="status" aria-busy="true" className={styles.skeleton}>
-      <span className="visually-hidden">{t("loading")}</span>
-      <div className={styles.skeletonDay}>
-        <Skeleton width="180px" height="14px" />
-      </div>
-      {["42%", "30%", "50%", "36%", "44%", "28%"].map((width, index) => (
-        <div key={index} className={styles.skeletonRow}>
-          <Skeleton variant="rect" width="40px" height="40px" />
-          <div className={styles.skeletonText}>
-            <Skeleton width={width} height="14px" />
-            <Skeleton width="24%" height="12px" />
-          </div>
-          <Skeleton width="96px" height="16px" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** The transactions page while it loads (loading.tsx): the header, the summary and rows. */
+/**
+ * The transactions page while it loads (loading.tsx): the header with its month switcher and add
+ * button, the summary, the filter bar and the list, each the size of the real one.
+ */
 export function TransactionsSkeleton() {
   const t = useTranslations();
   return (
     <div className={styles.root}>
-      <PageHeader title={t("nav.transactions")} />
+      <PageHeader
+        title={t("nav.transactions")}
+        actions={
+          <>
+            <MonthSwitcherSkeleton />
+            <AddTransactionButton />
+          </>
+        }
+      />
       <TransactionSummary totals={null} />
-      <div className={styles.skeletonBar}>
-        <Skeleton width="110px" height="32px" />
-      </div>
+      <TransactionFiltersSkeleton />
       <Card padding="none" className={styles.list}>
         <TransactionListSkeleton />
       </Card>

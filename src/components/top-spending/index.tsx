@@ -6,8 +6,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CategoryChip } from "@/components/ui/category-chip";
+import {
+  CategoryChip,
+  CategoryChipSkeleton,
+} from "@/components/ui/category-chip";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DASHBOARD_SPENDING_SLICES } from "@/constants/dashboard";
 import { categoryColorStyle, categoryIcon } from "@/helpers/category";
 import { monthReportHref } from "@/helpers/dashboard";
 import { usePreferences } from "@/hooks/use-preferences";
@@ -145,18 +149,65 @@ export function TopSpending({
   );
 }
 
-/** The top spending card while it loads. */
+/** Widths of the category names, so the rows don't look identical. */
+const SKELETON_NAMES = ["72px", "96px", "64px", "84px", "56px"];
+
+/**
+ * The top spending card while it loads: the real card, an empty bar, one placeholder row per
+ * slice it shows (DASHBOARD_SPENDING_SLICES, the last one «سایر», with a dot) and the total.
+ */
 export function TopSpendingSkeleton() {
+  const t = useTranslations();
   return (
-    <div className={styles.skeleton} aria-hidden="true">
-      <Skeleton width="45%" height="16px" />
-      <Skeleton height="var(--dashboard-spending-h)" />
-      {["40%", "32%", "36%", "28%"].map((width, index) => (
-        <div key={index} className={styles.skeletonRow}>
-          <Skeleton width={width} height="14px" />
-          <Skeleton width="25%" height="14px" />
+    <Card
+      padding="none"
+      title={t("dashboard.spending.title")}
+      subtitle={<Skeleton variant="text" width="72px" />}
+      actions={
+        <Button
+          variant="ghost"
+          size="sm"
+          iconEnd={ChevronRightIcon}
+          mirrorIcons
+        >
+          {t("dashboard.spending.report")}
+        </Button>
+      }
+      inert
+    >
+      <div className={styles.body}>
+        <Skeleton
+          height="var(--dashboard-spending-h)"
+          radius="var(--radius-pill)"
+        />
+        <div className={styles.list}>
+          {SKELETON_NAMES.slice(0, DASHBOARD_SPENDING_SLICES).map(
+            (width, index) => (
+              <div key={width} className={styles.item}>
+                <span className={styles.name}>
+                  <CategoryChipSkeleton
+                    size="sm"
+                    width={width}
+                    icon={index < DASHBOARD_SPENDING_SLICES - 1}
+                  />
+                </span>
+                <span className={styles.skeletonAmount}>
+                  <Skeleton variant="text" width="72px" />
+                </span>
+                <span className={styles.share}>
+                  <Skeleton variant="text" />
+                </span>
+              </div>
+            ),
+          )}
         </div>
-      ))}
-    </div>
+        <div className={styles.total}>
+          <span>{t("dashboard.spending.total")}</span>
+          <span className={styles.skeletonAmount}>
+            <Skeleton variant="text" width="88px" />
+          </span>
+        </div>
+      </div>
+    </Card>
   );
 }

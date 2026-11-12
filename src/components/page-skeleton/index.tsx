@@ -53,3 +53,16 @@ export function PageSkeleton({ className }: { className?: string }) {
     </div>
   );
 }
+
+/**
+ * «در حال بارگذاری» for screen readers, for a page skeleton whose placeholders are hidden from
+ * them. Out of the layout, so it adds no gap.
+ */
+export function PageLoadingStatus() {
+  const t = useTranslations("page");
+  return (
+    <span role="status" className="visually-hidden">
+      {t("loading")}
+    </span>
+  );
+}

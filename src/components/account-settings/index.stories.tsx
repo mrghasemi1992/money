@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 import { useRef, useState } from "react";
 
 import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
@@ -136,7 +138,15 @@ export const Empty: Story = { args: { accounts: [] } };
 export const EmptyViewer: Story = { args: { accounts: [], canWrite: false } };
 
 /** loading.tsx */
-export const Loading: Story = { render: () => <AccountSettingsSkeleton /> };
+export const Loading: Story = {
+  render: () => <AccountSettingsSkeleton />,
+  decorators: [withAddTransaction],
+};
+
+/** Viewers' skeleton: no write controls. */
+export const LoadingViewer: Story = {
+  render: () => <AccountSettingsSkeleton />,
+};
 
 /** error.tsx */
 export const LoadFailed: Story = {

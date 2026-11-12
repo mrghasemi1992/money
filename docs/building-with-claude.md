@@ -1275,6 +1275,25 @@ Issue #32: with the Storybook language toolbar set to English, some stories stil
 - Audit: all stories were opened with the English toolbar and their text, labels, titles and placeholders scanned for Persian characters until none were left.
 - CLAUDE.md replaces «sample data may stay Persian» with this rule.
 
+## Page skeletons that match their pages (#15)
+
+Branch: `bugfix/page-skeletons-15`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> #15
+
+Issue #15: the loading skeletons don't match the layout of the pages they stand in for, so the page jumps when the real content arrives. Audit every page (dashboard, transactions, budgets, reports, settings, accounts, categories, Claude connector, user management) at phone, tablet and desktop widths, with no layout shift when the content replaces the skeleton.
+
+### Result
+
+- **How it was checked:** each page's real story and its `Loading` story were loaded side by side in Storybook at 390, 820 and 1280 px, and the position and height of every block (header, summary, filters, cards, rows) compared until they matched. What still differs depends on the data: how many rows, accounts or budgets there are, rows with tags, and long amounts that wrap on narrow cards.
+- **The dashboard and settings had no skeleton of their own:** they showed the generic `PageSkeleton`. Both pages moved into route groups (`(dashboard)`, `settings/(overview)`) with their own `loading.tsx`, so the settings skeleton doesn't also show on the way into `/settings/connector`.
+- **Skeletons are built from the real parts:** the real headers, cards, titles, labels, column heads and buttons, the same row classes, and placeholders only where data goes. The header actions are there too (month switcher, add button, view-only badge, period switch), following the role through `useShellCanWrite()`. The settings sections, the connector's address, steps and examples, and the import and export cards are the real ones, inert and empty.
+- **`Skeleton variant="text"` is one line of its font tall** (`1lh`), plus a `radius` prop and `SkeletonWords` (bars that wrap like a known sentence). New shared skeletons: `CategoryChipSkeleton`, `ProgressBarSkeleton`, `BarListSkeleton`, `ColumnChartSkeleton`, `MonthSwitcherSkeleton`, `TransactionFiltersSkeleton`, `TransactionListSkeleton`, `BudgetListSkeleton`, `AccountListSkeleton`, `CategoryListSkeleton`, `PageLoadingStatus`.
+- Two real components lost a pixel of stray line height (the amounts in the transaction summary and the budget summary now sit in a flex box), so their placeholders match them exactly. `html` keeps the scrollbar's room (`scrollbar-gutter: stable`).
+- CLAUDE.md has a «Skeletons» section with these rules.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

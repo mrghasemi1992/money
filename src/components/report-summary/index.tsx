@@ -166,22 +166,35 @@ export function ReportSummary({
   );
 }
 
-/** The three cards while the page loads. */
+/** The three cards while the page loads: their real labels, with placeholder figures. */
 export function ReportSummarySkeleton({ className }: { className?: string }) {
+  const t = useTranslations("reports.summary");
   return (
-    <div className={cx(styles.root, className)}>
-      {[0, 1, 2].map((index) => (
-        <Card key={index}>
+    <div className={cx(styles.root, className)} aria-hidden="true">
+      {(["income", "expense", "net"] as const).map((key) => (
+        <Card key={key}>
           <div className={styles.card}>
             <div className={styles.head}>
               <Skeleton
                 width="var(--report-tile)"
                 height="var(--report-tile)"
+                radius="var(--radius-lg)"
               />
-              <Skeleton variant="text" width="35%" />
+              <span className={styles.label}>{t(key)}</span>
             </div>
-            <Skeleton width="70%" height="26px" />
-            <Skeleton variant="text" width="55%" />
+            <span className={styles.skeletonAmount}>
+              <Skeleton variant="text" width="140px" />
+            </span>
+            <div className={styles.compare}>
+              <Skeleton
+                width="80px"
+                height="var(--badge-h-sm)"
+                radius="var(--radius-pill)"
+              />
+              <span className={styles.previous}>
+                <Skeleton variant="text" width="150px" />
+              </span>
+            </div>
           </div>
         </Card>
       ))}

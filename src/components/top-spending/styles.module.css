@@ -91,20 +91,8 @@
   font: var(--type-body);
 }
 
-.skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3-5);
-  min-width: 0;
-  padding: var(--space-4);
-  border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-xs);
-}
-
-.skeletonRow {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
+.skeletonAmount {
+  flex: none;
+  font: var(--type-amount);
+  font-size: var(--text-sm);
 }

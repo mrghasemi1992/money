@@ -4,6 +4,7 @@ import { CircleAlertIcon, TriangleAlertIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ComponentProps, ReactNode } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { getBudgetStatus } from "@/helpers/budget";
 import { formatMoney, formatMoneyNumber } from "@/helpers/money";
 import { usePreferences } from "@/hooks/use-preferences";
@@ -130,6 +131,45 @@ export function ProgressBar({
               {markerLabel}
             </span>
           ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * A bar while its figures load, laid out like ProgressBar: the label row (pass the label, or
+ * its placeholder), an empty track and, with showValues, a footer of placeholder text.
+ */
+export function ProgressBarSkeleton({
+  label,
+  showValues,
+  size = "md",
+  className,
+}: {
+  label?: ReactNode;
+  showValues?: boolean;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  return (
+    <div
+      className={cx(styles.root, styles[size], className)}
+      aria-hidden="true"
+    >
+      {label != null ? (
+        <div className={cx(styles.head, styles.skeletonHead)}>
+          <span className={styles.label}>{label}</span>
+          <span className={styles.percent}>
+            <Skeleton variant="text" width="32px" />
+          </span>
+        </div>
+      ) : null}
+      <div className={cx(styles.track, styles.skeletonTrack)} />
+      {showValues ? (
+        <div className={styles.foot}>
+          <Skeleton variant="text" width="30%" />
+          <Skeleton variant="text" width="40%" />
         </div>
       ) : null}
     </div>

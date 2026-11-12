@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Amount } from "@/components/ui/amount";
-import { BarList } from "@/components/ui/bar-list";
+import { BarList, BarListSkeleton } from "@/components/ui/bar-list";
 import { DataTable } from "@/components/ui/data-table";
+import { sample } from "@/helpers/sample";
 
 import { ReportCard, ReportCardSkeleton } from "./index";
 
@@ -60,4 +61,11 @@ export const Empty: Story = {
   args: { empty: "در این دوره هزینه‌ای ثبت نشده." },
 };
 
-export const Loading: Story = { render: () => <ReportCardSkeleton /> };
+export const Loading: Story = {
+  render: () => (
+    <ReportCardSkeleton
+      title={sample("هزینه به تفکیک حساب")}
+      chart={<BarListSkeleton rows={2} start="tile" />}
+    />
+  ),
+};

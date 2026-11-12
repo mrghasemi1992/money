@@ -17,6 +17,7 @@ import { type DragEvent, useState } from "react";
 import { Amount } from "@/components/ui/amount";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { maskIdentifier } from "@/helpers/account-identifier";
 import list from "@/styles/list.module.css";
@@ -242,6 +243,70 @@ export function AccountReorderHint() {
       <span className={styles.dragHint}>{t("dragHint")}</span>
       <span className={styles.moveHint}>{t("moveHint")}</span>
     </p>
+  );
+}
+
+/** Widths of a placeholder row's name and line under it. */
+const SKELETON_ROWS = [
+  ["120px", "160px"],
+  ["96px", "136px"],
+  ["140px", "172px"],
+  ["104px", "148px"],
+] as const;
+
+/**
+ * The accounts while they load, laid out like AccountList: for writers the drag handle and
+ * the row menu, then a placeholder tile, name, line and balance in the real sizes and fonts.
+ */
+export function AccountListSkeleton({
+  canWrite = true,
+}: {
+  canWrite?: boolean;
+}) {
+  const t = useTranslations("accounts");
+  return (
+    <div className={styles.root} aria-hidden="true">
+      <div className={list.list}>
+        {SKELETON_ROWS.map(([name, meta]) => (
+          <div key={name} className={list.item}>
+            <div className={list.row}>
+              {canWrite ? (
+                <span className={styles.handle}>
+                  <GripVerticalIcon className={styles.handleIcon} />
+                </span>
+              ) : null}
+              <Skeleton
+                width="var(--account-icon)"
+                height="var(--account-icon)"
+                radius="var(--account-icon-radius)"
+                className={styles.skeletonIcon}
+              />
+              <div className={list.text}>
+                <span className={list.name}>
+                  <Skeleton variant="text" width={name} />
+                </span>
+                <span className={list.meta}>
+                  <Skeleton variant="text" width={meta} />
+                </span>
+              </div>
+              <div className={list.end}>
+                <span className={styles.skeletonBalance}>
+                  <Skeleton variant="text" width="104px" />
+                </span>
+                {canWrite ? (
+                  <IconButton
+                    icon={EllipsisVerticalIcon}
+                    label={t("list")}
+                    size="sm"
+                    disabled
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

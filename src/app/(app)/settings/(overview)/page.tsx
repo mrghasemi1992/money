@@ -14,7 +14,7 @@ import {
   updateBookCurrency,
   updateDisplayPreferences,
   updateProfile,
-} from "./actions";
+} from "../actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("nav");

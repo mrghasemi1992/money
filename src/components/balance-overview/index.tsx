@@ -72,17 +72,32 @@ export function BalanceOverview({
   );
 }
 
-/** The balance card while its accounts load: a plain card, since the royal one is for figures. */
+/**
+ * The balance card while its accounts load: the same layout as the card, but plain, since the
+ * royal fill is for figures. The title is real; the count, total and tiles are placeholders.
+ */
 export function BalanceOverviewSkeleton() {
+  const t = useTranslations("dashboard.balances");
   return (
-    <div className={styles.skeleton} aria-hidden="true">
-      <Skeleton width="40%" height="14px" />
-      <Skeleton width="60%" height="36px" />
+    <div className={cx(styles.root, styles.skeleton)} aria-hidden="true">
+      <div className={styles.head}>
+        <span className={styles.title}>{t("title")}</span>
+        <span className={styles.count}>
+          <Skeleton variant="text" width="48px" />
+        </span>
+      </div>
+      <span className={cx(styles.total, styles.skeletonTotal)}>
+        <Skeleton variant="text" width="min(60%, 280px)" />
+      </span>
       <div className={styles.accounts}>
         {[0, 1, 2].map((index) => (
           <div key={index} className={styles.account}>
-            <Skeleton width="60%" height="12px" />
-            <Skeleton width="80%" height="16px" />
+            <span className={styles.name}>
+              <Skeleton variant="text" width="60%" />
+            </span>
+            <span className={styles.skeletonAmount}>
+              <Skeleton variant="text" width="80%" />
+            </span>
           </div>
         ))}
       </div>

@@ -13,9 +13,13 @@ import { useId } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CategoryChip } from "@/components/ui/category-chip";
+import {
+  CategoryChip,
+  CategoryChipSkeleton,
+} from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
-import { ProgressBar } from "@/components/ui/progress-bar";
+import { ProgressBar, ProgressBarSkeleton } from "@/components/ui/progress-bar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   budgetRatio,
   budgetTransactionsHref,
@@ -240,5 +244,91 @@ export function UnbudgetedList({
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Widths of a placeholder row's name, status and spent of limit. */
+const SKELETON_ROWS = [
+  ["84px", "96px", "120px"],
+  ["64px", "80px", "112px"],
+  ["96px", "88px", "128px"],
+  ["72px", "104px", "116px"],
+] as const;
+
+/**
+ * The budget rows while they load, laid out like BudgetList (cards, or the table from 56rem of
+ * list width) with the real column heads, so the real rows take the same place.
+ */
+export function BudgetListSkeleton({
+  canWrite = true,
+}: {
+  canWrite?: boolean;
+}) {
+  const t = useTranslations();
+  return (
+    <div
+      className={cx(styles.root, canWrite && styles.writable)}
+      aria-hidden="true"
+    >
+      <div className={styles.head}>
+        <span>{t("budgets.list.category")}</span>
+        <span className={styles.headUsed}>{t("budgets.list.used")}</span>
+        <span className={styles.headEnd}>{t("budgets.list.spent")}</span>
+        <span className={styles.headEnd}>{t("budgets.list.status")}</span>
+      </div>
+      <div className={styles.list}>
+        {SKELETON_ROWS.map(([name, status, values]) => (
+          <div key={name + values} className={styles.row}>
+            <div className={styles.link}>
+              <span className={styles.category}>
+                <CategoryChipSkeleton width={name} className={styles.chip} />
+              </span>
+              <ProgressBarSkeleton size="sm" className={styles.bar} />
+              <span className={styles.percent}>
+                <Skeleton variant="text" width="32px" />
+              </span>
+              <span className={styles.values}>
+                <span className={styles.spent}>
+                  <Skeleton variant="text" width={values} />
+                </span>
+              </span>
+              <span className={styles.status}>
+                <Skeleton variant="text" width={status} />
+              </span>
+              <ChevronRightIcon className={cx(styles.chevron, "mirror-rtl")} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** The categories without a budget while they load, laid out like UnbudgetedList. */
+export function UnbudgetedListSkeleton({
+  canWrite = true,
+}: {
+  canWrite?: boolean;
+}) {
+  const t = useTranslations("budgets");
+  return (
+    <div className={styles.unbudgeted} aria-hidden="true">
+      {["88px", "64px", "104px"].map((width) => (
+        <div key={width} className={styles.unbudgetedRow}>
+          <CategoryChipSkeleton
+            width={width}
+            className={styles.unbudgetedChip}
+          />
+          <span className={styles.unbudgetedSpent}>
+            <Skeleton variant="text" width="96px" />
+          </span>
+          {canWrite ? (
+            <Button variant="secondary" size="sm" iconStart={PlusIcon} disabled>
+              {t("add")}
+            </Button>
+          ) : null}
+        </div>
+      ))}
+    </div>
   );
 }

@@ -136,3 +136,12 @@
   block-size: var(--progress-marker-swatch);
   background: var(--text-primary);
 }
+
+/* Placeholders have no text baseline to line up on. */
+.skeletonHead {
+  align-items: center;
+}
+
+.skeletonTrack {
+  background: var(--surface-sunken);
+}

@@ -5,7 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { ReportCard } from "@/components/report-card";
 import { Amount } from "@/components/ui/amount";
-import { type BarListItem, BarList } from "@/components/ui/bar-list";
+import {
+  type BarListItem,
+  BarList,
+  BarListSkeleton,
+} from "@/components/ui/bar-list";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { DataTable, type DataTableRow } from "@/components/ui/data-table";
 import { categoryIcon } from "@/helpers/category";
@@ -125,5 +129,22 @@ export function CategoryReport({ type, rows, className }: CategoryReportProps) {
         />
       }
     />
+  );
+}
+
+/**
+ * The chart of a category report while it loads (inside ReportCardSkeleton): ranked rows with
+ * a category chip and room for the chevron, and the hint about opening a category.
+ */
+export function CategoryReportSkeleton({ rows = 5 }: { rows?: number }) {
+  const t = useTranslations("reports");
+  return (
+    <div className={styles.chart}>
+      <BarListSkeleton rows={rows} start="chip" expandable />
+      <p className={styles.hint}>
+        <InfoIcon className={styles.hintIcon} aria-hidden="true" />
+        {t("categories.hint")}
+      </p>
+    </div>
   );
 }

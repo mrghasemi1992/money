@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { categoryColorStyle } from "@/helpers/category";
 import type { CategoryColor } from "@/types/category";
 import { cx } from "@/utils/cx";
@@ -58,6 +59,50 @@ export function CategoryChip({
           </>
         ) : null}
       </span>
+    </span>
+  );
+}
+
+/**
+ * A chip with an icon while its category loads: a placeholder tile and name in the chip's own
+ * size and font, so the real chip takes exactly its place.
+ */
+export function CategoryChipSkeleton({
+  size = "md",
+  icon = true,
+  width = "96px",
+  className,
+}: {
+  size?: "sm" | "md";
+  /** false for a chip with a dot instead of an icon tile, such as «سایر». */
+  icon?: boolean;
+  /** The name's placeholder: a CSS length. */
+  width?: string;
+  className?: string;
+}) {
+  const tile = size === "sm" ? "var(--cat-icon-sm)" : "var(--cat-icon)";
+  const dot = size === "sm" ? "var(--cat-dot-sm)" : "var(--cat-dot)";
+  return (
+    <span
+      className={cx(
+        styles.root,
+        size === "sm" && styles.sm,
+        styles.skeleton,
+        className,
+      )}
+      aria-hidden="true"
+    >
+      {icon ? (
+        <Skeleton
+          width={tile}
+          height={tile}
+          radius={size === "sm" ? "var(--radius-md)" : "var(--radius-lg)"}
+          className={styles.skeletonTile}
+        />
+      ) : (
+        <Skeleton variant="circle" width={dot} className={styles.skeletonDot} />
+      )}
+      <Skeleton variant="text" width={width} />
     </span>
   );
 }

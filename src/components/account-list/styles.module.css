@@ -95,3 +95,12 @@
     display: inline;
   }
 }
+
+/* Loading (AccountListSkeleton) */
+.skeletonIcon {
+  flex: none;
+}
+
+.skeletonBalance {
+  font: var(--type-amount);
+}

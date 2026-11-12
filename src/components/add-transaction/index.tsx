@@ -151,6 +151,15 @@ export function useAddTransaction(): (() => void) | null {
 }
 
 /**
+ * Whether the viewer may write, as the app shell knows it: its add form is on only for editors
+ * and admins. For page skeletons, which show before the page has read the role, so they can
+ * leave out write controls for viewers. The server still checks every action.
+ */
+export function useShellCanWrite(): boolean {
+  return useAddTransaction() !== null;
+}
+
+/**
  * «افزودن تراکنش» in a page header. Shown on larger screens only: phones have the floating
  * button in the tab bar. Renders nothing outside an enabled AddTransactionProvider.
  */

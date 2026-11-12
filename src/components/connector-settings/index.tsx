@@ -16,7 +16,9 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useState, useTransition } from "react";
 
+import { useShellCanWrite } from "@/components/add-transaction";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ListError } from "@/components/page-status";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +27,7 @@ import { Card } from "@/components/ui/card";
 import { DateText } from "@/components/ui/date-text";
 import { Divider } from "@/components/ui/divider";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, SkeletonWords } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { canWrite } from "@/helpers/role";
 import { useClipboard } from "@/hooks/use-clipboard";
@@ -343,48 +345,77 @@ function ExamplesCard() {
   );
 }
 
-/** The page while it loads (loading.tsx). */
-export function ConnectorSettingsSkeleton() {
-  const t = useTranslations();
+/**
+ * The page while it loads (loading.tsx): the address, the steps and the examples are real (they
+ * need nothing from the database); the connected apps and the note on the role are placeholders.
+ */
+export function ConnectorSettingsSkeleton({ url }: { url: string }) {
+  const t = useTranslations("connector");
+  const writer = useShellCanWrite();
   const tNav = useTranslations("nav");
   return (
     <div className={styles.root}>
       <PageHeader
-        title={t("connector.title")}
-        subtitle={t("connector.subtitle")}
+        title={t("title")}
+        subtitle={t("subtitle")}
         back={{ href: "/settings", label: tNav("settings") }}
       />
-      <div role="status" aria-busy="true" className={styles.columns}>
-        <span className="visually-hidden">{t("page.loading")}</span>
+      <PageLoadingStatus />
+      <div className={styles.columns}>
         <div className={styles.main}>
-          <Card padding="lg">
-            <div className={styles.skeletonStack}>
-              <Skeleton width="120px" height="16px" />
-              <Skeleton width="100%" height="var(--control-h-md)" />
-              <Skeleton width="70%" height="12px" />
-            </div>
-          </Card>
-          <Card padding="none">
-            {["120px", "100px"].map((width, index) => (
-              <div key={index} className={styles.skeletonRow}>
-                <Skeleton variant="circle" width="var(--connector-app-icon)" />
-                <div className={styles.skeletonStack}>
-                  <Skeleton width={width} height="14px" />
-                  <Skeleton width="140px" height="12px" />
+          <UrlCard url={url} />
+          <Card
+            title={t("apps.title")}
+            subtitle={t("apps.subtitle")}
+            padding="none"
+            aria-hidden="true"
+          >
+            <div className={styles.apps}>
+              {["88px", "112px"].map((width) => (
+                <div key={width} className={styles.app}>
+                  <Skeleton
+                    width="var(--connector-app-icon)"
+                    height="var(--connector-app-icon)"
+                    radius="var(--radius-lg)"
+                    className={styles.skeletonIcon}
+                  />
+                  <div className={styles.appText}>
+                    <div className={styles.appTitle}>
+                      <span className={styles.appName}>
+                        <Skeleton variant="text" width={width} />
+                      </span>
+                    </div>
+                    <span className={styles.appMeta}>
+                      <Skeleton variant="text" width="136px" />
+                    </span>
+                    <span className={styles.appMeta}>
+                      <Skeleton variant="text" width="120px" />
+                    </span>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconStart={UnplugIcon}
+                    disabled
+                    className={styles.revoke}
+                  >
+                    {t("apps.revoke")}
+                  </Button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <p className={styles.roleNote}>
+              <InfoIcon className={styles.noteGlyph} />
+              <span>
+                <SkeletonWords>
+                  {t(writer ? "apps.role.editor" : "apps.role.viewer")}
+                </SkeletonWords>
+              </span>
+            </p>
           </Card>
         </div>
         <div className={styles.side}>
-          <Card padding="lg">
-            <div className={styles.skeletonStack}>
-              <Skeleton width="140px" height="16px" />
-              <Skeleton width="90%" height="36px" />
-              <Skeleton width="80%" height="36px" />
-              <Skeleton width="85%" height="36px" />
-            </div>
-          </Card>
+          <ExamplesCard />
         </div>
       </div>
     </div>

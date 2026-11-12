@@ -304,3 +304,20 @@
     padding: var(--space-3);
   }
 }
+
+/* Loading (TransactionListSkeleton): placeholders in the fonts of what they stand in for. */
+.skeletonNet {
+  flex: none;
+  font: var(--type-amount);
+  font-size: var(--text-sm);
+}
+
+.skeletonTitle {
+  display: block;
+  font: var(--type-body);
+}
+
+.skeletonAmount {
+  display: block;
+  font: var(--type-amount);
+}
