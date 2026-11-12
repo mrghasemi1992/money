@@ -7,7 +7,7 @@ import {
   PlusIcon,
   TriangleAlertIcon,
 } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useId } from "react";
 
@@ -111,7 +111,7 @@ export function BudgetList({
               className={cx(styles.row, styles[status])}
               data-status={status}
             >
-              <NextLink
+              <Link
                 href={budgetTransactionsHref(
                   category.id,
                   calendar,
@@ -172,7 +172,7 @@ export function BudgetList({
                   className={cx(styles.chevron, "mirror-rtl")}
                   aria-hidden="true"
                 />
-              </NextLink>
+              </Link>
               {canWrite ? (
                 <IconButton
                   icon={PencilIcon}

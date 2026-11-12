@@ -78,7 +78,7 @@ export function AccountSettings({
   const [target, setTarget] = useState<Account | null>(null);
   const [archivedOpen, setArchivedOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const [, startReorder] = useTransition();
+  const [reordering, startReorder] = useTransition();
 
   const active = accounts.filter((account) => !account.archived);
   const archived = accounts.filter((account) => account.archived);
@@ -277,6 +277,7 @@ export function AccountSettings({
                 onReorder={reorder}
                 onArchive={(account) => setArchived(account, true)}
                 onDelete={askDelete}
+                busy={pending || reordering}
               />
             </Card>
             {canWrite && active.length > 1 ? <AccountReorderHint /> : null}
@@ -298,6 +299,7 @@ export function AccountSettings({
             canWrite={canWrite}
             onRestore={(account) => setArchived(account, false)}
             onDelete={askDelete}
+            busy={pending || reordering}
           />
         </ArchivedSection>
       ) : null}

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useTransition } from "react";
 
+import { useReportNavigation } from "@/components/navigation-progress";
 import { useAddTransaction } from "@/components/add-transaction";
 import { AccountReport } from "@/components/account-report";
 import { CategoryReport } from "@/components/category-report";
@@ -50,6 +51,7 @@ export function Reports({ period, data }: ReportsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [navigating, startNavigation] = useTransition();
+  useReportNavigation(navigating);
   const periodText = usePeriodText();
   const addTransaction = useAddTransaction();
 

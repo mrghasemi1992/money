@@ -2,12 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 
 import {
   type AddTransactionActions,
   AddTransactionProvider,
 } from "@/components/add-transaction";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { Sidebar } from "@/components/sidebar";
 import { TabBar } from "@/components/tab-bar";
 import { TopBar } from "@/components/top-bar";
@@ -70,6 +71,9 @@ export function AppShell({
       actions={transactionActions}
     >
       <div className={styles.root}>
+        <Suspense>
+          <NavigationProgress />
+        </Suspense>
         <a href={`#${MAIN_ID}`} className={styles.skipLink}>
           {t("skipToContent")}
         </a>

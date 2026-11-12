@@ -1165,6 +1165,29 @@ Branch: `feature/toast-redesign`. Date: 2026-10-28.
 - Exit animation: Base UI removes `--toast-height` while a toast leaves, so the exit slide no longer depends on it (it moves by its own height). Under `prefers-reduced-motion` a toast still fades in and out (the global rule would otherwise make it pop).
 - New tokens `--toast-peek` and `--toast-scale-step`.
 
+## Pending states for navigation and buttons (#28)
+
+Branch: `feature/pending-states-28`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> start #28 issue
+
+Issue #28: users click again because nothing shows that something is happening. Show a loading or transition state while navigating; a button that starts a request shows a loading state and is disabled until it finishes; when a request is followed by navigation, the loading state continues until the new page shows.
+
+### Follow-up messages
+
+1. The browser check stopped at `/login`, so Claude asked for a sign-in by hand in the Browser pane. Answer: «Signed in». Then checked the bar on a tab-bar link and a link inside the «More» sheet.
+
+### Result
+
+- Most form and dialog buttons already had `loading` (`useTransition`), as did login and setup (busy until the next page replaces them). The gaps were links and a few menu actions.
+- `NavigationProgress` (`src/components/navigation-progress`): a 3px bar along the top edge in the app shell. It shows after 150 ms (an instant navigation never flashes it), creeps to 85% and ends when the path or search params change. A small external store (`store.ts`) holds the running navigations, so a link that unmounts mid-navigation (the «More» sheet closing behind its link) doesn't cancel it; a navigation that never reports back stops counting after 15 s. A hidden `role="status"` line says «در حال بارگذاری…» to screen readers.
+- `Link` (`src/components/ui/link`) wraps `next/link` and reports to the store through `useLinkStatus`. Sidebar, tab bar, More sheet, user menu, settings links, budget rows, `Card` and `IconButton` use it; `Button` with `href` also swaps its icon for a spinner while its page loads.
+- Transactions, budgets and reports keep their skeleton while the URL changes and now also drive the bar (`useReportNavigation`).
+- Account and category row menus (active and archived lists) are disabled while a change saves (`busy`), and the sign-out menu item shows a spinner until the sign-in page appears.
+- New tokens `--z-progress` and `--progress-*`.
+
 ## Claude Code tools in the repo
 
 Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.

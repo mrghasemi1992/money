@@ -4,6 +4,7 @@ import { Menu } from "@base-ui/react/menu";
 import {
   CheckIcon,
   ChevronsUpDownIcon,
+  LoaderCircleIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
@@ -12,7 +13,7 @@ import {
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 
@@ -120,7 +121,7 @@ export function UserMenu({
             <Menu.LinkItem
               className={menu.item}
               closeOnClick
-              render={<NextLink href="/settings" />}
+              render={<Link href="/settings" />}
             >
               <SettingsIcon className={menu.icon} aria-hidden="true" />
               <span className={menu.text}>{t("nav.settings")}</span>
@@ -129,7 +130,7 @@ export function UserMenu({
               <Menu.LinkItem
                 className={menu.item}
                 closeOnClick
-                render={<NextLink href="/admin/users" />}
+                render={<Link href="/admin/users" />}
               >
                 <UsersIcon className={menu.icon} aria-hidden="true" />
                 <span className={menu.text}>{t("nav.users")}</span>
@@ -170,9 +171,17 @@ export function UserMenu({
               className={cx(menu.item, menu.danger)}
               disabled={signingOut}
               closeOnClick={false}
+              aria-busy={signingOut || undefined}
               onClick={() => startSignOut(() => onSignOut())}
             >
-              <LogOutIcon className={menu.icon} aria-hidden="true" />
+              {signingOut ? (
+                <LoaderCircleIcon
+                  className={cx(menu.icon, styles.spinner)}
+                  aria-hidden="true"
+                />
+              ) : (
+                <LogOutIcon className={menu.icon} aria-hidden="true" />
+              )}
               <span className={menu.text}>{t("shell.signOut")}</span>
             </Menu.Item>
           </Menu.Popup>

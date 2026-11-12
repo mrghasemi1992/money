@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { useReportNavigation } from "@/components/navigation-progress";
 import { BudgetDialog } from "@/components/budget-dialog";
 import { BudgetList, UnbudgetedList } from "@/components/budget-list";
 import {
@@ -72,6 +73,7 @@ export function Budgets({
   const router = useRouter();
   const pathname = usePathname();
   const [navigating, startNavigation] = useTransition();
+  useReportNavigation(navigating);
   const [removing, startRemoving] = useTransition();
 
   // Kept after a dialog closes, so its text stays while it animates out.

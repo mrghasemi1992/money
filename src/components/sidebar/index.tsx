@@ -1,7 +1,7 @@
 "use client";
 
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Fragment } from "react";
@@ -52,14 +52,14 @@ export function Sidebar({ items, user, onSignOut, className }: SidebarProps) {
         side="inline-end"
         disabled={!collapsed}
       >
-        <NextLink
+        <Link
           href={item.href}
           className={styles.item}
           aria-current={active ? "page" : undefined}
         >
           <Icon className={styles.icon} aria-hidden="true" />
           <span className={styles.label}>{label}</span>
-        </NextLink>
+        </Link>
       </Tooltip>
     );
   }

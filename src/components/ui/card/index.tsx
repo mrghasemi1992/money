@@ -1,4 +1,4 @@
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import type { ComponentProps, ReactNode } from "react";
 
 import { cx } from "@/utils/cx";
@@ -72,13 +72,9 @@ export function Card({
 
   if (href !== undefined) {
     return (
-      <NextLink
-        href={href}
-        className={classes}
-        {...(rest as ComponentProps<"a">)}
-      >
+      <Link href={href} className={classes} {...(rest as ComponentProps<"a">)}>
         {content}
-      </NextLink>
+      </Link>
     );
   }
 

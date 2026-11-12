@@ -1,7 +1,7 @@
 "use client";
 
 import { EllipsisIcon, PlusIcon } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type CSSProperties, useState } from "react";
@@ -50,7 +50,7 @@ export function TabBar({ items, moreItems = [], className }: TabBarProps) {
           const Icon = item.icon;
           const active = isNavItemActive(pathname, item.href);
           return (
-            <NextLink
+            <Link
               key={item.href}
               href={item.href}
               className={styles.tab}
@@ -62,7 +62,7 @@ export function TabBar({ items, moreItems = [], className }: TabBarProps) {
                   ? t(`nav.short.${item.shortLabel}`)
                   : t(`nav.${item.label}`)}
               </span>
-            </NextLink>
+            </Link>
           );
         })}
         {hasMore ? (

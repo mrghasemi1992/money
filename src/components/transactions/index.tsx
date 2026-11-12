@@ -16,6 +16,7 @@ import {
   AddTransactionButton,
   useAddTransaction,
 } from "@/components/add-transaction";
+import { useReportNavigation } from "@/components/navigation-progress";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { PageHeader } from "@/components/page-header";
@@ -131,6 +132,7 @@ export function Transactions({
   const pathname = usePathname();
   const openAdd = useAddTransaction();
   const [navigating, startNavigation] = useTransition();
+  useReportNavigation(navigating);
   // The chosen filters show at once; the list's skeleton (`navigating`) covers the wait.
   const [shownParams, setShownParams] = useOptimistic(params);
   const [loadingMore, startLoadingMore] = useTransition();

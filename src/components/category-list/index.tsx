@@ -67,6 +67,8 @@ type CategoryListProps = {
   onRenameSubcategory: (parent: Category, subcategory: Subcategory) => void;
   onArchiveSubcategory: (parent: Category, subcategory: Subcategory) => void;
   onDeleteSubcategory: (parent: Category, subcategory: Subcategory) => void;
+  /** A change is being saved: the row menus are disabled until it finishes. */
+  busy?: boolean;
 };
 
 /**
@@ -86,6 +88,7 @@ export function CategoryList({
   onRenameSubcategory,
   onArchiveSubcategory,
   onDeleteSubcategory,
+  busy = false,
 }: CategoryListProps) {
   const t = useTranslations();
   const counts = useCounts();
@@ -100,6 +103,7 @@ export function CategoryList({
             icon={EllipsisVerticalIcon}
             label={t("categories.menu", { name })}
             size="sm"
+            disabled={busy}
           />
         }
       />
@@ -234,6 +238,8 @@ type ArchivedCategoryListProps = {
   canWrite: boolean;
   onRestore: (item: ArchivedCategory) => void;
   onDelete: (item: ArchivedCategory) => void;
+  /** A change is being saved: the row menus are disabled until it finishes. */
+  busy?: boolean;
 };
 
 /**
@@ -245,6 +251,7 @@ export function ArchivedCategoryList({
   canWrite,
   onRestore,
   onDelete,
+  busy = false,
 }: ArchivedCategoryListProps) {
   const t = useTranslations();
   const counts = useCounts();
@@ -292,6 +299,7 @@ export function ArchivedCategoryList({
                       icon={EllipsisVerticalIcon}
                       label={t("categories.menu", { name })}
                       size="sm"
+                      disabled={busy}
                     />
                   }
                 />
