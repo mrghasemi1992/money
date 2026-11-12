@@ -1209,6 +1209,31 @@ Issue #27: remove the theme switch from the user menu; the theme is changed only
 - The user menu (`UserMenu`) holds only who is signed in (phones and the rail) and «خروج» / “Sign out”. The theme switch, the Settings link (still in the sidebar and the phone top bar) and the phone-only user management link (still behind «More») are gone, and `showUsersLink` with them.
 - Settings keeps the theme control in its display card. CLAUDE.md updated.
 
+## Phone navigation redesign (#21)
+
+Branch: `feature/tab-bar-active-indicator-21`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> #21
+
+Issue #21: the pill behind the active tab's icon in the phone tab bar doesn't look good; design a better active style that stays clear without relying on color alone.
+
+### Follow-ups
+
+1. A first try (a bar above the icon, a heavier icon and a bold label, no pill) was turned down: «I didn't like the result at all. Let's change this task to a redesign of the mobile menu. Maybe it's better to take it away from here, I don't know. See what's good. Draw a few wireframes for me to choose from. I want a complete redesign. I don't like the current active state, the menus are too big, and the add-transaction button is too big.»
+2. Claude drew four wireframes: A, a slim docked bar with a small add button in the middle; B, a mini floating capsule with icons only and the add button inside; C, tabs at the top with no bottom bar; D, a menu drawer. «Option B is good, only the divider is too close to the plus button. Give it more space. Show me what opens when we tap the three dots. If I approve, start implementing.»
+3. Claude redrew B with more space around the divider and proposed a small menu above the capsule in place of the bottom sheet. «Great. Start.»
+4. «Find a better icon for transactions. I don't like the dollar icon.»
+5. «commit, push open pr»
+
+### Result
+
+- The tab bar (`TabBar`) is a small capsule centred above the bottom edge, 52px tall in place of 64px: an icon per main page (no visible labels; each is named for screen readers), «More», and for editors and admins a divider and a 36px royal add button inside the capsule, where the separate 64px round button used to be. The current page's icon is royal with a dot under it; the pill is gone.
+- «More» opens `MoreMenu` (`src/components/more-menu`, Base UI Menu with link items) in place of the bottom sheet `MoreSheet`: a small menu just above the capsule with a light dim, a line between nav groups, the current page royal with a dot; the ⋯ becomes ✕ while it's open.
+- The short tab labels (`shortLabel`, `nav.short`: «Home», «Activity») are gone with the visible labels. New tokens `--tabbar-icon`, `--tabbar-dot`, `--tabbar-dot-offset`, `--tabbar-divider-h`, `--tabbar-add`, `--tabbar-scrim`, `--more-menu-w`; `--fab-size` is gone. CLAUDE.md updated.
+- Transactions use `ReceiptTextIcon` (a receipt with text lines) in place of the dollar receipt, in the nav, the empty transactions page, the first-run step and the import result.
+
 ## Claude Code tools in the repo
 
 Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.

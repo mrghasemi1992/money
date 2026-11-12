@@ -1,0 +1,41 @@
+/* A light dim over the page; the tab bar's capsule stays above it. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--tabbar-scrim);
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.popup {
+  min-width: var(--more-menu-w);
+}
+
+.icon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  color: var(--text-muted);
+}
+
+.item[aria-current="page"] {
+  color: var(--brand-text);
+  font-weight: var(--weight-medium);
+}
+
+.item[aria-current="page"] .icon {
+  color: inherit;
+}
+
+.dot {
+  flex: none;
+  width: var(--tabbar-dot);
+  height: var(--tabbar-dot);
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}

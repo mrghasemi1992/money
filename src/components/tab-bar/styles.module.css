@@ -1,17 +1,16 @@
-/* A strip above the screen's bottom edge: the capsule, then the add button at the end. */
+/* A small capsule centred above the screen's bottom edge: the tabs, a divider, the add button. */
 .root {
   position: fixed;
   inset-inline: var(--tabbar-inset);
   inset-block-end: var(--tabbar-offset);
   z-index: var(--z-shell);
   display: flex;
-  gap: var(--space-2);
+  align-items: center;
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--tabbar-inset));
   height: var(--tabbar-h);
-}
-
-/* The capsule and the add button share one floating material. */
-.bar,
-.fab {
+  margin-inline: auto;
+  padding: var(--tabbar-pad);
   border: var(--border-width) solid var(--border-card);
   border-radius: var(--radius-pill);
   background: var(--surface-floating);
@@ -20,118 +19,132 @@
   backdrop-filter: blur(var(--tabbar-blur));
 }
 
-.bar {
-  display: grid;
-  flex: 1;
-  grid-template-columns: repeat(var(--tab-columns), minmax(0, 1fr));
-  min-width: 0;
-  padding: var(--tabbar-pad);
+/* While the «More» menu is open the capsule stays above its dim, next to the menu. */
+.root[data-menu-open] {
+  z-index: var(--z-popup);
 }
 
-/* Without a blur, or when the device asks for less transparency, both are solid. */
+/* Without a blur, or when the device asks for less transparency, the capsule is solid. */
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {
-  .bar,
-  .fab {
+  .root {
     background: var(--surface-card);
   }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .bar,
-  .fab {
+  .root {
     background: var(--surface-card);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
 
-.tab {
+.tabs {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.tab,
+.add {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  gap: var(--space-0-5);
-  min-width: 0;
-  min-height: var(--tap-min);
-  padding-inline: var(--space-1);
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 0;
   border-radius: var(--radius-pill);
-  color: var(--text-secondary);
-  font: var(--type-caption);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-  transition:
-    background-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
+  background: none;
+  cursor: pointer;
+  outline: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The «More» tab is a button; drop its native look. */
-button.tab {
-  border: 0;
-  background: none;
-  cursor: pointer;
+.tab {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 .tab:hover {
   color: var(--text-primary);
 }
 
-/* One pill behind the icon and the label of the current page. */
-.tab[aria-current="page"],
-.tab[data-active] {
-  background: var(--surface-selected);
-  color: var(--brand-text);
-  font-weight: var(--weight-bold);
-}
-
-.tab:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
-
 .icon {
+  width: var(--tabbar-icon);
+  height: var(--tabbar-icon);
+}
+
+/* The current page: its icon in royal and a dot under it, so it reads without the color too. */
+.dot {
+  position: absolute;
+  inset-block-end: var(--tabbar-dot-offset);
+  width: var(--tabbar-dot);
+  height: var(--tabbar-dot);
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-base) var(--ease-lift);
+}
+
+.tab[aria-current="page"],
+.tab[data-active],
+.tab[data-popup-open] {
+  color: var(--brand-text);
+}
+
+.tab[aria-current="page"] .dot,
+.tab[data-active] .dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Between the tabs and the add button; wider on the button's side, so the plus stands apart. */
+.divider {
   flex-shrink: 0;
-  width: var(--icon-size-lg);
-  height: var(--icon-size-lg);
+  width: var(--border-width);
+  height: var(--tabbar-divider-h);
+  margin-inline: var(--space-1) var(--space-3);
+  background: var(--border-default);
 }
 
-.label {
-  max-width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* The capsule's sibling: its material, with the plus in royal so it still reads as the action. */
-.fab {
+.addCircle {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: var(--fab-size);
-  height: var(--fab-size);
-  padding: 0;
-  color: var(--brand-text);
-  cursor: pointer;
+  width: var(--tabbar-add);
+  height: var(--tabbar-add);
+  border-radius: var(--radius-pill);
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
   transition: var(--transition-control);
-  -webkit-tap-highlight-color: transparent;
 }
 
-.fab:hover,
-.fab:active {
-  background: var(--surface-selected);
+.add:hover .addCircle,
+.add:active .addCircle {
+  background: var(--brand-solid-hover);
 }
 
-.fab:focus-visible {
-  outline: none;
+.add:active .addCircle {
+  transform: scale(0.94);
+}
+
+.addIcon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.tab:focus-visible,
+.add:focus-visible .addCircle {
   box-shadow: var(--shadow-focus);
-}
-
-.fabIcon {
-  width: var(--icon-size-xl);
-  height: var(--icon-size-xl);
 }
 
 @media (--tablet-up) {

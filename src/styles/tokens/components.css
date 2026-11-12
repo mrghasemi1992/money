@@ -46,7 +46,7 @@
   --nav-item-h: 40px;
   --rail-item-w: 48px; /* nav item and account button in the collapsed sidebar */
   --topbar-h: 56px;
-  --tabbar-h: 64px; /* the floating capsule; the add button beside it is a circle as tall */
+  --tabbar-h: 52px; /* the floating capsule: tap-size tabs and its padding */
   --tabbar-inset: var(--space-4); /* from the screen's sides */
   --tabbar-offset: max(
     var(--space-3),
@@ -55,11 +55,19 @@
   --tabbar-space: calc(
     var(--tabbar-h) + var(--tabbar-offset)
   ); /* what the bar covers, for pages and toasts */
-  --tabbar-pad: var(
-    --space-1
-  ); /* inside the capsule, around the current tab's pill */
+  --tabbar-pad: var(--space-1); /* inside the capsule, around the tabs */
   --tabbar-blur: 20px;
-  --fab-size: var(--tabbar-h);
+  --tabbar-icon: 22px;
+  --tabbar-dot: 4px; /* under the current page's icon */
+  --tabbar-dot-offset: 5px; /* from the tab's bottom edge */
+  --tabbar-divider-h: 24px;
+  --tabbar-add: 36px; /* the royal circle of the add button, inside its tap area */
+  --tabbar-scrim: color-mix(
+    in srgb,
+    var(--surface-scrim) 45%,
+    transparent
+  ); /* behind the «More» menu, lighter than a dialog's */
+  --more-menu-w: 208px;
   --user-menu-w: 256px;
   --placeholder-min-h: 360px;
   --status-min-h: 60vh; /* error and not-found messages, centered */
