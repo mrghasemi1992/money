@@ -98,3 +98,14 @@
   gap: var(--space-2-5);
   padding: var(--space-2) var(--space-2) var(--space-2-5);
 }
+
+/* Signing out: the icon spins until the sign-in page replaces this one. */
+.spinner {
+  animation: spin var(--duration-spin) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

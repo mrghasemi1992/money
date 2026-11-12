@@ -200,6 +200,13 @@
      contain them, so a picker opened in a form shows over it. */
   --z-popup: 150;
   --z-toast: 200;
+  --z-progress: 300; /* the navigation bar along the top edge: above everything */
+
+  /* Navigation progress bar */
+  --progress-height: 3px;
+  --progress-delay: 150ms; /* nothing shows for a navigation that ends sooner */
+  --progress-duration: 8s; /* how long it creeps toward the end while the page loads */
+  --progress-stop: 85%; /* where it waits for the page */
 
   /* Choice controls */
   --check-size: 18px;

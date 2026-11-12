@@ -429,6 +429,7 @@ export function CategorySettings({
             onDeleteSubcategory={(category, subcategory) =>
               askDelete({ category, subcategory })
             }
+            busy={pending}
           />
         </Card>
       )}
@@ -447,6 +448,7 @@ export function CategorySettings({
             canWrite={canWrite}
             onRestore={(item) => setArchived(item, false)}
             onDelete={askDelete}
+            busy={pending}
           />
         </ArchivedSection>
       ) : null}

@@ -1,0 +1,36 @@
+.root {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: var(--z-progress);
+  block-size: var(--progress-height);
+  pointer-events: none;
+  opacity: 0;
+  /* Done: fade out. */
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.bar {
+  block-size: 100%;
+  inline-size: 100%;
+  background: var(--brand-solid);
+  border-end-end-radius: var(--radius-pill);
+  border-start-end-radius: var(--radius-pill);
+}
+
+.root[data-pending] {
+  opacity: 1;
+  /* A navigation that is over before this passes never shows the bar. */
+  transition: opacity var(--duration-base) var(--ease-out) var(--progress-delay);
+}
+
+.root[data-pending] .bar {
+  inline-size: 0;
+  animation: progress var(--progress-duration) var(--ease-out) forwards;
+}
+
+@keyframes progress {
+  to {
+    inline-size: var(--progress-stop);
+  }
+}

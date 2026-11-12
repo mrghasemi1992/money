@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRightIcon } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -39,7 +39,7 @@ export function MoreSheet({ open, onOpenChange, items }: MoreSheetProps) {
           const active = isNavItemActive(pathname, item.href);
           return (
             <li key={item.href}>
-              <NextLink
+              <Link
                 href={item.href}
                 className={styles.link}
                 aria-current={active ? "page" : undefined}
@@ -53,7 +53,7 @@ export function MoreSheet({ open, onOpenChange, items }: MoreSheetProps) {
                   className={`${styles.chevron} mirror-rtl`}
                   aria-hidden="true"
                 />
-              </NextLink>
+              </Link>
             </li>
           );
         })}

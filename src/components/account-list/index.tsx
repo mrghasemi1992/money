@@ -38,6 +38,8 @@ type AccountListProps = {
   onArchive: (account: Account) => void;
   /** Asks first: delete, or archive when the account has transactions. */
   onDelete: (account: Account) => void;
+  /** A change is being saved: the row menus are disabled until it finishes. */
+  busy?: boolean;
 };
 
 /** A new order with `id` moved to `to` (an index in the old order). */
@@ -81,6 +83,7 @@ export function AccountList({
   onReorder,
   onArchive,
   onDelete,
+  busy = false,
 }: AccountListProps) {
   const t = useTranslations();
   const meta = useAccountMeta();
@@ -215,6 +218,7 @@ export function AccountList({
                           icon={EllipsisVerticalIcon}
                           label={t("accounts.menu", { name: account.name })}
                           size="sm"
+                          disabled={busy}
                         />
                       }
                     />
@@ -246,6 +250,8 @@ type ArchivedAccountListProps = {
   canWrite: boolean;
   onRestore: (account: Account) => void;
   onDelete: (account: Account) => void;
+  /** A change is being saved: the row menus are disabled until it finishes. */
+  busy?: boolean;
 };
 
 /** Archived accounts, quieter, with a menu to restore or delete them. */
@@ -254,6 +260,7 @@ export function ArchivedAccountList({
   canWrite,
   onRestore,
   onDelete,
+  busy = false,
 }: ArchivedAccountListProps) {
   const t = useTranslations();
   const meta = useAccountMeta();
@@ -289,6 +296,7 @@ export function ArchivedAccountList({
                       icon={EllipsisVerticalIcon}
                       label={t("accounts.menu", { name: account.name })}
                       size="sm"
+                      disabled={busy}
                     />
                   }
                 />

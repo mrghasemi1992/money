@@ -2,7 +2,7 @@
 
 import { Button as BaseButton } from "@base-ui/react/button";
 import type { LucideIcon } from "lucide-react";
-import NextLink from "next/link";
+import { Link } from "@/components/ui/link";
 import type { ComponentProps } from "react";
 
 import { Tooltip } from "@/components/ui/tooltip";
@@ -59,14 +59,14 @@ export function IconButton({
 
   const button =
     href !== undefined && !disabled ? (
-      <NextLink
+      <Link
         href={href}
         aria-label={label}
         className={classes}
         {...(rest as Omit<ComponentProps<"a">, "href">)}
       >
         {icon}
-      </NextLink>
+      </Link>
     ) : (
       <BaseButton
         type={type}
