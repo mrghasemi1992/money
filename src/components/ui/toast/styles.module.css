@@ -1,43 +1,112 @@
-/* Bottom-start corner (bottom right in RTL); above the tab bar on phones. */
+/*
+ * Bottom-start corner (bottom right in RTL); above the tab bar on phones.
+ * Toasts stack like a deck: the newest in front, older ones peeking out behind it.
+ * Hovering or focusing the stack spreads it out and pauses the timers.
+ */
 .viewport {
   position: fixed;
   inset-block-end: var(--space-4);
   inset-inline-start: var(--space-4);
   z-index: var(--z-toast);
-  display: flex;
-  flex-direction: column-reverse;
-  gap: var(--space-2);
   width: var(--toast-w);
   max-width: calc(100vw - var(--space-8));
   outline: 0;
 }
 
 .toast {
+  --gap: var(--space-2);
+  --scale: calc(max(0, 1 - (var(--toast-index) * var(--toast-scale-step))));
+  --shrink: calc(1 - var(--scale));
+  /* Base UI drops its measurements while a toast leaves, so every use needs a fallback. */
+  --height: var(--toast-frontmost-height, var(--toast-height));
+
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  width: 100%;
+  height: var(--height, auto);
   border: var(--border-width) solid var(--border-default);
   border-radius: var(--radius-panel);
   background: var(--surface-raised);
   box-shadow: var(--shadow-lg);
+  z-index: calc(100 - var(--toast-index));
+  transform-origin: bottom center;
+  transform: translateX(var(--toast-swipe-movement-x))
+    translateY(
+      calc(
+        var(--toast-swipe-movement-y) - var(--toast-index) * var(--toast-peek) -
+          var(--shrink) * var(--height)
+      )
+    )
+    scale(var(--scale));
   transition:
-    opacity var(--duration-slow) var(--ease-lift),
-    transform var(--duration-slow) var(--ease-lift);
+    transform var(--duration-slower) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out),
+    height var(--duration-base) var(--ease-out);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+/* The gap between spread-out toasts stays hoverable, so the stack doesn't collapse under the pointer. */
+.toast::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 100%;
+  height: calc(var(--gap) + 1px);
+}
+
+.toast[data-expanded] {
+  /* Where a spread-out toast sits; a sideways swipe-out keeps it. */
+  --offset-y: calc(
+    var(--toast-offset-y) * -1 + var(--toast-index) * var(--gap) * -1
+  );
+
+  height: var(--toast-height);
+  transform: translateX(var(--toast-swipe-movement-x))
+    translateY(calc(var(--offset-y) + var(--toast-swipe-movement-y)));
 }
 
 .toast[data-starting-style],
 .toast[data-ending-style] {
   opacity: 0;
-  transform: translateY(var(--dialog-enter-shift));
+  transform: translateY(calc(100% + var(--space-4)));
+}
+
+.toast[data-ending-style] {
+  &[data-swipe-direction="left"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+      translateY(var(--offset-y, 0));
+  }
+
+  &[data-swipe-direction="right"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+      translateY(var(--offset-y, 0));
+  }
+
+  &[data-swipe-direction="down"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
 }
 
 .toast[data-limited] {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast[data-swiping] {
+  transition: none;
 }
 
 .content {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
+  height: 100%;
   padding: var(--space-3);
   padding-inline-start: var(--space-3-5);
+  overflow: hidden;
+  border-radius: inherit;
 }
 
 .icon {
@@ -83,7 +152,6 @@
   flex-direction: column;
   gap: var(--space-0-5);
   min-width: 0;
-  padding-block-start: 3px;
 }
 
 .title {
@@ -100,21 +168,21 @@
 }
 
 .action {
-  align-self: flex-start;
-  margin-block-start: var(--space-1);
-  padding: 0;
+  flex: none;
+  height: var(--control-h-sm);
+  padding-inline: var(--space-3);
   border: 0;
-  border-radius: var(--radius-xs);
-  background: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-hover);
   color: var(--brand-text);
   font: var(--type-label);
   font-weight: var(--weight-semibold);
   cursor: pointer;
+  transition: var(--transition-control);
 }
 
 .action:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  background: var(--surface-sunken);
 }
 
 .close {
@@ -149,5 +217,13 @@
     inset-block-end: calc(var(--tabbar-space) + var(--space-3));
     width: auto;
     max-width: none;
+  }
+}
+
+/* Reduced motion drops the slide, but a toast still fades in and out so it doesn't pop. */
+@media (--reduced-motion) {
+  .toast {
+    transition-property: opacity !important;
+    transition-duration: var(--duration-base) !important;
   }
 }
