@@ -8,7 +8,6 @@ const meta = {
   component: TopBar,
   args: {
     user: { name: "مریم احمدی", role: "admin" },
-    showUsersLink: true,
     onSignOut: async () => {},
   },
   parameters: { layout: "fullscreen" },
@@ -27,6 +26,5 @@ export const WithBack: Story = { args: { backHref: "/settings" } };
 export const Viewer: Story = {
   args: {
     user: { name: "سارا محمدی", role: "viewer" },
-    showUsersLink: false,
   },
 };

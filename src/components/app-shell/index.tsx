@@ -18,7 +18,7 @@ import {
   getNavItems,
   getPhoneTabs,
 } from "@/helpers/navigation";
-import { canManageUsers, canWrite } from "@/helpers/role";
+import { canWrite } from "@/helpers/role";
 import type { TransactionOptions } from "@/types/transaction";
 import type { UserRole } from "@/types/user";
 
@@ -79,12 +79,7 @@ export function AppShell({
         </a>
         <Sidebar items={items} user={user} onSignOut={onSignOut} />
         <div className={styles.column}>
-          <TopBar
-            user={user}
-            backHref={backHref}
-            showUsersLink={canManageUsers(user.role)}
-            onSignOut={onSignOut}
-          />
+          <TopBar user={user} backHref={backHref} onSignOut={onSignOut} />
           <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
             {children}
           </main>

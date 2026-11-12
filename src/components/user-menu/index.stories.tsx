@@ -46,9 +46,9 @@ export const SidebarOpen: Story = { args: { open: true } };
 /** The collapsed rail: the menu opens beside it, with the name and role on top. */
 export const RailOpen: Story = { args: { placement: "rail", open: true } };
 
-/** The phone top bar adds user management for admins, since the sidebar isn't shown. */
+/** The phone top bar: the avatar opens the menu below it. */
 export const TopBarOpen: Story = {
-  args: { placement: "top-bar", showUsersLink: true, open: true },
+  args: { placement: "top-bar", open: true },
   decorators: [
     (Story) => (
       <div

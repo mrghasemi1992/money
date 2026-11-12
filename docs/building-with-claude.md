@@ -1188,6 +1188,27 @@ Issue #28: users click again because nothing shows that something is happening. 
 - Account and category row menus (active and archived lists) are disabled while a change saves (`busy`), and the sign-out menu item shows a spinner until the sign-in page appears.
 - New tokens `--z-progress` and `--progress-*`.
 
+## Theme only in Settings (#27)
+
+Branch: `feature/theme-only-in-settings-27`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> issue#27 — answer in English. Let's solve this issue. As a designer, review it: we link to Settings in two places, the sidebar and the profile dropdown menu, and the dropdown also changes the theme, which is better done on the Settings page. Say what you think and what you will do; start coding after I approve.
+
+Issue #27: remove the theme switch from the user menu; the theme is changed only on `/settings`.
+
+### Questions Claude asked
+
+| Question                                                                                                                         | Answer               |
+| -------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Remove the theme and the Settings link from the menu, and also the admin Users link on phones (a duplicate of the «More» sheet)? | **Remove all three** |
+
+### Result
+
+- The user menu (`UserMenu`) holds only who is signed in (phones and the rail) and «خروج» / “Sign out”. The theme switch, the Settings link (still in the sidebar and the phone top bar) and the phone-only user management link (still behind «More») are gone, and `showUsersLink` with them.
+- Settings keeps the theme control in its display card. CLAUDE.md updated.
+
 ## Claude Code tools in the repo
 
 Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.
