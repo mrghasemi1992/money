@@ -12,13 +12,16 @@ import { useOptimistic, useState, useTransition } from "react";
 
 import {
   AccountList,
+  AccountListSkeleton,
   AccountReorderHint,
   ArchivedAccountList,
 } from "@/components/account-list";
 import { AccountDialog } from "@/components/account-dialog";
+import { useShellCanWrite } from "@/components/add-transaction";
 import { ArchivedSection } from "@/components/archived-section";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ListError } from "@/components/page-status";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Amount } from "@/components/ui/amount";
@@ -30,6 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import type { Account, AccountField, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
+import { cx } from "@/utils/cx";
 import { formatNumber } from "@/utils/number";
 
 import styles from "./styles.module.css";
@@ -367,36 +371,47 @@ export function AccountSettings({
   );
 }
 
-/** The accounts page while it loads (loading.tsx): the header, the total and a few rows. */
+/**
+ * The accounts page while it loads (loading.tsx): the header (with the add button for writers,
+ * the view-only badge for viewers), the total card and the rows, each the size of the real one.
+ */
 export function AccountSettingsSkeleton() {
   const t = useTranslations();
+  const canWrite = useShellCanWrite();
   return (
     <div className={styles.root}>
       <PageHeader
         title={t("accounts.title")}
         subtitle={t("accounts.subtitle")}
+        actions={
+          canWrite ? (
+            <Button iconStart={PlusIcon} disabled>
+              {t("accounts.add")}
+            </Button>
+          ) : (
+            <Badge icon={EyeIcon}>{t("common.viewOnly")}</Badge>
+          )
+        }
       />
-      <div role="status" aria-busy="true" className={styles.root}>
-        <span className="visually-hidden">{t("page.loading")}</span>
-        <Card padding="lg">
-          <div className={styles.total}>
-            <Skeleton width="90px" height="14px" />
-            <Skeleton width="240px" height="32px" />
-            <Skeleton width="120px" height="12px" />
-          </div>
-        </Card>
+      <PageLoadingStatus />
+      <Card padding="lg" aria-hidden="true">
+        <div className={styles.total}>
+          <span className={cx(styles.totalLabel, styles.skeletonLabel)}>
+            {t("accounts.total")}
+          </span>
+          <span className={styles.skeletonTotal}>
+            <Skeleton variant="text" width="min(240px, 100%)" />
+          </span>
+          <span className={styles.totalNote}>
+            <Skeleton variant="text" width="120px" />
+          </span>
+        </div>
+      </Card>
+      <div className={styles.list}>
         <Card padding="none">
-          {["140px", "110px", "160px", "120px"].map((width, index) => (
-            <div key={index} className={styles.skeletonRow}>
-              <Skeleton variant="circle" width="var(--account-icon)" />
-              <div className={styles.skeletonText}>
-                <Skeleton width={width} height="14px" />
-                <Skeleton width="80px" height="12px" />
-              </div>
-              <Skeleton width="104px" height="16px" />
-            </div>
-          ))}
+          <AccountListSkeleton canWrite={canWrite} />
         </Card>
+        {canWrite ? <AccountReorderHint /> : null}
       </div>
     </div>
   );

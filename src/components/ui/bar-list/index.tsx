@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { type CSSProperties, type ReactNode, useId, useState } from "react";
 
 import { Amount } from "@/components/ui/amount";
+import { CategoryChipSkeleton } from "@/components/ui/category-chip";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { CategoryColor } from "@/types/category";
 import type { MoneyUnit } from "@/types/currency";
 import { cx } from "@/utils/cx";
@@ -193,5 +195,74 @@ export function BarList({
         );
       })}
     </ul>
+  );
+}
+
+/** Widths of the placeholder names and bars, longest bar first as in a ranked list. */
+const SKELETON_ROWS = [
+  ["88px", "100%"],
+  ["64px", "72%"],
+  ["104px", "52%"],
+  ["72px", "34%"],
+  ["56px", "20%"],
+  ["80px", "12%"],
+] as const;
+
+/**
+ * A ranked list while its figures load, laid out like BarList: each row's start (a category
+ * chip, an icon tile or a plain name), amount, share and bar in the real fonts and sizes.
+ */
+export function BarListSkeleton({
+  rows = 5,
+  start = "name",
+  expandable = false,
+  className,
+}: {
+  rows?: number;
+  /** What each row starts with: a category chip, an icon tile and a name, or a name. */
+  start?: "chip" | "tile" | "name";
+  /** Rows with sub-items: room for the chevron. */
+  expandable?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cx(styles.root, className)} aria-hidden="true">
+      {SKELETON_ROWS.slice(0, rows).map(([name, bar]) => (
+        <div key={name} className={styles.item}>
+          <div className={styles.row}>
+            <span className={styles.line}>
+              {start === "tile" ? (
+                <Skeleton
+                  width="var(--bar-list-tile)"
+                  height="var(--bar-list-tile)"
+                  radius="var(--radius-md)"
+                  className={styles.skeletonTile}
+                />
+              ) : null}
+              <span className={styles.label}>
+                {start === "chip" ? (
+                  <CategoryChipSkeleton width={name} />
+                ) : (
+                  <Skeleton variant="text" width={name} />
+                )}
+              </span>
+              <span className={styles.skeletonAmount}>
+                <Skeleton variant="text" width="80px" />
+              </span>
+              <span className={styles.percent}>
+                <Skeleton variant="text" />
+              </span>
+              {expandable ? <span className={styles.chevronSlot} /> : null}
+            </span>
+            <span className={styles.track}>
+              <span
+                className={cx(styles.fill, styles.skeletonFill)}
+                style={{ inlineSize: bar }}
+              />
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

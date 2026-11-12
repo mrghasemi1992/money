@@ -72,3 +72,9 @@
 
   font: inherit;
 }
+
+/* Loading: the amount's placeholder in its font. */
+.skeletonAmount {
+  display: block;
+  font: var(--type-amount-lg);
+}

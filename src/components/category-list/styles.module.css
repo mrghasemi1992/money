@@ -76,3 +76,8 @@
   align-items: flex-start;
   gap: var(--space-0-5);
 }
+
+/* Loading (CategoryListSkeleton) */
+.skeletonTile {
+  flex: none;
+}

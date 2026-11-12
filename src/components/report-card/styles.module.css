@@ -17,12 +17,14 @@
 }
 
 .title {
+  display: block;
   margin: 0;
   color: var(--text-primary);
   font: var(--type-heading);
 }
 
 .subtitle {
+  display: block;
   margin: 0;
   color: var(--text-muted);
   font: var(--type-caption);
@@ -38,20 +40,4 @@
 
 .extra {
   align-self: center;
-}
-
-.skeleton {
-  gap: var(--space-5);
-}
-
-.skeletonRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.skeletonLine {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
 }

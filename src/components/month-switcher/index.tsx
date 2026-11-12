@@ -4,6 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { CalendarSystem } from "@/types/calendar";
 import { formatMonth } from "@/utils/calendar";
@@ -61,6 +62,35 @@ export function MonthSwitcher({
         size="sm"
         disabled={nextDisabled}
         onClick={onNext}
+      />
+    </div>
+  );
+}
+
+/**
+ * The switcher while its page loads: the same size, with both arrows off and a placeholder for
+ * the month, since the month in the URL isn't known yet.
+ */
+export function MonthSwitcherSkeleton({ className }: { className?: string }) {
+  const t = useTranslations("calendar");
+  return (
+    <div className={cx(styles.root, className)} aria-hidden="true">
+      <IconButton
+        icon={ChevronLeftIcon}
+        mirrorIcon
+        label={t("previousMonth")}
+        size="sm"
+        disabled
+      />
+      <span className={cx(styles.label, styles.skeletonLabel)}>
+        <Skeleton variant="text" width="72px" />
+      </span>
+      <IconButton
+        icon={ChevronRightIcon}
+        mirrorIcon
+        label={t("nextMonth")}
+        size="sm"
+        disabled
       />
     </div>
   );

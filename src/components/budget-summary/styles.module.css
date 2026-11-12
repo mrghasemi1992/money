@@ -53,7 +53,9 @@
   font: var(--type-caption);
 }
 
+/* A flex box, so the amount's own line sets the height (and its placeholder matches it). */
 .cellValue {
+  display: flex;
   min-width: 0;
   margin: 0;
 }
@@ -66,4 +68,15 @@
 /* Over budget: the overspent amount in the danger color, next to its words. */
 .over .remaining {
   --amount-color: var(--status-danger-text);
+}
+
+/* Loading: placeholders in the fonts of the amounts they stand in for. */
+.skeletonHero {
+  display: block;
+  font: var(--type-amount-hero);
+}
+
+.skeletonValue {
+  display: block;
+  font: var(--type-amount-lg);
 }

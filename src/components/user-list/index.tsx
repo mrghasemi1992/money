@@ -385,29 +385,132 @@ export function UserList({
   );
 }
 
-/** The user list while it loads: the toolbar and five rows. */
+/** Widths of a placeholder user's name and username. */
+const SKELETON_USERS = [
+  ["96px", "88px"],
+  ["120px", "104px"],
+  ["80px", "72px"],
+  ["112px", "96px"],
+  ["88px", "112px"],
+] as const;
+
+/**
+ * The user list while it loads: the toolbar (off), then the table's heads and rows or the
+ * cards, each placeholder in the real cell's size and font, so the real list takes its place.
+ */
 export function UserListSkeleton() {
+  const t = useTranslations();
+  const badge = (width: string) => (
+    <Skeleton
+      width={width}
+      height="var(--badge-h-sm)"
+      radius="var(--radius-pill)"
+    />
+  );
+  const menu = (
+    <IconButton
+      icon={EllipsisIcon}
+      label={t("users.columns.actions")}
+      size="sm"
+      disabled
+    />
+  );
   return (
     <div className={styles.root} aria-hidden="true">
       <div className={styles.toolbar}>
-        <Skeleton className={styles.search} height="var(--control-h-md)" />
+        <SearchField
+          className={styles.search}
+          aria-label={t("users.search")}
+          placeholder={t("users.search")}
+          disabled
+        />
         <div className={styles.filters}>
-          <Skeleton className={styles.filter} height="var(--control-h-md)" />
-          <Skeleton className={styles.filter} height="var(--control-h-md)" />
+          <Select
+            className={styles.filter}
+            aria-label={t("users.roleFilter")}
+            value="all"
+            options={[{ value: "all", label: t("users.allRoles") }]}
+            disabled
+          />
+          <Select
+            className={styles.filter}
+            aria-label={t("users.statusFilter")}
+            value="all"
+            options={[{ value: "all", label: t("users.allStatuses") }]}
+            disabled
+          />
         </div>
       </div>
-      <Skeleton width="96px" height="12px" />
-      <div className={cx(styles.panel, styles.skeletonList)}>
-        {["32%", "24%", "36%", "28%", "30%"].map((width, index) => (
-          <div key={index} className={styles.skeletonRow}>
-            <Skeleton variant="circle" width="var(--avatar-md)" />
-            <div className={styles.skeletonText}>
-              <Skeleton width={width} height="14px" />
-              <Skeleton width="20%" height="12px" />
+      <p className={styles.summary}>
+        <Skeleton variant="text" width="120px" />
+      </p>
+
+      <div className={cx(styles.panel, styles.tableView)}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th scope="col">{t("users.columns.user")}</th>
+              <th scope="col">{t("users.columns.username")}</th>
+              <th scope="col">{t("users.columns.role")}</th>
+              <th scope="col">{t("users.columns.language")}</th>
+              <th scope="col">{t("users.columns.status")}</th>
+              <th scope="col">{t("users.columns.created")}</th>
+              <th scope="col" className={styles.actionsCol} />
+            </tr>
+          </thead>
+          <tbody>
+            {SKELETON_USERS.map(([name, username]) => (
+              <tr key={name + username}>
+                <td>
+                  <span className={styles.person}>
+                    <Skeleton variant="circle" width="var(--avatar-sm)" />
+                    <Skeleton variant="text" width={name} />
+                  </span>
+                </td>
+                <td>
+                  <Skeleton variant="text" width={username} />
+                </td>
+                <td>{badge("64px")}</td>
+                <td>
+                  <Skeleton variant="text" width="48px" />
+                </td>
+                <td>{badge("56px")}</td>
+                <td>
+                  <Skeleton variant="text" width="80px" />
+                </td>
+                <td className={styles.actionsCol}>{menu}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className={styles.cardView}>
+        <div className={styles.cards}>
+          {SKELETON_USERS.map(([name, username]) => (
+            <div key={name + username} className={styles.card}>
+              <Skeleton variant="circle" width="var(--avatar-md)" />
+              <div className={styles.cardBody}>
+                <div className={styles.cardTitle}>
+                  <span className={styles.name}>
+                    <Skeleton variant="text" width={name} />
+                  </span>
+                  <span className={styles.username}>
+                    <Skeleton variant="text" width={username} />
+                  </span>
+                </div>
+                <div className={styles.badges}>
+                  {badge("64px")}
+                  {badge("56px")}
+                </div>
+                <p className={styles.meta}>
+                  <Skeleton variant="text" width="160px" />
+                </p>
+              </div>
+              {menu}
             </div>
-            <Skeleton width="64px" height="22px" />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

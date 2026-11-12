@@ -55,21 +55,10 @@
   margin: 0;
 }
 
-.skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
-  padding: var(--space-4);
-  border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-xs);
+.skeletonTile {
+  flex: none;
 }
 
-.skeletonRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+.skeletonValue {
+  font: var(--type-amount-lg);
 }

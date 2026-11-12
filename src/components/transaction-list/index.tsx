@@ -9,6 +9,7 @@ import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { usePreferences } from "@/hooks/use-preferences";
 import { assistantName } from "@/helpers/transaction-source";
@@ -293,5 +294,89 @@ function TransactionRow({
         </div>
       ) : null}
     </li>
+  );
+}
+
+/** Widths of a placeholder row's title, description and account, so the rows don't look identical. */
+const SKELETON_DAYS = [
+  [
+    ["38%", "52%", "60%"],
+    ["30%", "40%", "48%"],
+    ["44%", "34%", "56%"],
+  ],
+  [
+    ["34%", "46%", "52%"],
+    ["42%", "30%", "64%"],
+    ["28%", "50%", "44%"],
+    ["40%", "38%", "58%"],
+  ],
+] as const;
+
+/**
+ * The list while its transactions load, laid out like TransactionList: the column heads, then
+ * two days of rows, each row a placeholder tile, title, description, account and amount in the
+ * real row's grid and fonts, so the real rows take the same place.
+ */
+export function TransactionListSkeleton({
+  canWrite = true,
+}: {
+  /** The layout with the actions column (editors and admins), which only moves the amounts. */
+  canWrite?: boolean;
+}) {
+  const t = useTranslations();
+  return (
+    <div
+      className={cx(styles.root, canWrite && styles.writable)}
+      role="status"
+      aria-busy="true"
+    >
+      <span className="visually-hidden">{t("page.loading")}</span>
+      <div className={styles.columns} aria-hidden="true">
+        <span className={styles.transactionHead}>
+          {t("transactions.list.transaction")}
+        </span>
+        <span className={styles.wideOnly}>
+          {t("transactions.list.account")}
+        </span>
+        <span className={styles.amountHead}>
+          {t("transactions.list.amount")}
+        </span>
+        {canWrite ? <span /> : null}
+      </div>
+      {SKELETON_DAYS.map((rows, day) => (
+        <div key={day} className={styles.day} aria-hidden="true">
+          <div className={styles.dayHead}>
+            <Skeleton variant="text" width="120px" />
+            <span className={styles.skeletonNet}>
+              <Skeleton variant="text" width="88px" />
+            </span>
+          </div>
+          {rows.map(([title, description, account], index) => (
+            <div key={index} className={styles.row}>
+              <Skeleton
+                width="var(--transaction-tile)"
+                height="var(--transaction-tile)"
+                radius="var(--radius-lg)"
+              />
+              <div className={styles.main}>
+                <span className={styles.skeletonTitle}>
+                  <Skeleton variant="text" width={title} />
+                </span>
+                <span className={styles.meta}>
+                  <Skeleton variant="text" width={description} />
+                </span>
+              </div>
+              <div className={cx(styles.account, styles.wideOnly)}>
+                <Skeleton variant="text" width={account} />
+              </div>
+              <span className={cx(styles.amount, styles.skeletonAmount)}>
+                <Skeleton variant="text" width="96px" />
+              </span>
+              {canWrite ? <span /> : null}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }

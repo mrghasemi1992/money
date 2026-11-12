@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 import { useState } from "react";
 
 import type { ActionResult } from "@/types/action";
@@ -92,7 +94,8 @@ export const Mobile: Story = {
 
 /** loading.tsx */
 export const Loading: Story = {
-  render: () => <ConnectorSettingsSkeleton />,
+  render: (args) => <ConnectorSettingsSkeleton url={args.url} />,
+  decorators: [withAddTransaction],
 };
 
 /** error.tsx */

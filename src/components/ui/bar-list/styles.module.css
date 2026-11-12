@@ -173,3 +173,18 @@
   block-size: var(--bar-list-h-sub);
   margin-inline-end: calc(var(--icon-size-sm) + var(--space-2));
 }
+
+/* Loading (BarListSkeleton) */
+.skeletonTile {
+  flex: none;
+}
+
+.skeletonAmount {
+  flex: none;
+  font: var(--type-amount);
+  font-size: var(--text-sm);
+}
+
+.skeletonFill {
+  background: var(--border-subtle);
+}

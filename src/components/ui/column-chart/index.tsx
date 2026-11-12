@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { Amount } from "@/components/ui/amount";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MONEY_UNITS } from "@/constants/currency";
 import { LOCALE_DIRECTIONS } from "@/constants/locale";
 import { formatMoney, moneyAxisScale } from "@/helpers/money";
@@ -318,6 +319,67 @@ export function ColumnChartLegend({ className }: { className?: string }) {
         </i>
         {t("chart.net")}
       </span>
+    </div>
+  );
+}
+
+/**
+ * The chart while its months load, laid out like ColumnChart: the readout with its real words
+ * and placeholder figures, an empty plot as tall as the real one and a placeholder per month.
+ */
+export function ColumnChartSkeleton({
+  columns = 6,
+  className,
+}: {
+  /** How many months the chart will show. */
+  columns?: number;
+  className?: string;
+}) {
+  const t = useTranslations();
+  return (
+    <div
+      className={cx(styles.root, className)}
+      style={{ "--columns": columns } as CSSProperties}
+      aria-hidden="true"
+    >
+      <div className={cx(styles.readout, styles.skeletonReadout)}>
+        <span className={styles.readoutLabel}>
+          <Skeleton variant="text" width="64px" />
+        </span>
+        {(
+          [
+            "transactionType.income",
+            "transactionType.expense",
+            "chart.net",
+          ] as const
+        ).map((key) => (
+          <span key={key} className={styles.readoutValue}>
+            {t(key)}
+            <span className={styles.skeletonAmount}>
+              <Skeleton variant="text" width="72px" />
+            </span>
+          </span>
+        ))}
+        <span className={styles.axisNote}>
+          <Skeleton variant="text" width="136px" />
+        </span>
+      </div>
+      <div className={styles.chart}>
+        <div className={styles.axis} />
+        <div className={styles.body}>
+          <Skeleton height="var(--chart-h)" radius="var(--radius-md)" />
+          <div className={styles.labels}>
+            {Array.from({ length: columns }, (_, index) => (
+              <span
+                key={index}
+                className={cx(styles.label, styles.skeletonLabel)}
+              >
+                <Skeleton variant="text" width="60%" />
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

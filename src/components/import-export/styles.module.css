@@ -23,9 +23,3 @@
   width: var(--icon-size-sm);
   height: var(--icon-size-sm);
 }
-
-.skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}

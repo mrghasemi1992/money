@@ -1,10 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ComponentProps } from "react";
 
 import { AboutSettings } from "@/components/about-settings";
 import { BookSettings } from "@/components/book-settings";
 import { DisplaySettings } from "@/components/display-settings";
+import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { PasswordSettings } from "@/components/password-settings";
 import { ProfileSettings } from "@/components/profile-settings";
 import { SettingsLinks } from "@/components/settings-links";
@@ -67,5 +70,35 @@ export function Settings({
       ) : null}
       <AboutSettings version={version} updateCheck={updateCheck} />
     </div>
+  );
+}
+
+/** Stands in for the Server Actions while the page loads; nothing can be sent then. */
+async function notYet() {
+  return { ok: true } as const;
+}
+
+/**
+ * The settings page while it loads (loading.tsx): the header and the sections themselves,
+ * inert and empty, so the page keeps its layout when the profile arrives. The book settings
+ * (admins) come in below them.
+ */
+export function SettingsSkeleton({ version }: { version: AppVersion }) {
+  const t = useTranslations();
+  return (
+    <>
+      <PageHeader title={t("nav.settings")} subtitle={t("settings.subtitle")} />
+      <PageLoadingStatus />
+      <div className={styles.root} inert>
+        <SettingsLinks />
+        <ProfileSettings name="" username="" onSave={notYet} />
+        <PasswordSettings username="" onChange={notYet} />
+        <DisplaySettings
+          onChangeLocale={async () => {}}
+          onSavePreferences={notYet}
+        />
+        <AboutSettings version={version} />
+      </div>
+    </>
   );
 }

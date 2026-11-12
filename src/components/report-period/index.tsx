@@ -4,6 +4,7 @@ import { HistoryIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { MonthSwitcher } from "@/components/month-switcher";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { MOBILE_QUERY } from "@/constants/media";
@@ -162,6 +163,41 @@ export function ReportPeriodBar({
       <p className={styles.compare}>
         <HistoryIcon className={styles.compareIcon} aria-hidden="true" />
         {t("compare", { period: periodText(period.previous) })}
+      </p>
+    </div>
+  );
+}
+
+/** The period switch while the page loads: the same options, off and with none chosen. */
+export function ReportPeriodSwitchSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
+  const t = useTranslations("reports");
+  const mobile = useMediaQuery(MOBILE_QUERY);
+  return (
+    <SegmentedControl
+      className={cx(styles.switch, className)}
+      fullWidth={mobile}
+      aria-label={t("period")}
+      value=""
+      disabled
+      options={REPORT_PERIODS.map((kind) => ({
+        value: kind,
+        label: t(mobile ? `periodsShort.${kind}` : `periods.${kind}`),
+      }))}
+    />
+  );
+}
+
+/** The period bar while the page loads: a placeholder for what the period is compared with. */
+export function ReportPeriodBarSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cx(styles.bar, className)} aria-hidden="true">
+      <p className={styles.compare}>
+        <HistoryIcon className={styles.compareIcon} />
+        <Skeleton variant="text" width="200px" />
       </p>
     </div>
   );

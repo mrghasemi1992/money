@@ -5,10 +5,26 @@
   animation: pulse var(--duration-pulse) var(--ease-in-out) infinite alternate;
 }
 
+/*
+ * Exactly one line box of the surrounding font (1lh), with the bar in its middle, so a line
+ * of placeholder takes the height of the line of text it stands in for. Padding rather than
+ * margin, so it never collapses into the parent's.
+ */
 .text {
-  height: 0.75em;
-  margin-block: 0.35em;
+  box-sizing: border-box;
+  height: 1lh;
+  padding-block: calc((1lh - 0.75em) / 2);
   border-radius: var(--radius-xs);
+  background-clip: content-box;
+}
+
+/* Inline, so the bar breaks with the words; each line gets its own rounded piece. */
+.words {
+  display: inline;
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  user-select: none;
 }
 
 .circle {

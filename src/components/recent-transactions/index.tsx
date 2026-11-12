@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DASHBOARD_RECENT_COUNT } from "@/constants/dashboard";
 import { usePreferences } from "@/hooks/use-preferences";
 import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction } from "@/types/transaction";
@@ -161,28 +162,57 @@ const SKELETON_ROWS = [
   ["40%", "22%"],
   ["46%", "34%"],
   ["38%", "28%"],
+  ["50%", "24%"],
+  ["34%", "30%"],
 ] as const;
 
-/** The recent transactions while they load. */
+/**
+ * The recent transactions while they load: the real card, its link and one placeholder row
+ * per transaction it will show (DASHBOARD_RECENT_COUNT), each as tall as a real row.
+ */
 export function RecentTransactionsSkeleton() {
+  const t = useTranslations();
   return (
-    <div className={styles.skeleton} aria-hidden="true">
-      <div className={styles.skeletonHead}>
-        <Skeleton width="40%" height="16px" />
+    <Card
+      padding="none"
+      title={t("dashboard.recent.title")}
+      actions={
+        <Button
+          variant="ghost"
+          size="sm"
+          iconEnd={ChevronRightIcon}
+          mirrorIcons
+        >
+          {t("dashboard.all")}
+        </Button>
+      }
+      inert
+    >
+      <div className={styles.list}>
+        {SKELETON_ROWS.slice(0, DASHBOARD_RECENT_COUNT).map(
+          ([title, detail], index) => (
+            <div key={index} className={styles.row}>
+              <Skeleton
+                width="var(--transaction-tile)"
+                height="var(--transaction-tile)"
+                radius="var(--radius-lg)"
+                className={styles.skeletonTile}
+              />
+              <div className={styles.main}>
+                <span className={styles.skeletonTitle}>
+                  <Skeleton variant="text" width={title} />
+                </span>
+                <span className={styles.meta}>
+                  <Skeleton variant="text" width={detail} />
+                </span>
+              </div>
+              <span className={styles.skeletonAmount}>
+                <Skeleton variant="text" width="88px" />
+              </span>
+            </div>
+          ),
+        )}
       </div>
-      {SKELETON_ROWS.map(([title, detail], index) => (
-        <div key={index} className={styles.row}>
-          <Skeleton
-            width="var(--transaction-tile)"
-            height="var(--transaction-tile)"
-          />
-          <div className={styles.main}>
-            <Skeleton width={title} height="14px" />
-            <Skeleton width={detail} height="12px" />
-          </div>
-          <Skeleton width="88px" height="16px" />
-        </div>
-      ))}
-    </div>
+    </Card>
   );
 }

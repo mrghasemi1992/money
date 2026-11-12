@@ -63,7 +63,14 @@ export function TransactionSummary({
             </dt>
             <dd className={styles.value}>
               {value === undefined ? (
-                <Skeleton width="110px" height="22px" />
+                <span className={styles.skeletonValue} aria-hidden="true">
+                  <Skeleton variant="text" width="min(110px, 100%)" />
+                  <Skeleton
+                    variant="text"
+                    width="32px"
+                    className={styles.skeletonUnit}
+                  />
+                </span>
               ) : (
                 <Amount
                   value={value}

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ActionResult } from "@/types/action";
 import type { UpdateCheck } from "@/types/release";
 
-import { Settings } from "./index";
+import { Settings, SettingsSkeleton } from "./index";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 const saved = async (): Promise<ActionResult> => {
@@ -62,4 +62,9 @@ export const Viewer: Story = {
 
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
+};
+
+/** The page while it loads (loading.tsx): the header and the sections, inert and empty. */
+export const Loading: Story = {
+  render: (args) => <SettingsSkeleton version={args.version} />,
 };

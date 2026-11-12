@@ -88,3 +88,16 @@
   color: inherit;
   font-weight: var(--weight-regular);
 }
+
+/* Its placeholders have no text baseline: aligned to the top, it adds no height to the line. */
+.skeleton {
+  vertical-align: top;
+}
+
+.skeletonTile {
+  flex: none;
+}
+
+.skeletonDot {
+  flex: none;
+}

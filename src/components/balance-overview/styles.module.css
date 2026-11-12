@@ -103,22 +103,36 @@
   }
 }
 
+/* Loading: the card's layout on a plain surface. The border is drawn inside, so the card keeps its size. */
 .skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-  padding: var(--space-6);
-  border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-card);
   background: var(--surface-card);
-  box-shadow: var(--shadow-xs);
+  box-shadow:
+    var(--shadow-xs),
+    inset 0 0 0 var(--border-width) var(--border-subtle);
+  color: var(--text-secondary);
 }
 
-.skeleton .accounts {
-  padding-block-start: var(--space-2);
+/* Placeholders have no text baseline to line up on. */
+.skeleton .head {
+  align-items: center;
+}
+
+.skeleton .title,
+.skeleton .count,
+.skeleton .name {
+  color: var(--text-muted);
 }
 
 .skeleton .account {
   background: var(--surface-inset);
+}
+
+.skeletonTotal {
+  display: block;
+  font: var(--type-amount-hero);
+}
+
+.skeletonAmount {
+  display: block;
+  font: var(--type-amount);
 }

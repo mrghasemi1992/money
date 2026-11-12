@@ -7,7 +7,6 @@ import { type ReactNode, useId, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cx } from "@/utils/cx";
 
 import styles from "./styles.module.css";
 
@@ -87,41 +86,46 @@ export function ReportCard({
   );
 }
 
-/** A report card while the page loads: a title and a few ranked rows, or one block. */
+/**
+ * A report card while the page loads: its real title and view switch (off), a placeholder
+ * subtitle, and the chart's skeleton (BarListSkeleton, ColumnChartSkeleton).
+ */
 export function ReportCardSkeleton({
-  rows = 5,
-  block = false,
+  title,
+  extra,
+  chart,
   className,
 }: {
-  rows?: number;
-  /** One tall block instead of rows, for the month-by-month chart. */
-  block?: boolean;
+  title: string;
+  /** Between the title and the switch, as on the real card (the chart's legend). */
+  extra?: ReactNode;
+  chart: ReactNode;
   className?: string;
 }) {
-  const widths = ["92%", "64%", "48%", "30%", "18%"];
+  const t = useTranslations("chart");
   return (
-    <Card className={className}>
-      <div className={cx(styles.root, styles.skeleton)}>
-        <Skeleton variant="text" width="40%" />
-        {block ? (
-          <Skeleton width="100%" height="var(--chart-h)" />
-        ) : (
-          Array.from({ length: rows }, (_, index) => (
-            <div key={index} className={styles.skeletonRow}>
-              <div className={styles.skeletonLine}>
-                <Skeleton
-                  variant="text"
-                  width={`${22 + ((index * 7) % 14)}%`}
-                />
-                <Skeleton variant="text" width="25%" />
-              </div>
-              <Skeleton
-                width={widths[index % widths.length]}
-                height="var(--bar-list-h)"
-              />
-            </div>
-          ))
-        )}
+    <Card className={className} aria-hidden="true">
+      <div className={styles.root}>
+        <div className={styles.head}>
+          <div className={styles.titles}>
+            <span className={styles.title}>{title}</span>
+            <span className={styles.subtitle}>
+              <Skeleton variant="text" width="128px" />
+            </span>
+          </div>
+          {extra != null ? <div className={styles.extra}>{extra}</div> : null}
+          <SegmentedControl
+            size="sm"
+            aria-label={t("view")}
+            value="chart"
+            disabled
+            options={[
+              { value: "chart", label: t("chart"), icon: ChartColumnIcon },
+              { value: "table", label: t("table"), icon: TableIcon },
+            ]}
+          />
+        </div>
+        {chart}
       </div>
     </Card>
   );

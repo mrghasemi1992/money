@@ -8,23 +8,36 @@ import { useTransition } from "react";
 import { useReportNavigation } from "@/components/navigation-progress";
 import { useAddTransaction } from "@/components/add-transaction";
 import { AccountReport } from "@/components/account-report";
-import { CategoryReport } from "@/components/category-report";
+import {
+  CategoryReport,
+  CategoryReportSkeleton,
+} from "@/components/category-report";
 import { MonthlyReport } from "@/components/monthly-report";
 import { PageHeader } from "@/components/page-header";
+import { PageLoadingStatus } from "@/components/page-skeleton";
 import { ListError } from "@/components/page-status";
 import { ReportCardSkeleton } from "@/components/report-card";
 import {
   ReportPeriodBar,
+  ReportPeriodBarSkeleton,
   ReportPeriodSwitch,
+  ReportPeriodSwitchSkeleton,
   usePeriodText,
 } from "@/components/report-period";
 import {
   ReportSummary,
   ReportSummarySkeleton,
 } from "@/components/report-summary";
+import { BarListSkeleton } from "@/components/ui/bar-list";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  ColumnChartLegend,
+  ColumnChartSkeleton,
+} from "@/components/ui/column-chart";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { REPORT_TREND_MONTHS } from "@/constants/report";
 import { reportParamsToSearch } from "@/helpers/report";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { ReportData, ReportParams, ReportPeriod } from "@/types/report";
@@ -131,28 +144,55 @@ export function Reports({ period, data }: ReportsProps) {
   );
 }
 
-/** The summary and cards while a period loads. */
+/** The summary and cards while a period loads, laid out like the real ones. */
 function ReportsContentSkeleton() {
-  const t = useTranslations("page");
+  const t = useTranslations("reports");
   return (
-    <div role="status" aria-busy="true" className={styles.root}>
-      <span className="visually-hidden">{t("loading")}</span>
+    <>
+      <PageLoadingStatus />
       <ReportSummarySkeleton />
       <div className={styles.columns}>
-        <ReportCardSkeleton className={styles.column} />
-        <ReportCardSkeleton className={styles.column} />
+        <div className={styles.column}>
+          <ReportCardSkeleton
+            title={t("categories.expenseTitle")}
+            chart={<CategoryReportSkeleton />}
+          />
+        </div>
+        <div className={styles.column}>
+          <ReportCardSkeleton
+            title={t("categories.incomeTitle")}
+            chart={<CategoryReportSkeleton rows={3} />}
+          />
+          <ReportCardSkeleton
+            title={t("accounts.title")}
+            chart={<BarListSkeleton rows={3} start="tile" />}
+          />
+        </div>
       </div>
-      <ReportCardSkeleton block />
-    </div>
+      <ReportCardSkeleton
+        title={t("monthly.title")}
+        extra={<ColumnChartLegend />}
+        chart={<ColumnChartSkeleton columns={REPORT_TREND_MONTHS} />}
+      />
+    </>
   );
 }
 
-/** The reports page while it loads (loading.tsx): the header, the summary and cards. */
+/**
+ * The reports page while it loads (loading.tsx): the header with the period switch (off, since
+ * the period in the URL isn't known yet), the period bar and the cards.
+ */
 export function ReportsSkeleton() {
   const t = useTranslations("nav");
   return (
     <div className={styles.root}>
-      <PageHeader title={t("reports")} className={styles.header} />
+      <PageHeader
+        title={t("reports")}
+        subtitle={<Skeleton variant="text" width="180px" />}
+        actions={<ReportPeriodSwitchSkeleton />}
+        className={styles.header}
+      />
+      <ReportPeriodBarSkeleton />
       <ReportsContentSkeleton />
     </div>
   );

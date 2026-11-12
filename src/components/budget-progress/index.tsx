@@ -5,9 +5,12 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CategoryChip } from "@/components/ui/category-chip";
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  CategoryChip,
+  CategoryChipSkeleton,
+} from "@/components/ui/category-chip";
+import { ProgressBar, ProgressBarSkeleton } from "@/components/ui/progress-bar";
+import { DASHBOARD_BUDGET_COUNT } from "@/constants/dashboard";
 import { categoryIcon } from "@/helpers/category";
 import type { BudgetCategory } from "@/types/budget";
 import type { MoneyUnit } from "@/types/currency";
@@ -93,18 +96,42 @@ export function BudgetProgress({
   );
 }
 
-/** The budgets card while it loads. */
+/** Widths of the category names, so the rows don't look identical. */
+const SKELETON_NAMES = ["72px", "96px", "64px", "84px"];
+
+/**
+ * The budgets card while it loads: the real card and one placeholder bar per budget it shows
+ * (DASHBOARD_BUDGET_COUNT), each as tall as a real one.
+ */
 export function BudgetProgressSkeleton() {
+  const t = useTranslations("dashboard");
   return (
-    <div className={styles.skeleton} aria-hidden="true">
-      <Skeleton width="35%" height="16px" />
-      {[0, 1, 2].map((index) => (
-        <div key={index} className={styles.skeletonRow}>
-          <Skeleton width="30%" height="14px" />
-          <Skeleton height="8px" />
-          <Skeleton width="60%" height="12px" />
-        </div>
-      ))}
-    </div>
+    <Card
+      padding="none"
+      title={t("budgets.title")}
+      subtitle={t("budgets.subtitle")}
+      actions={
+        <Button
+          variant="ghost"
+          size="sm"
+          iconEnd={ChevronRightIcon}
+          mirrorIcons
+        >
+          {t("all")}
+        </Button>
+      }
+      inert
+    >
+      <div className={styles.list}>
+        {SKELETON_NAMES.slice(0, DASHBOARD_BUDGET_COUNT).map((width) => (
+          <ProgressBarSkeleton
+            key={width}
+            size="sm"
+            showValues
+            label={<CategoryChipSkeleton size="sm" width={width} />}
+          />
+        ))}
+      </div>
+    </Card>
   );
 }

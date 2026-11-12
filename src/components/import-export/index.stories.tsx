@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
+
 import {
   SAMPLE_IMPORT_BOOK,
   sampleCheckDuplicates,
@@ -47,7 +49,10 @@ export const Default: Story = {};
 /** A viewer: export only, and a note that import is for editors and admins. */
 export const Viewer: Story = { args: { canWrite: false } };
 
-export const Loading: Story = { render: () => <ImportExportSkeleton /> };
+export const Loading: Story = {
+  render: () => <ImportExportSkeleton />,
+  decorators: [withAddTransaction],
+};
 
 export const Error: Story = {
   render: () => <ImportExportError onRetry={() => {}} />,

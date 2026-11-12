@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryChip } from "@/components/ui/category-chip";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CATEGORY_ICONS } from "@/constants/category-icons";
 import {
   categoryColorStyle,
@@ -225,6 +226,94 @@ export function CategoryList({
         );
       })}
     </ul>
+  );
+}
+
+/** A placeholder category's name and line widths, and its subcategories' name widths. */
+const SKELETON_CATEGORIES: [string, string, string[]][] = [
+  ["96px", "144px", ["72px", "88px"]],
+  ["120px", "160px", ["96px", "64px"]],
+  ["80px", "128px", ["80px"]],
+  ["108px", "96px", []],
+  ["88px", "104px", []],
+];
+
+/**
+ * The categories while they load, laid out like CategoryList: each category's placeholder
+ * tile, name and line (with the add-subcategory button and menu for writers) and a few
+ * subcategory rows, in the real sizes and fonts.
+ */
+export function CategoryListSkeleton({
+  canWrite = true,
+}: {
+  canWrite?: boolean;
+}) {
+  const t = useTranslations("categories");
+  const menu = canWrite ? (
+    <IconButton
+      icon={EllipsisVerticalIcon}
+      label={t("menu", { name: "" })}
+      size="sm"
+      disabled
+    />
+  ) : null;
+  return (
+    <div className={list.list} aria-hidden="true">
+      {SKELETON_CATEGORIES.map(([name, meta, subcategories]) => (
+        <div key={name + meta} className={cx(list.item, styles.item)}>
+          <div className={list.row}>
+            <Skeleton
+              width="var(--cat-icon)"
+              height="var(--cat-icon)"
+              radius="var(--category-icon-radius)"
+              className={styles.skeletonTile}
+            />
+            <div className={list.text}>
+              <span className={list.name}>
+                <Skeleton variant="text" width={name} />
+              </span>
+              <span className={list.meta}>
+                <Skeleton variant="text" width={meta} />
+              </span>
+            </div>
+            {canWrite ? (
+              <div className={list.end}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconStart={PlusIcon}
+                  className={styles.addSub}
+                  disabled
+                >
+                  {t("addSubcategory")}
+                </Button>
+                {menu}
+              </div>
+            ) : null}
+          </div>
+          {subcategories.length > 0 ? (
+            <div className={styles.subcategories}>
+              {subcategories.map((width) => (
+                <div key={width} className={styles.subcategory}>
+                  <Skeleton
+                    variant="circle"
+                    width="var(--icon-size-sm)"
+                    className={styles.skeletonTile}
+                  />
+                  <span className={styles.subName}>
+                    <Skeleton variant="text" width={width} />
+                  </span>
+                  <span className={styles.subMeta}>
+                    <Skeleton variant="text" width="64px" />
+                  </span>
+                  {menu}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
   );
 }
 

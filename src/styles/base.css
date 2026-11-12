@@ -9,8 +9,13 @@
   box-sizing: border-box;
 }
 
+/*
+ * The scrollbar's room is kept even when the page is short (with classic scrollbars), so a
+ * short skeleton replaced by a long page doesn't shift everything sideways.
+ */
 html {
   -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
   background: var(--surface-page);
 }
 

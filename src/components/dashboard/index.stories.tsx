@@ -1,15 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { BalanceOverviewSkeleton } from "@/components/balance-overview";
-import { BudgetProgressSkeleton } from "@/components/budget-progress";
-import { MonthOverviewSkeleton } from "@/components/month-overview";
-import { PageHeader } from "@/components/page-header";
-import { RecentTransactionsSkeleton } from "@/components/recent-transactions";
-import { TopSpendingSkeleton } from "@/components/top-spending";
+import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 
-import { Dashboard } from "./index";
+import { DashboardSkeleton } from "./index";
 import { SampleDashboard } from "./sample-dashboard";
-import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/Dashboard",
@@ -35,21 +29,11 @@ export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
 
-/** Each section while its query runs: the page streams them in as they arrive. */
+/** The page while it loads (loading.tsx); each section shows the same skeleton while it streams in. */
 export const Loading: Story = {
-  render: () => (
-    <Dashboard
-      header={
-        <PageHeader
-          title={sample("سلام، سارا")}
-          subtitle={sample("چهارشنبه ۱۵ مهر ۱۴۰۵")}
-        />
-      }
-      balances={<BalanceOverviewSkeleton />}
-      month={<MonthOverviewSkeleton />}
-      recent={<RecentTransactionsSkeleton />}
-      budgets={<BudgetProgressSkeleton />}
-      spending={<TopSpendingSkeleton />}
-    />
-  ),
+  render: () => <DashboardSkeleton />,
+  decorators: [withAddTransaction],
 };
+
+/** Viewers' skeleton: no write controls. */
+export const LoadingViewer: Story = { render: () => <DashboardSkeleton /> };
