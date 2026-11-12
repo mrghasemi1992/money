@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.0](https://github.com/mrghasemi1992/money/compare/v0.4.1...v0.5.0) (2026-11-12)
+
+
+### Features
+
+* add report insights and split reports into tabs ([#60](https://github.com/mrghasemi1992/money/issues/60)) ([#104](https://github.com/mrghasemi1992/money/issues/104)) ([094745e](https://github.com/mrghasemi1992/money/commit/094745e6d6bf17a487beec0af91e6ccfc8e3b765))
+* change the theme only from settings ([#27](https://github.com/mrghasemi1992/money/issues/27)) ([#99](https://github.com/mrghasemi1992/money/issues/99)) ([98f1834](https://github.com/mrghasemi1992/money/commit/98f183445c8113eddc008ade5810cc57508b0b2a))
+* icons for categories and subcategories ([#24](https://github.com/mrghasemi1992/money/issues/24)) ([#94](https://github.com/mrghasemi1992/money/issues/94)) ([584febd](https://github.com/mrghasemi1992/money/commit/584febd4d174cd00b6f2ff560416041ae3b2a8e8))
+* pending states for navigation and buttons ([#28](https://github.com/mrghasemi1992/money/issues/28)) ([#98](https://github.com/mrghasemi1992/money/issues/98)) ([4494128](https://github.com/mrghasemi1992/money/commit/449412862753ea85dafbc11958ba3604e758b80a))
+* redesign the phone tab bar and its More menu ([#21](https://github.com/mrghasemi1992/money/issues/21)) ([#100](https://github.com/mrghasemi1992/money/issues/100)) ([cde3138](https://github.com/mrghasemi1992/money/commit/cde3138c5466c3e5fe48443b93a93dedbdb17b31))
+* stack toasts like a deck and always close them ([#14](https://github.com/mrghasemi1992/money/issues/14), [#65](https://github.com/mrghasemi1992/money/issues/65)) ([#97](https://github.com/mrghasemi1992/money/issues/97)) ([d8717c1](https://github.com/mrghasemi1992/money/commit/d8717c1455d66a1c58f81cc2f764389aca5cad26))
+
+
+### Bug fixes
+
+* align the username with the display name on the OAuth consent page ([#17](https://github.com/mrghasemi1992/money/issues/17)) ([#101](https://github.com/mrghasemi1992/money/issues/101)) ([bca1ef1](https://github.com/mrghasemi1992/money/commit/bca1ef15442073db20e45c8b21de464d26b42add))
+* make page skeletons match their pages ([#15](https://github.com/mrghasemi1992/money/issues/15)) ([#103](https://github.com/mrghasemi1992/money/issues/103)) ([fd9bcc6](https://github.com/mrghasemi1992/money/commit/fd9bcc660ef513bf200ec57a24698c1866c04459))
+* make Storybook sample data follow the language toolbar ([#32](https://github.com/mrghasemi1992/money/issues/32)) ([#102](https://github.com/mrghasemi1992/money/issues/102)) ([606e908](https://github.com/mrghasemi1992/money/commit/606e90821ff7239dbf89710d67979199109b4222))
+
 ## [0.4.1](https://github.com/mrghasemi1992/money/compare/v0.4.0...v0.4.1) (2026-10-22)
 
 
