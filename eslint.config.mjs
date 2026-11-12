@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "storybook-static/**",
+    // Vendored Claude Code skills (see "Claude Code setup" in CLAUDE.md):
+    ".claude/skills/**",
   ]),
 ]);
 

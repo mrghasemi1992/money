@@ -1165,6 +1165,30 @@ Branch: `feature/toast-redesign`. Date: 2026-10-28.
 - Exit animation: Base UI removes `--toast-height` while a toast leaves, so the exit slide no longer depends on it (it moves by its own height). Under `prefers-reduced-motion` a toast still fades in and out (the global rule would otherwise make it pop).
 - New tokens `--toast-peek` and `--toast-scale-step`.
 
+## Claude Code tools in the repo
+
+Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.
+
+### Claude Code prompt (as sent)
+
+> for money project i want to install all skills and mcp on its repo that are locally installed on my system so i can use them when i'm working with claude code in ios app. ios claude code use cloud environment.
+>
+> i detected these skills that used so far:
+>
+> - ponytail: https://github.com/dietrichgebert/ponytail
+> - vercel skills
+> - https://emilkowal.ski/skill
+> - https://impeccable.style/
+> - https://www.tasteskill.dev/
+> - https://www.uupm.cc/
+
+### Result
+
+- The skills installed on the desktop are copied into `.claude/skills/` (the ones switched off locally are left out), impeccable's agents into `.claude/agents/`. Impeccable comes without its 16 MB macOS engine binary; its launcher downloads the right one on first run.
+- `.claude/settings.json` adds the plugin marketplaces and enables `vercel`, `ponytail` and `ui-ux-pro-max`, and runs impeccable's hooks only where no user-level copy exists. `.mcp.json` adds `chrome-devtools`.
+- Follow-up: «what about anthropic official skills like engineering:architecture?». Those come from the Engineering and Design plugins installed on the claude.ai account, which the repo didn't carry. Anthropic publishes them on GitHub (`anthropics/knowledge-work-plugins`), so `.claude/settings.json` now enables `engineering` and `design` from there too.
+- ESLint and Prettier ignore the vendored skills. CLAUDE.md has a «Claude Code setup» section.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
