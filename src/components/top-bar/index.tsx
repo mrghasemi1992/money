@@ -16,20 +16,12 @@ type TopBarProps = {
   user: { name: string; role: UserRole };
   /** A back button to this section, on subpages (/settings for /settings/connector). */
   backHref?: Route;
-  /** Adds user management to the user menu (admins). */
-  showUsersLink?: boolean;
   onSignOut: () => Promise<void>;
   className?: string;
 };
 
 /** The phone layout's top bar: the logo, settings and the user menu. Hidden from 768px up. */
-export function TopBar({
-  user,
-  backHref,
-  showUsersLink = false,
-  onSignOut,
-  className,
-}: TopBarProps) {
+export function TopBar({ user, backHref, onSignOut, className }: TopBarProps) {
   const t = useTranslations();
   return (
     <header className={cx(styles.root, className)}>
@@ -57,7 +49,6 @@ export function TopBar({
           name={user.name}
           role={user.role}
           placement="top-bar"
-          showUsersLink={showUsersLink}
           onSignOut={onSignOut}
         />
       </div>
