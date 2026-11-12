@@ -1,0 +1,100 @@
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Month, bar, rate: the bars line up whatever the month's name. */
+.row {
+  display: grid;
+  grid-template-columns: var(--savings-month-w) minmax(0, 1fr) var(
+      --savings-value-w
+    );
+  align-items: center;
+  gap: var(--space-3);
+  --savings-fill: var(--brand-solid);
+}
+
+/* A month that spent more than it earned: red and striped, so it reads without color. */
+.row[data-negative] {
+  --savings-fill: repeating-linear-gradient(
+    135deg,
+    var(--amount-expense) 0 var(--chart-stripe-sm),
+    color-mix(in oklab, var(--amount-expense) 70%, var(--surface-card))
+      var(--chart-stripe-sm) var(--chart-stripe-gap-sm)
+  );
+}
+
+.month {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font: var(--type-caption);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The zero line and the average are drawn in every row, so they read as lines down the list. */
+.track {
+  position: relative;
+  display: block;
+  block-size: var(--savings-row-h);
+}
+
+.track::before,
+.track::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inline-size: var(--savings-line);
+}
+
+.track::before {
+  inset-inline-start: var(--savings-zero);
+  background: var(--border-strong);
+}
+
+.track::after {
+  z-index: 1;
+  inset-inline-start: var(--savings-average);
+  border-inline-start: var(--savings-line) dashed var(--text-secondary);
+}
+
+.fill {
+  position: absolute;
+  inset-block: var(--savings-bar-inset);
+  border-radius: var(--radius-xs);
+  background: var(--savings-fill);
+}
+
+.value {
+  color: var(--text-primary);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  font-feature-settings: var(--font-features-tabular);
+  text-align: end;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.swatch {
+  flex: none;
+  inline-size: 0;
+  block-size: var(--chart-swatch);
+  border-inline-start: var(--savings-line) dashed var(--text-secondary);
+}

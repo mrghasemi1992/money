@@ -1,6 +1,7 @@
 /*
- * The plot is a grid of one column per point (flowing in the page's direction), with the grid
- * lines, the net line and its dots stacked over it. Labels under the columns thin out by
+ * The plot is a grid of one column per point (flowing in the page's direction): income rises
+ * from the zero line, expense hangs below it. Painted in order: grid lines, columns, then the
+ * zero and average lines over the columns, and the net dots over everything. Labels under the columns thin out by
  * container width, since the sidebar changes the room too.
  */
 /* Expense is striped wherever it is drawn, so it reads apart from income without color. */
@@ -46,6 +47,13 @@
   gap: var(--space-1-5);
   color: var(--text-muted);
   font: var(--type-caption);
+}
+
+.readoutRate {
+  color: var(--text-primary);
+  font: var(--type-amount);
+  font-size: var(--text-sm);
+  font-feature-settings: var(--font-features-tabular);
 }
 
 .axisNote {
@@ -97,8 +105,22 @@
   border-block-start: var(--border-width) solid var(--border-subtle);
 }
 
+.zeroLine,
+.average {
+  position: absolute;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
 .zeroLine {
-  border-block-start-color: var(--border-strong);
+  border-block-start: var(--chart-zero-line) solid var(--border-strong);
+  transform: translateY(-50%);
+}
+
+/* The average month: a dashed line over the columns, above zero for income, below for expense. */
+.average {
+  border-block-start: var(--chart-average-line) dashed var(--text-secondary);
+  opacity: 0.7;
 }
 
 .columns,
@@ -146,22 +168,31 @@
   box-shadow: var(--shadow-focus);
 }
 
-.bars {
+/* One column per month, centred, as wide as the room allows up to its maximum. */
+.bar {
   position: absolute;
   inset-inline: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--chart-bar-gap);
-  padding-inline: var(--chart-bar-inset);
+  inline-size: min(var(--chart-column-max), 100% - 2 * var(--chart-bar-inset));
+  min-block-size: var(--chart-bar-min);
+  margin-inline: auto;
+  transition:
+    block-size var(--duration-slow) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
 
-.bar {
-  flex: 0 1 var(--chart-bar-max);
-  min-block-size: var(--chart-bar-min);
+.bar.income {
   border-start-start-radius: var(--chart-bar-radius);
   border-start-end-radius: var(--chart-bar-radius);
-  transition: block-size var(--duration-slow) var(--ease-out);
+}
+
+.bar.expense {
+  border-end-start-radius: var(--chart-bar-radius);
+  border-end-end-radius: var(--chart-bar-radius);
+}
+
+/* While one month is read out, the others step back a little. */
+.plot:has(.column[data-hovered]) .column:not([data-hovered]) .bar {
+  opacity: 0.55;
 }
 
 .income {
@@ -172,25 +203,7 @@
   background: var(--expense-stripes);
 }
 
-.line {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  inline-size: 100%;
-  block-size: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.line polyline {
-  fill: none;
-  stroke: var(--text-primary);
-  stroke-width: var(--chart-line);
-  stroke-linejoin: round;
-}
-
 .dots {
-  z-index: 2;
   pointer-events: none;
 }
 
@@ -209,6 +222,7 @@
   border: var(--chart-line) solid var(--text-primary);
   border-radius: 50%;
   background: var(--surface-card);
+  box-shadow: 0 0 0 var(--chart-dot-halo) var(--surface-card);
 }
 
 .dot[data-active] {
@@ -278,18 +292,14 @@
   border-radius: var(--radius-xs);
 }
 
-.swatchLine {
-  position: relative;
+.swatchAverage {
   display: inline-block;
   inline-size: var(--chart-swatch-line);
-  block-size: var(--chart-line);
-  background: var(--text-primary);
+  border-block-start: var(--chart-average-line) dashed var(--text-secondary);
 }
 
 .swatchDot {
-  position: absolute;
-  inset-block-start: calc(var(--chart-swatch-dot) / -2 + var(--chart-line) / 2);
-  inset-inline-start: calc(50% - var(--chart-swatch-dot) / 2);
+  display: inline-block;
   box-sizing: border-box;
   inline-size: var(--chart-swatch-dot);
   block-size: var(--chart-swatch-dot);

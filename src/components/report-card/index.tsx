@@ -6,7 +6,7 @@ import { type ReactNode, useId, useState } from "react";
 
 import { Card } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, SkeletonWords } from "@/components/ui/skeleton";
 
 import styles from "./styles.module.css";
 
@@ -18,6 +18,8 @@ type ReportCardProps = {
   subtitle?: ReactNode;
   /** Between the title and the switch, such as the chart's legend. */
   extra?: ReactNode;
+  /** The finding in one sentence, above the chart or table (insights). */
+  summary?: ReactNode;
   chart: ReactNode;
   /** The same figures as a table: the chart's accessible form. */
   table: ReactNode;
@@ -36,6 +38,7 @@ export function ReportCard({
   title,
   subtitle,
   extra,
+  summary,
   chart,
   table,
   empty,
@@ -74,6 +77,9 @@ export function ReportCard({
             />
           )}
         </div>
+        {summary != null && empty == null ? (
+          <p className={styles.summary}>{summary}</p>
+        ) : null}
         {empty != null ? (
           <p className={styles.empty}>{empty}</p>
         ) : view === "chart" ? (
@@ -93,12 +99,15 @@ export function ReportCard({
 export function ReportCardSkeleton({
   title,
   extra,
+  summary,
   chart,
   className,
 }: {
   title: string;
   /** Between the title and the switch, as on the real card (the chart's legend). */
   extra?: ReactNode;
+  /** A sentence like the real card's summary, laid out as hidden words so it wraps the same. */
+  summary?: string;
   chart: ReactNode;
   className?: string;
 }) {
@@ -125,6 +134,11 @@ export function ReportCardSkeleton({
             ]}
           />
         </div>
+        {summary != null ? (
+          <p className={styles.summary}>
+            <SkeletonWords>{summary}</SkeletonWords>
+          </p>
+        ) : null}
         {chart}
       </div>
     </Card>

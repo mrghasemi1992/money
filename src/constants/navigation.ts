@@ -46,6 +46,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: ChartPieIcon,
     group: "main",
     tab: true,
+    tabs: ["/reports/breakdown", "/reports/trends"],
   },
   { label: "accounts", href: "/accounts", icon: LandmarkIcon, group: "book" },
   { label: "categories", href: "/categories", icon: TagsIcon, group: "book" },

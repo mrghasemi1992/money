@@ -1,0 +1,69 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  --mover-fill: var(--status-success);
+}
+
+/* Spending that rose is red and striped, so the two directions also differ without color. */
+.item[data-direction="up"] {
+  --mover-fill: repeating-linear-gradient(
+    135deg,
+    var(--status-danger) 0 var(--chart-stripe-sm),
+    color-mix(in oklab, var(--status-danger) 70%, var(--surface-card))
+      var(--chart-stripe-sm) var(--chart-stripe-gap-sm)
+  );
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.name {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.percent {
+  flex: none;
+  min-inline-size: var(--bar-list-percent-w);
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+  text-align: end;
+}
+
+.track {
+  display: block;
+  overflow: hidden;
+  block-size: var(--bar-list-h-sub);
+  border-radius: var(--radius-pill);
+  background: var(--budget-track);
+}
+
+.fill {
+  display: block;
+  inline-size: max(var(--chart-bar-min), var(--mover-share));
+  block-size: 100%;
+  border-radius: inherit;
+  background: var(--mover-fill);
+}
+
+.detail {
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+}

@@ -1,0 +1,88 @@
+/* A row of links on a line; the current one is brand text with a thick line under it. */
+.root {
+  border-block-end: var(--border-width) solid var(--border-subtle);
+}
+
+.list {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-h-md);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--text-secondary);
+  font: var(--type-label);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-2);
+  inset-block-end: calc(var(--border-width) * -1);
+  block-size: var(--report-tab-line);
+  border-radius: var(--report-tab-line) var(--report-tab-line) 0 0;
+  background: transparent;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--text-primary);
+  }
+
+  .tab:hover::after {
+    background: var(--border-strong);
+  }
+}
+
+.tab:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.tab[aria-current="page"] {
+  color: var(--brand-text);
+  font-weight: var(--weight-semibold);
+}
+
+.tab[aria-current="page"]::after {
+  background: var(--brand-solid);
+}
+
+.icon {
+  flex: none;
+  inline-size: var(--icon-size-sm);
+  block-size: var(--icon-size-sm);
+}
+
+/* On phones the three tabs share the width, each a full tap target. */
+@media (--mobile) {
+  .list {
+    gap: 0;
+  }
+
+  .item {
+    flex: 1 1 0;
+    display: flex;
+  }
+
+  .tab {
+    flex: 1;
+    min-block-size: var(--tap-min);
+    padding-inline: var(--space-2);
+  }
+}

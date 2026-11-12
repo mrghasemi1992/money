@@ -1294,6 +1294,40 @@ Issue #15: the loading skeletons don't match the layout of the pages they stand 
 - Two real components lost a pixel of stray line height (the amounts in the transaction summary and the budget summary now sit in a flex box), so their placeholders match them exactly. `html` keeps the scrollbar's room (`scrollbar-gutter: stable`).
 - CLAUDE.md has a «Skeletons» section with these rules.
 
+## Report insights and the chart library decision (#60)
+
+Branch: `feature/report-insights-60`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> #60
+
+Issue #60: the reports answer "how much" but not "why" or "what next". Add five insights (biggest movers, recurring spending, savings rate, largest transactions, budget vs actual over time), each with a sentence in Persian and English and a table view, for every period and both calendars; and decide on a chart library (`d3-scale` or visx) before adding one, writing the decision in CLAUDE.md.
+
+### Result
+
+- **Chart library: none yet.** None of the five needs scales, axes or zoom: they are ranked bars, bars around a zero line and grids of months, all CSS. Measured with esbuild (minified + gzipped): `d3-scale` about 9 KB, visx (scale, shape, axis, group) about 24 KB, and visx would need hand-mirroring for RTL and browser measuring for its width. The decision, and what would change it (a long continuous time axis with zoom), is under Tech stack → Charts in CLAUDE.md: add `d3-scale` then, keep our markup.
+- **Five new cards** on `/reports`, each a `ReportCard` with a one-sentence finding (`summary`) and a table: `MoversReport` (expense categories that changed most against the previous period, with the subcategory behind it), `SavingsReport` (savings rate per month around a zero line, with the rate of all the months as a dashed line), `RecurringReport` (descriptions in more than half of the months, grouped folded in SQL; Money has no payee, so descriptions stand in), `LargestReport` (top 5 expenses and incomes, linking to `/transactions`) and `BudgetRecordReport` (each budget's months within, near or over the limit, against today's limit, since budgets keep no history).
+- **Queries:** `recurringExpenses`, `largestTransactions`, `budgetRecord` in `src/db/reports.ts`, plus `categoryTotals` for the previous period; the month ranges share one `values` list helper with `rangeTotals`. Pure helpers in `src/helpers/report.ts` (`categoryMovers`, `savingsRate`, `recurringMinMonths`, links, budget statuses).
+- **Checked** in Storybook in Persian and English, light and dark, at 375 px (no horizontal scroll) and desktop width, and the new queries run against the development database. The skeleton has a card for each insight with its sentence's length.
+
+### Follow-ups
+
+1. > at the end commit changes and open pr
+   >
+   > (In Persian) Explain what each part of this page means; I didn't understand the savings rate at all. Explain all of it, on screenshots too: for example pick Aban with a one-month period, so it compares with Mehr. Make the month-by-month chart more attractive; the design still needs work. The reports page is too crowded now; maybe split it into sections, as sub-pages or with a divider between sections. Give your opinions first and act only after I approve. Make a wireframe for each opinion so I can see it.
+
+   Claude made an annotated explainer page from Storybook screenshots (Aban 1405, compared with 1–21 Mehr), with a numbered note per part of each card; the savings rate is the share of a month's income left after spending. For the stories to read right it added a `CurrentMonth` story and scaled the sample figures of a month period to that month. It drew wireframes for three layouts (one page with sections, tabs as sub-pages, an overview of findings with detail pages) and three charts (income above the line and expense below it, net first, today's chart polished), recommending tabs and the diverging chart.
+
+2. > I can't find those wireframes / I can't open the html
+
+   Claude sent them again as an HTML page, then as images.
+
+3. > Follow recommended
+   - **Tabs:** Overview (`/reports`: summary, movers beside recurring, largest), Breakdown (`/reports/breakdown`: categories and accounts) and Over time (`/reports/trends`: month by month, savings rate beside budget record), each its own page with only its queries and its own `loading.tsx`, keeping the period. The skeleton reads the period from the URL, so the header and tabs stay still while a tab loads. The dashboard's top spending links to the breakdown. The tabs sit under the period bar rather than above it, so the period's controls stay together.
+   - **Month-by-month chart:** income rises above a zero line and expense hangs below it, a dot for the net, dashed lines for the average month (the month still running left out), the readout adds the savings rate, the axis takes smaller steps, and the other months step back while one is hovered.
+   - **Budget record:** months within the limit are a soft fill, so near (amber with a larger dot) and over (red, striped) stand out, and the month cells share the row's whole width.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
