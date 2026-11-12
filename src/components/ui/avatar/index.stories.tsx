@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Avatar } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Avatar",
@@ -21,10 +22,10 @@ export const Sizes: Story = {
     <div
       style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}
     >
-      <Avatar name="سارا" size="sm" />
-      <Avatar name="سارا" size="md" />
-      <Avatar name="سارا" size="lg" />
-      <Avatar name="سارا" size="xl" />
+      <Avatar name={sample("سارا")} size="sm" />
+      <Avatar name={sample("سارا")} size="md" />
+      <Avatar name={sample("سارا")} size="lg" />
+      <Avatar name={sample("سارا")} size="xl" />
     </div>
   ),
 };
@@ -33,7 +34,14 @@ export const Sizes: Story = {
 export const Names: Story = {
   render: () => (
     <div style={{ display: "flex", gap: "var(--space-2)" }}>
-      {["مریم", "علی", "نگار", "رضا", "Admin", "پویا"].map((name) => (
+      {[
+        sample("مریم"),
+        sample("علی"),
+        sample("نگار"),
+        sample("رضا"),
+        "Admin",
+        sample("پویا"),
+      ].map((name) => (
         <Avatar key={name} name={name} size="lg" />
       ))}
     </div>

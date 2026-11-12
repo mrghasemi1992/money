@@ -8,6 +8,7 @@ import {
 import type { TransactionFormValues } from "@/types/transaction";
 
 import { TransactionDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 
@@ -23,11 +24,14 @@ const meta = {
     onSubmit: async (values: TransactionFormValues) => {
       await wait();
       // The server checks the accounts and category too: the archived account is refused.
-      return values.accountId === SAMPLE_TRANSACTION_OPTIONS.accounts[5].id
+      return values.accountId ===
+        sample(SAMPLE_TRANSACTION_OPTIONS).accounts[5].id
         ? {
             ok: false as const,
             field: "accountId" as const,
-            error: "این حساب بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
+            error: sample(
+              "این حساب بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
+            ),
           }
         : { ok: true as const };
     },

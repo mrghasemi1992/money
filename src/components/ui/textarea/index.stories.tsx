@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Field } from "@/components/ui/field";
 
 import { Textarea } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Textarea",
@@ -37,7 +38,11 @@ export const WithCount: Story = {
 
 export const InField: Story = {
   render: () => (
-    <Field label="یادداشت" optional hint="فقط خودتان می‌بینید.">
+    <Field
+      label={sample("یادداشت")}
+      optional
+      hint={sample("فقط خودتان می‌بینید.")}
+    >
       <Textarea showCount maxLength={200} />
     </Field>
   ),

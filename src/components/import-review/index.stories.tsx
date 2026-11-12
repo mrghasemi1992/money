@@ -5,19 +5,25 @@ import {
   sampleDuplicates,
   samplePlan,
 } from "@/components/csv-import/sample-plan";
-import { SAMPLE_IMPORT_BOOK } from "@/components/csv-import/sample-import";
+import {
+  SAMPLE_IMPORT_BOOK,
+  SAMPLE_IMPORT_FILE_FA,
+} from "@/components/csv-import/sample-import";
 
 import { ImportReview, type ImportReviewTab } from "./index";
+import { sample } from "@/helpers/sample";
 
-const sample = samplePlan();
+const planned = samplePlan();
 const rowText = (line: number) =>
-  (sample.file.rows[line - 1] ?? []).map((cell) => cell || "—").join("، ");
+  (sample(SAMPLE_IMPORT_FILE_FA).rows[line - 1] ?? [])
+    .map((cell) => cell || "—")
+    .join(sample("، "));
 
 const meta = {
   title: "Components/ImportReview",
   component: ImportReview,
   args: {
-    plan: sample.plan,
+    plan: planned.plan,
     duplicates: sampleDuplicates(),
     addDuplicates: new Set<number>(),
     onDuplicateChange: () => {},

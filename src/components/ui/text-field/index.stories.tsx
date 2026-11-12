@@ -4,6 +4,7 @@ import { AtSignIcon, LockIcon } from "lucide-react";
 import { Field } from "@/components/ui/field";
 
 import { TextField } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/TextField",
@@ -37,10 +38,21 @@ export const Playground: Story = {};
 export const States: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
-      <TextField placeholder="خالی" aria-label="خالی" />
-      <TextField defaultValue="خرید هفتگی" aria-label="پر" />
-      <TextField defaultValue="خرید هفتگی" invalid aria-label="نامعتبر" />
-      <TextField defaultValue="خرید هفتگی" disabled aria-label="غیرفعال" />
+      <TextField placeholder={sample("خالی")} aria-label={sample("خالی")} />
+      <TextField
+        defaultValue={sample("خرید هفتگی")}
+        aria-label={sample("پر")}
+      />
+      <TextField
+        defaultValue={sample("خرید هفتگی")}
+        invalid
+        aria-label={sample("نامعتبر")}
+      />
+      <TextField
+        defaultValue={sample("خرید هفتگی")}
+        disabled
+        aria-label={sample("غیرفعال")}
+      />
     </div>
   ),
 };
@@ -48,9 +60,21 @@ export const States: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
-      <TextField size="sm" placeholder="کوچک" aria-label="کوچک" />
-      <TextField size="md" placeholder="متوسط" aria-label="متوسط" />
-      <TextField size="lg" placeholder="بزرگ" aria-label="بزرگ" />
+      <TextField
+        size="sm"
+        placeholder={sample("کوچک")}
+        aria-label={sample("کوچک")}
+      />
+      <TextField
+        size="md"
+        placeholder={sample("متوسط")}
+        aria-label={sample("متوسط")}
+      />
+      <TextField
+        size="lg"
+        placeholder={sample("بزرگ")}
+        aria-label={sample("بزرگ")}
+      />
     </div>
   ),
 };
@@ -59,14 +83,18 @@ export const Sizes: Story = {
 export const WithIcons: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
-      <Field label="نام کاربری">
+      <Field label={sample("نام کاربری")}>
         <TextField iconStart={AtSignIcon} dir="ltr" placeholder="username" />
       </Field>
-      <Field label="رمز عبور">
+      <Field label={sample("رمز عبور")}>
         <TextField iconStart={LockIcon} type="password" />
       </Field>
-      <Field label="درصد">
-        <TextField suffix="٪" inputMode="numeric" defaultValue="۲۰" />
+      <Field label={sample("درصد")}>
+        <TextField
+          suffix={sample("٪")}
+          inputMode="numeric"
+          defaultValue={sample("۲۰")}
+        />
       </Field>
     </div>
   ),

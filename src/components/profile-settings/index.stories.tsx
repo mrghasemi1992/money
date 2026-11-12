@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ActionResult } from "@/types/action";
 
 import { ProfileSettings } from "./index";
+import { sample } from "@/helpers/sample";
 
 /** Waits like a Server Action, so the button shows its loading state. */
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 600));
@@ -38,7 +39,7 @@ export const ServerError: Story = {
   args: {
     onSave: async (): Promise<ActionResult> => {
       await wait();
-      return { ok: false, error: "نام نمایشی را وارد کنید." };
+      return { ok: false, error: sample("نام نمایشی را وارد کنید.") };
     },
   },
 };

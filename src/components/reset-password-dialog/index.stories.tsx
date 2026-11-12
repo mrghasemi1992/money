@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ActionResult } from "@/types/action";
 
 import { ResetPasswordDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 600));
 
@@ -33,7 +34,9 @@ export const Failed: Story = {
       await wait();
       return {
         ok: false,
-        error: "انجام نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        error: sample(
+          "انجام نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        ),
       };
     },
   },

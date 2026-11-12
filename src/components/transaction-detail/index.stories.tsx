@@ -3,9 +3,10 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { SAMPLE_TRANSACTIONS } from "@/components/transaction-list/sample-transactions";
 
 import { TransactionDetail } from "./index";
+import { sample } from "@/helpers/sample";
 
 const byDescription = (description: string) => {
-  const found = SAMPLE_TRANSACTIONS.find(
+  const found = sample(SAMPLE_TRANSACTIONS).find(
     (transaction) => transaction.description === description,
   );
   if (!found) throw new Error(description);

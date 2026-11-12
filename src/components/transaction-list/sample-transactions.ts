@@ -11,7 +11,7 @@ import type {
 } from "@/types/transaction";
 
 /*
- * Transactions for stories, around 7 October 2026 (15 Mehr 1405): names stay Persian, amounts
+ * Transactions for stories, around 7 October 2026 (15 Mehr 1405): names are Persian (the preview translates them with `sample`), amounts
  * in rials. Categories and accounts come from the other sample files.
  */
 

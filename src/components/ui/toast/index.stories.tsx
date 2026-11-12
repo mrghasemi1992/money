@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@/components/ui/button";
 
 import { useToast, type ToastTone } from "./index";
+import { sample } from "@/helpers/sample";
 
 function ToastDemo() {
   const toast = useToast();
@@ -14,19 +15,31 @@ function ToastDemo() {
   }[] = [
     {
       tone: "success",
-      label: "موفق",
-      title: "تراکنش ثبت شد",
-      description: "خرید هفتگی، ۸۵۰٬۰۰۰ ریال",
+      label: sample("موفق"),
+      title: sample("تراکنش ثبت شد"),
+      description: sample("خرید هفتگی، ۸۵۰٬۰۰۰ ریال"),
     },
-    { tone: "info", label: "اطلاع", title: "۳ تراکنش از Claude رسید" },
-    { tone: "warning", label: "هشدار", title: "بودجه خوراک نزدیک به سقف است" },
+    {
+      tone: "info",
+      label: sample("اطلاع"),
+      title: sample("۳ تراکنش از Claude رسید"),
+    },
+    {
+      tone: "warning",
+      label: sample("هشدار"),
+      title: sample("بودجه خوراک نزدیک به سقف است"),
+    },
     {
       tone: "danger",
-      label: "خطا",
-      title: "تراکنش ثبت نشد",
-      description: "اتصال به سرور برقرار نشد.",
+      label: sample("خطا"),
+      title: sample("تراکنش ثبت نشد"),
+      description: sample("اتصال به سرور برقرار نشد."),
     },
-    { tone: "neutral", label: "ساده", title: "تغییرات ذخیره شد" },
+    {
+      tone: "neutral",
+      label: sample("ساده"),
+      title: sample("تغییرات ذخیره شد"),
+    },
   ];
   return (
     <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
@@ -43,16 +56,16 @@ function ToastDemo() {
         onClick={() =>
           toast.show({
             tone: "success",
-            title: "تراکنش حذف شد",
-            description: "خرید هفتگی، ۸۵۰٬۰۰۰ ریال",
+            title: sample("تراکنش حذف شد"),
+            description: sample("خرید هفتگی، ۸۵۰٬۰۰۰ ریال"),
             action: {
-              label: "واگرد",
-              onClick: () => toast.show({ title: "تراکنش برگشت" }),
+              label: sample("واگرد"),
+              onClick: () => toast.show({ title: sample("تراکنش برگشت") }),
             },
           })
         }
       >
-        حذف با واگرد
+        {sample("حذف با واگرد")}
       </Button>
     </div>
   );

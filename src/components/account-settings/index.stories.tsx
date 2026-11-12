@@ -10,6 +10,7 @@ import {
   AccountSettingsError,
   AccountSettingsSkeleton,
 } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 const ok = async (): Promise<ActionResult> => {
@@ -64,7 +65,7 @@ export const Default: Story = {
     const nameTaken = {
       ok: false,
       field: "name",
-      error: "حسابی با این نام وجود دارد.",
+      error: sample("حسابی با این نام وجود دارد."),
     } as const;
     return (
       <AccountSettings

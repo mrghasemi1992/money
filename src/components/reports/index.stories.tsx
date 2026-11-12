@@ -18,6 +18,7 @@ import {
   SAMPLE_REPORT_TOTALS,
   sampleMonthTotals,
 } from "./sample-reports";
+import { sample } from "@/helpers/sample";
 
 type ExampleProps = {
   params: ReportParams;
@@ -34,12 +35,14 @@ function Example({ params, empty = false, canWrite = true }: ExampleProps) {
     <Reports
       period={period}
       data={{
-        totals: empty ? { income: 0, expense: 0 } : SAMPLE_REPORT_TOTALS,
-        previousTotals: SAMPLE_PREVIOUS_TOTALS,
+        totals: empty
+          ? { income: 0, expense: 0 }
+          : sample(SAMPLE_REPORT_TOTALS),
+        previousTotals: sample(SAMPLE_PREVIOUS_TOTALS),
         categories: empty
           ? { income: [], expense: [] }
-          : SAMPLE_CATEGORY_REPORT,
-        accounts: empty ? [] : SAMPLE_ACCOUNT_REPORT,
+          : sample(SAMPLE_CATEGORY_REPORT),
+        accounts: empty ? [] : sample(SAMPLE_ACCOUNT_REPORT),
         months: sampleMonthTotals(period.months),
       }}
     />
@@ -47,8 +50,8 @@ function Example({ params, empty = false, canWrite = true }: ExampleProps) {
   return (
     <AddTransactionProvider
       enabled={canWrite}
-      options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
-      actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+      options={sample(SAMPLE_TRANSACTION_OPTIONS_PROMISE)}
+      actions={sample(SAMPLE_ADD_TRANSACTION_ACTIONS)}
     >
       {page}
     </AddTransactionProvider>

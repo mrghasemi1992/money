@@ -9,6 +9,7 @@ import type { ActionResult } from "@/types/action";
 import type { ManagedUser, NewUserField, NewUserInput } from "@/types/user";
 
 import { UserManagement, UserManagementSkeleton } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 const ok = async (): Promise<ActionResult> => {
@@ -69,7 +70,7 @@ export const Default: Story = {
             return {
               ok: false,
               field: "username",
-              error: "این نام کاربری قبلاً گرفته شده است.",
+              error: sample("این نام کاربری قبلاً گرفته شده است."),
             };
           }
           setUsers((current) => [
@@ -114,11 +115,11 @@ export const ActionFails: Story = {
   args: {
     onChangeRole: async () => {
       await wait();
-      return { ok: false, error: "دست‌کم یک مدیر فعال باید بماند." };
+      return { ok: false, error: sample("دست‌کم یک مدیر فعال باید بماند.") };
     },
     onDisable: async () => {
       await wait();
-      return { ok: false, error: "دست‌کم یک مدیر فعال باید بماند." };
+      return { ok: false, error: sample("دست‌کم یک مدیر فعال باید بماند.") };
     },
   },
 };

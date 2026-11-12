@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { IconButton } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/IconButton",
@@ -50,28 +51,33 @@ export const AllVariants: Story = {
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
       {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
         <div key={variant} style={row}>
-          <IconButton variant={variant} size="sm" icon={XIcon} label="بستن" />
+          <IconButton
+            variant={variant}
+            size="sm"
+            icon={XIcon}
+            label={sample("بستن")}
+          />
           <IconButton
             variant={variant}
             icon={EllipsisVerticalIcon}
-            label="گزینه‌های بیشتر"
+            label={sample("گزینه‌های بیشتر")}
           />
           <IconButton
             variant={variant}
             size="lg"
             icon={PlusIcon}
-            label="افزودن"
+            label={sample("افزودن")}
           />
           <IconButton
             variant={variant}
             shape="round"
             icon={Trash2Icon}
-            label="حذف"
+            label={sample("حذف")}
           />
           <IconButton
             variant={variant}
             icon={PencilIcon}
-            label="ویرایش"
+            label={sample("ویرایش")}
             disabled
           />
         </div>

@@ -1258,6 +1258,23 @@ Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.
 - Follow-up: «what about anthropic official skills like engineering:architecture?». Those come from the Engineering and Design plugins installed on the claude.ai account, which the repo didn't carry. Anthropic publishes them on GitHub (`anthropics/knowledge-work-plugins`), so `.claude/settings.json` now enables `engineering` and `design` from there too.
 - ESLint and Prettier ignore the vendored skills. CLAUDE.md has a «Claude Code setup» section.
 
+## Storybook stories in English (#32)
+
+Branch: `bugfix/storybook-english-sample-data-32`. Date: 2026-11-12.
+
+### Claude Code prompt (as sent)
+
+> #32
+
+Issue #32: with the Storybook language toolbar set to English, some stories still show Persian text. Audit all stories and make their sample data follow the language toolbar.
+
+### Result
+
+- About 300 Persian strings in the stories and their sample data now have an English counterpart in `SAMPLE_TEXT_EN` (`src/constants/sample-text.ts`). Strings that are only Persian digits and punctuation (amounts, percents) are converted by their characters.
+- `sample()` (`src/helpers/sample.ts`) translates a string, or every string inside plain objects, arrays, elements and promises, for the toolbar's language. The preview decorator sets the language, remounts the story when it changes and translates the story's `args`, so the sample constants passed as `args` needed no edits. Text a story renders itself is wrapped in `sample()`.
+- Audit: all stories were opened with the English toolbar and their text, labels, titles and placeholders scanned for Persian characters until none were left.
+- CLAUDE.md replaces «sample data may stay Persian» with this rule.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

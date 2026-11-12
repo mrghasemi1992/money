@@ -5,7 +5,7 @@ import type {
   Subcategory,
 } from "@/types/category";
 
-/** Categories for stories: names stay Persian. */
+/** Categories for stories: names are Persian (the preview translates them with `sample`). */
 
 let next = 0;
 const id = () => `7a1c2e90-3b4d-4f5a-8c6d-${String(++next).padStart(12, "0")}`;

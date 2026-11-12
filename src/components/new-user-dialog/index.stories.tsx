@@ -4,6 +4,7 @@ import type { ActionResult } from "@/types/action";
 import type { NewUserField } from "@/types/user";
 
 import { NewUserDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 
@@ -42,7 +43,7 @@ export const UsernameTaken: Story = {
       return {
         ok: false,
         field: "username",
-        error: "این نام کاربری قبلاً گرفته شده است.",
+        error: sample("این نام کاربری قبلاً گرفته شده است."),
       };
     },
   },

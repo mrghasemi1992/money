@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Field } from "@/components/ui/field";
 
 import { Select, type SelectOption } from "./index";
+import { sample } from "@/helpers/sample";
 
 const accounts: SelectOption[] = [
   { value: "melli", label: "کارت ملی", icon: CreditCardIcon },
@@ -67,15 +68,15 @@ export const InFieldWithError: Story = {
     const [value, setValue] = useState<string | null>(null);
     return (
       <Field
-        label="حساب"
+        label={sample("حساب")}
         required
-        error={value ? undefined : "حساب را انتخاب کنید."}
+        error={value ? undefined : sample("حساب را انتخاب کنید.")}
       >
         <Select
           options={accounts}
           value={value}
           onValueChange={setValue}
-          placeholder="انتخاب حساب"
+          placeholder={sample("انتخاب حساب")}
         />
       </Field>
     );

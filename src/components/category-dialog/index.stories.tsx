@@ -4,6 +4,7 @@ import { SAMPLE_CATEGORIES } from "@/components/category-list/sample-categories"
 import type { ActionResult } from "@/types/action";
 
 import { CategoryDialog, type CategoryFormValues } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 const [food] = SAMPLE_CATEGORIES.expense;
@@ -19,8 +20,12 @@ const meta = {
       name,
     }: CategoryFormValues): Promise<ActionResult<"name">> => {
       await wait();
-      return name.trim() === "خوراک"
-        ? { ok: false, field: "name", error: "دسته‌ای با این نام وجود دارد." }
+      return name.trim() === sample("خوراک")
+        ? {
+            ok: false,
+            field: "name",
+            error: sample("دسته‌ای با این نام وجود دارد."),
+          }
         : { ok: true };
     },
   },

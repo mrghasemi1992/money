@@ -11,17 +11,18 @@ import {
 
 import { ImportMatching } from "./index";
 
-const sample = samplePlan();
+/** Typing and the first render only: the stories plan again while rendering, in the toolbar's language. */
+const base = samplePlan();
 
 const meta = {
   title: "Components/ImportMatching",
   component: ImportMatching,
   args: {
-    names: sample.names,
-    matches: sample.matches,
+    names: base.names,
+    matches: base.matches,
     onMatch: () => {},
     book: SAMPLE_IMPORT_BOOK,
-    newTags: sample.plan.tags,
+    newTags: base.plan.tags,
   },
   argTypes: {
     names: { control: false },
@@ -41,10 +42,11 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   render: function Example(args) {
-    const [matches, setMatches] = useState(args.matches);
-    const mapping = guessColumnMap(sample.file.rows[0] ?? []);
+    const planned = samplePlan();
+    const [matches, setMatches] = useState(planned.matches);
+    const mapping = guessColumnMap(planned.file.rows[0] ?? []);
     const completed = completeMatches(
-      sample.records,
+      planned.records,
       { amountMode: guessAmountMode(mapping), rialUnit: "toman" },
       { book: args.book, currency: "IRR", today: "2026-10-08" },
       matches,

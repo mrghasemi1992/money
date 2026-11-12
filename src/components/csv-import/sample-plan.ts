@@ -5,12 +5,16 @@ import {
   planImport,
   toImportRecords,
 } from "@/helpers/csv-import";
+import { sample } from "@/helpers/sample";
 import type { CsvFile, ImportDuplicate } from "@/types/csv";
 
 import { SAMPLE_IMPORT_BOOK, SAMPLE_IMPORT_FILE_FA } from "./sample-import";
 
-/** Stories: the Persian sample file planned against the sample book, in tomans, today 2026-10-08. */
-export function samplePlan(file: CsvFile = SAMPLE_IMPORT_FILE_FA) {
+/**
+ * Stories: the sample file planned against the sample book, in tomans, today 2026-10-08. The
+ * file and the book follow the language toolbar, so call it while rendering, not at module level.
+ */
+export function samplePlan(file: CsvFile = sample(SAMPLE_IMPORT_FILE_FA)) {
   const mapping = guessColumnMap(file.rows[0] ?? []);
   const format = {
     amountMode: guessAmountMode(mapping),
@@ -18,7 +22,7 @@ export function samplePlan(file: CsvFile = SAMPLE_IMPORT_FILE_FA) {
   };
   const records = toImportRecords(file.rows, true, mapping, format.amountMode);
   const context = {
-    book: SAMPLE_IMPORT_BOOK,
+    book: sample(SAMPLE_IMPORT_BOOK),
     currency: "IRR" as const,
     today: "2026-10-08",
   };
@@ -42,6 +46,6 @@ export function sampleDuplicates(): ImportDuplicate[] {
       line: row.line,
       date: row.date,
       accountId: row.account.kind === "existing" ? row.account.id : "",
-      description: "خرید از فروشگاه",
+      description: sample("خرید از فروشگاه"),
     }));
 }

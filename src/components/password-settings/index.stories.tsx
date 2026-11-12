@@ -4,6 +4,7 @@ import type { ActionResult } from "@/types/action";
 import type { PasswordField } from "@/types/user";
 
 import { PasswordSettings } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 600));
 
@@ -37,7 +38,11 @@ export const WrongCurrentPassword: Story = {
   args: {
     onChange: async (): Promise<ActionResult<PasswordField>> => {
       await wait();
-      return { ok: false, field: "current", error: "رمز فعلی درست نیست." };
+      return {
+        ok: false,
+        field: "current",
+        error: sample("رمز فعلی درست نیست."),
+      };
     },
   },
 };

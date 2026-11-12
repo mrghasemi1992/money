@@ -9,6 +9,7 @@ import { TopSpendingSkeleton } from "@/components/top-spending";
 
 import { Dashboard } from "./index";
 import { SampleDashboard } from "./sample-dashboard";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/Dashboard",
@@ -38,7 +39,12 @@ export const Mobile: Story = {
 export const Loading: Story = {
   render: () => (
     <Dashboard
-      header={<PageHeader title="سلام، سارا" subtitle="چهارشنبه ۱۵ مهر ۱۴۰۵" />}
+      header={
+        <PageHeader
+          title={sample("سلام، سارا")}
+          subtitle={sample("چهارشنبه ۱۵ مهر ۱۴۰۵")}
+        />
+      }
       balances={<BalanceOverviewSkeleton />}
       month={<MonthOverviewSkeleton />}
       recent={<RecentTransactionsSkeleton />}

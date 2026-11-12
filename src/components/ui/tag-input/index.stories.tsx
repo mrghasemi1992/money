@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Field } from "@/components/ui/field";
 
 import { TagInput } from "./index";
+import { sample } from "@/helpers/sample";
 
 const SUGGESTIONS = ["کاری", "خانواده", "سفر شمال", "مهمانی", "قابل بازپرداخت"];
 
@@ -14,7 +15,7 @@ const meta = {
     suggestions: SUGGESTIONS,
     placeholder: "بنویسید و Enter بزنید",
     suggestionsLabel: "برچسب‌های موجود",
-    addLabel: (tag: string) => `افزودن «${tag}»`,
+    addLabel: (tag: string) => `${sample("افزودن «")}${tag}${sample("»")}`,
     maxLength: 30,
     "aria-label": "برچسب‌ها",
   },
@@ -41,7 +42,7 @@ export const Open: Story = { args: { open: true } };
 export const InField: Story = {
   args: { "aria-label": undefined },
   render: (args) => (
-    <Field label="برچسب‌ها" optional>
+    <Field label={sample("برچسب‌ها")} optional>
       <TagInput {...args} />
     </Field>
   ),

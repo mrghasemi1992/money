@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Field } from "@/components/ui/field";
 
 import { Combobox, type ComboboxGroup } from "./index";
+import { sample } from "@/helpers/sample";
 
 const expenseCategories: ComboboxGroup[] = [
   {
@@ -77,9 +78,9 @@ export const Controlled: Story = {
     const [value, setValue] = useState<string | null>("transport-taxi");
     return (
       <div style={{ display: "grid", gap: "var(--space-3)" }}>
-        <Field label="دسته‌بندی" required>
+        <Field label={sample("دسته‌بندی")} required>
           <Combobox
-            groups={expenseCategories}
+            groups={sample(expenseCategories)}
             value={value}
             onValueChange={setValue}
           />
@@ -92,8 +93,12 @@ export const Controlled: Story = {
 
 export const Invalid: Story = {
   render: () => (
-    <Field label="دسته‌بندی" required error="دسته‌بندی را انتخاب کنید.">
-      <Combobox groups={expenseCategories} />
+    <Field
+      label={sample("دسته‌بندی")}
+      required
+      error={sample("دسته‌بندی را انتخاب کنید.")}
+    >
+      <Combobox groups={sample(expenseCategories)} />
     </Field>
   ),
 };

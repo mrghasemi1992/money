@@ -7,6 +7,7 @@ import {
 } from "@/components/transaction-list/sample-transactions";
 
 import { FirstRun } from "./index";
+import { sample } from "@/helpers/sample";
 
 const EMPTY_BOOK = {
   hasAccounts: false,
@@ -25,8 +26,8 @@ const meta = {
     (Story, { args }) => (
       <AddTransactionProvider
         enabled={args.canWrite}
-        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
-        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+        options={sample(SAMPLE_TRANSACTION_OPTIONS_PROMISE)}
+        actions={sample(SAMPLE_ADD_TRANSACTION_ACTIONS)}
       >
         <Story />
       </AddTransactionProvider>

@@ -5,6 +5,7 @@ import { Field } from "@/components/ui/field";
 import { MONEY_UNITS } from "@/constants/currency";
 
 import { AmountField } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/AmountField",
@@ -38,7 +39,7 @@ export const Controlled: Story = {
     const [value, setValue] = useState<number | null>(2500000);
     return (
       <div style={{ display: "grid", gap: "var(--space-3)" }}>
-        <Field label="مبلغ" required>
+        <Field label={sample("مبلغ")} required>
           <AmountField value={value} onValueChange={setValue} showEquivalent />
         </Field>
         <span className="type-caption">
@@ -66,7 +67,7 @@ export const Negative: Story = {
 
 export const Invalid: Story = {
   render: () => (
-    <Field label="مبلغ" required error="مبلغ را وارد کنید.">
+    <Field label={sample("مبلغ")} required error={sample("مبلغ را وارد کنید.")}>
       <AmountField />
     </Field>
   ),

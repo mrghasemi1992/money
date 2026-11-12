@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 
 import { ArchivedCategoryList, CategoryList } from "./index";
 import { SAMPLE_CATEGORIES } from "./sample-categories";
+import { sample } from "@/helpers/sample";
 
 const noop = () => {};
 
@@ -51,7 +52,7 @@ export const ReadOnly: Story = { args: { canWrite: false } };
 /** Archived categories, and archived subcategories of active ones («تفریح / سفر»). */
 export const Archived: Story = {
   render: () => {
-    const [, , , leisure, , , education] = SAMPLE_CATEGORIES.expense;
+    const [, , , leisure, , , education] = sample(SAMPLE_CATEGORIES).expense;
     return (
       <Card variant="sunken" padding="none">
         <ArchivedCategoryList

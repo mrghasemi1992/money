@@ -11,6 +11,7 @@ import {
 } from "@/components/transaction-list/sample-transactions";
 
 import { PageHeader } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/PageHeader",
@@ -47,8 +48,8 @@ export const WithDateAndAction: Story = {
     (Story) => (
       <AddTransactionProvider
         enabled
-        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
-        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+        options={sample(SAMPLE_TRANSACTION_OPTIONS_PROMISE)}
+        actions={sample(SAMPLE_ADD_TRANSACTION_ACTIONS)}
       >
         <Story />
       </AddTransactionProvider>

@@ -10,6 +10,8 @@ import {
 import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { sample as localize } from "@/helpers/sample";
+
 import { CATEGORY_COLORS } from "@/constants/category";
 
 import styles from "./styles.module.css";
@@ -364,7 +366,7 @@ export function TypeScale() {
                     : undefined,
                 }}
               >
-                {sample}
+                {localize(sample)}
               </span>
             </div>
           ))}
@@ -390,7 +392,7 @@ export function TypeScale() {
                   fontSize: "var(--text-2xl)",
                 }}
               >
-                حساب
+                {localize("حساب")}
               </span>
               <code className={styles.code}>{weight}</code>
             </span>
@@ -414,7 +416,7 @@ function TypeSize({ size }: { size: string }) {
           fontWeight: "var(--weight-medium)",
         }}
       >
-        موجودی حساب‌ها
+        {localize("موجودی حساب‌ها")}
       </span>
     </div>
   );

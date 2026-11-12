@@ -1,6 +1,6 @@
 import type { Account } from "@/types/account";
 
-/** Accounts for stories: names stay Persian, amounts in rials. */
+/** Accounts for stories: names are Persian (the preview translates them with `sample`), amounts in rials. */
 export const SAMPLE_ACCOUNTS: Account[] = [
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b01",

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 
 import { AccountList, AccountReorderHint } from "./index";
 import { SAMPLE_ACCOUNTS } from "./sample-accounts";
+import { sample } from "@/helpers/sample";
 
 const active = SAMPLE_ACCOUNTS.filter((account) => !account.archived);
 
@@ -36,14 +37,14 @@ type Story = StoryObj<typeof meta>;
  */
 export const Reorder: Story = {
   render: function Example(args) {
-    const [ids, setIds] = useState(active.map((account) => account.id));
+    const [ids, setIds] = useState(sample(active).map((account) => account.id));
     return (
       <div style={{ display: "grid", gap: "var(--space-2-5)" }}>
         <Card padding="none">
           <AccountList
             {...args}
             accounts={ids.flatMap(
-              (id) => active.find((account) => account.id === id) ?? [],
+              (id) => sample(active).find((account) => account.id === id) ?? [],
             )}
             onReorder={setIds}
           />

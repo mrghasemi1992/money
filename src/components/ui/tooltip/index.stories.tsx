@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 
 import { Tooltip } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Tooltip",
@@ -34,7 +35,11 @@ export const Open: Story = { args: { open: true } };
 /** Icon buttons get their tooltip from the label automatically. */
 export const OnIconButton: Story = {
   render: () => (
-    <IconButton icon={PencilIcon} label="ویرایش تراکنش" variant="secondary" />
+    <IconButton
+      icon={PencilIcon}
+      label={sample("ویرایش تراکنش")}
+      variant="secondary"
+    />
   ),
 };
 
