@@ -3,14 +3,21 @@ import {
   REPORT_MAX_MONTHS,
   REPORT_PARAMS,
   REPORT_RECENT_MONTHS,
+  REPORT_RECURRING_MIN_MONTHS,
+  REPORT_RECURRING_SHARE,
   REPORT_SAME_PERCENT,
   REPORT_TREND_MONTHS,
 } from "@/constants/report";
 import type { CalendarSystem } from "@/types/calendar";
 import type { Locale } from "@/types/locale";
 import type {
+  BudgetRecordRow,
+  CategoryMover,
+  CategoryReportRow,
   DateRange,
+  LargeTransaction,
   RecentMonthsPeriod,
+  RecurringExpense,
   ReportMonth,
   ReportParams,
   ReportPeriod,
@@ -27,7 +34,13 @@ import {
 import { addDays, daysBetween, isIsoDate } from "@/utils/iso-date";
 import { toLocaleDigits } from "@/utils/number";
 
-import { formatMonthParam, parseMonthParam } from "./transaction-filters";
+import { type BudgetStatus, getBudgetStatus } from "./budget";
+import {
+  EMPTY_TRANSACTION_PARAMS,
+  formatMonthParam,
+  parseMonthParam,
+  transactionParamsToSearch,
+} from "./transaction-filters";
 
 /*
  * The reports page keeps its period in the URL: nothing (the last 6 months), `?period=3m` or
@@ -262,4 +275,146 @@ export function compareAmounts(current: number, previous: number): Change {
     return { direction: "same", percent: 0 };
   }
   return { direction: percent > 0 ? "up" : "down", percent: Math.abs(percent) };
+}
+
+/*
+ * Insights: the figures behind the movers, savings rate, recurring spending, largest
+ * transactions and budget record cards. Pure, so the page, stories and tests share them.
+ */
+
+/** The id of the part a category recorded on itself, among its subcategories' changes. */
+export const MOVER_DIRECT_ID = "direct";
+
+/** A subcategory's or category's spending in both periods: what ranks by change. */
+type MoverAmounts = { current: number; previous: number };
+
+function changeSize({ current, previous }: MoverAmounts): number {
+  return Math.abs(current - previous);
+}
+
+function byChange(a: MoverAmounts, b: MoverAmounts): number {
+  return changeSize(b) - changeSize(a);
+}
+
+/**
+ * The expense categories of the period and the one before (categoryTotals of each) side by
+ * side, the largest change in amount first; categories that didn't change are left out. Each
+ * keeps its subcategories (and «بدون زیردسته», MOVER_DIRECT_ID, when the category also has
+ * subcategories) with their own change, the largest first.
+ */
+export function categoryMovers(
+  current: CategoryReportRow[],
+  previous: CategoryReportRow[],
+): CategoryMover[] {
+  const movers = new Map<string, CategoryMover>();
+  const key = (id: string | null) => id ?? "";
+
+  function add(row: CategoryReportRow, side: "current" | "previous") {
+    let mover = movers.get(key(row.id));
+    if (!mover) {
+      mover = {
+        id: row.id,
+        name: row.name,
+        color: row.color,
+        icon: row.icon,
+        current: 0,
+        previous: 0,
+        subcategories: [],
+      };
+      movers.set(key(row.id), mover);
+    }
+    mover[side] += row.amount;
+    const parts =
+      row.subcategories.length > 0 && row.direct > 0
+        ? [
+            ...row.subcategories,
+            { id: MOVER_DIRECT_ID, name: "", amount: row.direct },
+          ]
+        : row.subcategories;
+    for (const part of parts) {
+      let sub = mover.subcategories.find((item) => item.id === part.id);
+      if (!sub) {
+        sub = { id: part.id, name: part.name, current: 0, previous: 0 };
+        mover.subcategories.push(sub);
+      }
+      sub[side] += part.amount;
+    }
+  }
+
+  for (const row of current) add(row, "current");
+  for (const row of previous) add(row, "previous");
+
+  return [...movers.values()]
+    .filter((mover) => mover.current !== mover.previous)
+    .map((mover) => {
+      // A category that had no subcategories in one period still recorded on itself there.
+      const subs = mover.subcategories;
+      if (subs.length > 0 && !subs.some((sub) => sub.id === MOVER_DIRECT_ID)) {
+        const direct = {
+          id: MOVER_DIRECT_ID,
+          name: "",
+          current:
+            mover.current - subs.reduce((sum, sub) => sum + sub.current, 0),
+          previous:
+            mover.previous - subs.reduce((sum, sub) => sum + sub.previous, 0),
+        };
+        if (direct.current !== 0 || direct.previous !== 0) subs.push(direct);
+      }
+      return {
+        ...mover,
+        subcategories: subs
+          .filter((sub) => sub.current !== sub.previous)
+          .sort(byChange),
+      };
+    })
+    .sort(byChange);
+}
+
+/** (income − expense) ÷ income, in percent; null without income, where it means nothing. */
+export function savingsRate(income: number, expense: number): number | null {
+  return income > 0 ? ((income - expense) / income) * 100 : null;
+}
+
+/** How many of `count` months an expense must appear in to count as recurring: more than half. */
+export function recurringMinMonths(count: number): number {
+  return Math.max(
+    REPORT_RECURRING_MIN_MONTHS,
+    Math.floor(count * REPORT_RECURRING_SHARE) + 1,
+  );
+}
+
+/** The transactions page searching for a recurring expense's description over the months shown. */
+export function recurringTransactionsHref(
+  item: RecurringExpense,
+  { from, to }: DateRange,
+): string {
+  return `/transactions${transactionParamsToSearch({
+    ...EMPTY_TRANSACTION_PARAMS,
+    from,
+    to,
+    types: ["expense"],
+    search: item.description,
+  })}`;
+}
+
+/** The transactions page on a large transaction's day, with its type and category. */
+export function largeTransactionHref(transaction: LargeTransaction): string {
+  return `/transactions${transactionParamsToSearch({
+    ...EMPTY_TRANSACTION_PARAMS,
+    from: transaction.date,
+    to: transaction.date,
+    types: [transaction.type],
+    categoryId: transaction.category?.id ?? null,
+    unknownOnly: transaction.category === null,
+  })}`;
+}
+
+/** Each month of a budgeted category: ok and near stay within the limit, over doesn't. */
+export function budgetMonthStatuses(row: BudgetRecordRow): BudgetStatus[] {
+  return row.spent.map((spent) => getBudgetStatus(spent, row.budget));
+}
+
+/** The months a budgeted category stayed within its limit. */
+export function monthsWithinBudget(row: BudgetRecordRow): number {
+  return budgetMonthStatuses(row).filter((status) => status !== "over").length;
 }

@@ -59,10 +59,15 @@ export function AppShell({
   const items = getNavItems(user.role);
   const tabs = getPhoneTabs(items);
   const moreItems = getMoreItems(items);
-  // Only a subpage (/settings/connector) gets a back button, to its section.
+  // Only a subpage (/settings/connector) gets a back button, to its section; a section's own
+  // tabs (/reports/breakdown) don't.
   const section = findNavItem(items, pathname);
   const backHref =
-    section && section.href !== pathname ? section.href : undefined;
+    section &&
+    section.href !== pathname &&
+    !section.tabs?.some((tab) => tab === pathname)
+      ? section.href
+      : undefined;
 
   return (
     <AddTransactionProvider

@@ -25,6 +25,11 @@ export type NavItem = {
   tab?: boolean;
   /** On phones the top bar links to it (settings), so the «More» menu leaves it out. */
   topBar?: boolean;
+  /**
+   * Pages under it that are its tabs, not subpages (/reports/breakdown): the phone's top bar
+   * gives them no back button.
+   */
+  tabs?: readonly Route[];
   /** Only admins see it (user management). The page itself checks the role with requireAdmin(). */
   adminOnly?: boolean;
 };

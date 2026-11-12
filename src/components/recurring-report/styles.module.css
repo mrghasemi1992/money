@@ -1,0 +1,126 @@
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  /* Rows reach the card's padding, so their hover fill has room around the content. */
+  margin: 0 calc(-1 * var(--space-2));
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.row:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.line,
+.meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.description {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font: var(--type-label);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.monthly {
+  flex: none;
+  color: var(--text-primary);
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  font-feature-settings: var(--font-features-tabular);
+}
+
+.meta {
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.category {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--type-caption);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.count {
+  flex: none;
+  margin-inline-start: auto;
+  font-feature-settings: var(--font-features-tabular);
+}
+
+/* One cell per month in reading order, filled where the expense appeared. */
+.strip {
+  display: flex;
+  gap: var(--recurring-cell-gap);
+  padding-block-start: var(--space-0-5);
+}
+
+.cell {
+  flex: 1 1 0;
+  max-inline-size: var(--recurring-cell-max);
+  block-size: var(--recurring-cell-h);
+  border-radius: var(--radius-xs);
+  background: var(--budget-track);
+}
+
+.cell[data-present] {
+  background: var(--brand-solid);
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.hintIcon {
+  flex: none;
+  inline-size: var(--icon-size-xs);
+  block-size: var(--icon-size-xs);
+}

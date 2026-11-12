@@ -1,0 +1,124 @@
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--budget-record-min), 100%), 1fr)
+  );
+  gap: var(--space-3-5) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.name {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.within {
+  flex: none;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  font-feature-settings: var(--font-features-tabular);
+}
+
+/* A cell per month in reading order, sharing the row's whole width. */
+.strip {
+  display: flex;
+  gap: var(--recurring-cell-gap);
+}
+
+.strip .cell {
+  flex: 1 1 0;
+}
+
+.cell {
+  position: relative;
+  display: block;
+  inline-size: var(--chart-swatch);
+  block-size: var(--recurring-cell-h);
+  border-radius: var(--radius-xs);
+}
+
+/* Within the limit is the calm case: a soft fill, so the months near or over it stand out. */
+.cell[data-status="ok"] {
+  background: color-mix(in oklab, var(--budget-ok) 40%, var(--surface-card));
+}
+
+/* Near the limit: solid amber with a dot, so it reads apart from «within» without color. */
+.cell[data-status="near"] {
+  background: var(--budget-near);
+}
+
+.cell[data-status="near"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  inline-size: var(--budget-record-dot);
+  block-size: var(--budget-record-dot);
+  margin: auto;
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+}
+
+/* Over the limit: red and striped, as on the budgets page. */
+.cell[data-status="over"] {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--budget-over) 0 var(--chart-stripe-sm),
+    color-mix(in oklab, var(--budget-over) 72%, var(--surface-card))
+      var(--chart-stripe-sm) var(--chart-stripe-gap-sm)
+  );
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+
+.hintIcon {
+  flex: none;
+  inline-size: var(--icon-size-xs);
+  block-size: var(--icon-size-xs);
+}

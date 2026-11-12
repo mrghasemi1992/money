@@ -364,4 +364,11 @@ export const SAMPLE_TEXT_EN: Record<string, string> = {
     "Transactions without a category get the “unknown” tag.",
   "۹ مهر ۱۴۰۵، کارت ملی": "9 Mehr 1405, National card",
   "موجودی حساب‌ها": "Account balances",
+  "اجاره خانه": "Home rent",
+  "اجاره مهر": "Mehr rent",
+  "اشتراک فیلم": "Film subscription",
+  "تعمیر یخچال": "Fridge repair",
+  "خرید ماهانه": "Monthly shopping",
+  "پاداش نیمه سال": "Mid-year bonus",
+  "پروژه طراحی سایت": "Website design project",
 };

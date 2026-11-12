@@ -17,7 +17,7 @@ import { usePreferences } from "@/hooks/use-preferences";
 import type { MoneyUnit } from "@/types/currency";
 import { axisShare, niceAxis } from "@/utils/chart";
 import { cx } from "@/utils/cx";
-import { formatNumber } from "@/utils/number";
+import { formatNumber, formatPercent } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
@@ -30,6 +30,8 @@ export type ColumnChartPoint = {
   /** In the book currency's smallest unit. */
   income: number;
   expense: number;
+  /** A month still running: left out of the average month, unless every point is one. */
+  partial?: boolean;
 };
 
 type ColumnChartProps = {
@@ -44,6 +46,9 @@ type ColumnChartProps = {
   "aria-label"?: string;
 };
 
+/** About how many steps the axis takes from the lowest expense to the highest income. */
+const AXIS_STEPS = 6;
+
 /** Most labels under the columns before every other one is left out. */
 const MAX_LABELS = 12;
 const MAX_LABELS_NARROW = 6;
@@ -53,13 +58,22 @@ function labelStep(count: number, max: number): number {
   return Math.max(1, Math.ceil(count / max));
 }
 
+/** The mean of some values, 0 for none. */
+function mean(values: number[]): number {
+  return values.length > 0
+    ? values.reduce((sum, value) => sum + value, 0) / values.length
+    : 0;
+}
+
 /**
- * Income and expense columns side by side for each point (expense striped, so the two read
- * without color), with the net (income − expense) as a line with a dot per point. The axis is
- * labeled in round values of a scale named under it («محور عمودی: میلیون ریال»). Hover, tap or
- * focus a column to read its amounts above the plot; the columns are one tab stop and arrow
- * keys move between them. Columns are laid out by CSS grid, so they flow in the page's
- * direction; the line is drawn left to right and mirrored in RTL.
+ * Each point's income as a column rising from a zero line and its expense as a column hanging
+ * below it (striped, so the two read without color), so the room between them is the month's
+ * result; a dot marks the net (income − expense). Dashed lines mark the average month's
+ * income and expense (months still running left out). The axis is labeled in round values of
+ * a scale named under it («محور عمودی: میلیون ریال»), without signs: above the line is income,
+ * below it expense. Hover, tap or focus a column to read its amounts and savings rate above
+ * the plot; the columns are one tab stop and arrow keys move between them. Columns are laid out
+ * by CSS grid, so they flow in the page's direction.
  */
 export function ColumnChart({
   points,
@@ -86,29 +100,27 @@ export function ColumnChart({
   const largest = Math.max(
     0,
     ...points.flatMap((item) => [item.income, item.expense]),
-    ...nets.map(Math.abs),
   );
   const { scale, divisor } = moneyAxisScale(largest, unit);
   const perUnit = MONEY_UNITS[unit].minorPerUnit * divisor;
+  // Income above zero, expense below it; the net always lies between the two.
+  // Two sides share the height, so more, smaller steps keep the columns tall.
   const axis = niceAxis(
-    points.flatMap((item, index) => [
-      item.income / perUnit,
-      item.expense / perUnit,
-      nets[index] / perUnit,
-    ]),
+    points.flatMap((item) => [item.income / perUnit, -item.expense / perUnit]),
+    AXIS_STEPS,
   );
-  const zero = axisShare(0, axis);
-  /** A value's height as a share of the space above the zero line. */
-  const barShare = (value: number) =>
-    axis.max > 0 ? value / perUnit / axis.max : 0;
-  const netY = (value: number) => (1 - axisShare(value / perUnit, axis)) * 100;
+  /** Where a value sits, in percent of the plot's height from the bottom. */
+  const at = (value: number) => axisShare(value / perUnit, axis) * 100;
+  const zero = at(0);
+
+  const complete = points.filter((item) => !item.partial);
+  const typical = complete.length > 0 ? complete : points;
+  const averageIncome = mean(typical.map((item) => item.income));
+  const averageExpense = mean(typical.map((item) => item.expense));
 
   const count = points.length;
   const wideStep = labelStep(count, MAX_LABELS);
   const narrowStep = labelStep(count, MAX_LABELS_NARROW);
-  const linePoints = nets
-    .map((net, index) => `${((index + 0.5) / count) * 100},${netY(net)}`)
-    .join(" ");
 
   function focusColumn(index: number) {
     const next = Math.min(Math.max(index, 0), count - 1);
@@ -175,6 +187,17 @@ export function ColumnChart({
           {t("chart.net")}
           <Amount value={point.income - point.expense} size="sm" unit={unit} />
         </span>
+        <span className={styles.readoutValue}>
+          {t("chart.savingsRate")}
+          <span className={styles.readoutRate}>
+            {point.income > 0
+              ? formatPercent(
+                  ((point.income - point.expense) / point.income) * 100,
+                  locale,
+                )
+              : t("chart.noIncome")}
+          </span>
+        </span>
         <span className={styles.axisNote}>
           {t("chart.axis", { scale, unit: t(`chart.units.${unit}`) })}
         </span>
@@ -191,7 +214,9 @@ export function ColumnChart({
               }}
             >
               <bdi dir="ltr">
-                {formatNumber(tick, locale, { maxFractionDigits: 2 })}
+                {formatNumber(Math.abs(tick), locale, {
+                  maxFractionDigits: 2,
+                })}
               </bdi>
             </span>
           ))}
@@ -204,16 +229,18 @@ export function ColumnChart({
             aria-label={ariaLabel}
             onMouseLeave={() => setHovered(null)}
           >
-            {axis.ticks.map((tick) => (
-              <span
-                key={tick}
-                className={cx(styles.gridLine, tick === 0 && styles.zeroLine)}
-                style={{
-                  insetBlockStart: `${(1 - axisShare(tick, axis)) * 100}%`,
-                }}
-                aria-hidden="true"
-              />
-            ))}
+            {axis.ticks
+              .filter((tick) => tick !== 0)
+              .map((tick) => (
+                <span
+                  key={tick}
+                  className={styles.gridLine}
+                  style={{
+                    insetBlockStart: `${(1 - axisShare(tick, axis)) * 100}%`,
+                  }}
+                  aria-hidden="true"
+                />
+              ))}
 
             <div className={styles.columns}>
               {points.map((item, index) => (
@@ -228,6 +255,7 @@ export function ColumnChart({
                   aria-label={columnLabel(item, nets[index])}
                   data-hovered={index === hovered || undefined}
                   data-selected={item.key === selectedKey || undefined}
+                  data-active={index === active || undefined}
                   onMouseEnter={() => setHovered(index)}
                   onFocus={() => setCurrent(index)}
                   onClick={() => setCurrent(index)}
@@ -235,33 +263,42 @@ export function ColumnChart({
                 >
                   <span className={styles.band} />
                   <span
-                    className={styles.bars}
+                    className={cx(styles.bar, styles.income)}
                     style={{
-                      insetBlockEnd: `${zero * 100}%`,
-                      blockSize: `${(1 - zero) * 100}%`,
+                      insetBlockEnd: `${zero}%`,
+                      blockSize: `${at(item.income) - zero}%`,
                     }}
-                  >
-                    <span
-                      className={cx(styles.bar, styles.income)}
-                      style={{ blockSize: `${barShare(item.income) * 100}%` }}
-                    />
-                    <span
-                      className={cx(styles.bar, styles.expense)}
-                      style={{ blockSize: `${barShare(item.expense) * 100}%` }}
-                    />
-                  </span>
+                  />
+                  <span
+                    className={cx(styles.bar, styles.expense)}
+                    style={{
+                      insetBlockStart: `${100 - zero}%`,
+                      blockSize: `${zero - at(-item.expense)}%`,
+                    }}
+                  />
                 </button>
               ))}
             </div>
 
-            <svg
-              className={cx(styles.line, "mirror-rtl")}
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
+            <span
+              className={styles.zeroLine}
+              style={{ insetBlockStart: `${100 - zero}%` }}
               aria-hidden="true"
-            >
-              <polyline points={linePoints} vectorEffect="non-scaling-stroke" />
-            </svg>
+            />
+            {averageIncome > 0 ? (
+              <span
+                className={styles.average}
+                style={{ insetBlockStart: `${100 - at(averageIncome)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
+            {averageExpense > 0 ? (
+              <span
+                className={styles.average}
+                style={{ insetBlockStart: `${100 - at(-averageExpense)}%` }}
+                aria-hidden="true"
+              />
+            ) : null}
 
             <div className={styles.dots} aria-hidden="true">
               {nets.map((net, index) => (
@@ -269,7 +306,7 @@ export function ColumnChart({
                   <span
                     className={styles.dot}
                     data-active={index === active || undefined}
-                    style={{ insetBlockStart: `${netY(net)}%` }}
+                    style={{ insetBlockStart: `${100 - at(net)}%` }}
                   />
                 </span>
               ))}
@@ -300,7 +337,7 @@ export function ColumnChart({
   );
 }
 
-/** What the columns and line mean, for the chart's header. Decorative: the columns say it too. */
+/** What the columns, dots and dashed lines mean, for the chart's header. Decorative: the columns say it too. */
 export function ColumnChartLegend({ className }: { className?: string }) {
   const t = useTranslations();
   return (
@@ -314,10 +351,12 @@ export function ColumnChartLegend({ className }: { className?: string }) {
         {t("transactionType.expense")}
       </span>
       <span className={styles.legendItem}>
-        <i className={styles.swatchLine}>
-          <b className={styles.swatchDot} />
-        </i>
+        <i className={styles.swatchDot} />
         {t("chart.net")}
+      </span>
+      <span className={styles.legendItem}>
+        <i className={styles.swatchAverage} />
+        {t("chart.average")}
       </span>
     </div>
   );
@@ -351,6 +390,7 @@ export function ColumnChartSkeleton({
             "transactionType.income",
             "transactionType.expense",
             "chart.net",
+            "chart.savingsRate",
           ] as const
         ).map((key) => (
           <span key={key} className={styles.readoutValue}>

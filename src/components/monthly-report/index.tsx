@@ -32,7 +32,8 @@ function monthKey({ year, month }: { year: number; month: number }): string {
 }
 
 /**
- * Income and expense per month of the viewer's calendar as columns, with the net as a line;
+ * Income and expense per month of the viewer's calendar, income rising above a zero line and
+ * expense below it, with a dot for the net and dashed lines for the average month;
  * the table lists the same months, newest first. A month still running is marked «تا امروز»
  * (so far).
  */
@@ -66,6 +67,7 @@ export function MonthlyReport({
       shortLabel: locale === "en" ? short.slice(0, 3) : short,
       income: item.income,
       expense: item.expense,
+      partial: item.current,
     };
   });
 

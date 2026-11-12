@@ -83,13 +83,13 @@ export function unknownTransactionsHref(oldest: string | null): string {
   })}`;
 }
 
-/** The reports page for one month of the viewer's calendar. */
+/** The reports' breakdown (spending by category) for one month of the viewer's calendar. */
 export function monthReportHref(
   calendar: CalendarSystem,
   year: number,
   month: number,
 ): string {
-  return `/reports${reportParamsToSearch({
+  return `/reports/breakdown${reportParamsToSearch({
     kind: "month",
     month: { calendar, year, month },
   })}`;

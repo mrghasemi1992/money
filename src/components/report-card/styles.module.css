@@ -41,3 +41,10 @@
 .extra {
   align-self: center;
 }
+
+/* The insight in a sentence: between the title and the figures, a step quieter than the title. */
+.summary {
+  margin: 0;
+  color: var(--text-secondary);
+  font: var(--type-body);
+}

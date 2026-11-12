@@ -36,3 +36,8 @@
 .empty {
   padding-block: var(--space-6) var(--space-4);
 }
+
+/* The tabs sit between the period bar and the cards, a little apart from both. */
+.tabs {
+  margin-block-end: var(--space-1);
+}
