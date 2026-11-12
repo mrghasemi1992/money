@@ -15,12 +15,20 @@
         "source": "github",
         "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
       }
+    },
+    "knowledge-work-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/knowledge-work-plugins"
+      }
     }
   },
   "enabledPlugins": {
     "vercel@claude-plugins-official": true,
     "ponytail@ponytail": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "engineering@knowledge-work-plugins": true,
+    "design@knowledge-work-plugins": true
   },
   "enabledMcpjsonServers": ["chrome-devtools"],
   "hooks": {

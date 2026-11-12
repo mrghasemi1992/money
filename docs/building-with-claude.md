@@ -1186,6 +1186,7 @@ Branch: `chore/claude-cloud-setup`. Date: 2026-11-10.
 
 - The skills installed on the desktop are copied into `.claude/skills/` (the ones switched off locally are left out), impeccable's agents into `.claude/agents/`. Impeccable comes without its 16 MB macOS engine binary; its launcher downloads the right one on first run.
 - `.claude/settings.json` adds the plugin marketplaces and enables `vercel`, `ponytail` and `ui-ux-pro-max`, and runs impeccable's hooks only where no user-level copy exists. `.mcp.json` adds `chrome-devtools`.
+- Follow-up: «what about anthropic official skills like engineering:architecture?». Those come from the Engineering and Design plugins installed on the claude.ai account, which the repo didn't carry. Anthropic publishes them on GitHub (`anthropics/knowledge-work-plugins`), so `.claude/settings.json` now enables `engineering` and `design` from there too.
 - ESLint and Prettier ignore the vendored skills. CLAUDE.md has a «Claude Code setup» section.
 
 ## Next phases
