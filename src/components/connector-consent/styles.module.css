@@ -135,10 +135,18 @@
   white-space: nowrap;
 }
 
+/*
+ * The username is an isolated left-to-right run (<bdi dir="ltr">), so its own `start` is
+ * the left edge. As a flex item it shrinks to its text and sits on the card's start edge
+ * (`flex-start` follows the page's direction), in line with the display name.
+ */
 .accountUsername {
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
   color: var(--text-muted);
   font: var(--type-caption);
-  text-align: start;
+  text-overflow: ellipsis;
 }
 
 .switch {
