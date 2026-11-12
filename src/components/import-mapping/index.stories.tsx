@@ -17,6 +17,7 @@ import type { CsvFile } from "@/types/csv";
 import type { RialUnit } from "@/types/currency";
 
 import { ImportMapping } from "./index";
+import { sample } from "@/helpers/sample";
 
 /** Placeholders: each story renders the step with its own state. */
 const args: ComponentProps<typeof ImportMapping> = {
@@ -86,22 +87,24 @@ function Example({
  * both calendars, and the unit still to choose.
  */
 export const Default: Story = {
-  render: () => <Example file={SAMPLE_IMPORT_FILE_FA} />,
+  render: () => <Example file={sample(SAMPLE_IMPORT_FILE_FA)} />,
 };
 
 /** «بعدی» pressed without a unit: the unit asks for one. */
 export const MissingUnit: Story = {
-  render: () => <Example file={SAMPLE_IMPORT_FILE_FA} showErrors />,
+  render: () => <Example file={sample(SAMPLE_IMPORT_FILE_FA)} showErrors />,
 };
 
 /** Tomans chosen: the hint shows what the first amount is saved as. */
 export const Toman: Story = {
-  render: () => <Example file={SAMPLE_IMPORT_FILE_FA} unit="toman" />,
+  render: () => <Example file={sample(SAMPLE_IMPORT_FILE_FA)} unit="toman" />,
 };
 
 /** An English file with signed amounts: the type column isn't needed. */
 export const SignedAmounts: Story = {
-  render: () => <Example file={SAMPLE_IMPORT_FILE_EN} unit="rial" showErrors />,
+  render: () => (
+    <Example file={sample(SAMPLE_IMPORT_FILE_EN)} unit="rial" showErrors />
+  ),
 };
 
 export const Mobile: Story = {

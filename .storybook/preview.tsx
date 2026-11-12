@@ -3,6 +3,7 @@ import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { Providers } from "../src/components/providers";
 import { LOCALE_DIRECTIONS } from "../src/constants/locale";
 import { combinePreferences } from "../src/helpers/preferences";
+import { sample, setSampleLocale } from "../src/helpers/sample";
 import { MESSAGES } from "../src/messages";
 import { fontVariables } from "../src/styles/fonts";
 import type { CalendarSystem } from "../src/types/calendar";
@@ -25,13 +26,21 @@ const MONEY_OPTIONS: Record<
 /**
  * Apply the language, direction, fonts and toolbar theme to <html>, the same place the app
  * puts them, and wrap every story in the app's Providers with the toolbar's language,
- * calendar and money unit.
+ * calendar and money unit. The story's arguments and sample text are translated with `sample`
+ * (see src/helpers/sample.ts), so nothing Persian shows in English.
  */
 const withAppShell: Decorator = (Story, context) => {
   const locale: Locale = context.globals.locale === "en" ? "en" : "fa";
   const calendar: CalendarSystem =
     context.globals.calendar === "gregorian" ? "gregorian" : "jalali";
-  const money = MONEY_OPTIONS[context.globals.money] ?? MONEY_OPTIONS.rial;
+  // English shows dollars where the toolbar says rial or toman (the sample amounts are the same
+  // stored numbers, read as cents); pick EUR or GBP to see those.
+  const picked = MONEY_OPTIONS[context.globals.money] ?? MONEY_OPTIONS.rial;
+  const money =
+    locale === "en" && picked.currency === "IRR" ? MONEY_OPTIONS.USD : picked;
+
+  // Before the story renders: its sample text follows the language toolbar.
+  setSampleLocale(locale);
 
   const root = document.documentElement;
   root.lang = locale;
@@ -48,8 +57,13 @@ const withAppShell: Decorator = (Story, context) => {
     "Asia/Tehran",
   );
   return (
-    <Providers preferences={preferences} messages={MESSAGES[locale]}>
-      <Story />
+    // key: a language change remounts the story, so state seeded from sample text follows it.
+    <Providers
+      key={locale}
+      preferences={preferences}
+      messages={MESSAGES[locale]}
+    >
+      <Story args={sample(context.args)} />
     </Providers>
   );
 };

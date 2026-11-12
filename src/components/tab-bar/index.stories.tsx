@@ -8,6 +8,7 @@ import {
 import { getMoreItems, getNavItems, getPhoneTabs } from "@/helpers/navigation";
 
 import { TabBar } from "./index";
+import { sample } from "@/helpers/sample";
 
 const items = getNavItems("editor");
 const tabs = getPhoneTabs(items);
@@ -35,8 +36,8 @@ export const WithAddButton: Story = {
     (Story) => (
       <AddTransactionProvider
         enabled
-        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
-        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+        options={sample(SAMPLE_TRANSACTION_OPTIONS_PROMISE)}
+        actions={sample(SAMPLE_ADD_TRANSACTION_ACTIONS)}
       >
         <Story />
       </AddTransactionProvider>

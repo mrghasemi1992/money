@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Divider } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Divider",
@@ -40,9 +41,9 @@ export const Vertical: Story = {
         alignItems: "center",
       }}
     >
-      <span>ماه</span>
+      <span>{sample("ماه")}</span>
       <Divider orientation="vertical" />
-      <span>سال</span>
+      <span>{sample("سال")}</span>
     </div>
   ),
 };

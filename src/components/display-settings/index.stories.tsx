@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ActionResult } from "@/types/action";
 
 import { DisplaySettings } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 
@@ -45,7 +46,9 @@ export const SaveFails: Story = {
       await wait();
       return {
         ok: false,
-        error: "ذخیره نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        error: sample(
+          "ذخیره نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        ),
       };
     },
   },

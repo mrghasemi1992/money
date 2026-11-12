@@ -5,6 +5,7 @@ import type { AccountField, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 
 import { AccountDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 
@@ -19,8 +20,14 @@ const meta = {
       input: AccountInput,
     ): Promise<ActionResult<AccountField>> => {
       await wait();
-      return SAMPLE_ACCOUNTS.some((account) => account.name === input.name)
-        ? { ok: false, field: "name", error: "حسابی با این نام وجود دارد." }
+      return sample(SAMPLE_ACCOUNTS).some(
+        (account) => account.name === input.name,
+      )
+        ? {
+            ok: false,
+            field: "name",
+            error: sample("حسابی با این نام وجود دارد."),
+          }
         : { ok: true };
     },
     onSaved: () => {},

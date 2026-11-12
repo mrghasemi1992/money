@@ -30,6 +30,7 @@ import { usePreferences } from "@/hooks/use-preferences";
 import type { CategoryReportRow } from "@/types/report";
 
 import { Dashboard } from "./index";
+import { sample } from "@/helpers/sample";
 
 /*
  * The dashboard with sample figures, for stories (its own and the app shell's): the sample
@@ -81,7 +82,7 @@ export function SampleDashboard({
     <Dashboard
       header={
         <PageHeader
-          title={t("greeting", { name: "سارا" })}
+          title={t("greeting", { name: sample("سارا") })}
           subtitle={<DateText value={SAMPLE_TODAY} format="weekday" />}
           actions={canWrite ? <AddTransactionButton /> : null}
         />
@@ -95,24 +96,27 @@ export function SampleDashboard({
           />
         ) : null
       }
-      balances={<BalanceOverview accounts={SAMPLE_ACCOUNTS} />}
+      balances={<BalanceOverview accounts={sample(SAMPLE_ACCOUNTS)} />}
       month={
         <MonthOverview
-          totals={SAMPLE_MONTH_TOTALS}
+          totals={sample(SAMPLE_MONTH_TOTALS)}
           year={month.year}
           month={month.month}
         />
       }
       recent={
         <RecentTransactions
-          transactions={SAMPLE_TRANSACTIONS.slice(0, DASHBOARD_RECENT_COUNT)}
+          transactions={sample(SAMPLE_TRANSACTIONS).slice(
+            0,
+            DASHBOARD_RECENT_COUNT,
+          )}
           today={SAMPLE_TODAY}
         />
       }
       budgets={
         <BudgetProgress
           budgets={closestBudgets(
-            SAMPLE_BUDGET_CATEGORIES,
+            sample(SAMPLE_BUDGET_CATEGORIES),
             DASHBOARD_BUDGET_COUNT,
           )}
           canWrite={canWrite}
@@ -120,7 +124,10 @@ export function SampleDashboard({
       }
       spending={
         <TopSpending
-          slices={spendingSlices(SAMPLE_EXPENSES, DASHBOARD_SPENDING_SLICES)}
+          slices={spendingSlices(
+            sample(SAMPLE_EXPENSES),
+            DASHBOARD_SPENDING_SLICES,
+          )}
           year={month.year}
           month={month.month}
         />

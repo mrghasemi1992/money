@@ -12,6 +12,7 @@ import {
 import { EMPTY_TRANSACTION_PARAMS } from "@/helpers/transaction-filters";
 
 import { Transactions, TransactionsError, TransactionsSkeleton } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 
@@ -62,8 +63,8 @@ const meta = {
     (Story, { args }) => (
       <AddTransactionProvider
         enabled={args.canWrite}
-        options={SAMPLE_TRANSACTION_OPTIONS_PROMISE}
-        actions={SAMPLE_ADD_TRANSACTION_ACTIONS}
+        options={sample(SAMPLE_TRANSACTION_OPTIONS_PROMISE)}
+        actions={sample(SAMPLE_ADD_TRANSACTION_ACTIONS)}
       >
         <Story />
       </AddTransactionProvider>

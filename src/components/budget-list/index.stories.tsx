@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 
 import { BudgetList, UnbudgetedList } from "./index";
 import { SAMPLE_BUDGET_CATEGORIES } from "./sample-budgets";
+import { sample } from "@/helpers/sample";
 
 const BUDGETED = SAMPLE_BUDGET_CATEGORIES.filter(
   (category) => category.budget !== null,
@@ -69,7 +70,7 @@ export const Archived: Story = {
 export const Unbudgeted: Story = {
   render: (args) => (
     <UnbudgetedList
-      categories={UNBUDGETED}
+      categories={sample(UNBUDGETED)}
       canWrite={args.canWrite}
       onAdd={() => {}}
     />

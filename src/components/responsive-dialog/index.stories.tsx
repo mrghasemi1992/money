@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { ResponsiveDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/ResponsiveDialog",
@@ -25,7 +26,7 @@ const meta = {
     return (
       <>
         <Button variant="secondary" onClick={() => setOpen(true)}>
-          باز کردن
+          {sample("باز کردن")}
         </Button>
         <ResponsiveDialog
           {...args}
@@ -34,10 +35,10 @@ const meta = {
           footer={
             <>
               <Button variant="secondary" onClick={() => setOpen(false)}>
-                انصراف
+                {sample("انصراف")}
               </Button>
               <Button variant="danger" onClick={() => setOpen(false)}>
-                غیرفعال کردن کاربر
+                {sample("غیرفعال کردن کاربر")}
               </Button>
             </>
           }

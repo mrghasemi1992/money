@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { ArrowRightIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Button",
@@ -49,19 +50,19 @@ export const AllVariants: Story = {
       {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
         <div key={variant} style={row}>
           <Button variant={variant} size="sm">
-            انصراف
+            {sample("انصراف")}
           </Button>
           <Button
             variant={variant}
             iconStart={variant === "danger" ? Trash2Icon : PlusIcon}
           >
-            {variant === "danger" ? "حذف تراکنش" : "ثبت درآمد"}
+            {variant === "danger" ? sample("حذف تراکنش") : sample("ثبت درآمد")}
           </Button>
           <Button variant={variant} size="lg">
-            ذخیره بودجه
+            {sample("ذخیره بودجه")}
           </Button>
           <Button variant={variant} disabled>
-            غیرفعال
+            {sample("غیرفعال")}
           </Button>
         </div>
       ))}

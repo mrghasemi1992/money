@@ -3,6 +3,7 @@ import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Tag } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Tag",
@@ -30,24 +31,24 @@ export const Filters: Story = {
           selected={selected.includes("food")}
           onSelectedChange={toggle("food")}
         >
-          خوراک
+          {sample("خوراک")}
         </Tag>
         <Tag
           color="sky"
           selected={selected.includes("transport")}
           onSelectedChange={toggle("transport")}
         >
-          حمل و نقل
+          {sample("حمل و نقل")}
         </Tag>
         <Tag
           color="teal"
           selected={selected.includes("home")}
           onSelectedChange={toggle("home")}
         >
-          خانه
+          {sample("خانه")}
         </Tag>
         <Tag color="violet" disabled onSelectedChange={() => {}}>
-          اشتراک‌ها
+          {sample("اشتراک‌ها")}
         </Tag>
       </div>
     );
@@ -57,7 +58,11 @@ export const Filters: Story = {
 /** Tags on a transaction can be removed. */
 export const Removable: Story = {
   render: function Example() {
-    const [tags, setTags] = useState(["سفر شمال", "مهمانی", "قسطی"]);
+    const [tags, setTags] = useState([
+      sample("سفر شمال"),
+      sample("مهمانی"),
+      sample("قسطی"),
+    ]);
     return (
       <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
         {tags.map((tag) => (
@@ -78,9 +83,17 @@ export const Suggestions: Story = {
   render: function Example() {
     const [added, setAdded] = useState<string[]>([]);
     const suggestions = [
-      { name: "خوراک", color: "orange", title: "همراه با ۲ زیردسته" },
-      { name: "حمل‌ونقل", color: "sky", title: "همراه با ۲ زیردسته" },
-      { name: "پوشاک", color: "pink", title: "بدون زیردسته" },
+      {
+        name: sample("خوراک"),
+        color: "orange",
+        title: sample("همراه با ۲ زیردسته"),
+      },
+      {
+        name: sample("حمل‌ونقل"),
+        color: "sky",
+        title: sample("همراه با ۲ زیردسته"),
+      },
+      { name: sample("پوشاک"), color: "pink", title: sample("بدون زیردسته") },
     ] as const;
     return (
       <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>

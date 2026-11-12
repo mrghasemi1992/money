@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 
 import { Checkbox } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Checkbox",
@@ -31,12 +32,16 @@ export const WithDescription: Story = {
 export const States: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-3)" }}>
-      <Checkbox label="انتخاب نشده" />
-      <Checkbox label="انتخاب شده" defaultChecked />
-      <Checkbox label="بخشی انتخاب شده" indeterminate />
-      <Checkbox label="نامعتبر" invalid />
-      <Checkbox label="غیرفعال" disabled />
-      <Checkbox label="غیرفعال و انتخاب شده" disabled defaultChecked />
+      <Checkbox label={sample("انتخاب نشده")} />
+      <Checkbox label={sample("انتخاب شده")} defaultChecked />
+      <Checkbox label={sample("بخشی انتخاب شده")} indeterminate />
+      <Checkbox label={sample("نامعتبر")} invalid />
+      <Checkbox label={sample("غیرفعال")} disabled />
+      <Checkbox
+        label={sample("غیرفعال و انتخاب شده")}
+        disabled
+        defaultChecked
+      />
     </div>
   ),
 };
@@ -50,7 +55,7 @@ export const SelectAll: Story = {
     return (
       <div style={{ display: "grid", gap: "var(--space-3)" }}>
         <Checkbox
-          label="همه"
+          label={sample("همه")}
           checked={all}
           indeterminate={some}
           onCheckedChange={(checked) => setRows(rows.map(() => checked))}
@@ -58,7 +63,7 @@ export const SelectAll: Story = {
         {rows.map((checked, index) => (
           <Checkbox
             key={index}
-            aria-label={`ردیف ${index + 1}`}
+            aria-label={`${sample("ردیف")} ${index + 1}`}
             checked={checked}
             onCheckedChange={(next) =>
               setRows(rows.map((value, i) => (i === index ? next : value)))

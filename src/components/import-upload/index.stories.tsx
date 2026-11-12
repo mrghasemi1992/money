@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SAMPLE_IMPORT_FILE_FA } from "@/components/csv-import/sample-import";
 
 import { ImportUpload } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/ImportUpload",
@@ -45,7 +46,7 @@ export const FileRead: Story = {
     return (
       <ImportUpload
         {...args}
-        file={SAMPLE_IMPORT_FILE_FA}
+        file={sample(SAMPLE_IMPORT_FILE_FA)}
         hasHeader={hasHeader}
         onHasHeaderChange={setHasHeader}
       />

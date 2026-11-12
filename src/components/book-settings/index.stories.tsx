@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ActionResult } from "@/types/action";
 
 import { BookSettings } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 600));
 
@@ -41,8 +42,9 @@ export const RefusedByServer: Story = {
       await wait();
       return {
         ok: false,
-        error:
+        error: sample(
           "پس از ثبت اولین مبلغ (تراکنش، بودجه یا موجودی اولیه)، واحد پول دفتر قابل تغییر نیست.",
+        ),
       };
     },
   },

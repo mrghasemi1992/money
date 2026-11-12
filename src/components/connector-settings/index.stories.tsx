@@ -9,6 +9,7 @@ import {
   ConnectorSettingsError,
   ConnectorSettingsSkeleton,
 } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 
@@ -77,8 +78,9 @@ export const RevokeFails: Story = {
       await wait();
       return {
         ok: false,
-        error:
+        error: sample(
           "دسترسی قطع نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        ),
       };
     },
   },

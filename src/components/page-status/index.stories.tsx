@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { ListError, PageError, PageNotFound } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Components/PageStatus",
@@ -21,5 +22,7 @@ export const NotFound: Story = {
 
 /** A list page's error.tsx (accounts, categories): under the page header, with a retry. */
 export const ListFailed: Story = {
-  render: () => <ListError title="حساب‌ها بارگذاری نشد" onRetry={() => {}} />,
+  render: () => (
+    <ListError title={sample("حساب‌ها بارگذاری نشد")} onRetry={() => {}} />
+  ),
 };

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 
 import { Menu, type MenuItem } from "./index";
+import { sample } from "@/helpers/sample";
 
 const rowActions: MenuItem[] = [
   { label: "ویرایش", icon: PencilIcon, shortcut: "E" },
@@ -60,23 +61,23 @@ export const WithGroupsAndChecks: Story = {
       <Menu
         trigger={
           <Button variant="secondary" iconStart={SlidersHorizontalIcon}>
-            نمایش
+            {sample("نمایش")}
           </Button>
         }
         items={[
-          { groupLabel: "فیلتر" },
+          { groupLabel: sample("فیلتر") },
           {
-            label: "فقط ناشناخته‌ها",
+            label: sample("فقط ناشناخته‌ها"),
             checked: onlyUnknown,
             onCheckedChange: setOnlyUnknown,
           },
           {
-            label: "حساب‌های بایگانی‌شده",
+            label: sample("حساب‌های بایگانی‌شده"),
             checked: showArchived,
             onCheckedChange: setShowArchived,
           },
           { separator: true },
-          { label: "خروجی CSV", disabled: true },
+          { label: sample("خروجی CSV"), disabled: true },
         ]}
       />
     );

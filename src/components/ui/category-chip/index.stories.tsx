@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { CATEGORY_COLORS } from "@/constants/category";
 
 import { CategoryChip } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/CategoryChip",
@@ -63,17 +64,32 @@ export const WithIcons: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-3)" }}>
       <CategoryChip
-        name="خوراک"
-        sub="خرید خانه"
+        name={sample("خوراک")}
+        sub={sample("خرید خانه")}
         color="orange"
         icon={UtensilsIcon}
       />
-      <CategoryChip name="حمل و نقل" color="sky" icon={CarIcon} />
-      <CategoryChip name="خانه" sub="اجاره" color="teal" icon={HouseIcon} />
-      <CategoryChip name="سلامت" color="red" icon={HeartPulseIcon} size="sm" />
-      <CategoryChip name="حقوق" color="green" icon={BriefcaseIcon} size="sm" />
+      <CategoryChip name={sample("حمل و نقل")} color="sky" icon={CarIcon} />
       <CategoryChip
-        name="پروژه آزاد"
+        name={sample("خانه")}
+        sub={sample("اجاره")}
+        color="teal"
+        icon={HouseIcon}
+      />
+      <CategoryChip
+        name={sample("سلامت")}
+        color="red"
+        icon={HeartPulseIcon}
+        size="sm"
+      />
+      <CategoryChip
+        name={sample("حقوق")}
+        color="green"
+        icon={BriefcaseIcon}
+        size="sm"
+      />
+      <CategoryChip
+        name={sample("پروژه آزاد")}
         color="violet"
         icon={LaptopIcon}
         size="sm"

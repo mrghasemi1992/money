@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Field } from "@/components/ui/field";
 
 import { DatePicker } from "./index";
+import { sample } from "@/helpers/sample";
 
 const TODAY = "2026-10-01";
 
@@ -50,10 +51,10 @@ export const InField: Story = {
     return (
       <div style={{ display: "grid", gap: "var(--space-3)" }}>
         <Field
-          label="تاریخ"
+          label={sample("تاریخ")}
           required
           htmlFor="txn-date"
-          hint="تاریخ نمی‌تواند در آینده باشد."
+          hint={sample("تاریخ نمی‌تواند در آینده باشد.")}
         >
           <DatePicker
             id="txn-date"
@@ -71,7 +72,12 @@ export const InField: Story = {
 
 export const Invalid: Story = {
   render: () => (
-    <Field label="تاریخ" required htmlFor="d2" error="تاریخ را انتخاب کنید.">
+    <Field
+      label={sample("تاریخ")}
+      required
+      htmlFor="d2"
+      error={sample("تاریخ را انتخاب کنید.")}
+    >
       <DatePicker id="d2" today={TODAY} invalid />
     </Field>
   ),

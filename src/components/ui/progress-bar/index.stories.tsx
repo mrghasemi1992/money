@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { ProgressBar } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/ProgressBar",
@@ -31,9 +32,24 @@ export const Playground: Story = {};
 export const Statuses: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
-      <ProgressBar label="خوراک" value={6200000} max={12000000} showValues />
-      <ProgressBar label="حمل و نقل" value={4300000} max={5000000} showValues />
-      <ProgressBar label="تفریح" value={3650000} max={3000000} showValues />
+      <ProgressBar
+        label={sample("خوراک")}
+        value={6200000}
+        max={12000000}
+        showValues
+      />
+      <ProgressBar
+        label={sample("حمل و نقل")}
+        value={4300000}
+        max={5000000}
+        showValues
+      />
+      <ProgressBar
+        label={sample("تفریح")}
+        value={3650000}
+        max={3000000}
+        showValues
+      />
     </div>
   ),
 };
@@ -41,9 +57,9 @@ export const Statuses: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
-      <ProgressBar value={40} max={100} size="sm" aria-label="کوچک" />
-      <ProgressBar value={40} max={100} aria-label="متوسط" />
-      <ProgressBar value={40} max={100} size="lg" aria-label="بزرگ" />
+      <ProgressBar value={40} max={100} size="sm" aria-label={sample("کوچک")} />
+      <ProgressBar value={40} max={100} aria-label={sample("متوسط")} />
+      <ProgressBar value={40} max={100} size="lg" aria-label={sample("بزرگ")} />
     </div>
   ),
 };

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { SparklesIcon } from "lucide-react";
 
 import { Badge } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Badge",
@@ -40,7 +41,7 @@ export const AllTones: Story = {
           key={variant}
           style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}
         >
-          <Badge variant={variant}>بایگانی</Badge>
+          <Badge variant={variant}>{sample("بایگانی")}</Badge>
           <Badge variant={variant} tone="brand">
             Claude
           </Badge>
@@ -48,13 +49,13 @@ export const AllTones: Story = {
             CSV
           </Badge>
           <Badge variant={variant} tone="success" dot>
-            فعال
+            {sample("فعال")}
           </Badge>
           <Badge variant={variant} tone="warning">
-            نزدیک به سقف
+            {sample("نزدیک به سقف")}
           </Badge>
           <Badge variant={variant} tone="danger">
-            غیرفعال
+            {sample("غیرفعال")}
           </Badge>
         </div>
       ))}

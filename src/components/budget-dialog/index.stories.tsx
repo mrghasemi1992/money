@@ -5,6 +5,7 @@ import type { BudgetField } from "@/helpers/budget";
 import type { ActionResult } from "@/types/action";
 
 import { BudgetDialog } from "./index";
+import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 
@@ -53,8 +54,9 @@ export const ServerError: Story = {
       return {
         ok: false,
         field: "categoryId",
-        error:
+        error: sample(
           "این دسته‌بندی بایگانی یا حذف شده است. دسته‌ی دیگری انتخاب کنید.",
+        ),
       };
     },
   },

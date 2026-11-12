@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Switch } from "./index";
+import { sample } from "@/helpers/sample";
 
 const meta = {
   title: "Design system/Switch",
@@ -18,11 +19,11 @@ export const Playground: Story = {};
 export const States: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-3)" }}>
-      <Switch label="خاموش" />
-      <Switch label="روشن" defaultChecked />
-      <Switch label="کوچک" size="sm" defaultChecked />
-      <Switch label="غیرفعال" disabled />
-      <Switch label="غیرفعال و روشن" disabled defaultChecked />
+      <Switch label={sample("خاموش")} />
+      <Switch label={sample("روشن")} defaultChecked />
+      <Switch label={sample("کوچک")} size="sm" defaultChecked />
+      <Switch label={sample("غیرفعال")} disabled />
+      <Switch label={sample("غیرفعال و روشن")} disabled defaultChecked />
     </div>
   ),
 };
