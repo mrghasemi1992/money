@@ -2,6 +2,13 @@
 
 Pick the part for what you want to do.
 
+## Use Money
+
+For everyone who keeps the book: what each screen does, with annotated screenshots.
+
+- [User guide](user-guide.md) in English
+- [راهنمای پول](user-guide.fa.md) به فارسی
+
 ## Run your own copy
 
 For a person or family who wants their own Money. No programming needed.

@@ -17,7 +17,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "user:create": "tsx --conditions=react-server --env-file=.env.local scripts/create-user.ts"
+    "user:create": "tsx --conditions=react-server --env-file=.env.local scripts/create-user.ts",
+    "docs:screenshots": "tsx scripts/screenshots.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -51,6 +52,7 @@
     "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.6.7",
+    "playwright": "1.56.1",
     "postcss-custom-media": "^12.0.3",
     "prettier": "^3.9.9",
     "storybook": "^10.6.7",
