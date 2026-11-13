@@ -61,6 +61,10 @@ Each copy of Money is a fork of this repository on GitHub, deployed on Vercel (s
 | `pnpm db:migrate`      | Apply migrations           |
 | `pnpm user:create`     | Create a user (prompts)    |
 
+## Security
+
+Please report vulnerabilities privately through the repository's **Security** tab, not in a public issue: see [SECURITY.md](SECURITY.md).
+
 ## License
 
 Copyright 2026 Mohammad Reza Ghasemi.
