@@ -1,3 +1,4 @@
+import { MCP_CLIENT_ORIGINS } from "@/constants/connector";
 import { MINOR_UNITS_PER_MAJOR } from "@/constants/currency";
 import type { CalendarSystem } from "@/types/calendar";
 import type { Currency } from "@/types/currency";
@@ -13,6 +14,22 @@ import { toLatinDigits } from "@/utils/number";
  * amounts in the book currency's main unit (rials, dollars, …); the database keeps Gregorian
  * ISO dates and integers in the smallest unit (rials, cents). These convert between the two.
  */
+
+/**
+ * Whether an OAuth client may use the connector. A client_id that is a URL is a Client ID
+ * Metadata Document, which anyone can publish, so its origin must be one of
+ * MCP_CLIENT_ORIGINS (Claude, ChatGPT). Any other client_id was registered by hand in the
+ * database (nobody can register one through the API), so it is trusted.
+ */
+export function isAllowedMcpClient(clientId: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(clientId);
+  } catch {
+    return true;
+  }
+  return (MCP_CLIENT_ORIGINS as readonly string[]).includes(url.origin);
+}
 
 /** How the connector writes a date of each calendar: Jalali 1405/07/16, Gregorian 2026-10-08. */
 export const CONNECTOR_DATE_FORMATS: Record<CalendarSystem, string> = {

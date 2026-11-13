@@ -35,7 +35,7 @@ To connect ChatGPT instead: in ChatGPT click your name, go to **Settings → Sec
 
 Connected apps are listed on the same settings page, where you can revoke one. An admin disabling a user disconnects their apps too.
 
-How it works: Money is its own OAuth 2.1 authorization server (Better Auth's MCP plugin). Claude identifies itself with a Client ID Metadata Document, so there is nothing to register. Discovery metadata is at `/.well-known/oauth-protected-resource/mcp` and `/.well-known/oauth-authorization-server/api/auth`. Details are in `CLAUDE.md` (Claude connector).
+How it works: Money is its own OAuth 2.1 authorization server (Better Auth's MCP plugin). Claude identifies itself with a Client ID Metadata Document, so there is nothing to register. Only Claude and ChatGPT can connect: their metadata documents live on `claude.ai` and `chatgpt.com`, and other MCP clients are refused. Discovery metadata is at `/.well-known/oauth-protected-resource/mcp` and `/.well-known/oauth-authorization-server/api/auth`. Details are in `CLAUDE.md` (Claude connector).
 
 - **Locally** the connector URL is `http://localhost:3000/mcp` (OAuth accepts plain HTTP only for `localhost`), while the app itself runs on `money.localhost`. claude.ai can't reach a local server; use an MCP client on the same machine (Claude Code, or the MCP Inspector with a client registered for it).
 - **Preview deployments** use their branch URL: `https://<project>-git-<branch>-<team>.vercel.app/mcp`. Vercel's deployment protection must allow the request, or claude.ai can't reach it.

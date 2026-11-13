@@ -24,6 +24,7 @@ import {
   USERNAME_PATTERN,
 } from "@/constants/user";
 import { db } from "@/db";
+import { isAllowedMcpClient } from "@/helpers/connector";
 import {
   authAccount,
   jwks,
@@ -96,7 +97,8 @@ function withoutInitDuringBuild<Plugin extends { init?: unknown }>(
  *   there instead of calling auth.api from a Server Action.
  * - The Claude connector: an OAuth 2.1 authorization server for the MCP endpoint (`mcp`
  *   plugin). Claude identifies itself with a Client ID Metadata Document (`cimd`), there is no
- *   open client registration. Signing in goes through /login, then the consent page. Access
+ *   open client registration, and only Claude's and ChatGPT's documents are accepted
+ *   (`isAllowedMcpClient`). Signing in goes through /login, then the consent page. Access
  *   tokens are JWTs bound to the MCP endpoint's URL, signed with the `jwt` plugin's key; the
  *   MCP route also checks the grant and the user in the database on every request
  *   (src/mcp/auth.ts), so revoking or disabling takes effect at once.
@@ -203,6 +205,9 @@ export const auth = betterAuth({
     cimd({
       fetchClientMetadataResource,
       metadataProfile: "mcp-2026-07-28",
+      // Only Claude's and ChatGPT's documents, refused before anything is fetched.
+      isMetadataDocumentUrlAllowed: (clientIdUrl) =>
+        isAllowedMcpClient(clientIdUrl),
     }),
     // Must be last: sets cookies when auth.api is called from Server Actions (sign-out).
     nextCookies(),
