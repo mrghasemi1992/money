@@ -1,8 +1,32 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+/**
+ * Sent with every response (Vercel adds HSTS itself). No page may be framed: the login and the
+ * Claude consent page must not be clickjacked (RFC 9700, section 4.16). No script-src: Next.js
+ * and the theme and sidebar scripts are inline, and preview deployments load Vercel's toolbar.
+ * No Cross-Origin-Opener-Policy either: Claude and ChatGPT open the sign-in in a popup they watch.
+ */
+const SECURITY_HEADERS = [
+  {
+    key: "Content-Security-Policy",
+    value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+  },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+];
+
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["money.localhost"],
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
   async redirects() {
     // Accounts and categories moved out of Settings into the main navigation.
     return [
