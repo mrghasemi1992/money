@@ -153,6 +153,18 @@ export async function revokeConnection(
   return result.rows.length > 0;
 }
 
+/**
+ * Disconnects every app from a user, for a password reset or change: an app someone connected
+ * with the old password must not keep its access. Returns how many apps were connected.
+ */
+export async function revokeAllConnections(userId: string): Promise<number> {
+  const result = await db.execute(sql`
+    with ${revokeGrants(sql`${userId}::uuid`)}
+    select id from revoked_consent
+  `);
+  return result.rows.length;
+}
+
 /** An OAuth client's name (from its metadata), or null when there is no such client. */
 export async function getOAuthClientName(
   clientId: string,

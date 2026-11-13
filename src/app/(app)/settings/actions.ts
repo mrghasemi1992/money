@@ -16,6 +16,7 @@ import {
   PASSWORD_MIN_LENGTH,
 } from "@/constants/user";
 import { getBookSettings, setBookCurrency } from "@/db/book";
+import { revokeAllConnections } from "@/db/connector";
 import { updateUserPreferences } from "@/db/users";
 import type { ActionResult } from "@/types/action";
 import type { PasswordField } from "@/types/user";
@@ -58,13 +59,14 @@ export async function updateProfile(input: unknown): Promise<ActionResult> {
 }
 
 /**
- * Changes the signed-in user's password after checking the current one, and signs out their
- * other sessions (this one gets a new session cookie).
+ * Changes the signed-in user's password after checking the current one, signs out their
+ * other sessions (this one gets a new session cookie) and disconnects their apps, so an app
+ * someone connected with the old password loses its access too.
  */
 export async function changePassword(
   input: unknown,
 ): Promise<ActionResult<PasswordField>> {
-  await requireUser();
+  const { user } = await requireUser();
   const t = await getTranslations("settings.password");
   const locale = await getLocale();
   const parsed = z
@@ -103,6 +105,7 @@ export async function changePassword(
     }
     throw error;
   }
+  await revokeAllConnections(user.id);
   return { ok: true };
 }
 

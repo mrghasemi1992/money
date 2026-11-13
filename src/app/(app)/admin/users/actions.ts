@@ -17,6 +17,7 @@ import {
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
 } from "@/constants/user";
+import { revokeAllConnections } from "@/db/connector";
 import { disableUser, getUserStatus, setUserRole } from "@/db/users";
 import { newUserErrors, newUserSchema } from "@/helpers/new-user";
 import { generateTemporaryPassword, placeholderEmail } from "@/helpers/user";
@@ -110,9 +111,11 @@ export async function createUser(
 }
 
 /**
- * Gives another user a new temporary password and signs them out everywhere, so only the new
- * password works. Returns the password to show once. Admins change their own password in
- * settings, with the current one.
+ * Gives another user a new temporary password, signs them out everywhere and disconnects
+ * their apps (Claude, ChatGPT), so only the new password works: an app connected with the old
+ * one loses its access too. The apps go last, so one connected in between goes as well.
+ * Returns the password to show once. Admins change their own password in settings, with the
+ * current one.
  */
 export async function resetPassword(
   input: unknown,
@@ -135,6 +138,7 @@ export async function resetPassword(
     headers: requestHeaders,
     body: { userId },
   });
+  await revokeAllConnections(userId);
   return { ok: true, password };
 }
 
