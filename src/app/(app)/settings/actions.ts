@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { auth } from "@/auth";
 import { requireAdmin, requireUser } from "@/auth/session";
+import { PASSWORD_CHANGE_LIMIT } from "@/constants/auth";
 import { CALENDARS } from "@/constants/calendar";
 import { CURRENCIES, RIAL_UNITS } from "@/constants/currency";
 import {
@@ -15,6 +16,7 @@ import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
 } from "@/constants/user";
+import { clearAttempts, takeAttempt } from "@/db/attempts";
 import { getBookSettings, setBookCurrency } from "@/db/book";
 import { revokeAllConnections } from "@/db/connector";
 import { updateUserPreferences } from "@/db/users";
@@ -62,6 +64,10 @@ export async function updateProfile(input: unknown): Promise<ActionResult> {
  * Changes the signed-in user's password after checking the current one, signs out their
  * other sessions (this one gets a new session cookie) and disconnects their apps, so an app
  * someone connected with the old password loses its access too.
+ *
+ * Each try counts against PASSWORD_CHANGE_LIMIT for this user, so someone with a stolen
+ * session can't guess the current password: `auth.api` calls have no rate limit of their own,
+ * and the HTTP endpoint is closed (`DISABLED_PATHS`). A successful change clears the count.
  */
 export async function changePassword(
   input: unknown,
@@ -94,6 +100,21 @@ export async function changePassword(
     return { ok: false, field: "new", error: t("newSame") };
   }
 
+  const attemptKey = `money:change-password:${user.id}`;
+  const attempt = await takeAttempt(attemptKey, PASSWORD_CHANGE_LIMIT);
+  if (!attempt.allowed) {
+    return {
+      ok: false,
+      field: "current",
+      error: t("tooManyAttempts", {
+        minutes: formatNumber(
+          Math.ceil(attempt.retryAfterSeconds / 60),
+          locale,
+        ),
+      }),
+    };
+  }
+
   try {
     await auth.api.changePassword({
       headers: await headers(),
@@ -105,6 +126,7 @@ export async function changePassword(
     }
     throw error;
   }
+  await clearAttempts(attemptKey);
   await revokeAllConnections(user.id);
   return { ok: true };
 }

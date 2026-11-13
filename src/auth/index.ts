@@ -79,7 +79,8 @@ function getBaseURL() {
  *   keep the last admin, never delete users and revoke apps; over HTTP an admin could skip all
  *   of that (set-role, ban-user, remove-user, impersonate-user, …).
  * - Profile and account endpoints Money replaces or doesn't use: update-user would let anyone
- *   change their own username, which Money keeps fixed; there is no email, social sign-in,
+ *   change their own username, which Money keeps fixed; change-password runs through the
+ *   settings action, which limits attempts per user; there is no email, social sign-in,
  *   password reset by link or account deletion.
  */
 const DISABLED_PATHS = [
@@ -105,6 +106,7 @@ const DISABLED_PATHS = [
     "has-permission",
   ].map((name) => `/admin/${name}`),
   "/update-user",
+  "/change-password",
   "/update-session",
   "/verify-password",
   "/change-email",
