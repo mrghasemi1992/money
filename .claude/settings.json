@@ -7,9 +7,6 @@
         "repo": "anthropics/claude-plugins-official"
       }
     },
-    "ponytail": {
-      "source": { "source": "github", "repo": "DietrichGebert/ponytail" }
-    },
     "ui-ux-pro-max-skill": {
       "source": {
         "source": "github",
@@ -25,7 +22,6 @@
   },
   "enabledPlugins": {
     "vercel@claude-plugins-official": true,
-    "ponytail@ponytail": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "engineering@knowledge-work-plugins": true,
     "design@knowledge-work-plugins": true

@@ -1477,6 +1477,19 @@ Claude had proposed it as a separate task after the audit: Vercel's Neon connect
 - **What the box did on a real copy:** the test copy `money-fork`, set up with the Deploy button, has the box ticked (`vercel api /v1/storage/stores`: its Neon deployment action covers production and preview), yet its Neon project has only `main`, and its operation history (`neonctl operations list`) shows no branch ever created across five production deployments. So it had no visible effect there, but Neon recommends against it.
 - **`docs/self-hosting.md`:** the Neon step says to tick only **Preview** if the form shows the option. Two new entries under "If something goes wrong": what to check when **Production** was ticked (only `main` and `preview/…` in Neon's **Branches** means nothing to do; other branches mean ask first, since the latest data may be on one), and preview deployments failing at Neon's 10-branch limit.
 
+## Removing graphify and ponytail
+
+Branch: `chore/remove-graphify-ponytail`. Date: 2026-11-13.
+
+### Prompt (as sent)
+
+> remove graphify and ponytail from this repo
+
+### Result
+
+- The vendored `graphify` skill (`.claude/skills/graphify/`) is gone, and `.claude/settings.json` no longer adds the `ponytail` marketplace or enables its plugin, so cloud sessions don't get either one. Copies installed on a desktop at the user level aren't touched.
+- CLAUDE.md's «Claude Code setup» section no longer lists them.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
