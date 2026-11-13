@@ -3,6 +3,7 @@ import "server-only";
 import { asc, eq, sql } from "drizzle-orm";
 
 import type { UserPreferences } from "@/types/preferences";
+import type { TransactionCreator } from "@/types/transaction";
 import type { ManagedUser, UserRole } from "@/types/user";
 import { toUserRole } from "@/helpers/role";
 import { todayIso } from "@/utils/iso-date";
@@ -73,6 +74,17 @@ export async function listUsers(timeZone: string): Promise<ManagedUser[]> {
     disabled: row.banned,
     createdOn: todayIso(timeZone, row.createdAt),
   }));
+}
+
+/**
+ * Every user by display name, disabled ones included (their transactions stay), for the
+ * transactions page's «ثبت توسط» filter. Any role may read it; the caller checks the session.
+ */
+export async function listTransactionCreators(): Promise<TransactionCreator[]> {
+  return db
+    .select({ id: user.id, name: user.name, disabled: user.banned })
+    .from(user)
+    .orderBy(asc(user.name), asc(user.id));
 }
 
 /** A user's role and whether they are disabled, or null when there is no such user. */

@@ -102,6 +102,9 @@ function filterConditions(filters: TransactionFilters): SQL | undefined {
   if (filters.tag) {
     conditions.push(sql`${column("tags")} @> array[${filters.tag}]::text[]`);
   }
+  if (filters.createdBy) {
+    conditions.push(sql`${column("created_by")} = ${filters.createdBy}`);
+  }
   if (filters.unknownOnly) conditions.push(UNKNOWN);
   if (filters.search) {
     const pattern = likePattern(filters.search);

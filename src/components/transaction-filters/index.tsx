@@ -11,6 +11,8 @@ import {
   SlidersHorizontalIcon,
   TagIcon,
   TagsIcon,
+  UserIcon,
+  UsersIcon,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -35,6 +37,7 @@ import { countFilters, toggleType } from "@/helpers/transaction-filters";
 import { usePreferences } from "@/hooks/use-preferences";
 import type { CategoryColor } from "@/types/category";
 import type {
+  TransactionCreator,
   TransactionFilterParams,
   TransactionOptions,
 } from "@/types/transaction";
@@ -44,7 +47,7 @@ import { formatNumber } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
-/** Select value for «همه» (no account or tag filter). */
+/** Select value for «همه» (no account, tag or creator filter). */
 const ALL = "*";
 
 /**
@@ -61,6 +64,11 @@ type TransactionFiltersProps = {
   /** Applies new filters (the page puts them in the URL). */
   onChange: (params: TransactionFilterParams) => void;
   options: TransactionOptions;
+  /**
+   * The users who may have added transactions, disabled ones included. The «ثبت توسط» select
+   * shows only when there are two or more (or one is already chosen).
+   */
+  creators: TransactionCreator[];
   /** «۳۵ تراکنش» at the end of the bar; empty while loading. */
   countLabel?: string;
   /** Starts with the panel open, for stories. */
@@ -71,14 +79,15 @@ type TransactionFiltersProps = {
 
 /**
  * The «فیلترها» button, the active filters as removable chips and a «پاک کردن همه», then the
- * panel (closed by default): search, date range, type, account, category and tag, where
- * «ناشناس» (no category) comes first. Every change goes straight to `onChange`; the search
+ * panel (closed by default): search, date range, type, account, category, tag, where
+ * «ناشناس» (no category) comes first, and who added it. Every change goes straight to `onChange`; the search
  * waits for a pause in typing.
  */
 export function TransactionFilters({
   params,
   onChange,
   options,
+  creators,
   countLabel,
   defaultOpen = false,
   today: todayProp,
@@ -191,6 +200,25 @@ export function TransactionFilters({
   ];
   const tagValue = params.tag ?? (params.unknownOnly ? UNKNOWN_TAG : ALL);
 
+  const sortedCreators = useMemo(() => {
+    const collator = new Intl.Collator(locale);
+    return [...creators].sort((a, b) => collator.compare(a.name, b.name));
+  }, [creators, locale]);
+  const creatorName = (creator: TransactionCreator) =>
+    creator.disabled
+      ? t("disabledCreator", { name: creator.name })
+      : creator.name;
+  const creatorOptions: SelectOption[] = [
+    { value: ALL, label: t("allCreators"), icon: UsersIcon },
+    ...sortedCreators.map((creator) => ({
+      value: creator.id,
+      label: creatorName(creator),
+      icon: UserIcon,
+    })),
+  ];
+  const creator = creators.find((item) => item.id === params.createdBy);
+  const showCreators = creators.length > 1 || params.createdBy !== null;
+
   const short = (date: string) =>
     formatDate(date, { locale, calendar, format: "short" });
   const account = options.accounts.find((item) => item.id === params.accountId);
@@ -251,6 +279,14 @@ export function TransactionFilters({
       remove: () => set({ tag: null }),
     });
   }
+  if (params.createdBy) {
+    chips.push({
+      key: "creator",
+      icon: UserIcon,
+      label: t("chips.creator", { name: creator?.name ?? "…" }),
+      remove: () => set({ createdBy: null }),
+    });
+  }
   if (params.search) {
     chips.push({
       key: "search",
@@ -279,6 +315,7 @@ export function TransactionFilters({
       accountId: null,
       categoryId: null,
       tag: null,
+      createdBy: null,
       search: "",
       unknownOnly: false,
     });
@@ -412,6 +449,19 @@ export function TransactionFilters({
                   }
                 />
               </Field>
+              {showCreators ? (
+                <Field label={t("creator")}>
+                  <Select
+                    options={creatorOptions}
+                    value={params.createdBy ?? ALL}
+                    onValueChange={(value) =>
+                      set({
+                        createdBy: value && value !== ALL ? value : null,
+                      })
+                    }
+                  />
+                </Field>
+              ) : null}
             </div>
             <div className={styles.footer}>
               <Button

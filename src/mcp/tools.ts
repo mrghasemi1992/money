@@ -461,6 +461,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
         accountId: input.account_id ?? null,
         categoryId: input.category_id ?? null,
         tag: input.tag?.trim() || null,
+        createdBy: null,
         search: input.search ?? "",
         unknownOnly: input.unknown_only ?? false,
       };

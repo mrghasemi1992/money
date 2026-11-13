@@ -76,6 +76,8 @@ export type TransactionFilters = {
   /** A category with its subcategories, or one subcategory. */
   categoryId: string | null;
   tag: string | null;
+  /** The user who added it (`created_by`). */
+  createdBy: string | null;
   /** Searches the description, note, tags and category names. */
   search: string;
   unknownOnly: boolean;
@@ -118,6 +120,13 @@ export type AccountOption = {
   name: string;
   type: AccountType;
   archived: boolean;
+};
+
+/** A user the «ثبت توسط» filter offers: every user of the book, disabled ones included. */
+export type TransactionCreator = {
+  id: string;
+  name: string;
+  disabled: boolean;
 };
 
 /** What the transaction form and the filters choose from. */

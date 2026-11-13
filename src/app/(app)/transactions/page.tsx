@@ -10,6 +10,7 @@ import {
   transactionDayTotals,
   transactionTotals,
 } from "@/db/transactions";
+import { listTransactionCreators } from "@/db/users";
 import { canWrite, toUserRole } from "@/helpers/role";
 import {
   parseTransactionParams,
@@ -44,13 +45,15 @@ export default async function TransactionsPage({
   const period = resolveTransactionPeriod(params, calendar, todayIso(timeZone));
   const filters = toTransactionFilters(params, period);
 
-  const [page, totals, dayTotals, hasAny, options] = await Promise.all([
-    listTransactions(filters),
-    transactionTotals(filters),
-    transactionDayTotals(filters),
-    bookHasTransactions(),
-    listTransactionOptions(),
-  ]);
+  const [page, totals, dayTotals, hasAny, options, creators] =
+    await Promise.all([
+      listTransactions(filters),
+      transactionTotals(filters),
+      transactionDayTotals(filters),
+      bookHasTransactions(),
+      listTransactionOptions(),
+      listTransactionCreators(),
+    ]);
 
   return (
     <Transactions
@@ -61,6 +64,7 @@ export default async function TransactionsPage({
       dayTotals={dayTotals}
       bookIsEmpty={!hasAny}
       options={options}
+      creators={creators}
       // Viewers get the page without write controls; every action checks again.
       canWrite={canWrite(toUserRole(user.role))}
       onUpdate={updateTransaction}

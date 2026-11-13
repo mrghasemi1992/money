@@ -14,7 +14,8 @@ import { isIsoDate } from "@/utils/iso-date";
 
 /*
  * The transactions page keeps its filters in the URL, so a filtered view can be shared and
- * survives a refresh: /transactions?month=1405-07&type=expense&category=<id>&q=کافه.
+ * survives a refresh: /transactions?month=1405-07&type=expense&category=<id>&q=کافه
+ * (`creator=<user id>` keeps the transactions one user added).
  *
  * `month` is a month of the calendar its year belongs to: Jalali years are below 1700
  * («1405-07» is Mehr 1405), Gregorian years above («2026-10»). A viewer with the other
@@ -30,6 +31,7 @@ export const TRANSACTION_PARAMS = {
   account: "account",
   category: "category",
   tag: "tag",
+  creator: "creator",
   search: "q",
   unknown: "unknown",
 } as const;
@@ -91,6 +93,7 @@ export function parseTransactionParams(
   const account = getOne(source, P.account);
   const category = getOne(source, P.category);
   const tag = getOne(source, P.tag)?.trim() ?? "";
+  const creator = getOne(source, P.creator);
 
   return {
     month: parseMonthParam(getOne(source, P.month)),
@@ -100,6 +103,7 @@ export function parseTransactionParams(
     accountId: account && UUID.test(account) ? account.toLowerCase() : null,
     categoryId: category && UUID.test(category) ? category.toLowerCase() : null,
     tag: tag && tag.length <= TRANSACTION_TAG_MAX_LENGTH ? tag : null,
+    createdBy: creator && UUID.test(creator) ? creator.toLowerCase() : null,
     search: (getOne(source, P.search) ?? "")
       .trim()
       .slice(0, TRANSACTION_SEARCH_MAX_LENGTH),
@@ -126,6 +130,7 @@ export function transactionParamsToSearch(
   if (params.accountId) search.set(P.account, params.accountId);
   if (params.categoryId) search.set(P.category, params.categoryId);
   if (params.tag) search.set(P.tag, params.tag);
+  if (params.createdBy) search.set(P.creator, params.createdBy);
   if (params.search) search.set(P.search, params.search);
   if (params.unknownOnly) search.set(P.unknown, "1");
   const query = search.toString();
@@ -189,18 +194,23 @@ export function toTransactionFilters(
     accountId: params.accountId,
     categoryId: params.categoryId,
     tag: params.tag,
+    createdBy: params.createdBy,
     search: params.search,
     unknownOnly: params.unknownOnly,
   };
 }
 
-/** Filters set besides the period: type, account, category, tag, search, unknown only. */
+/**
+ * Filters set besides the period: type, account, category, tag, who added it, search, unknown
+ * only.
+ */
 export function countFilters(params: TransactionFilterParams): number {
   return (
     params.types.length +
     (params.accountId ? 1 : 0) +
     (params.categoryId ? 1 : 0) +
     (params.tag ? 1 : 0) +
+    (params.createdBy ? 1 : 0) +
     (params.search ? 1 : 0) +
     (params.unknownOnly ? 1 : 0)
   );
@@ -215,6 +225,7 @@ export const EMPTY_TRANSACTION_PARAMS: TransactionFilterParams = {
   accountId: null,
   categoryId: null,
   tag: null,
+  createdBy: null,
   search: "",
   unknownOnly: false,
 };
@@ -227,6 +238,7 @@ export const NO_TRANSACTION_FILTERS: TransactionFilters = {
   accountId: null,
   categoryId: null,
   tag: null,
+  createdBy: null,
   search: "",
   unknownOnly: false,
 };
