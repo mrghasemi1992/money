@@ -45,22 +45,23 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
 
 ## Scripts
 
-| Script                 | What it does                                                         |
-| ---------------------- | -------------------------------------------------------------------- |
-| `pnpm dev`             | Start the dev server on `money.localhost:3000`                       |
-| `pnpm build`           | Production build                                                     |
-| `pnpm start`           | Serve the production build                                           |
-| `pnpm lint`            | ESLint                                                               |
-| `pnpm typecheck`       | Generate route types (`next typegen`), then type check               |
-| `pnpm format`          | Format every file with Prettier                                      |
-| `pnpm format:check`    | Check formatting                                                     |
-| `pnpm storybook`       | Start Storybook on `money.localhost:6006`                            |
-| `pnpm build-storybook` | Build the static Storybook                                           |
-| `pnpm db:generate`     | Generate a SQL migration from the schema in `src/db/schema/`         |
-| `pnpm db:migrate`      | Apply migrations to the database in `.env.local` (your `dev` branch) |
-| `pnpm db:studio`       | Browse the database in Drizzle Studio                                |
-| `pnpm user:create`     | Create a user from the terminal (asks for the details)               |
-| `vercel-build`         | Vercel only: `next build`, then migrate that deployment's database   |
+| Script                  | What it does                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `pnpm dev`              | Start the dev server on `money.localhost:3000`                                 |
+| `pnpm build`            | Production build                                                               |
+| `pnpm start`            | Serve the production build                                                     |
+| `pnpm lint`             | ESLint                                                                         |
+| `pnpm typecheck`        | Generate route types (`next typegen`), then type check                         |
+| `pnpm format`           | Format every file with Prettier                                                |
+| `pnpm format:check`     | Check formatting                                                               |
+| `pnpm storybook`        | Start Storybook on `money.localhost:6006`                                      |
+| `pnpm build-storybook`  | Build the static Storybook                                                     |
+| `pnpm db:generate`      | Generate a SQL migration from the schema in `src/db/schema/`                   |
+| `pnpm db:migrate`       | Apply migrations to the database in `.env.local` (your `dev` branch)           |
+| `pnpm db:studio`        | Browse the database in Drizzle Studio                                          |
+| `pnpm docs:screenshots` | Retake the user guide's screenshots from Storybook (Storybook must be running) |
+| `pnpm user:create`      | Create a user from the terminal (asks for the details)                         |
+| `vercel-build`          | Vercel only: `next build`, then migrate that deployment's database             |
 
 ## Workflow
 
@@ -136,18 +137,19 @@ Not every feature needs every step, but go through the list:
 
 Every change updates the docs it affects, in the same pull request. A PR whose code and docs disagree isn't finished.
 
-| You changed                                         | Update                                                                  |
-| --------------------------------------------------- | ----------------------------------------------------------------------- |
-| How a feature works, its files, queries or rules    | Its doc in `docs/development/features/`                                 |
-| A table, a column, a data rule, a route or a folder | `docs/development/architecture.md`                                      |
-| A convention or a tool                              | `docs/development/conventions.md` (and `CLAUDE.md` if agents must know) |
-| The setup, the scripts or the workflow              | `CONTRIBUTING.md`                                                       |
-| Anything a self-hoster does or sees during setup    | `docs/self-hosting.md`                                                  |
-| Updating, releases, migrations, deployments         | `docs/updating.md`, `docs/development/releases.md`                      |
-| Local development or database branches              | `docs/development/local-development.md`                                 |
-| A key decision, or the reason behind one            | `docs/development/decisions.md`                                         |
-| What Money can do                                   | `README.md`                                                             |
-| A rule for AI agents                                | `CLAUDE.md`                                                             |
+| You changed                                         | Update                                                                                                                                                   |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| How a feature works, its files, queries or rules    | Its doc in `docs/development/features/`                                                                                                                  |
+| A table, a column, a data rule, a route or a folder | `docs/development/architecture.md`                                                                                                                       |
+| A convention or a tool                              | `docs/development/conventions.md` (and `CLAUDE.md` if agents must know)                                                                                  |
+| The setup, the scripts or the workflow              | `CONTRIBUTING.md`                                                                                                                                        |
+| Anything a self-hoster does or sees during setup    | `docs/self-hosting.md`                                                                                                                                   |
+| Updating, releases, migrations, deployments         | `docs/updating.md`, `docs/development/releases.md`                                                                                                       |
+| Local development or database branches              | `docs/development/local-development.md`                                                                                                                  |
+| A key decision, or the reason behind one            | `docs/development/decisions.md`                                                                                                                          |
+| A screen or a flow users see                        | `docs/user-guide.md` and `docs/user-guide.fa.md`; retake its screenshots with `pnpm docs:screenshots` (callouts are defined in `scripts/screenshots.ts`) |
+| What Money can do                                   | `README.md`                                                                                                                                              |
+| A rule for AI agents                                | `CLAUDE.md`                                                                                                                                              |
 
 The docs are in English, except where they quote the interface in Persian.
 

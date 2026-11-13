@@ -21,18 +21,9 @@ Each person or family runs their own copy of Money: a fork of this repository on
 
 **Settings → About Money** shows the version you run, and admins see when a newer [release](https://github.com/mrghasemi1992/money/releases) is out. Updating is one click on your fork: [docs/updating.md](docs/updating.md).
 
-## Connect Claude or ChatGPT
+## Using Money
 
-Money is also a remote MCP server, so Claude or ChatGPT can record transactions and answer questions about the book. Each user connects their own Claude and signs in to Money; Claude then works with that user's role (viewers can only read).
-
-1. In Money, open **Settings → Connect to Claude** (`/settings/connector`) and copy the connector URL: `https://<your domain>/mcp`.
-2. In Claude, go to **Settings → Connectors → Add custom connector**. Name it (for example «پول» or "Money"), paste the URL into **Remote MCP server URL** and click **Add**. Leave the OAuth client ID and secret empty.
-3. Click **Connect**. A Money window opens: sign in with your username and password, then click **Allow** on the permission page.
-4. Ask Claude, for example: «این پیامک بانک رو ثبت کن» (with the SMS pasted), or "How much did I spend on restaurants this month?"
-
-To connect ChatGPT instead: in ChatGPT click your name, go to **Settings → Security and login** and turn on **Developer mode**; then open **Plugins** in the sidebar, click **+**, choose **Add custom MCP server**, name it, keep **Server URL**, paste the same URL, set **Authentication** to **OAuth**, tick **I understand and want to continue** and click **Create**; then sign in to Money and allow access. The menus follow what ChatGPT showed in October 2026 and may change.
-
-Connected apps are listed on the same settings page, where you can revoke one. An admin disabling a user disconnects their apps too.
+The user guide walks through every screen with annotated screenshots: accounts, categories, transactions, budgets, reports, CSV files, settings, user management, and connecting Claude or ChatGPT. In [English](docs/user-guide.md) and [فارسی](docs/user-guide.fa.md).
 
 How the connector works, and how to test it locally or on a preview, is in [the connector doc](docs/development/features/connector.md).
 
@@ -40,6 +31,7 @@ How the connector works, and how to test it locally or on a preview, is in [the 
 
 Everything is in [docs/](docs/README.md), grouped by what you want to do:
 
+- **Using Money:** the [user guide](docs/user-guide.md) ([فارسی](docs/user-guide.fa.md)).
 - **Running a copy:** [self-hosting](docs/self-hosting.md) and [updating](docs/updating.md).
 - **Developing Money**, for people and AI agents: start with [CONTRIBUTING.md](CONTRIBUTING.md), then [architecture](docs/development/architecture.md), [decisions](docs/development/decisions.md), [conventions](docs/development/conventions.md) and the [feature docs](docs/development/features/).
 - **Maintaining:** [releases](docs/development/releases.md) and [local development](docs/development/local-development.md).
