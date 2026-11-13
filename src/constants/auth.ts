@@ -1,6 +1,16 @@
 /** Sign-in attempts allowed per IP address within the window; then sign-in waits until it ends. */
 export const SIGN_IN_LIMIT = { maxAttempts: 5, windowSeconds: 5 * 60 } as const;
 
+/**
+ * Password change attempts allowed per user within the window (counted by the action, keyed by
+ * user: someone with a stolen session could otherwise guess the current password). A success
+ * clears the count.
+ */
+export const PASSWORD_CHANGE_LIMIT = {
+  maxAttempts: 5,
+  windowSeconds: 15 * 60,
+} as const;
+
 export const LOGIN_PATH = "/login";
 
 /** Query parameter on /login with the page to return to after signing in. */

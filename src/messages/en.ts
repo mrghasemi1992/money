@@ -1392,6 +1392,8 @@ const en: Messages = {
       current: "Current password",
       currentMissing: "Enter your current password.",
       currentWrong: "The current password is incorrect.",
+      tooManyAttempts:
+        "Too many tries with the wrong current password. Try again in {minutes} minutes.",
       new: "New password",
       newHint: "At least {min} characters.",
       newTooShort: "The new password must be at least {min} characters.",

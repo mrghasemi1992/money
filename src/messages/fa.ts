@@ -1375,6 +1375,8 @@ const fa = {
       current: "رمز فعلی",
       currentMissing: "رمز فعلی را وارد کنید.",
       currentWrong: "رمز فعلی درست نیست.",
+      tooManyAttempts:
+        "چند بار پشت سر هم رمز فعلی نادرست وارد شد. {minutes} دقیقه دیگر دوباره امتحان کنید.",
       new: "رمز جدید",
       newHint: "دست‌کم {min} نویسه.",
       newTooShort: "رمز جدید باید دست‌کم {min} نویسه باشد.",
