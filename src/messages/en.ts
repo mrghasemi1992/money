@@ -791,7 +791,7 @@ const en: Messages = {
     reset: {
       title: "Reset password?",
       description:
-        "{name}’s current password will stop working, they’ll be signed out everywhere, and a new temporary password will be created.",
+        "{name}’s current password will stop working, they’ll be signed out everywhere, connected apps such as Claude will lose access to their account, and a new temporary password will be created.",
       submit: "Reset password",
       shownTitle: "New temporary password",
       shownDescription: "Copy it and give it to {name}.",
@@ -1387,7 +1387,8 @@ const en: Messages = {
     },
     password: {
       title: "Change password",
-      subtitle: "After changing it, sign in again on your other devices.",
+      subtitle:
+        "After changing it, sign in again on your other devices and connect apps such as Claude again.",
       current: "Current password",
       currentMissing: "Enter your current password.",
       currentWrong: "The current password is incorrect.",

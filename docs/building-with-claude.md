@@ -1347,7 +1347,7 @@ Issue #51: the book is shared by several users (and Claude saves transactions as
 
 ## Security audit (#72)
 
-Branches: `chore/security-audit-72` (the audit, no changes of its own), `bugfix/safe-redirect-72` (this repair) and `chore/upgrade-packages-72` (the package upgrade, its own PR). Date: 2026-11-13.
+Branches: `chore/security-audit-72` (the audit, no changes of its own), then one per repair (see Result). Date: 2026-11-13.
 
 ### Claude Code prompt (as sent)
 
@@ -1365,9 +1365,11 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 
 - **How:** the `security-review` skill on the auth, roles, MCP, import and export paths, as a review pass and then a separate false-positive pass on its finding, with the redirect also checked by running the function; `pnpm audit` and the advisories of the auth and MCP packages; production's response headers, Vercel's deployment protection and GitHub's security settings; a secret-pattern scan of all 137 commits (gitleaks wasn't installed; GitHub secret scanning has no alerts).
 - **Clean:** every Server Action, page and the export Route Handler checks the role first, read fresh from the database; the MCP write tools re-check it on every call; revoking or disabling cuts MCP access on the next request; the login and consent pages verify the signed OAuth request; the last enabled admin always stays; SQL is parameterized; CSV export cells are guarded against formulas and the import limits hold on the server; sign-in is limited per IP, and the IP can't be spoofed on Vercel; the layout's two inline scripts are constants; there are no secrets in git; previews are behind Vercel Authentication.
-- **Findings,** drafted as issues and filed once the two repairs are out (the repo is public and forks run their own copies): high, Next.js 16.3.8 and Zod 4.6.5 have published advisories; medium, an open redirect through the login page's `next`, password reset and change leave connected apps working, any website can act as an OAuth client named "Claude" (consent phishing), and local development runs on the production database; low, Better Auth 1.7.7 is behind (no advisory applies), no security headers besides HSTS, Better Auth's admin and update-user endpoints are open over HTTP, no attempt limit when changing the password, and Dependabot alerts and private vulnerability reporting are off.
-- **Repaired here:** `getSafeRedirect` (`src/utils/url.ts`) refused `//…` and `/\…` in its input but returned the normalized path unchecked, so `/.//evil.example` came out as `//evil.example`, another host to the browser. A signed-in visitor of `/login?next=…` was sent there at once, a signed-out one right after signing in. It now checks the normalized path. Checked with 21 inputs against the function and on the login page of the running app; the regression test comes with #70.
-- **Repaired in its own PR:** Next.js 16.4.6, Zod 4.6.7, Storybook 10.6.7 and Vite 8.3.8 (`chore/upgrade-packages-72`).
+- **Findings,** drafted as issues, then repaired one PR at a time (see Follow-ups): high, Next.js 16.3.8 and Zod 4.6.5 have published advisories; medium, an open redirect through the login page's `next`, password reset and change leave connected apps working, any website can act as an OAuth client named "Claude" (consent phishing), and local development runs on the production database; low, Better Auth 1.7.7 is behind (no advisory applies), no security headers besides HSTS, Better Auth's admin and update-user endpoints are open over HTTP, no attempt limit when changing the password, and Dependabot alerts and private vulnerability reporting are off.
+- **Repairs,** one PR each:
+  - **The login redirect** (#109, `bugfix/safe-redirect-72`): `getSafeRedirect` (`src/utils/url.ts`) refused `//…` and `/\…` in its input but returned the normalized path unchecked, so `/.//evil.example` came out as `//evil.example`, another host to the browser. A signed-in visitor of `/login?next=…` was sent there at once, a signed-out one right after signing in. It now checks the normalized path. Checked with 21 inputs against the function and on the login page of the running app; the regression test comes with #70.
+  - **The packages** (#108, `chore/upgrade-packages-72`): Next.js 16.4.6, Zod 4.6.7, Storybook 10.6.7 and Vite 8.3.8; `pnpm audit` is down to 3 moderate advisories in dev tooling that can't be reached.
+  - **Connected apps on a password reset or change** (`bugfix/revoke-apps-on-password-reset-72`): an admin's reset and a user's own change ended web sessions only, so an app connected with the old password kept its access. Both now also delete the user's OAuth grants and tokens (`revokeAllConnections`, the `revokeGrants` statement that disabling and «قطع دسترسی» already run), after the sessions, so an app connected in between goes too. The reset dialog and the password section say so. Checked: typecheck, lint, build, and the new copy in the running app.
 
 ### Follow-ups
 
@@ -1378,6 +1380,14 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 2. > Explain above in ASD-STE100 Simplified Technical English.
 
    Claude wrote the audit result again in Simplified Technical English.
+
+3. > (In Persian) Are all the security issues fixed now?
+
+   No: Claude listed the two repairs (#108, #109, both merged by then) and what was left, three medium and five low findings.
+
+4. > (In Persian) I want all the remaining items fixed. Go step by step: make a PR, I'll merge it, then go to the next one.
+
+   One PR per finding, the medium ones first, each from a fresh `main` after the last one is merged. First: a password reset or change disconnects the user's apps too.
 
 ## Next phases
 
