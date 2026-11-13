@@ -20,7 +20,7 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://money.localhost:3000](http://money.localhost:3000).
+Open [http://money.localhost:3000](http://money.localhost:3000). The app reads `.env.local`, which `vercel env pull .env.local` fills; locally its database is a `dev` branch of Neon, never production: [docs/local-development.md](docs/local-development.md).
 
 ## Connect Claude or ChatGPT
 
