@@ -1345,6 +1345,40 @@ Issue #51: the book is shared by several users (and Claude saves transactions as
 - **Not added:** a filter for the last editor (rarely different from who added it, and the detail already shows it) and a source filter (web / Claude / CSV); both can follow the same pattern if they are wanted. The MCP `list_transactions` tool has no creator filter.
 - **Checked** in Storybook in Persian and English: the chip, the select's options (sorted, the disabled user marked) and picking another user.
 
+## Security audit (#72)
+
+Branches: `chore/security-audit-72` (the audit, no changes of its own), `bugfix/safe-redirect-72` (this repair) and `chore/upgrade-packages-72` (the package upgrade, its own PR). Date: 2026-11-13.
+
+### Claude Code prompt (as sent)
+
+> #72
+
+Issue #72: review the auth, roles, MCP endpoint, import and export, and the Route Handlers: role checks in every Server Action and Route Handler, no role logic in `src/db`, the MCP write tools, the signed OAuth request and `checkMcpGrant`, rate limits, `getSafeRedirect`, CSV formula injection and limits, the two `dangerouslySetInnerHTML` uses, security headers, secrets in git, dependencies, and the risk of local development on the production database. File each finding as its own issue with a severity, fix the critical and high ones in their own PRs with a regression test from #70, and sum up on the issue.
+
+### Questions Claude asked
+
+| Question                                                          | Answer       |
+| ----------------------------------------------------------------- | ------------ |
+| Repair the redirect and the packages first, then open the issues? | Repair first |
+
+### Result
+
+- **How:** the `security-review` skill on the auth, roles, MCP, import and export paths, as a review pass and then a separate false-positive pass on its finding, with the redirect also checked by running the function; `pnpm audit` and the advisories of the auth and MCP packages; production's response headers, Vercel's deployment protection and GitHub's security settings; a secret-pattern scan of all 137 commits (gitleaks wasn't installed; GitHub secret scanning has no alerts).
+- **Clean:** every Server Action, page and the export Route Handler checks the role first, read fresh from the database; the MCP write tools re-check it on every call; revoking or disabling cuts MCP access on the next request; the login and consent pages verify the signed OAuth request; the last enabled admin always stays; SQL is parameterized; CSV export cells are guarded against formulas and the import limits hold on the server; sign-in is limited per IP, and the IP can't be spoofed on Vercel; the layout's two inline scripts are constants; there are no secrets in git; previews are behind Vercel Authentication.
+- **Findings,** drafted as issues and filed once the two repairs are out (the repo is public and forks run their own copies): high, Next.js 16.3.8 and Zod 4.6.5 have published advisories; medium, an open redirect through the login page's `next`, password reset and change leave connected apps working, any website can act as an OAuth client named "Claude" (consent phishing), and local development runs on the production database; low, Better Auth 1.7.7 is behind (no advisory applies), no security headers besides HSTS, Better Auth's admin and update-user endpoints are open over HTTP, no attempt limit when changing the password, and Dependabot alerts and private vulnerability reporting are off.
+- **Repaired here:** `getSafeRedirect` (`src/utils/url.ts`) refused `//…` and `/\…` in its input but returned the normalized path unchecked, so `/.//evil.example` came out as `//evil.example`, another host to the browser. A signed-in visitor of `/login?next=…` was sent there at once, a signed-out one right after signing in. It now checks the normalized path. Checked with 21 inputs against the function and on the login page of the running app; the regression test comes with #70.
+- **Repaired in its own PR:** Next.js 16.4.6, Zod 4.6.7, Storybook 10.6.7 and Vite 8.3.8 (`chore/upgrade-packages-72`).
+
+### Follow-ups
+
+1. > continue from where you interrupted
+
+   The review pass was still running, so Claude reviewed its areas itself, then checked what it reported: the open redirect, and three points it had left out as low impact (password resets keep connected apps, the update-user endpoint, no allowlist of OAuth clients).
+
+2. > Explain above in ASD-STE100 Simplified Technical English.
+
+   Claude wrote the audit result again in Simplified Technical English.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
