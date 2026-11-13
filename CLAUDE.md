@@ -220,6 +220,7 @@ Each person or family runs their own copy: a **fork** of `mrghasemi1992/money` o
 - **Design system docs:** Storybook
 - **Formatting:** Prettier (default options) with `eslint-config-prettier`
 - **Hosting:** Vercel. Two projects from this one repo: `money` (the app) and `money-storybook` (the design system docs, https://money-storybook.vercel.app: Storybook preset, `pnpm build-storybook`, output `storybook-static`), same as `orange` / `orange-storybook`.
+- **Security headers:** `SECURITY_HEADERS` in `next.config.ts` on every response: `Content-Security-Policy` `frame-ancestors 'none'; base-uri 'self'; object-src 'none'` and `X-Frame-Options: DENY` (no page may be framed, so the login and the consent page can't be clickjacked), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and a `Permissions-Policy` without camera, microphone, geolocation or topics; `poweredByHeader` is off and Vercel adds HSTS. No `script-src` (Next.js and the theme and sidebar scripts are inline, and previews load Vercel's toolbar) and no `Cross-Origin-Opener-Policy` (Claude and ChatGPT watch the sign-in popup they open).
 - **Tests:** not in scope yet. Planned later. Write code that is easy to test (small pure functions, data logic separate from UI).
 
 ## Data rules
