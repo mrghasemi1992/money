@@ -45,6 +45,15 @@ Sign in locally with your usual username and password: the branch copied the use
 
 The branch keeps whatever you do to it. To start again from production's current data, open the `dev` branch in Neon and choose **Reset from parent**, then run `delete from jwks;` on it again (step 5). If the role's password comes back as production's after the reset, reset it again on `dev` and update the two Development variables (steps 1 and 3).
 
+## Preview branches
+
+Every preview deployment gets a Neon branch named `preview/<git branch>`, and the integration never deletes it. Neon's free plan allows 10 branches per project, and once they are used up new previews fail. The workflow `.github/workflows/delete-preview-branch.yml` deletes a pull request's branch when the PR is merged or closed. It needs two settings in GitHub, under **Settings → Secrets and variables → Actions**:
+
+- the variable `NEON_PROJECT_ID`: the Neon project's id (Neon, **Settings → General**)
+- the secret `NEON_API_KEY`: a Neon API key (Neon, your account's **API keys**)
+
+Without them the workflow does nothing. To delete old branches by hand, open **Branches** in Neon; keep `main` and `dev`.
+
 ## Migrations
 
 `pnpm db:migrate` migrates the `dev` branch. Each deployment migrates its own database: the main branch for production, its own branch for a preview (see [releases.md](releases.md)).
