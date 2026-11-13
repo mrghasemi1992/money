@@ -1369,7 +1369,8 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 - **Repairs,** one PR each:
   - **The login redirect** (#109, `bugfix/safe-redirect-72`): `getSafeRedirect` (`src/utils/url.ts`) refused `//…` and `/\…` in its input but returned the normalized path unchecked, so `/.//evil.example` came out as `//evil.example`, another host to the browser. A signed-in visitor of `/login?next=…` was sent there at once, a signed-out one right after signing in. It now checks the normalized path. Checked with 21 inputs against the function and on the login page of the running app; the regression test comes with #70.
   - **The packages** (#108, `chore/upgrade-packages-72`): Next.js 16.4.6, Zod 4.6.7, Storybook 10.6.7 and Vite 8.3.8; `pnpm audit` is down to 3 moderate advisories in dev tooling that can't be reached.
-  - **Connected apps on a password reset or change** (`bugfix/revoke-apps-on-password-reset-72`): an admin's reset and a user's own change ended web sessions only, so an app connected with the old password kept its access. Both now also delete the user's OAuth grants and tokens (`revokeAllConnections`, the `revokeGrants` statement that disabling and «قطع دسترسی» already run), after the sessions, so an app connected in between goes too. The reset dialog and the password section say so. Checked: typecheck, lint, build, and the new copy in the running app.
+  - **Connected apps on a password reset or change** (#110, `bugfix/revoke-apps-on-password-reset-72`): an admin's reset and a user's own change ended web sessions only, so an app connected with the old password kept its access. Both now also delete the user's OAuth grants and tokens (`revokeAllConnections`, the `revokeGrants` statement that disabling and «قطع دسترسی» already run), after the sessions, so an app connected in between goes too. The reset dialog and the password section say so. Checked: typecheck, lint, build, and the new copy in the running app.
+  - **Only Claude and ChatGPT connect** (`bugfix/oauth-client-allowlist-72`): with Client ID Metadata Documents any HTTPS URL could act as an OAuth client and call itself "Claude" on the consent page. Now a `client_id` URL must be on `https://claude.ai` or `https://chatgpt.com` (`MCP_CLIENT_ORIGINS`, `isAllowedMcpClient`): `cimd` refuses others before fetching their document, and `verifyMcpToken` refuses tokens issued to them. Checked with 14 client ids against the helper; an authorize request from another site answers `invalid_client` before any fetch; the book's connected apps (`https://claude.ai/oauth/mcp-oauth-client-metadata`, `https://chatgpt.com/oauth/client.json`) are on the list.
 
 ### Follow-ups
 
@@ -1388,6 +1389,10 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 4. > (In Persian) I want all the remaining items fixed. Go step by step: make a PR, I'll merge it, then go to the next one.
 
    One PR per finding, the medium ones first, each from a fresh `main` after the last one is merged. First: a password reset or change disconnects the user's apps too.
+
+5. > Merged, go next
+
+   Next: only Claude and ChatGPT can connect.
 
 ## Next phases
 

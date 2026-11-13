@@ -10,6 +10,16 @@ export const OAUTH_CONSENT_PATH = "/oauth/consent";
  */
 export const CHATGPT_CLIENT_ID_PREFIX = "https://chatgpt.com/";
 
+/**
+ * The origins whose Client ID Metadata Documents may connect: Claude (claude.ai, also for
+ * Claude Code) and ChatGPT (chatgpt.com). Without this, any website could present itself as an
+ * app called "Claude" on the consent page and, once allowed, read the book.
+ */
+export const MCP_CLIENT_ORIGINS = [
+  "https://claude.ai",
+  "https://chatgpt.com",
+] as const;
+
 /** Settings page with the connector URL and the connected apps. */
 export const CONNECTOR_SETTINGS_PATH = "/settings/connector";
 

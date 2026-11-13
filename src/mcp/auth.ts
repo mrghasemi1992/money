@@ -6,6 +6,7 @@ import { verifyJwsAccessToken } from "better-auth/oauth2";
 import { auth } from "@/auth";
 import { getIssuerUrl, getMcpResourceUrl } from "@/auth/urls";
 import { checkMcpGrant } from "@/db/connector";
+import { isAllowedMcpClient } from "@/helpers/connector";
 import type { McpUser } from "@/types/connector";
 
 /** Caches the signing keys between requests of one server instance. */
@@ -14,7 +15,8 @@ const jwksCacheKey = {};
 /**
  * Checks the bearer token of an MCP request (mcp-handler's `withMcpAuth` verifier):
  * 1. A JWT signed with the app's key (read through Better Auth, not over HTTP), issued by this
- *    app for this MCP endpoint (`aud`), not expired.
+ *    app for this MCP endpoint (`aud`), not expired, to an app that may connect (Claude,
+ *    ChatGPT: `isAllowedMcpClient`).
  * 2. The grant still exists: the user hasn't revoked the app on /settings/connector and an
  *    admin hasn't disabled the user (both delete it). Tokens are self-contained, so this
  *    database check is what makes revoking immediate.
@@ -49,6 +51,9 @@ export async function verifyMcpToken(
   if (typeof userId !== "string" || typeof clientId !== "string") {
     return undefined;
   }
+  // A token issued to an app that may no longer connect stops working at once, not when it
+  // expires (the authorization server refuses such apps for new tokens).
+  if (!isAllowedMcpClient(clientId)) return undefined;
 
   const user = await checkMcpGrant(userId, clientId);
   if (!user || user.disabled) return undefined;
