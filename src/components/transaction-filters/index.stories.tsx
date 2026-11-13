@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 
 import {
+  SAMPLE_CREATORS,
   SAMPLE_TODAY,
   SAMPLE_TRANSACTION_OPTIONS,
 } from "@/components/transaction-list/sample-transactions";
@@ -16,10 +17,15 @@ const meta = {
     params: EMPTY_TRANSACTION_PARAMS,
     onChange: () => {},
     options: SAMPLE_TRANSACTION_OPTIONS,
+    creators: SAMPLE_CREATORS,
     countLabel: "۳۵ تراکنش",
     today: SAMPLE_TODAY,
   },
-  argTypes: { params: { control: false }, options: { control: false } },
+  argTypes: {
+    params: { control: false },
+    options: { control: false },
+    creators: { control: false },
+  },
   parameters: { layout: "padded" },
   render: function Example(args) {
     const [params, setParams] = useState(args.params);
@@ -37,7 +43,7 @@ export const Default: Story = {};
 
 export const Open: Story = { args: { defaultOpen: true } };
 
-/** Expenses tagged «خانواده», with the panel open. */
+/** Expenses tagged «خانواده» that Sara added, with the panel open. */
 export const Active: Story = {
   args: {
     defaultOpen: true,
@@ -49,6 +55,7 @@ export const Active: Story = {
       from: "2026-09-23",
       to: "2026-10-07",
       categoryId: SAMPLE_TRANSACTION_OPTIONS.categories.expense[0].id,
+      createdBy: SAMPLE_CREATORS[0].id,
     },
   },
 };

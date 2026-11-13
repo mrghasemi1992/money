@@ -4,6 +4,7 @@ import type { CategoryType } from "@/types/category";
 import type {
   AccountOption,
   Transaction,
+  TransactionCreator,
   TransactionDayTotal,
   TransactionOptions,
   TransactionTotals,
@@ -223,6 +224,17 @@ export function sampleDayTotals(rows: Transaction[]): TransactionDayTotal[] {
 export const SAMPLE_ACCOUNT_OPTIONS: AccountOption[] = SAMPLE_ACCOUNTS.map(
   ({ id, name, type, archived }) => ({ id, name, type, archived }),
 );
+
+/** The book's users for the «ثبت توسط» filter: the two who add the samples and a disabled one. */
+export const SAMPLE_CREATORS: TransactionCreator[] = [
+  { ...USERS.sara, disabled: false },
+  { ...USERS.amir, disabled: false },
+  {
+    id: "1f2e3d4c-0000-4000-8000-000000000003",
+    name: "نگار توکلی",
+    disabled: true,
+  },
+];
 
 export const SAMPLE_TRANSACTION_OPTIONS: TransactionOptions = {
   accounts: SAMPLE_ACCOUNT_OPTIONS,

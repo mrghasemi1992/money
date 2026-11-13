@@ -1328,6 +1328,23 @@ Issue #60: the reports answer "how much" but not "why" or "what next". Add five 
    - **Month-by-month chart:** income rises above a zero line and expense hangs below it, a dot for the net, dashed lines for the average month (the month still running left out), the readout adds the savings rate, the axis takes smaller steps, and the other months step back while one is hovered.
    - **Budget record:** months within the limit are a soft fill, so near (amber with a larger dot) and over (red, striped) stand out, and the month cells share the row's whole width.
 
+## Filter transactions by who added them (#51)
+
+Branch: `feature/transaction-creator-filter-51`. Date: 2026-11-13.
+
+### Claude Code prompt (as sent)
+
+> #51
+
+Issue #51: the book is shared by several users (and Claude saves transactions as the signed-in user), but there is no way to list only the transactions one person added. Add a filter on `/transactions` for the user who added the transaction (`created_by`), in the filter bar and panel and in the URL like the other filters; the book's users by display name, disabled ones included; every role can use it. Consider a filter for the last editor and for the source.
+
+### Result
+
+- **`creator=<user id>`** in the URL (`TRANSACTION_PARAMS.creator`), read and written by `parseTransactionParams` / `transactionParamsToSearch` as `createdBy` (a UUID, else dropped). `TransactionFilters.createdBy` is one more condition in `filterConditions`, so the list, the totals and the day totals all follow it.
+- **«ثبت توسط» / “Added by”** in the filter panel: «همه کاربران» / “Everyone”, then every user by display name (sorted in the viewer's language), disabled ones marked «(غیرفعال)» since their transactions stay. It shows only when the book has two or more users (or one is already chosen). A chip «ثبت توسط سارا محمدی» removes it. The users come from `listTransactionCreators` (`src/db/users.ts`), read by the transactions page for every role, not by the shell's add form.
+- **Not added:** a filter for the last editor (rarely different from who added it, and the detail already shows it) and a source filter (web / Claude / CSV); both can follow the same pattern if they are wanted. The MCP `list_transactions` tool has no creator filter.
+- **Checked** in Storybook in Persian and English: the chip, the select's options (sorted, the disabled user marked) and picking another user.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:

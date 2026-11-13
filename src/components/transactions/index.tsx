@@ -56,6 +56,7 @@ import type {
   TransactionFilterParams,
   TransactionFormValues,
   TransactionInput,
+  TransactionCreator,
   TransactionOptions,
   TransactionPage,
   TransactionTotals,
@@ -78,6 +79,8 @@ type TransactionsProps = {
   /** Nothing recorded in the whole book yet: the first-run empty state. */
   bookIsEmpty: boolean;
   options: TransactionOptions;
+  /** The users the «ثبت توسط» filter offers. */
+  creators: TransactionCreator[];
   /** Editors and admins; viewers get the page without write controls. */
   canWrite: boolean;
   onUpdate: (
@@ -126,6 +129,7 @@ export function Transactions({
   dayTotals,
   bookIsEmpty,
   options,
+  creators,
   canWrite,
   onUpdate,
   onDelete,
@@ -234,6 +238,7 @@ export function Transactions({
       accountId: null,
       categoryId: null,
       tag: null,
+      createdBy: null,
       search: "",
       unknownOnly: false,
     });
@@ -447,6 +452,7 @@ export function Transactions({
         params={shownParams}
         onChange={navigate}
         options={options}
+        creators={creators}
         countLabel={
           navigating
             ? ""

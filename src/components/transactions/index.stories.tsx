@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { AddTransactionProvider } from "@/components/add-transaction";
 import {
   SAMPLE_ADD_TRANSACTION_ACTIONS,
+  SAMPLE_CREATORS,
   SAMPLE_TRANSACTION_OPTIONS,
   SAMPLE_TRANSACTION_OPTIONS_PROMISE,
   SAMPLE_TRANSACTIONS,
@@ -36,6 +37,7 @@ const meta = {
     dayTotals: sampleDayTotals(MEHR),
     bookIsEmpty: false,
     options: SAMPLE_TRANSACTION_OPTIONS,
+    creators: SAMPLE_CREATORS,
     canWrite: true,
     onUpdate: async () => {
       await wait();
@@ -58,6 +60,7 @@ const meta = {
     totals: { control: false },
     dayTotals: { control: false },
     options: { control: false },
+    creators: { control: false },
   },
   decorators: [
     (Story, { args }) => (
