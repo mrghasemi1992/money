@@ -1,19 +1,25 @@
 # Money
 
-A personal accounting app with a Persian (right-to-left) and English interface, built with Next.js. See `CLAUDE.md` for the full scope and decisions, and `docs/phases.md` for the build plan.
+A personal accounting app for a person or a family, in Persian (right to left) and English. Record income, expenses and transfers by hand, from a CSV file, or by telling Claude or ChatGPT, and see where the money goes.
+
+## Features
+
+- **One shared book** for the family: accounts with live balances, income and expense categories with subcategories, colors and icons.
+- **Transactions:** income, expense and transfers between your own accounts, with tags, notes and filters; undo after adding or deleting.
+- **Budgets:** a monthly limit per category, with progress and warnings near the limit.
+- **Reports:** income, expense and net against the previous period, by category, by account and month by month, plus insights (biggest changes, savings rate, recurring spending, largest transactions, budget record). Every chart has a table view.
+- **Dashboard:** balances, this month, budgets, top spending and recent transactions at a glance.
+- **Claude and ChatGPT:** connect them to record transactions from a bank SMS or a sentence, and to ask questions about your spending.
+- **CSV import and export**, with both calendars.
+- **Persian and English**, Jalali or Gregorian calendar, rial or toman, light and dark themes, per user. Rial, dollar, euro or pound books.
+- **Roles:** admin, editor and viewer. Invite only, no public sign-up.
+- **Self-hosted** on free GitHub, Vercel and Neon accounts, with one-click updates.
 
 ## Run your own copy
 
-Each person or family runs their own copy of Money: a fork of this repository on GitHub, deployed on free Vercel and Neon accounts, set up in about 15 minutes in the browser, with no terminal. The steps: [docs/self-hosting.md](docs/self-hosting.md).
+Each person or family runs their own copy of Money: a fork of this repository on GitHub, deployed on free Vercel and Neon accounts. Setting one up takes about 15 minutes in the browser, with no terminal: [docs/self-hosting.md](docs/self-hosting.md).
 
-## Getting started (development)
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Open [http://money.localhost:3000](http://money.localhost:3000). The app reads `.env.local`, which `vercel env pull .env.local` fills; locally its database is a `dev` branch of Neon, never production: [docs/local-development.md](docs/local-development.md).
+**Settings → About Money** shows the version you run, and admins see when a newer [release](https://github.com/mrghasemi1992/money/releases) is out. Updating is one click on your fork: [docs/updating.md](docs/updating.md).
 
 ## Connect Claude or ChatGPT
 
@@ -24,35 +30,19 @@ Money is also a remote MCP server, so Claude or ChatGPT can record transactions 
 3. Click **Connect**. A Money window opens: sign in with your username and password, then click **Allow** on the permission page.
 4. Ask Claude, for example: «این پیامک بانک رو ثبت کن» (with the SMS pasted), or "How much did I spend on restaurants this month?"
 
-To connect ChatGPT instead: in ChatGPT click your name, go to **Settings → Security and login** and turn on **Developer mode**; then open **Plugins** in the sidebar, click **+**, choose **Add custom MCP server**, name it, keep **Server URL**, paste the same URL, set **Authentication** to **OAuth**, tick **I understand and want to continue** and click **Create**; then sign in to Money and allow access. ChatGPT can only reach a public HTTPS URL, not `localhost`, and on a preview deployment Vercel’s deployment protection must allow it (otherwise ChatGPT reports that the server does not implement OAuth). The menus follow what ChatGPT showed in October 2026 and may change. ChatGPT identifies itself with its own Client ID Metadata Document (`https://chatgpt.com/oauth/client.json`), so nothing is registered here either.
+To connect ChatGPT instead: in ChatGPT click your name, go to **Settings → Security and login** and turn on **Developer mode**; then open **Plugins** in the sidebar, click **+**, choose **Add custom MCP server**, name it, keep **Server URL**, paste the same URL, set **Authentication** to **OAuth**, tick **I understand and want to continue** and click **Create**; then sign in to Money and allow access. The menus follow what ChatGPT showed in October 2026 and may change.
 
 Connected apps are listed on the same settings page, where you can revoke one. An admin disabling a user disconnects their apps too.
 
-How it works: Money is its own OAuth 2.1 authorization server (Better Auth's MCP plugin). Claude identifies itself with a Client ID Metadata Document, so there is nothing to register. Only Claude and ChatGPT can connect: their metadata documents live on `claude.ai` and `chatgpt.com`, and other MCP clients are refused. Discovery metadata is at `/.well-known/oauth-protected-resource/mcp` and `/.well-known/oauth-authorization-server/api/auth`. Details are in `CLAUDE.md` (Claude connector).
+How the connector works, and how to test it locally or on a preview, is in [the connector doc](docs/development/features/connector.md).
 
-- **Locally** the connector URL is `http://localhost:3000/mcp` (OAuth accepts plain HTTP only for `localhost`), while the app itself runs on `money.localhost`. claude.ai can't reach a local server; use an MCP client on the same machine (Claude Code, or the MCP Inspector with a client registered for it).
-- **Preview deployments** use their branch URL: `https://<project>-git-<branch>-<team>.vercel.app/mcp`. Vercel's deployment protection must allow the request, or claude.ai can't reach it.
+## Documentation
 
-## Updating your copy
+Everything is in [docs/](docs/README.md), grouped by what you want to do:
 
-**Settings → About Money** shows the version you run, and admins see when a newer [release](https://github.com/mrghasemi1992/money/releases) is out. To update, click **Sync fork** on your fork: [docs/updating.md](docs/updating.md).
-
-## Scripts
-
-| Script                 | Description                |
-| ---------------------- | -------------------------- |
-| `pnpm dev`             | Start the dev server       |
-| `pnpm build`           | Production build           |
-| `pnpm start`           | Serve the production build |
-| `pnpm lint`            | Run ESLint                 |
-| `pnpm typecheck`       | Type check with TypeScript |
-| `pnpm format`          | Format files with Prettier |
-| `pnpm format:check`    | Check formatting           |
-| `pnpm storybook`       | Start Storybook            |
-| `pnpm build-storybook` | Build static Storybook     |
-| `pnpm db:generate`     | Generate a SQL migration   |
-| `pnpm db:migrate`      | Apply migrations           |
-| `pnpm user:create`     | Create a user (prompts)    |
+- **Running a copy:** [self-hosting](docs/self-hosting.md) and [updating](docs/updating.md).
+- **Developing Money**, for people and AI agents: start with [CONTRIBUTING.md](CONTRIBUTING.md), then [architecture](docs/development/architecture.md), [decisions](docs/development/decisions.md), [conventions](docs/development/conventions.md) and the [feature docs](docs/development/features/).
+- **Maintaining:** [releases](docs/development/releases.md) and [local development](docs/development/local-development.md).
 
 ## Security
 
