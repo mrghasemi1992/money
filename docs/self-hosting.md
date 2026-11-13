@@ -35,6 +35,7 @@ Money needs one random secret to protect sign-ins. It is also the **setup code**
    - **Region:** keep the one Vercel suggests (Washington, D.C., US East), so the database sits next to the app.
    - **Plan:** Free.
    - Accept Neon's terms and click **Create**. Keep the environment variable prefix `DATABASE` if the form shows it.
+   - If the form shows **Create database branch for deployment**, tick only **Preview** and leave **Production** unticked, as [Neon recommends](https://neon.com/docs/guides/vercel-managed-integration#connecting-the-database-to-a-vercel-project): production should always use the database's main branch, where your book is.
 5. **Environment Variables:** paste the secret from step 2 into `BETTER_AUTH_SECRET`.
 6. Click **Deploy** and wait two or three minutes. Vercel builds the app and prepares the database.
 7. When it says **Congratulations**, click **Continue to Dashboard**. Your address is under **Domains**, for example `money-abc123.vercel.app`.
@@ -71,4 +72,6 @@ From now on, updating is one click: see [updating.md](updating.md).
 - **The deployment failed with “DATABASE_URL is not set”.** The database wasn't connected. In Vercel open the project → **Storage**, create a Neon database (or **Connect** an existing one) with the prefix `DATABASE`, then **Deployments → Redeploy**.
 - **“The setup code is incorrect.”** It must be exactly the `BETTER_AUTH_SECRET` from step 3. If you lost it, set a new one in Vercel → **Settings → Environment Variables** (edit `BETTER_AUTH_SECRET`), then **Redeploy** and use the new one. Changing it is harmless before anyone has signed in.
 - **The build log shows `NeonDbError: relation "oauth_resource" does not exist`.** This is harmless. Versions up to 0.4.0 logged it on a new copy's first build, before the database tables were created. The deployment still succeeds, and the build creates the tables right after.
+- **“Production” was ticked under “Create database branch for deployment”.** Open the database in Vercel → **Storage**, then **Open in Neon**, then **Branches**. If it lists only `main` (and branches starting with `preview/`), production uses `main` and there's nothing to do; a copy set up this way showed no extra branches after several deployments. If it lists other branches, don't change the connection: ask in the repository's [issues](https://github.com/mrghasemi1992/money/issues) first, since your latest data may be on one of them.
+- **Preview deployments fail after a few pull requests.** Each preview gets a database branch named `preview/…`, and Neon's free plan allows 10. Delete the old ones under **Branches** in Neon; keep `main`. Most copies never make previews.
 - **The build log says something else.** Open the failed deployment in Vercel → **Building**; the last red lines say why. You can ask for help in the repository's [issues](https://github.com/mrghasemi1992/money/issues).
