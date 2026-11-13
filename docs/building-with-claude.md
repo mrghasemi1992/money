@@ -1396,6 +1396,22 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 
    Next: only Claude and ChatGPT can connect.
 
+6. > for Neon: create the dev branch from main. … on main click on create child branch?
+
+   Yes: a child branch of `main` named `dev`, with its data and schema and no expiry. Claude checked the dialog from a screenshot.
+
+7. > do you need the snippet? … i created the dev branch. i copied the snippet. what next step?
+
+   No snippet: connection strings go from Neon straight into Vercel, never into the chat. A child branch starts with its parent's role passwords, so the snippet carried production's password. The guide now resets the role's password on `dev` before its strings are copied (a reset applies to that branch only), then reconnects the integration.
+
+8. > ok? (a screenshot of Vercel's Connect Project dialog), then in Persian: check it, and if everything is right I'll click Connect Project.
+
+   The environments and the prefix were right, but **Production** was ticked under **Create database branch for deployment**, which creates a new branch for every production deployment. Neon's guide says to leave it unticked, and so does the guide now.
+
+9. > Connected, check it
+
+   Claude checked from the terminal: the `DATABASE_*` variables list Preview and Production only, the connection creates branches for previews only (`vercel api /v1/storage/stores`), and the redeployed production build migrated the main branch and serves the sign-in page.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
@@ -1423,4 +1439,4 @@ Branch: `feature/phase-N-…`. Date: YYYY-MM-DD. PR [#n](https://github.com/mrgh
 - **Approval before every commit and push.** Claude shows the files and proposed commit messages and waits. An earlier OK doesn't cover later commits.
 - **Plans change.** Two changes came up between phases (one shared book with roles, Persian and English with a book currency). Each was its own branch and PR, and docs/phases.md was updated so the later prompts matched.
 - **Design handoff over the MCP.** The handoff only works when the `claude_design` MCP is connected and authorized (`/design-login`) in the Claude Code session.
-- **Local development uses the production database.** Scripts run locally (like creating a user) write to production; previews get their own Neon branch.
+- **Local development uses a `dev` branch of the database.** Until #72, scripts run locally (like creating a user) wrote to production. Now `.env.local` points at `dev`, a copy of production that can be reset; previews get their own Neon branch, and only production uses the main branch (`docs/local-development.md`).
