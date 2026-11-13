@@ -1357,9 +1357,10 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 
 ### Questions Claude asked
 
-| Question                                                          | Answer       |
-| ----------------------------------------------------------------- | ------------ |
-| Repair the redirect and the packages first, then open the issues? | Repair first |
+| Question                                                          | Answer          |
+| ----------------------------------------------------------------- | --------------- |
+| Repair the redirect and the packages first, then open the issues? | Repair first    |
+| After #111, move local development to its own Neon branch?        | Yes, dev branch |
 
 ### Result
 
@@ -1370,7 +1371,8 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
   - **The login redirect** (#109, `bugfix/safe-redirect-72`): `getSafeRedirect` (`src/utils/url.ts`) refused `//…` and `/\…` in its input but returned the normalized path unchecked, so `/.//evil.example` came out as `//evil.example`, another host to the browser. A signed-in visitor of `/login?next=…` was sent there at once, a signed-out one right after signing in. It now checks the normalized path. Checked with 21 inputs against the function and on the login page of the running app; the regression test comes with #70.
   - **The packages** (#108, `chore/upgrade-packages-72`): Next.js 16.4.6, Zod 4.6.7, Storybook 10.6.7 and Vite 8.3.8; `pnpm audit` is down to 3 moderate advisories in dev tooling that can't be reached.
   - **Connected apps on a password reset or change** (#110, `bugfix/revoke-apps-on-password-reset-72`): an admin's reset and a user's own change ended web sessions only, so an app connected with the old password kept its access. Both now also delete the user's OAuth grants and tokens (`revokeAllConnections`, the `revokeGrants` statement that disabling and «قطع دسترسی» already run), after the sessions, so an app connected in between goes too. The reset dialog and the password section say so. Checked: typecheck, lint, build, and the new copy in the running app.
-  - **Only Claude and ChatGPT connect** (`bugfix/oauth-client-allowlist-72`): with Client ID Metadata Documents any HTTPS URL could act as an OAuth client and call itself "Claude" on the consent page. Now a `client_id` URL must be on `https://claude.ai` or `https://chatgpt.com` (`MCP_CLIENT_ORIGINS`, `isAllowedMcpClient`): `cimd` refuses others before fetching their document, and `verifyMcpToken` refuses tokens issued to them. Checked with 14 client ids against the helper; an authorize request from another site answers `invalid_client` before any fetch; the book's connected apps (`https://claude.ai/oauth/mcp-oauth-client-metadata`, `https://chatgpt.com/oauth/client.json`) are on the list.
+  - **Only Claude and ChatGPT connect** (#111, `bugfix/oauth-client-allowlist-72`): with Client ID Metadata Documents any HTTPS URL could act as an OAuth client and call itself "Claude" on the consent page. Now a `client_id` URL must be on `https://claude.ai` or `https://chatgpt.com` (`MCP_CLIENT_ORIGINS`, `isAllowedMcpClient`): `cimd` refuses others before fetching their document, and `verifyMcpToken` refuses tokens issued to them. Checked with 14 client ids against the helper; an authorize request from another site answers `invalid_client` before any fetch; the book's connected apps (`https://claude.ai/oauth/mcp-oauth-client-metadata`, `https://chatgpt.com/oauth/client.json`) are on the list.
+  - **Local development on a `dev` branch** (`chore/dev-database-branch-72`): Production and Development shared the main Neon branch, so `.env.local` held read-write credentials for the real book. The Neon integration (Vercel-managed) can't point one environment at another branch, so it is reconnected for Preview and Production only, and Development gets its own `DATABASE_URL`, `DATABASE_URL_UNPOOLED` and `BETTER_AUTH_SECRET` for a `dev` branch made from main; the branch's copied JWT signing keys, encrypted with production's secret, are deleted so Better Auth makes new ones. The steps, which need the Neon and Vercel dashboards, are in `docs/local-development.md`; CLAUDE.md, `.env.example` and the README follow.
 
 ### Follow-ups
 
