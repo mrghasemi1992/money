@@ -1462,6 +1462,21 @@ Issue #72: review the auth, roles, MCP endpoint, import and export, and the Rout
 
     The last low finding: `SECURITY.md`, Dependabot, and the GitHub settings for alerts, security updates and private reporting.
 
+## Self-hosting: Neon's production branching
+
+Branch: `chore/self-hosting-neon-branching`. Date: 2026-11-13. A follow-up of the security audit (#72).
+
+### Prompt (as sent)
+
+> (In Persian) The self-hosting guide item that I cancelled, do it now.
+
+Claude had proposed it as a separate task after the audit: Vercel's Neon connect dialog can tick **Production** under **Create database branch for deployment**, Neon's guide says to leave it unticked ("It creates a new branch for every production deployment"), and `docs/self-hosting.md` didn't mention it.
+
+### Result
+
+- **What the box did on a real copy:** the test copy `money-fork`, set up with the Deploy button, has the box ticked (`vercel api /v1/storage/stores`: its Neon deployment action covers production and preview), yet its Neon project has only `main`, and its operation history (`neonctl operations list`) shows no branch ever created across five production deployments. So it had no visible effect there, but Neon recommends against it.
+- **`docs/self-hosting.md`:** the Neon step says to tick only **Preview** if the form shows the option. Two new entries under "If something goes wrong": what to check when **Production** was ticked (only `main` and `preview/…` in Neon's **Branches** means nothing to do; other branches mean ask first, since the latest data may be on one), and preview deployments failing at Neon's 10-branch limit.
+
 ## Next phases
 
 Phases 11 and 12 haven't started. Their planned prompts are in [phases.md](phases.md). Each one gets a section here when it is done, in the same shape:
