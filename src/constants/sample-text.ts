@@ -160,7 +160,8 @@ export const SAMPLE_TEXT_EN: Record<string, string> = {
   "دسته‌های درآمد": "Income categories",
   "دسته‌های هزینه": "Expense categories",
   "دست‌کم یک مدیر فعال باید بماند.": "At least one active admin must remain.",
-  "دو شب، با صبحانه.": "Two nights, with breakfast.",
+  "اقامت در رامسر — دو شب، با صبحانه":
+    "Stay in Ramsar — two nights, with breakfast",
   "ذخیره بودجه": "Save budget",
   "ذخیره نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.":
     "Couldn’t save. Check your internet connection and try again.",
@@ -304,7 +305,6 @@ export const SAMPLE_TEXT_EN: Record<string, string> = {
     "Once you record the first amount (a transaction, budget or opening balance), the book’s currency can’t be changed.",
   پوشاک: "Clothing",
   پویا: "Pouya",
-  "پیامک بانک: خرید کارتی.": "Bank SMS: card purchase.",
   "پیشنهاد Claude": "Claude’s suggestion",
   "چهارشنبه ۱۵ مهر ۱۴۰۵": "Wednesday, 15 Mehr 1405",
   "کار آزاد": "Freelance work",

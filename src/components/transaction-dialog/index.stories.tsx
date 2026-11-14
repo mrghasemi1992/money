@@ -49,12 +49,12 @@ type Story = StoryObj<typeof meta>;
  */
 export const New: Story = {};
 
-/** Editing: delete at the start of the footer, and the note open. */
+/** Editing: delete at the start of the footer. */
 export const Edit: Story = {
   args: {
     transaction:
       SAMPLE_TRANSACTIONS.find(
-        (item) => item.note && item.type === "expense",
+        (item) => item.tags.length > 0 && item.type === "expense",
       ) ?? null,
   },
 };

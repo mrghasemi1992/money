@@ -143,6 +143,14 @@ const SHOTS: Record<string, Shot> = {
         around: "div",
       },
       {
+        target: {
+          role: "textbox",
+          name: (m) => m.transactions.form.description,
+          startsWith: true,
+        },
+        around: "div",
+      },
+      {
         // Its accessible name ends with «(اختیاری)» / “(optional)”.
         target: {
           role: "combobox",

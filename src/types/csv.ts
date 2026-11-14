@@ -134,7 +134,6 @@ export type ImportRowErrorCode =
   | "categoryUnmatched"
   | "subcategoryWithoutCategory"
   | "descriptionTooLong"
-  | "noteTooLong"
   | "tagTooLong"
   | "tooManyTags";
 
@@ -187,6 +186,5 @@ export type ExportedTransaction = {
   categoryName: string | null;
   subcategoryName: string | null;
   description: string;
-  note: string;
   tags: string[];
 };

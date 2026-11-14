@@ -10,7 +10,6 @@ import {
 } from "@/constants/connector";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_SEARCH_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
@@ -47,6 +46,7 @@ import {
   type TransactionError,
   transactionErrors,
   transactionSchema,
+  withNote,
 } from "@/helpers/transaction";
 import type { CategoryTree } from "@/types/category";
 import type { McpUser } from "@/types/connector";
@@ -116,7 +116,6 @@ const ERRORS: Record<TransactionError, string> = {
   categoryUnavailable:
     "category_id isn't an active category of the transaction's type (see list_categories).",
   descriptionTooLong: `description is longer than ${TRANSACTION_DESCRIPTION_MAX_LENGTH} characters.`,
-  noteTooLong: `note is longer than ${TRANSACTION_NOTE_MAX_LENGTH} characters.`,
   tagTooLong: `a tag is longer than ${TRANSACTION_TAG_MAX_LENGTH} characters.`,
   tooManyTags: `at most ${TRANSACTION_TAGS_MAX} tags.`,
 };
@@ -199,7 +198,6 @@ function view(
           ...(isUnknownTransaction(row) ? { unknown: true } : {}),
         }),
     description: row.description,
-    ...(row.note ? { note: row.note } : {}),
     tags: row.tags,
     ...(listed
       ? {
@@ -231,6 +229,17 @@ const tagsInput = z
   .max(TRANSACTION_TAGS_MAX)
   .describe("Labels, e.g. whose transaction it is");
 
+/**
+ * Transactions had a separate note until #133. A client that still sends one (its tool list
+ * read before the update) keeps working: the note is added to the end of the description
+ * (`withNote`). Results no longer have a note.
+ */
+const noteInput = z
+  .string()
+  .max(TRANSACTION_DESCRIPTION_MAX_LENGTH)
+  .optional()
+  .describe("Deprecated: put all text in description");
+
 const newTransactionInput = z.object({
   type: typeInput.describe(
     '"expense" (money spent), "income" (money received) or "transfer" (between two of the book\'s accounts)',
@@ -257,7 +266,7 @@ const newTransactionInput = z.object({
     .describe(
       "Optional short label in the user's language, e.g. the shop; shown under the category",
     ),
-  note: z.string().max(TRANSACTION_NOTE_MAX_LENGTH).optional(),
+  note: noteInput,
   tags: tagsInput.optional(),
 });
 
@@ -276,7 +285,6 @@ async function checkTransaction(
     toAccountId: string | null;
     categoryId: string | null;
     description: string;
-    note: string;
     tags: string[];
   },
   ctx: McpContext,
@@ -424,7 +432,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           .string()
           .max(TRANSACTION_SEARCH_MAX_LENGTH)
           .optional()
-          .describe("Text in the description, note, tags or category names"),
+          .describe("Text in the description, tags or category names"),
         unknown_only: z
           .boolean()
           .optional()
@@ -518,8 +526,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
               accountId: item.account_id,
               toAccountId: item.to_account_id ?? null,
               categoryId: item.category_id ?? null,
-              description: item.description ?? "",
-              note: item.note ?? "",
+              description: withNote(item.description ?? "", item.note ?? ""),
               tags: item.tags ?? [],
             },
             ctx,
@@ -592,7 +599,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           .string()
           .max(TRANSACTION_DESCRIPTION_MAX_LENGTH)
           .optional(),
-        note: z.string().max(TRANSACTION_NOTE_MAX_LENGTH).optional(),
+        note: noteInput,
         tags: tagsInput
           .optional()
           .describe("Replaces all tags of the transaction"),
@@ -629,8 +636,10 @@ export function registerTools(server: McpServer, ctx: McpContext) {
             input.category_id === undefined
               ? current.categoryId
               : input.category_id,
-          description: input.description ?? current.description,
-          note: input.note ?? current.note,
+          description: withNote(
+            input.description ?? current.description,
+            input.note ?? "",
+          ),
           tags: input.tags ?? current.tags,
         },
         ctx,

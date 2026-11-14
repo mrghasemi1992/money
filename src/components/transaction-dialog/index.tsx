@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   type FormEvent,
@@ -20,14 +20,12 @@ import { Field } from "@/components/ui/field";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { TagInput } from "@/components/ui/tag-input";
-import { Textarea } from "@/components/ui/textarea";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { MOBILE_QUERY } from "@/constants/media";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
   TRANSACTION_TYPES,
@@ -95,7 +93,6 @@ function blank(
     toAccountId: keep?.type === "transfer" ? keep.toAccountId : null,
     categoryId: null,
     description: "",
-    note: "",
     tags: [],
   };
 }
@@ -109,7 +106,6 @@ function fromTransaction(transaction: Transaction): TransactionFormValues {
     toAccountId: transaction.toAccountId,
     categoryId: transaction.categoryId,
     description: transaction.description,
-    note: transaction.note,
     tags: transaction.tags,
   };
 }
@@ -172,7 +168,7 @@ function categoryGroups(
 /**
  * Adds or edits a transaction: type (هزینه / درآمد / انتقال), amount, date in the viewer's
  * calendar, account (from and to for a transfer), category with its subcategories (not for
- * a transfer), description, tags with suggestions, and an optional note. A Dialog from 768px
+ * a transfer), description and tags with suggestions. A Dialog from 768px
  * up, a bottom Sheet on phones. «ثبت و افزودن بعدی» keeps the type, account and date.
  */
 export function TransactionDialog({
@@ -205,7 +201,6 @@ export function TransactionDialog({
     field: TransactionField;
     message: string;
   } | null>(null);
-  const [noteOpen, setNoteOpen] = useState(false);
 
   // Each opening starts from the transaction (or an empty form).
   const [openedFor, setOpenedFor] = useState<Transaction | null | undefined>(
@@ -220,7 +215,6 @@ export function TransactionDialog({
     );
     setErrors({});
     setServerError(null);
-    setNoteOpen(Boolean(transaction?.note));
   } else if (!open && openedFor !== undefined) {
     setOpenedFor(undefined);
   }
@@ -274,7 +268,6 @@ export function TransactionDialog({
   function message(error: TransactionError): string {
     return t(`transactions.form.errors.${error}`, {
       description: formatNumber(TRANSACTION_DESCRIPTION_MAX_LENGTH, locale),
-      note: formatNumber(TRANSACTION_NOTE_MAX_LENGTH, locale),
       tag: formatNumber(TRANSACTION_TAG_MAX_LENGTH, locale),
       tags: formatNumber(TRANSACTION_TAGS_MAX, locale),
     });
@@ -300,7 +293,6 @@ export function TransactionDialog({
     if (Object.keys(found).length > 0) {
       setErrors(found);
       setServerError(null);
-      if (found.note) setNoteOpen(true);
       focusFirstError();
       return;
     }
@@ -324,7 +316,6 @@ export function TransactionDialog({
       if (addAnother) {
         setValues(blank(today, options.accounts, values));
         setErrors({});
-        setNoteOpen(false);
         amountRef.current?.focus();
       } else {
         onOpenChange(false);
@@ -575,34 +566,6 @@ export function TransactionDialog({
             onValueChange={(tags) => update({ tags })}
           />
         </Field>
-
-        {noteOpen ? (
-          <Field
-            label={t("transactions.form.note")}
-            optional
-            error={errorFor("note")}
-          >
-            <Textarea
-              rows={3}
-              maxLength={TRANSACTION_NOTE_MAX_LENGTH}
-              showCount
-              value={values.note}
-              readOnly={pending}
-              onValueChange={(note) => update({ note })}
-            />
-          </Field>
-        ) : (
-          <div>
-            <Button
-              variant="ghost"
-              size="sm"
-              iconStart={PlusIcon}
-              onClick={() => setNoteOpen(true)}
-            >
-              {t("transactions.form.addNote")}
-            </Button>
-          </div>
-        )}
 
         {isMobile && editing && onDelete ? (
           <div className={styles.mobileDelete}>

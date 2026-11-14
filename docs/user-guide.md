@@ -111,8 +111,9 @@ Click **Add transaction** (or **+** on a phone).
 3. **Date:** today unless you pick another day. It can't be in the future.
 4. **Account:** where the money came from or went to. A transfer asks for both accounts.
 5. **Category**, with its subcategories. Type to search.
-6. **Tags** (optional), for example whose expense it was or a trip it belongs to. Add a description and **Add a note** for more detail.
-7. **Save and add another** saves and keeps the form open with the same type, account and date, for entering several at once.
+6. **Description** (optional): anything the category doesn't say, such as the shop or a detail you want to remember.
+7. **Tags** (optional), for example whose expense it was or a trip it belongs to.
+8. **Save and add another** saves and keeps the form open with the same type, account and date, for entering several at once.
 
 After saving, a message offers **Undo** for a few seconds.
 
@@ -122,7 +123,7 @@ After saving, a message offers **Undo** for a few seconds.
 
 1. **The month:** go back or forward a month. Filters can choose any date range instead.
 2. **Income, expense and net** for everything shown.
-3. **Filters:** type, account, category, tag, who added it, a date range and a search of descriptions, notes, tags and categories. The tag filter can show only the unknown transactions.
+3. **Filters:** type, account, category, tag, who added it, a date range and a search of descriptions, tags and categories. The tag filter can show only the unknown transactions.
 4. **Each day** with its net.
 5. **A transaction:** its category (or «unknown»), its description, tags and account, and a Claude or ChatGPT badge if it was added by chat. Click it to see who added and last edited it, and its ID, which you can copy and give to Claude.
 6. **Edit** and **Delete** (editors and admins). Deleting offers **Undo** too.

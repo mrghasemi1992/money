@@ -214,7 +214,10 @@ export function ImportMapping({
             const missing = required.has(field) && column === null;
             const hint = typeOff
               ? t("hints.typeSigned")
-              : field === "type" || field === "toAccount" || field === "tags"
+              : field === "type" ||
+                  field === "toAccount" ||
+                  field === "tags" ||
+                  field === "note"
                 ? t(`hints.${field}`)
                 : null;
             return (

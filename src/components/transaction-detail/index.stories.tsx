@@ -33,9 +33,9 @@ type Story = StoryObj<typeof meta>;
 /** Added by one user with Claude, last edited by another. */
 export const Default: Story = {};
 
-/** With a note and tags. */
-export const WithNote: Story = {
-  args: { transaction: byDescription("اقامت در رامسر") },
+/** A longer description, as a note merged into it reads, and tags. */
+export const LongDescription: Story = {
+  args: { transaction: byDescription("اقامت در رامسر — دو شب، با صبحانه") },
 };
 
 /** An unknown transaction (no category) asks to be identified. */
