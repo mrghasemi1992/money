@@ -70,7 +70,6 @@ function sample(fields: {
   to?: number;
   category?: string;
   description: string;
-  note?: string;
   tags?: string[];
   claude?: boolean;
   by?: keyof typeof USERS;
@@ -93,7 +92,6 @@ function sample(fields: {
     toAccountId: to?.id ?? null,
     categoryId: picked?.id ?? null,
     description: fields.description,
-    note: fields.note ?? "",
     tags: fields.tags ?? [],
     account: from,
     toAccount: to,
@@ -131,7 +129,6 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     amount: 2300000,
     from: 1,
     description: "",
-    note: "پیامک بانک: خرید کارتی.",
     claude: true,
   }),
   sample({
@@ -180,8 +177,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     amount: 8500000,
     from: 1,
     category: "تفریح",
-    description: "اقامت در رامسر",
-    note: "دو شب، با صبحانه.",
+    description: "اقامت در رامسر — دو شب، با صبحانه",
     tags: ["سفر شمال", "خانواده"],
     by: "amir",
   }),
@@ -267,7 +263,6 @@ export const SAMPLE_ADD_TRANSACTION_ACTIONS = {
         toAccountId: null,
         categoryId: null,
         description: "",
-        note: "",
         tags: [],
       },
     };

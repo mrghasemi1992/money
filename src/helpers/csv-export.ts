@@ -125,7 +125,6 @@ export function exportRow(
     subcategory: text(transaction.subcategoryName),
     description: text(transaction.description),
     tags: text(transaction.tags.join(tagSeparator)),
-    note: text(transaction.note),
   };
   return CSV_EXPORT_COLUMNS.map((column) => cells[column]);
 }

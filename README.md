@@ -5,7 +5,7 @@ A personal accounting app for a person or a family, in Persian (right to left) a
 ## Features
 
 - **One shared book** for the family: accounts with live balances, income and expense categories with subcategories, colors and icons.
-- **Transactions:** income, expense and transfers between your own accounts, with tags, notes and filters; undo after adding or deleting.
+- **Transactions:** income, expense and transfers between your own accounts, with descriptions, tags and filters; undo after adding or deleting.
 - **Budgets:** a monthly limit per category, with progress and warnings near the limit.
 - **Reports:** income, expense and net against the previous period, by category, by account and month by month, plus insights (biggest changes, savings rate, recurring spending, largest transactions, budget record). Every chart has a table view.
 - **Dashboard:** balances, this month, budgets, top spending and recent transactions at a glance.

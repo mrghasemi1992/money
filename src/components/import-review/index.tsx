@@ -20,7 +20,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CSV_REVIEW_ROWS } from "@/constants/csv";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
@@ -66,7 +65,6 @@ export function useImportErrorMessage(): (error: ImportRowError) => string {
   const locale = useLocale();
   const max: Partial<Record<ImportRowError["code"], number>> = {
     descriptionTooLong: TRANSACTION_DESCRIPTION_MAX_LENGTH,
-    noteTooLong: TRANSACTION_NOTE_MAX_LENGTH,
     tagTooLong: TRANSACTION_TAG_MAX_LENGTH,
     tooManyTags: TRANSACTION_TAGS_MAX,
   };

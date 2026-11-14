@@ -47,6 +47,8 @@ export const IMPORT_STEPS = [
 /**
  * What the import reads from a file, in this order (also the order of a row's cells when it is
  * sent to the server). Date, amount and account are required; type too with separate types.
+ * The export has no note column since #133, but files exported before it do: a note is added
+ * to the end of the description.
  */
 export const CSV_FIELDS = [
   "date",
@@ -74,7 +76,6 @@ export const CSV_EXPORT_COLUMNS = [
   "subcategory",
   "description",
   "tags",
-  "note",
 ] as const;
 
 /**

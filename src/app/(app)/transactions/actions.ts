@@ -7,7 +7,6 @@ import { z } from "zod";
 import { requireUser, requireWrite } from "@/auth/session";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
@@ -64,7 +63,6 @@ async function fieldError(
     field,
     error: t(error, {
       description: formatNumber(TRANSACTION_DESCRIPTION_MAX_LENGTH, locale),
-      note: formatNumber(TRANSACTION_NOTE_MAX_LENGTH, locale),
       tag: formatNumber(TRANSACTION_TAG_MAX_LENGTH, locale),
       tags: formatNumber(TRANSACTION_TAGS_MAX, locale),
     }),

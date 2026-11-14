@@ -110,7 +110,6 @@ function filterConditions(filters: TransactionFilters): SQL | undefined {
     const pattern = likePattern(filters.search);
     conditions.push(sql`(
       ${folded(column("description"))} like ${pattern}
-      or ${folded(column("note"))} like ${pattern}
       or ${folded(sql`array_to_string(${column("tags")}, ' ')`)} like ${pattern}
       or exists (
         select 1 from ${categories} c
@@ -173,7 +172,6 @@ export async function listTransactions(
       toAccountId: transactions.toAccountId,
       categoryId: transactions.categoryId,
       description: transactions.description,
-      note: transactions.note,
       tags: transactions.tags,
       source: transactions.source,
       createdAt: transactions.createdAt,
@@ -227,7 +225,6 @@ export async function listTransactions(
       toAccountId: row.toAccountId,
       categoryId: row.categoryId,
       description: row.description,
-      note: row.note,
       tags: row.tags,
       source: row.source,
       account: {
@@ -387,7 +384,6 @@ export async function getTransactionInput(
       toAccountId: transactions.toAccountId,
       categoryId: transactions.categoryId,
       description: transactions.description,
-      note: transactions.note,
       tags: transactions.tags,
       source: transactions.source,
     })
@@ -498,7 +494,6 @@ export async function deleteTransaction(
       toAccountId: transactions.toAccountId,
       categoryId: transactions.categoryId,
       description: transactions.description,
-      note: transactions.note,
       tags: transactions.tags,
     });
   return row ?? null;
@@ -537,7 +532,6 @@ const storedColumns = {
   toAccountId: transactions.toAccountId,
   categoryId: transactions.categoryId,
   description: transactions.description,
-  note: transactions.note,
   tags: transactions.tags,
 };
 
@@ -599,7 +593,6 @@ export async function exportTransactions(
       categoryName: categories.name,
       parentName: parent.name,
       description: transactions.description,
-      note: transactions.note,
       tags: transactions.tags,
     })
     .from(transactions)
@@ -635,7 +628,6 @@ export async function exportTransactions(
       categoryName: row.parentName ?? row.categoryName,
       subcategoryName: row.parentName ? row.categoryName : null,
       description: row.description,
-      note: row.note,
       tags: row.tags,
     })),
     nextCursor:

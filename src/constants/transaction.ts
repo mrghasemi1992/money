@@ -14,10 +14,14 @@ export const TRANSACTION_SOURCES = ["web", "mcp", "chatgpt", "csv"] as const;
  */
 export const UNKNOWN_DESCRIPTION_MARKS: readonly string[] = ["؟", "?"];
 
-/** Descriptions show on one line in lists; long ones are cut off with an ellipsis. */
-export const TRANSACTION_DESCRIPTION_MAX_LENGTH = 100;
+/**
+ * The one free-text field of a transaction. Lists show it on one line and cut long ones off
+ * with an ellipsis; the detail shows all of it. Room for an old note merged into it (#133).
+ */
+export const TRANSACTION_DESCRIPTION_MAX_LENGTH = 300;
 
-export const TRANSACTION_NOTE_MAX_LENGTH = 200;
+/** Between a description and a note merged into it (`withNote`, migration 0010). */
+export const NOTE_SEPARATOR = " — ";
 
 /** Tags per transaction, and characters per tag. */
 export const TRANSACTION_TAGS_MAX = 10;

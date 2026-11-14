@@ -95,7 +95,6 @@ const SAMPLE_ROWS: {
   category?: SampleKey;
   subcategory?: SampleKey;
   description: SampleKey;
-  note?: SampleKey;
   tags?: boolean;
 }[] = [
   {
@@ -106,7 +105,6 @@ const SAMPLE_ROWS: {
     category: "food",
     subcategory: "supermarket",
     description: "groceries",
-    note: "note",
     tags: true,
   },
   {
@@ -332,7 +330,6 @@ export function CsvImport({
           categoryName: name(row.category),
           subcategoryName: name(row.subcategory),
           description: name(row.description) ?? "",
-          note: name(row.note) ?? "",
           tags: row.tags
             ? t("importExport.import.sample.tags").split(/[,،]\s*/)
             : [],

@@ -47,8 +47,12 @@ export const transactions = pgTable(
      * expense that still needs to be identified (shown with the «ناشناس» tag).
      */
     categoryId: uuid(),
-    /** Optional; '' when empty. */
+    /** The one free-text field; optional, '' when empty. */
     description: text().notNull().default(""),
+    /**
+     * No longer read or written: migration 0010 merged notes into the description (#133). Kept
+     * for the previous version (expand, then contract); a later release drops it.
+     */
     note: text().notNull().default(""),
     tags: text()
       .array()

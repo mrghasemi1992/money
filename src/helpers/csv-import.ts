@@ -11,13 +11,12 @@ import {
 import { MONEY_UNITS } from "@/constants/currency";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
 import { nextCategoryColor } from "@/helpers/category";
 import { guessCategoryIcon } from "@/helpers/category-icon";
-import { tidyDescription } from "@/helpers/transaction";
+import { tidyDescription, withNote } from "@/helpers/transaction";
 import type { CalendarSystem } from "@/types/calendar";
 import type {
   Category,
@@ -212,7 +211,6 @@ export type ParsedImportRow = {
   category: string | null;
   subcategory: string | null;
   description: string;
-  note: string;
   tags: string[];
 };
 
@@ -266,14 +264,7 @@ export function importRowSchema({
       toAccount: text(),
       category: text(),
       subcategory: text(),
-      description: z
-        .string()
-        .transform(tidyDescription)
-        .pipe(
-          z
-            .string()
-            .max(TRANSACTION_DESCRIPTION_MAX_LENGTH, "descriptionTooLong"),
-        ),
+      description: z.string().transform(tidyDescription),
       tags: z
         .string()
         .transform(parseImportTags)
@@ -282,10 +273,8 @@ export function importRowSchema({
             .array(z.string().max(TRANSACTION_TAG_MAX_LENGTH, "tagTooLong"))
             .max(TRANSACTION_TAGS_MAX, "tooManyTags"),
         ),
-      note: z
-        .string()
-        .transform((note) => note.trim())
-        .pipe(z.string().max(TRANSACTION_NOTE_MAX_LENGTH, "noteTooLong")),
+      // Files exported before #133 have a note column: it joins the description.
+      note: z.string(),
     })
     .transform((row, context): ParsedImportRow => {
       // Signed amounts: a destination account makes a transfer, the sign says the rest.
@@ -309,6 +298,10 @@ export function importRowSchema({
       if (!isTransfer && row.subcategory && !row.category) {
         return fail(context, "subcategoryWithoutCategory", "subcategory");
       }
+      const description = withNote(row.description, row.note);
+      if (description.length > TRANSACTION_DESCRIPTION_MAX_LENGTH) {
+        return fail(context, "descriptionTooLong", "description");
+      }
       return {
         type,
         date: row.date,
@@ -317,8 +310,7 @@ export function importRowSchema({
         toAccount: isTransfer ? row.toAccount : null,
         category: isTransfer ? null : row.category || null,
         subcategory: isTransfer ? null : row.subcategory || null,
-        description: row.description,
-        note: row.note,
+        description,
         tags: row.tags,
       };
     });
@@ -584,7 +576,6 @@ export function planImport(
       toAccount: toAccount.ref,
       category: category.ref,
       description: row.description,
-      note: row.note,
       tags: row.tags,
     });
   }

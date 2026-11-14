@@ -25,7 +25,6 @@ export type TransactionInput = {
   categoryId: string | null;
   /** Optional: '' when empty. Shown under the category in lists. */
   description: string;
-  note: string;
   tags: string[];
 };
 
@@ -78,7 +77,7 @@ export type TransactionFilters = {
   tag: string | null;
   /** The user who added it (`created_by`). */
   createdBy: string | null;
-  /** Searches the description, note, tags and category names. */
+  /** Searches the description, tags and category names. */
   search: string;
   unknownOnly: boolean;
 };

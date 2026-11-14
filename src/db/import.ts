@@ -145,7 +145,6 @@ export async function saveImport(
           toAccountId: row.toAccount ? idOf(row.toAccount) : null,
           categoryId: row.category ? idOf(row.category) : null,
           description: row.description,
-          note: row.note,
           tags: row.tags,
           source: "csv" as const,
           createdBy: actorId,

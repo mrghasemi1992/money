@@ -18,6 +18,7 @@
   color: var(--text-primary);
   font: var(--type-heading);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .unknown {
@@ -73,16 +74,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-}
-
-.facts .noteLabel {
-  align-self: start;
-}
-
-.note {
-  color: var(--text-secondary);
-  white-space: pre-line;
-  text-wrap: pretty;
 }
 
 .idRow {

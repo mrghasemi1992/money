@@ -105,3 +105,13 @@ Each entry: **Decision**, **Why**, **Trade-off**, **Where**. A new entry also re
 - **Why:** the features came first.
 - **Trade-off:** regressions are caught by hand. Write code that is easy to test (small pure functions, data logic apart from the UI), so tests can be added without rewriting it.
 - **Where:** [CONTRIBUTING.md](../../CONTRIBUTING.md#workflow).
+
+## 15. One free-text field on a transaction
+
+- **Decision:** a transaction has one free-text field, the description (optional, at most 300 characters). The separate note is gone from the form, the detail, search, the CSV export and the MCP results. Migration `0010` moved each note to the end of its description (`description — note`, leaving out text already in the other) and cleared it; the `note` column stays until a later release drops it.
+- **Status:** Accepted.
+- **Date:** 2026-11, #133.
+- **Why:** the note came with the first migration, when the description also marked unknown transactions («؟»), so free text needed a field of its own. Since unknown transactions have their own tag and rows show the category first (#30), the two fields did the same job and people had to choose between them.
+- **Trade-off:** no place for long text apart from the label; a long description is cut off in lists and shown in full only in the detail. The limit went from 100 to 300 so a merged note fits. MCP clients that still send `note` keep working until the parameter is removed: it is added to the description (`withNote`).
+- **Alternatives considered:** keeping the note only in the detail for longer text (still two fields to choose between); merging the note into the description without clearing it (the previous version would have shown the text twice).
+- **Where:** `src/helpers/transaction.ts` (`withNote`), `drizzle/0010_merge_notes.sql`, `src/mcp/tools.ts` (`noteInput`), `src/helpers/csv-import.ts`, [transactions](features/transactions.md).

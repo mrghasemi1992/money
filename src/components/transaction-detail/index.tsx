@@ -53,7 +53,7 @@ type TransactionDetailProps = {
 
 /**
  * Everything about one transaction: the amount, description, type, date, accounts, category
- * (or the «ناشناس» tag, with a note to pick one), tags and note, and who added it (with Claude, when it came through the connector) and who
+ * (or the «ناشناس» tag, with a note to pick one), tags, and who added it (with Claude, when it came through the connector) and who
  * last changed it, if someone else. Editors and admins can edit or delete from here.
  */
 export function TransactionDetail({
@@ -225,14 +225,6 @@ export function TransactionDetail({
                   </Badge>
                 ))}
               </dd>
-            </>
-          ) : null}
-          {transaction.note ? (
-            <>
-              <dt className={styles.noteLabel}>
-                {t("transactions.detail.note")}
-              </dt>
-              <dd className={styles.note}>{transaction.note}</dd>
             </>
           ) : null}
         </dl>

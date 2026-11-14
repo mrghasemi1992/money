@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 import {
+  NOTE_SEPARATOR,
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_NOTE_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
   TRANSACTION_TYPES,
@@ -20,7 +20,6 @@ export type TransactionField =
   | "toAccountId"
   | "categoryId"
   | "description"
-  | "note"
   | "tags";
 
 /** Keys of the `transactions.form.errors` messages. */
@@ -37,7 +36,6 @@ export type TransactionError =
   | "categoryMissing"
   | "categoryUnavailable"
   | "descriptionTooLong"
-  | "noteTooLong"
   | "tagTooLong"
   | "tooManyTags";
 
@@ -71,6 +69,19 @@ export function categoryLabel(category: {
 export function tidyDescription(description: string): string {
   const tidy = tidyName(description);
   return UNKNOWN_DESCRIPTION_MARKS.includes(tidy) ? "" : tidy;
+}
+
+/**
+ * A description with a note added at its end, for input that still has a separate note (an
+ * MCP client of an older version, a CSV file exported before #133). Text already in the other
+ * is left out, so nothing repeats. The same rule as migration 0010.
+ */
+export function withNote(description: string, note: string): string {
+  const tidyNote = note.trim();
+  const tidy = description.trim();
+  if (!tidyNote || tidy.includes(tidyNote)) return tidy;
+  if (!tidy || tidyNote.includes(tidy)) return tidyNote;
+  return `${tidy}${NOTE_SEPARATOR}${tidyNote}`;
 }
 
 /** Options of the transaction rules. */
@@ -145,10 +156,6 @@ export function transactionSchema(
             .string()
             .max(TRANSACTION_DESCRIPTION_MAX_LENGTH, "descriptionTooLong"),
         ),
-      note: z
-        .string()
-        .transform((note) => note.trim())
-        .pipe(z.string().max(TRANSACTION_NOTE_MAX_LENGTH, "noteTooLong")),
       tags: z
         .array(
           z
@@ -206,7 +213,6 @@ const ERRORS = new Set<string>([
   "sameAccount",
   "categoryMissing",
   "descriptionTooLong",
-  "noteTooLong",
   "tagTooLong",
   "tooManyTags",
 ]);
@@ -228,8 +234,6 @@ function toTransactionError(
       return "categoryMissing";
     case "description":
       return "descriptionTooLong";
-    case "note":
-      return "noteTooLong";
     case "tags":
       return "tooManyTags";
     default:
@@ -246,5 +250,4 @@ export const TRANSACTION_FIELDS: TransactionField[] = [
   "categoryId",
   "description",
   "tags",
-  "note",
 ];

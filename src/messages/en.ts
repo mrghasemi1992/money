@@ -302,7 +302,7 @@ const en: Messages = {
       button: "Filters",
       buttonCount: "Filters ({count})",
       panel: "Transaction filters",
-      search: "Search description, note, category and tags",
+      search: "Search description, category and tags",
       from: "From",
       to: "To",
       anyDate: "Any date",
@@ -380,8 +380,6 @@ const en: Messages = {
       tagPlaceholder: "Type and press Enter",
       tagSuggestions: "Existing tags",
       tagAdd: "Add “{tag}”",
-      note: "Note",
-      addNote: "Add a note",
       submit:
         "{type, select, income {Add income} transfer {Add transfer} other {Add expense}}",
       submitAnother: "Save and add another",
@@ -406,7 +404,6 @@ const en: Messages = {
           "This category was archived or deleted. Choose another one.",
         descriptionTooLong:
           "A description can be at most {description} characters.",
-        noteTooLong: "A note can be at most {note} characters.",
         tagTooLong: "A tag can be at most {tag} characters.",
         tooManyTags: "You can add at most {tags} tags.",
       },
@@ -420,7 +417,6 @@ const en: Messages = {
       toAccount: "To account",
       category: "Category",
       tags: "Tags",
-      note: "Note",
       addedBy: "Added by {name}",
       addedByAssistant: "Added by {name} via {assistant}",
       addedByImport: "Imported by {name} from a CSV file",
@@ -1129,7 +1125,6 @@ const en: Messages = {
       subcategory: "Subcategory",
       description: "Description",
       tags: "Tags",
-      note: "Note",
     },
     export: {
       title: "Export",
@@ -1217,7 +1212,6 @@ const en: Messages = {
         supermarket: "Supermarket",
         salaryCategory: "Salary",
         tags: "home, family",
-        note: "Paid by card",
       },
       map: {
         mode: "Amount and type",
@@ -1261,6 +1255,7 @@ const en: Messages = {
           typeSigned: "Not needed with signed amounts.",
           toAccount: "Transfers only",
           tags: "Separate several tags with commas.",
+          note: "Added to the end of the description.",
         },
         fieldMissing: "Choose the {field} column.",
         preview: "Preview",
@@ -1359,7 +1354,6 @@ const en: Messages = {
         subcategoryWithoutCategory:
           "The subcategory “{value}” has no category.",
         descriptionTooLong: "The description is longer than {max} characters.",
-        noteTooLong: "The note is longer than {max} characters.",
         tagTooLong: "A tag is longer than {max} characters.",
         tooManyTags: "It has more than {max} tags.",
       },
