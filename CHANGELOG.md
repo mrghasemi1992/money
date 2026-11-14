@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.0](https://github.com/mrghasemi1992/money/compare/v0.5.0...v0.6.0) (2026-11-14)
+
+
+### Features
+
+* filter transactions by who added them ([#51](https://github.com/mrghasemi1992/money/issues/51)) ([#106](https://github.com/mrghasemi1992/money/issues/106)) ([09e2172](https://github.com/mrghasemi1992/money/commit/09e2172bf03b88f17606f1e1527c19a7fdd33de0))
+* one text field on a transaction instead of description and note ([#137](https://github.com/mrghasemi1992/money/issues/137)) ([1616566](https://github.com/mrghasemi1992/money/commit/16165667401c166222058d5ec3f1fc8f5d2568a2))
+
+
+### Bug fixes
+
+* check the login redirect after normalizing it ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#109](https://github.com/mrghasemi1992/money/issues/109)) ([e56f61f](https://github.com/mrghasemi1992/money/commit/e56f61f4c1a0766229349179861fb73b0565fd8a))
+* close the Better Auth endpoints Money doesn't use ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#115](https://github.com/mrghasemi1992/money/issues/115)) ([54bbe25](https://github.com/mrghasemi1992/money/commit/54bbe2536ebe7c1d98d458bd4719d91d501050e2))
+* **deps:** upgrade Next.js and Zod past security advisories ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#108](https://github.com/mrghasemi1992/money/issues/108)) ([13c07b4](https://github.com/mrghasemi1992/money/commit/13c07b4464a75b290a5d65a105fde2e368a728a6))
+* disconnect apps on a password reset or change ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#110](https://github.com/mrghasemi1992/money/issues/110)) ([5f639dc](https://github.com/mrghasemi1992/money/commit/5f639dcf32aa5ecb69ca73ee9828e0ff8b285f3f))
+* let only Claude and ChatGPT connect ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#111](https://github.com/mrghasemi1992/money/issues/111)) ([75477d5](https://github.com/mrghasemi1992/money/commit/75477d5396a922a87f55cb23edc00435b5d641f4))
+* limit attempts to change the password ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#116](https://github.com/mrghasemi1992/money/issues/116)) ([67517ce](https://github.com/mrghasemi1992/money/commit/67517ceef24d383374fb554798d3dbf319028646))
+* send security headers ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#114](https://github.com/mrghasemi1992/money/issues/114)) ([20feac2](https://github.com/mrghasemi1992/money/commit/20feac260f6b33c598fb9d7a2d63c9ee50bda026))
+* update Better Auth to 1.7.22 ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#113](https://github.com/mrghasemi1992/money/issues/113)) ([d80629c](https://github.com/mrghasemi1992/money/commit/d80629c68f81f58e0271c879ca6974c8c811091e))
+
 ## [0.5.0](https://github.com/mrghasemi1992/money/compare/v0.4.1...v0.5.0) (2026-11-12)
 
 
