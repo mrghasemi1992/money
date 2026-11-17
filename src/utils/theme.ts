@@ -1,6 +1,8 @@
 import {
   DARK_THEME_QUERY,
   THEME_ATTRIBUTE,
+  THEME_COOKIE,
+  THEME_COOKIE_MAX_AGE,
   THEME_STORAGE_KEY,
 } from "@/constants/theme";
 import type { Theme, ThemePreference } from "@/types/theme";
@@ -40,6 +42,13 @@ export function getStoredThemePreference(): ThemePreference {
 
 export function applyThemeOnDocument(theme: Theme): void {
   document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
+}
+
+/** Copy the theme shown into its cookie (for the web app manifest), when it changed. */
+export function saveThemeCookie(theme: Theme): void {
+  const entry = `${THEME_COOKIE}=${theme}`;
+  if (document.cookie.split("; ").includes(entry)) return;
+  document.cookie = `${entry}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
 }
 
 const listeners = new Set<() => void>();

@@ -177,6 +177,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata                                                                                |
 | `/admin/users`                                                                                  | User management (admins only; others get not-found)                                                     |
 | `/api/auth/[...all]`                                                                            | Better Auth handler                                                                                     |
+| `/manifest.webmanifest`, `/app-icons/*.png`, `/apple-icon`, `/icon.svg`                         | Web app manifest (per user: language and theme) and icons, public                                       |
 | `/mcp`                                                                                          | MCP endpoint (OAuth bearer token)                                                                       |
 
 All pages except `/login` and `/setup` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
@@ -186,7 +187,9 @@ All pages except `/login` and `/setup` require a session (`/oauth/consent` sends
 ```text
 src/
   proxy.ts              Redirects visitors without a session cookie to /login (optimistic only)
-  app/                  App Router: layout (lang/dir, theme and sidebar scripts, Providers), icon.svg, apple-icon.tsx, globals.css
+  app/                  App Router: layout (lang/dir, theme and sidebar scripts, manifest link, Providers), icon.svg, apple-icon.tsx, globals.css
+    manifest.webmanifest/   The web app manifest (route.ts: name, language and colors of the installed app)
+    app-icons/[file]/   The manifest's PNG icons, rendered at build time
     login/              Sign-in page (also Claude's sign-in, with the signed OAuth request; sends a new copy to /setup)
     setup/              Creating the first admin of a new copy (+ actions.ts: createFirstAdmin)
     oauth/consent/      The OAuth consent page for Claude
@@ -286,14 +289,14 @@ src/
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
-  constants/            account (types, name length), account-icons, auth (sign-in limit, login path), book (default
+  constants/            account (types, name length), account-icons, app-icon (colors, the manifest's icons), auth (sign-in limit, login path), book (default
                         settings), calendar (names, week start), category, category-icons (CATEGORY_ICONS),
                         category-icon-words (the picker's themes and search words), connector (paths, scope, allowed client origins, tool limits), csv (limits,
                         fields, header and type words, export columns and presets), currency (units, symbols), dashboard (section sizes), locale, media
                         queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
-                        script, time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
+                        (script, cookie, page colors), time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
                         user
-  helpers/              account form rules, account balance SQL (accountBalance), budgets (status, form rules,
+  helpers/              account form rules, account balance SQL (accountBalance), app-icon (the icon as a PNG), budgets (status, form rules,
                         month, transactions link), category color
                         style, icon and name rules, category-icon (guessCategoryIcon, iconMatches), dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), first-admin form rules (firstAdminSchema), preferences, reports (URL params,
