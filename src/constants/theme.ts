@@ -1,6 +1,26 @@
+import type { Theme } from "@/types/theme";
+
 export const THEME_STORAGE_KEY = "money-theme";
 export const THEME_ATTRIBUTE = "data-theme";
 export const DARK_THEME_QUERY = "(prefers-color-scheme: dark)";
+
+/**
+ * The theme shown on this device (light or dark, after resolving «system»), copied into a
+ * cookie so the web app manifest can match it. The choice itself stays in localStorage.
+ */
+export const THEME_COOKIE = "money-theme";
+
+/** One year, in seconds. */
+export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+/**
+ * The page surface of each theme (slate-50 / slate-950, `--surface-page`), for places that
+ * can't read CSS variables: the browser UI color and the installed app's loading screen.
+ */
+export const THEME_PAGE_COLORS: Record<Theme, string> = {
+  light: "#f4f6fa",
+  dark: "#11141a",
+};
 
 /**
  * Runs in <head> before the first paint. Mirrors resolveThemeToDisplay() in utils/theme.ts

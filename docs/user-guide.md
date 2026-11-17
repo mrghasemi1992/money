@@ -8,6 +8,7 @@ The screenshots show sample data. The numbers on them match the numbered lists u
 
 - [Before you start](#before-you-start)
 - [Getting around](#getting-around)
+- [Install on your phone](#install-on-your-phone)
 - [Your first steps](#your-first-steps)
 - [Dashboard](#dashboard)
 - [Accounts](#accounts)
@@ -51,6 +52,15 @@ On a phone, the menu becomes a small bar at the bottom of the screen:
 2. **More** opens the other sections: budget, accounts, categories and user management.
 3. **+** adds a transaction (editors and admins).
 4. **Your account** (sign out). Settings is the gear icon next to it.
+
+## Install on your phone
+
+Money works in your phone's browser, and you can also put it on your home screen and open it like an app: full screen, without the browser's bars.
+
+- **iPhone (Safari):** tap the Share button, then **Add to Home Screen**, then **Add**.
+- **Android (Chrome):** open the ⋮ menu, tap **Install app** (or **Add to Home screen**), then **Install**.
+
+The app is called «پول» or “Money”, in the language you use Money in, and its loading screen follows your theme, so pick both in [Settings](#settings) before you install it. On an iPhone the installed app may ask you to sign in again the first time you open it.
 
 ## Your first steps
 
