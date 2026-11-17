@@ -20,6 +20,10 @@ const eslintConfig = defineConfig([
     "storybook-static/**",
     // Vendored Claude Code skills (see "Claude Code setup" in CLAUDE.md):
     ".claude/skills/**",
+    // Claude Code session worktrees (full checkouts with their own builds):
+    ".claude/worktrees/**",
+    // Local codebase map from the floorplan skill (ignored by git):
+    "floorplan/**",
   ]),
 ]);
 
