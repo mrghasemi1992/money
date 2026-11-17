@@ -235,7 +235,8 @@ const en: Messages = {
     },
     recent: {
       title: "Recent transactions",
-      all: "All transactions",
+      all: "All of this month’s transactions",
+      empty: "No transactions this month yet",
     },
     budgets: {
       title: "Budgets",

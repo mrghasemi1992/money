@@ -83,6 +83,18 @@ export function unknownTransactionsHref(oldest: string | null): string {
   })}`;
 }
 
+/** The transactions page filtered to one month of the viewer's calendar («?month=1405-08»). */
+export function monthTransactionsHref(
+  calendar: CalendarSystem,
+  year: number,
+  month: number,
+): string {
+  return `/transactions${transactionParamsToSearch({
+    ...EMPTY_TRANSACTION_PARAMS,
+    month: { calendar, year, month },
+  })}`;
+}
+
 /** The reports' breakdown (spending by category) for one month of the viewer's calendar. */
 export function monthReportHref(
   calendar: CalendarSystem,

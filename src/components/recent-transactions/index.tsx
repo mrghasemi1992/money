@@ -1,9 +1,10 @@
 "use client";
 
-import { ChevronRightIcon, SparklesIcon } from "lucide-react";
+import { CalendarXIcon, ChevronRightIcon, SparklesIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAddTransaction } from "@/components/add-transaction";
 import { TransactionDetail } from "@/components/transaction-detail";
 import { TransactionTile } from "@/components/transaction-tile";
 import { TransactionTitle } from "@/components/transaction-title";
@@ -11,6 +12,7 @@ import { Amount } from "@/components/ui/amount";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DASHBOARD_RECENT_COUNT } from "@/constants/dashboard";
 import { usePreferences } from "@/hooks/use-preferences";
@@ -23,8 +25,10 @@ import { addDays, todayIso } from "@/utils/iso-date";
 import styles from "./styles.module.css";
 
 type RecentTransactionsProps = {
-  /** The latest transactions, newest first (listTransactions without filters). */
+  /** This month's latest transactions, newest first (listTransactions for the month). */
   transactions: Transaction[];
+  /** The transactions page filtered to this month (monthTransactionsHref). */
+  href: string;
   /** Overrides today (for «امروز» and «دیروز»), for stories. */
   today?: string;
   className?: string;
@@ -33,13 +37,15 @@ type RecentTransactionsProps = {
 const noop = () => {};
 
 /**
- * The latest transactions in one compact list: the tile, the category and subcategory (a
- * transfer's route, or the «ناشناس» tag) with a Claude mark, then the description, the
- * account and the day, and the signed amount. A row opens the transaction's detail; changes
- * are made on the transactions page.
+ * This month's latest transactions in one compact list: the tile, the category and
+ * subcategory (a transfer's route, or the «ناشناس» tag) with a Claude mark, then the
+ * description, the account and the day, and the signed amount. A row opens the transaction's
+ * detail; changes are made on the transactions page. A month without transactions shows an
+ * empty state, with «افزودن تراکنش» when the shell's add form is on (editors and admins).
  */
 export function RecentTransactions({
   transactions,
+  href,
   today: todayProp,
   className,
 }: RecentTransactionsProps) {
@@ -50,6 +56,7 @@ export function RecentTransactions({
   const yesterday = addDays(today, -1);
   const [target, setTarget] = useState<Transaction | null>(null);
   const [open, setOpen] = useState(false);
+  const openAdd = useAddTransaction();
 
   function day(date: string): string {
     if (date === today) return t("common.today");
@@ -64,7 +71,7 @@ export function RecentTransactions({
       title={t("dashboard.recent.title")}
       actions={
         <Button
-          href="/transactions"
+          href={href}
           variant="ghost"
           size="sm"
           iconEnd={ChevronRightIcon}
@@ -76,72 +83,89 @@ export function RecentTransactions({
       }
       className={className}
     >
-      <ul className={styles.list}>
-        {transactions.map((transaction) => {
-          const isTransfer = transaction.type === "transfer";
-          const { account, description } = transaction;
-          return (
-            <li key={transaction.id} className={styles.row}>
-              <TransactionTile transaction={transaction} />
-              <div className={styles.main}>
-                <div className={styles.titleLine}>
-                  <button
-                    type="button"
-                    className={styles.open}
-                    onClick={() => {
-                      setTarget(transaction);
-                      setOpen(true);
-                    }}
-                  >
-                    <TransactionTitle
-                      type={transaction.type}
-                      category={transaction.category}
-                      from={account.name}
-                      to={transaction.toAccount?.name}
-                    />
-                  </button>
-                  {assistantName(transaction.source) ? (
-                    <Badge
-                      tone="brand"
-                      size="sm"
-                      icon={SparklesIcon}
-                      title={t("transactions.list.assistantTip", {
-                        name: assistantName(transaction.source) ?? "",
-                      })}
+      {transactions.length === 0 ? (
+        <EmptyState
+          size="sm"
+          icon={CalendarXIcon}
+          title={t("dashboard.recent.empty")}
+          action={
+            openAdd ? (
+              <Button size="sm" onClick={openAdd}>
+                {t("addTransaction.title")}
+              </Button>
+            ) : null
+          }
+        />
+      ) : (
+        <ul className={styles.list}>
+          {transactions.map((transaction) => {
+            const isTransfer = transaction.type === "transfer";
+            const { account, description } = transaction;
+            return (
+              <li key={transaction.id} className={styles.row}>
+                <TransactionTile transaction={transaction} />
+                <div className={styles.main}>
+                  <div className={styles.titleLine}>
+                    <button
+                      type="button"
+                      className={styles.open}
+                      onClick={() => {
+                        setTarget(transaction);
+                        setOpen(true);
+                      }}
                     >
-                      {assistantName(transaction.source)}
-                    </Badge>
-                  ) : null}
+                      <TransactionTitle
+                        type={transaction.type}
+                        category={transaction.category}
+                        from={account.name}
+                        to={transaction.toAccount?.name}
+                      />
+                    </button>
+                    {assistantName(transaction.source) ? (
+                      <Badge
+                        tone="brand"
+                        size="sm"
+                        icon={SparklesIcon}
+                        title={t("transactions.list.assistantTip", {
+                          name: assistantName(transaction.source) ?? "",
+                        })}
+                      >
+                        {assistantName(transaction.source)}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <div className={styles.meta}>
+                    {description ? (
+                      <>
+                        <span
+                          className={cx(styles.metaText, styles.description)}
+                        >
+                          {description}
+                        </span>
+                        <i className={styles.metaDot} aria-hidden="true" />
+                      </>
+                    ) : null}
+                    {isTransfer ? null : (
+                      <>
+                        <span className={cx(styles.metaText, styles.account)}>
+                          {account.name}
+                        </span>
+                        <i className={styles.metaDot} aria-hidden="true" />
+                      </>
+                    )}
+                    <span className={styles.day}>{day(transaction.date)}</span>
+                  </div>
                 </div>
-                <div className={styles.meta}>
-                  {description ? (
-                    <>
-                      <span className={cx(styles.metaText, styles.description)}>
-                        {description}
-                      </span>
-                      <i className={styles.metaDot} aria-hidden="true" />
-                    </>
-                  ) : null}
-                  {isTransfer ? null : (
-                    <>
-                      <span className={cx(styles.metaText, styles.account)}>
-                        {account.name}
-                      </span>
-                      <i className={styles.metaDot} aria-hidden="true" />
-                    </>
-                  )}
-                  <span className={styles.day}>{day(transaction.date)}</span>
-                </div>
-              </div>
-              <Amount
-                value={transaction.amount}
-                type={transaction.type}
-                className={styles.amount}
-              />
-            </li>
-          );
-        })}
-      </ul>
+                <Amount
+                  value={transaction.amount}
+                  type={transaction.type}
+                  className={styles.amount}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
       <TransactionDetail
         open={open}
         onOpenChange={setOpen}
