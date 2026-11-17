@@ -1,6 +1,7 @@
 "use client";
 
 import { HistoryIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { MonthSwitcher } from "@/components/month-switcher";
@@ -70,18 +71,31 @@ export function ReportPeriodSwitch({
     }
   }
 
+  // When the labels need more room than there is, the switch scrolls: keep the chosen one in view.
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scroller.current
+      ?.querySelector("[data-checked]")
+      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [period.kind, mobile]);
+
   return (
-    <SegmentedControl
-      className={cx(styles.switch, className)}
-      fullWidth={mobile}
-      aria-label={t("period")}
-      value={period.kind}
-      onValueChange={(value) => select(value as ReportPeriodKind)}
-      options={REPORT_PERIODS.map((kind) => ({
-        value: kind,
-        label: t(mobile ? `periodsShort.${kind}` : `periods.${kind}`),
-      }))}
-    />
+    <div
+      ref={scroller}
+      className={cx(styles.scroller, mobile && styles.full, className)}
+    >
+      <SegmentedControl
+        className={styles.switch}
+        fullWidth={mobile}
+        aria-label={t("period")}
+        value={period.kind}
+        onValueChange={(value) => select(value as ReportPeriodKind)}
+        options={REPORT_PERIODS.map((kind) => ({
+          value: kind,
+          label: t(mobile ? `periodsShort.${kind}` : `periods.${kind}`),
+        }))}
+      />
+    </div>
   );
 }
 
