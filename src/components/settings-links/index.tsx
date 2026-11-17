@@ -17,11 +17,11 @@ type SettingsLink = {
   icon: LucideIcon;
   /** Message keys of the link's title and description. */
   title: "importExport.title" | "connector.title";
-  description: "settings.data.importExport" | "settings.claude.connector";
+  description: "settings.data.importExport" | "settings.assistants.connector";
 };
 
 const SECTIONS: {
-  title: "settings.data.title" | "settings.claude.title";
+  title: "settings.data.title" | "settings.assistants.title";
   links: SettingsLink[];
 }[] = [
   {
@@ -36,20 +36,20 @@ const SECTIONS: {
     ],
   },
   {
-    title: "settings.claude.title",
+    title: "settings.assistants.title",
     links: [
       {
         href: "/settings/connector",
         icon: SparklesIcon,
         title: "connector.title",
-        description: "settings.claude.connector",
+        description: "settings.assistants.connector",
       },
     ],
   },
 ];
 
 /**
- * The /settings sections that lead to subpages: CSV import and export, and the Claude connector.
+ * The /settings sections that lead to subpages: CSV import and export, and the Claude and ChatGPT connector.
  */
 export function SettingsLinks() {
   const t = useTranslations();

@@ -277,10 +277,11 @@ const en: Messages = {
           action: "Add transaction",
           needsAccount: "Add an account first.",
         },
-        claude: {
-          title: "Connect Claude",
-          description: "Tell Claude what you spent and it’s recorded here.",
-          action: "Connect Claude",
+        assistant: {
+          title: "Connect Claude or ChatGPT",
+          description:
+            "Tell Claude or ChatGPT what you spent and it’s recorded here.",
+          action: "Connect",
         },
       },
     },
@@ -787,7 +788,7 @@ const en: Messages = {
     reset: {
       title: "Reset password?",
       description:
-        "{name}’s current password will stop working, they’ll be signed out everywhere, connected apps such as Claude will lose access to their account, and a new temporary password will be created.",
+        "{name}’s current password will stop working, they’ll be signed out everywhere, connected apps such as Claude or ChatGPT will lose access to their account, and a new temporary password will be created.",
       submit: "Reset password",
       shownTitle: "New temporary password",
       shownDescription: "Copy it and give it to {name}.",
@@ -1041,11 +1042,11 @@ const en: Messages = {
         "Add the URL above in Claude or ChatGPT and it will show up here.",
       role: {
         viewer:
-          "Claude works with your role (Viewer): it can only read transactions.",
+          "The assistant works with your role (Viewer): it can only read transactions.",
         editor:
-          "Claude works with your role (Editor): it reads, adds and edits transactions, and deletes only when you ask.",
+          "The assistant works with your role (Editor): it reads, adds and edits transactions, and deletes only when you ask.",
         admin:
-          "Claude works with your role (Admin): it reads, adds and edits transactions, and deletes only when you ask.",
+          "The assistant works with your role (Admin): it reads, adds and edits transactions, and deletes only when you ask.",
       },
     },
     revoke: {
@@ -1057,7 +1058,7 @@ const en: Messages = {
         "Couldn’t revoke access. Check your internet connection and try again.",
     },
     examples: {
-      title: "Things to say to Claude",
+      title: "Things to say",
       subtitle: "A few ideas to start. Write it your own way.",
       record: "Record",
       ask: "Ask",
@@ -1082,16 +1083,17 @@ const en: Messages = {
         "To answer questions like “How much did I spend this month?”",
       write: "Add and edit transactions",
       writeDescription:
-        "Everything it records shows a Claude badge in your lists.",
+        "Everything it records shows a {client} badge in your lists.",
       delete: "Delete transactions when you ask",
-      deleteDescription: "Claude never deletes anything without your request.",
+      deleteDescription:
+        "{client} never deletes anything without your request.",
       viewerNote:
         "Your role is Viewer, so {client} can’t add, edit or delete transactions.",
       redirect: "After you answer, you’ll return to {host}.",
       deny: "Deny",
       allow: "Allow",
       footNote:
-        "You can revoke access anytime in Settings › Connect to Claude.",
+        "You can revoke access anytime in Settings › Connect Claude and ChatGPT.",
       doneTitle: "Access allowed",
       doneDescription:
         "Returning to {client}… If this window doesn’t close, you can close it.",
@@ -1103,7 +1105,7 @@ const en: Messages = {
         "Your answer wasn’t saved. Check your internet connection and try again.",
       invalidTitle: "This request is no longer valid",
       invalidDescription:
-        "The connection request expired or is incomplete. Click “Connect” in Claude again.",
+        "The connection request expired or is incomplete. Connect again from Claude or ChatGPT.",
     },
   },
   importExport: {
@@ -1382,7 +1384,7 @@ const en: Messages = {
     password: {
       title: "Change password",
       subtitle:
-        "After changing it, sign in again on your other devices and connect apps such as Claude again.",
+        "After changing it, sign in again on your other devices and connect apps such as Claude or ChatGPT again.",
       current: "Current password",
       currentMissing: "Enter your current password.",
       currentWrong: "The current password is incorrect.",
@@ -1408,8 +1410,8 @@ const en: Messages = {
       title: "Book data",
       importExport: "Download transactions as CSV, or add them from a file",
     },
-    claude: {
-      title: "Claude",
+    assistants: {
+      title: "AI assistants",
       connector: "Record transactions and ask about spending by chatting",
     },
     book: {

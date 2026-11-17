@@ -211,7 +211,7 @@ export function ConnectorConsent({
                     {t(`connector.consent.${key}`)}
                   </span>
                   <span className={styles.itemDescription}>
-                    {t(`connector.consent.${key}Description`)}
+                    {t(`connector.consent.${key}Description`, { client })}
                   </span>
                 </span>
               </li>

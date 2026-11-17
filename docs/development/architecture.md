@@ -170,7 +170,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | `/settings`                                                                                     | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) |
 | `/accounts`                                                                                     | Accounts (viewers read only); `/settings/accounts` redirects here                                       |
 | `/categories`                                                                                   | Categories (viewers read only); `/settings/categories` redirects here                                   |
-| `/settings/connector`                                                                           | Claude connector: URL, steps, connected apps (revoke), examples                                         |
+| `/settings/connector`                                                                           | Claude and ChatGPT connector: URL, steps, connected apps (revoke), examples                             |
 | `/settings/import-export`                                                                       | CSV export (every role) and import (editors and admins)                                                 |
 | `/transactions/export`                                                                          | CSV export Route Handler (`?from=&to=&account=`)                                                        |
 | `/oauth/consent`                                                                                | OAuth consent for Claude (outside the app shell)                                                        |
@@ -274,7 +274,7 @@ src/
                         Category rows with subcategories, the category / subcategory form, the palette swatches,
                         the icon grid with its search, the suggestions
     archived-section/   «بایگانی‌شده (n)» toggle with the archived rows
-    settings-links/     The /settings sections that link to import and export and the Claude connector
+    settings-links/     The /settings sections that link to import and export and the Claude and ChatGPT connector
     settings/           The /settings sections: profile-settings/, password-settings/, display-settings/,
                         book-settings/ (admins), about-settings/ (version, update notice for admins)
     connector-settings/, connector-consent/   The /settings/connector page and the OAuth consent page

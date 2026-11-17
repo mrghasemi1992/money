@@ -31,7 +31,7 @@ type FirstRunProps = {
   className?: string;
 };
 
-type StepKey = "accounts" | "categories" | "transaction" | "claude";
+type StepKey = "accounts" | "categories" | "transaction" | "assistant";
 
 type Step = {
   key: StepKey;
@@ -45,7 +45,7 @@ type Step = {
 
 /**
  * The dashboard of a book without accounts or transactions. Editors and admins get four
- * steps (accounts, categories, a first transaction, connecting Claude), each marked done once
+ * steps (accounts, categories, a first transaction, connecting Claude or ChatGPT), each marked done once
  * the book has it; the next open step is the primary button. Viewers can't set anything up,
  * so they get a note that the summary appears once someone records something.
  */
@@ -87,7 +87,7 @@ export function FirstRun({ canWrite, progress, className }: FirstRunProps) {
       blocked: !progress.hasAccounts,
     },
     {
-      key: "claude",
+      key: "assistant",
       done: progress.connectedClaude,
       icon: SparklesIcon,
       href: "/settings/connector",
