@@ -23,6 +23,7 @@ import {
 import { resolveBudgetMonth } from "@/helpers/budget";
 import {
   closestBudgets,
+  monthTransactionsHref,
   spendingSlices,
   unknownTransactionsHref,
 } from "@/helpers/dashboard";
@@ -110,6 +111,7 @@ export function SampleDashboard({
             0,
             DASHBOARD_RECENT_COUNT,
           )}
+          href={monthTransactionsHref(calendar, month.year, month.month)}
           today={SAMPLE_TODAY}
         />
       }

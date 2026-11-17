@@ -45,6 +45,7 @@ import {
 import { resolveBudgetMonth } from "@/helpers/budget";
 import {
   closestBudgets,
+  monthTransactionsHref,
   spendingSlices,
   unknownNoticeKey,
   unknownTransactionsHref,
@@ -53,6 +54,7 @@ import { canWrite, toUserRole } from "@/helpers/role";
 import { NO_TRANSACTION_FILTERS } from "@/helpers/transaction-filters";
 import { getPreferences } from "@/i18n/preferences";
 import type { BudgetMonth } from "@/types/budget";
+import type { CalendarSystem } from "@/types/calendar";
 import { todayIso } from "@/utils/iso-date";
 import { firstName } from "@/utils/text";
 
@@ -115,7 +117,7 @@ export default async function DashboardPage() {
       }
       recent={
         <Suspense fallback={<RecentTransactionsSkeleton />}>
-          <RecentSection />
+          <RecentSection month={month} calendar={calendar} />
         </Suspense>
       }
       budgets={
@@ -163,13 +165,25 @@ async function MonthSection({ month }: { month: BudgetMonth }) {
   );
 }
 
-async function RecentSection() {
+/** The latest transactions of this month only, like the other sections. */
+async function RecentSection({
+  month,
+  calendar,
+}: {
+  month: BudgetMonth;
+  calendar: CalendarSystem;
+}) {
   const page = await listTransactions(
-    NO_TRANSACTION_FILTERS,
+    { ...NO_TRANSACTION_FILTERS, from: month.from, to: month.to },
     null,
     DASHBOARD_RECENT_COUNT,
   );
-  return <RecentTransactions transactions={page.rows} />;
+  return (
+    <RecentTransactions
+      transactions={page.rows}
+      href={monthTransactionsHref(calendar, month.year, month.month)}
+    />
+  );
 }
 
 async function BudgetsSection({

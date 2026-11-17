@@ -72,7 +72,7 @@ Before recording amounts, an admin can switch the book's currency from rial to d
 1. **Unknown transactions:** transactions saved without a category (usually by Claude or a CSV import) are marked «unknown» until someone picks one. **Review transactions** lists them. You can close the notice; it comes back when a new unknown transaction arrives.
 2. **Total balance, all accounts**, and the balance of each account.
 3. **This month:** income, expense and net so far.
-4. **Recent transactions:** the last eight. Click one to see its details.
+4. **Recent transactions:** the last eight of this month. Click one to see its details; **All** opens this month on the Transactions page. Early in a month, before anything is recorded, the card says so (editors and admins get **Add transaction**) instead of showing last month's.
 5. **Budgets:** the ones closest to or over their limit.
 6. **Top spending:** where this month's money went, by category. **Full report** opens the breakdown in Reports.
 
