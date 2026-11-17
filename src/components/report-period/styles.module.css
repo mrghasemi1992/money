@@ -1,5 +1,18 @@
-.switch {
+.scroller {
+  display: flex;
   max-inline-size: 100%;
+  inline-size: fit-content;
+  /* Narrower than its labels (English, a tablet with the sidebar open): scroll, don't spill. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.full {
+  inline-size: 100%;
+}
+
+.switch {
+  min-inline-size: max-content;
 }
 
 .bar {
