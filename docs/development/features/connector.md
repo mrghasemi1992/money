@@ -1,6 +1,6 @@
 # Claude and ChatGPT connector (MCP)
 
-Money is also a remote MCP server: a user adds `https://<domain>/mcp` to Claude or ChatGPT, signs in to Money once and allows access, and the assistant can then read the book and (for editors and admins) add, change and delete transactions as that user. Money is its own OAuth 2.1 authorization server, so nothing is registered anywhere. The steps for users are on `/settings/connector`.
+Money is also a remote MCP server: a user adds `https://<domain>/mcp` to Claude or ChatGPT, signs in to Money once and allows access, and the assistant can then read the book and (for editors and admins) add, change and delete transactions as that user. Money is its own OAuth 2.1 authorization server, so nothing is registered anywhere. The steps for users are on `/settings/connector`, linked from the «دستیار هوش مصنوعی» / “AI assistants” section of `/settings`.
 
 [Architecture](../architecture.md) explains how the pieces fit together; [conventions](../conventions.md) the rules for writing code.
 

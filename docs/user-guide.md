@@ -61,7 +61,7 @@ A new book is empty, so the dashboard shows four steps to set it up. Each step i
 1. **Add your accounts:** the bank cards, accounts and cash you keep track of, each with today's balance.
 2. **Set up categories:** what your money comes from and goes to. Money suggests a ready-made set.
 3. **Record a first transaction.**
-4. **Connect Claude**, if you'd like to record transactions by chatting (see [Claude and ChatGPT](#claude-and-chatgpt)).
+4. **Connect Claude or ChatGPT**, if you'd like to record transactions by chatting (see [Claude and ChatGPT](#claude-and-chatgpt)).
 
 Before recording amounts, an admin can switch the book's currency from rial to dollar, euro or pound in [Settings](#settings). It can't change later.
 
