@@ -19,7 +19,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-1-5);
-  min-width: 0;
+  /* Equal shares of the room, but never narrower than the label and its padding. */
+  min-width: fit-content;
   height: calc(var(--control-h-md) - var(--space-2));
   padding-inline: var(--space-4);
   border: 0;
