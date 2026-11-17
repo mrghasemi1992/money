@@ -110,9 +110,13 @@
   background: var(--surface-inset);
 }
 
-/* The empty state below the table's only row (the admin themself) gets a line above it. */
-.table + .empty {
-  border-block-start: var(--border-width) solid var(--border-subtle);
+/*
+ * The empty state below the table's only row (the admin themself) gets a line above it. The
+ * empty state is narrower than the panel and centred, so the line is the last row's border,
+ * which spans the whole table.
+ */
+.table:has(+ .empty) tbody tr:last-child td {
+  border-block-end: var(--border-width) solid var(--border-subtle);
 }
 
 .table .actionsCol {
