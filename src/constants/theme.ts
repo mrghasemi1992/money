@@ -23,6 +23,15 @@ export const THEME_PAGE_COLORS: Record<Theme, string> = {
 };
 
 /**
+ * The brand color of each theme (royal-600 / its dark value, `--brand-solid`), for the iOS
+ * startup images, which draw LogoMark's tile without CSS.
+ */
+export const THEME_BRAND_COLORS: Record<Theme, string> = {
+  light: "#223bb2",
+  dark: "#3e55cf",
+};
+
+/**
  * Runs in <head> before the first paint. Mirrors resolveThemeToDisplay() in utils/theme.ts
  * without imports, because it is inlined as a string.
  */

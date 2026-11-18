@@ -60,7 +60,7 @@ Money works in your phone's browser, and you can also put it on your home screen
 - **iPhone (Safari):** tap the Share button, then **Add to Home Screen**, then **Add**.
 - **Android (Chrome):** open the ⋮ menu, tap **Install app** (or **Add to Home screen**), then **Install**.
 
-The app is called «پول» or “Money”, in the language you use Money in, and its loading screen follows your theme, so pick both in [Settings](#settings) before you install it. On an iPhone the installed app may ask you to sign in again the first time you open it.
+The app is called «پول» or “Money”, in the language you use Money in, so pick it in [Settings](#settings) before you install it. While it opens, it shows Money's logo: on Android in your theme (pick it before you install too), on an iPhone in the phone's light or dark mode. On an iPhone the installed app may ask you to sign in again the first time you open it.
 
 ## Your first steps
 

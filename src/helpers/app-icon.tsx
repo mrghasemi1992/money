@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { APP_ICON_COLORS } from "@/constants/app-icon";
+import { APP_ICON_COLORS, WALLET_GLYPH_PATHS } from "@/constants/app-icon";
 
 /**
  * How the Lucide wallet glyph (24 units) sits on the 64-unit icon. «rounded» matches icon.svg:
@@ -38,8 +38,9 @@ export function appIconResponse(size: number, shape: AppIconShape) {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
-        <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+        {WALLET_GLYPH_PATHS.map((path) => (
+          <path key={path} d={path} />
+        ))}
       </g>
     </svg>,
     { width: size, height: size },
