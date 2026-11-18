@@ -14,6 +14,8 @@ type TransactionTitleProps = {
   /** A transfer's accounts: «رسالت ← بلو». */
   from?: string;
   to?: string | null;
+  /** On phones the title may take two lines before it is cut off (transaction rows). */
+  wrap?: boolean;
   className?: string;
 };
 
@@ -27,13 +29,14 @@ export function TransactionTitle({
   category,
   from,
   to,
+  wrap = false,
   className,
 }: TransactionTitleProps) {
   const t = useTranslations("transactions");
 
   if (type === "transfer") {
     return (
-      <span className={cx(styles.root, className)}>
+      <span className={cx(styles.root, wrap && styles.wrap, className)}>
         {t("list.route", { from: from ?? "", to: to ?? "" })}
       </span>
     );
@@ -51,7 +54,7 @@ export function TransactionTitle({
     );
   }
   return (
-    <span className={cx(styles.root, className)}>
+    <span className={cx(styles.root, wrap && styles.wrap, className)}>
       {category.parentName ?? category.name}
       {category.parentName ? (
         <>

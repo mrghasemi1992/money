@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Card } from "@/components/ui/card";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 
 import { TransactionList } from "./index";
 import {
   SAMPLE_TODAY,
   SAMPLE_TRANSACTIONS,
+  WORST_CASE_TRANSACTIONS,
   sampleDayTotals,
 } from "./sample-transactions";
 
@@ -54,9 +56,25 @@ export const LoadingMore: Story = {
   args: { hasMore: true, loadingMore: true, onLoadMore: () => {} },
 };
 
-/** Phones: a tile per row, the category and account under the description. */
+/**
+ * Phones: the title (up to two lines) and the description with the account take the whole
+ * width, the tags go under them and the amount gets the last line; Claude's mark is an icon.
+ */
 export const Phone: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
+};
+
+/**
+ * The worst case on a 320px phone: amounts in the billions, a long category and subcategory, a
+ * long description, a long account name (shortened before the description), a transfer between
+ * long names, Claude's rows and the unknown tag. Check it in English and with toman too.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    transactions: WORST_CASE_TRANSACTIONS,
+    dayTotals: sampleDayTotals(WORST_CASE_TRANSACTIONS),
+  },
 };
 
 export const English: Story = {

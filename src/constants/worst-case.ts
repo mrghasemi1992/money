@@ -17,3 +17,10 @@ export const LONG_CATEGORY_NAME = "رستوران‌ها، کافه‌ها و غ
 
 /** A long account name (English in `SAMPLE_TEXT_EN`). */
 export const LONG_ACCOUNT_NAME = "حساب پس‌انداز مشترک خانواده";
+
+/** A long subcategory name (English in `SAMPLE_TEXT_EN`). */
+export const LONG_SUBCATEGORY_NAME = "ناهار و صبحانه کاری با همکاران";
+
+/** A long description (English in `SAMPLE_TEXT_EN`). */
+export const LONG_DESCRIPTION =
+  "شام تولد مادربزرگ با همه خانواده در رستوران سنتی";

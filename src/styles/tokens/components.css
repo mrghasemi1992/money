@@ -105,6 +105,7 @@
   --transaction-amount-col-wide: 150px;
   --transaction-actions-col: 72px; /* edit and delete */
   --transaction-unknown-border: 1.5px;
+  --transaction-meta-account-min: 4.5rem; /* on phones the account gives way first, down to this */
   --meta-dot: 3px; /* the dot between the category and the account on phones */
 
   /* Budgets */

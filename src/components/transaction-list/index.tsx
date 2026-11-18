@@ -1,8 +1,9 @@
 "use client";
 
-import { PencilIcon, SparklesIcon, TagIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, TagIcon, Trash2Icon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { AssistantMark } from "@/components/assistant-mark";
 import { TransactionTile } from "@/components/transaction-tile";
 import { TransactionTitle } from "@/components/transaction-title";
 import { Amount } from "@/components/ui/amount";
@@ -12,7 +13,6 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { usePreferences } from "@/hooks/use-preferences";
-import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction, TransactionDayTotal } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
@@ -56,8 +56,9 @@ function groupByDay(transactions: Transaction[]): Day[] {
  * net. A row starts with its tile, then the category and subcategory (a transfer's route, or
  * the «ناشناس» tag without a category) with a Claude mark, the description under it in a
  * smaller, lighter style, the tags, and at the end the signed amount. The account sits next
- * to the description until the list is 62rem wide, then gets its own column. Clicking a row
- * opens its detail.
+ * to the description until the list is 62rem wide, then gets its own column. On phones the
+ * title and the description take the whole width (the title up to two lines) and the amount
+ * gets its own line at the end, under the tags. Clicking a row opens its detail.
  */
 export function TransactionList({
   transactions,
@@ -187,7 +188,7 @@ function TransactionRow({
 
   return (
     <li className={styles.row}>
-      <TransactionTile transaction={transaction} />
+      <TransactionTile transaction={transaction} className={styles.tile} />
 
       <div className={styles.main}>
         <div className={styles.titleLine}>
@@ -201,38 +202,10 @@ function TransactionRow({
               category={transaction.category}
               from={account.name}
               to={transaction.toAccount?.name}
+              wrap
             />
           </button>
-          {assistantName(transaction.source) ? (
-            <>
-              {/* Hidden on phones by its own wrapper: a class on Badge would tie with Badge's own display. */}
-              <span className={styles.claudeBadge}>
-                <Badge
-                  tone="brand"
-                  size="sm"
-                  icon={SparklesIcon}
-                  title={t("transactions.list.assistantTip", {
-                    name: assistantName(transaction.source) ?? "",
-                  })}
-                >
-                  {assistantName(transaction.source)}
-                </Badge>
-              </span>
-              <span
-                className={styles.claudeIcon}
-                title={t("transactions.list.assistantTip", {
-                  name: assistantName(transaction.source) ?? "",
-                })}
-              >
-                <SparklesIcon aria-hidden="true" />
-                <span className="visually-hidden">
-                  {t("transactions.list.assistantTip", {
-                    name: assistantName(transaction.source) ?? "",
-                  })}
-                </span>
-              </span>
-            </>
-          ) : null}
+          <AssistantMark source={transaction.source} />
         </div>
         {description || !isTransfer ? (
           <div className={cx(styles.meta, !description && styles.narrowOnly)}>
@@ -359,6 +332,7 @@ export function TransactionListSkeleton({
                 width="var(--transaction-tile)"
                 height="var(--transaction-tile)"
                 radius="var(--radius-lg)"
+                className={styles.tile}
               />
               <div className={styles.main}>
                 <span className={styles.skeletonTitle}>

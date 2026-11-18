@@ -67,6 +67,11 @@
   outline-offset: calc(-1 * var(--ring-width));
 }
 
+/*
+ * The description and account, then the day, on one line. The description and account are
+ * wrapped (.meta) only so phones can give them a line of their own.
+ */
+.details,
 .meta {
   display: flex;
   align-items: center;
@@ -76,6 +81,10 @@
   color: var(--text-muted);
   font: var(--type-caption);
   white-space: nowrap;
+}
+
+.details .meta {
+  display: contents;
 }
 
 .metaText {
@@ -110,9 +119,80 @@
   flex: none;
 }
 
+/*
+ * Phones: a grid like the transactions list's rows (#130). The title and the description get the
+ * whole width, the title up to two lines; the day and the amount get the last line.
+ */
 @media (--mobile) {
   .row {
+    display: grid;
+    grid-template-columns: var(--transaction-tile) minmax(0, 1fr) auto;
+    grid-template-areas:
+      "tile title title"
+      "tile meta meta"
+      "tile day amount";
+    align-items: start;
+    gap: 0 var(--space-3);
     padding: var(--space-3);
+  }
+
+  .tile {
+    grid-area: tile;
+  }
+
+  .main,
+  .details {
+    display: contents;
+  }
+
+  .titleLine,
+  .skeletonTitle {
+    grid-area: title;
+  }
+
+  .titleLine {
+    align-items: flex-start;
+    gap: var(--space-1-5);
+  }
+
+  .meta,
+  .details .meta {
+    display: flex;
+    grid-area: meta;
+    margin-block-start: var(--space-0-5);
+  }
+
+  /* The account gives way first, down to a few letters; then the description. */
+  .description {
+    flex: 0 1 auto;
+  }
+
+  .account {
+    flex: 0 1000 auto;
+    min-width: var(--transaction-meta-account-min);
+    max-width: none;
+  }
+
+  .dayDot {
+    display: none;
+  }
+
+  .day,
+  .amount {
+    align-self: baseline;
+    margin-block-start: var(--space-1);
+  }
+
+  .day {
+    grid-area: day;
+  }
+
+  /* Its unit wraps under the number only if even its own line is too narrow. */
+  .amount {
+    grid-area: amount;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    justify-self: end;
   }
 }
 

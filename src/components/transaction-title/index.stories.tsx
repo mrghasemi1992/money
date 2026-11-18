@@ -1,5 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import {
+  LONG_CATEGORY_NAME,
+  LONG_SUBCATEGORY_NAME,
+  SMALL_PHONE_GLOBALS,
+} from "@/constants/worst-case";
+
 import { TransactionTitle } from "./index";
 
 const meta = {
@@ -29,4 +35,14 @@ export const Transfer: Story = {
 /** An income or expense without a category gets the «ناشناس» tag. */
 export const Unknown: Story = {
   args: { category: null },
+};
+
+/** With `wrap`, on a phone a long title takes up to two lines, then ends with an ellipsis. */
+export const WrapOnPhone: Story = {
+  args: {
+    category: { name: LONG_SUBCATEGORY_NAME, parentName: LONG_CATEGORY_NAME },
+    wrap: true,
+  },
+  globals: SMALL_PHONE_GLOBALS,
+  parameters: { layout: "padded" },
 };

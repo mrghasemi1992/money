@@ -264,8 +264,9 @@ src/
     balance-overview/, month-overview/, recent-transactions/, budget-progress/, top-spending/, unknown-notice/
                         The dashboard's sections, each with its skeleton
     first-run/          The dashboard of an empty book: setup steps (writers) or a note (viewers)
-    transaction-tile/, transaction-title/   The tile at the start of a transaction row (category icon on its hue,
-                        transfer, «؟» for unknown) and its first line (category / subcategory, route, or the «ناشناس» tag)
+    transaction-tile/, transaction-title/, assistant-mark/   The tile at the start of a transaction row (category icon on its hue,
+                        transfer, «؟» for unknown), its first line (category / subcategory, route, or the «ناشناس» tag)
+                        and the Claude or ChatGPT mark (a badge, an icon on phones)
     page-header/, page-skeleton/, page-status/   Page building blocks (title, loading, error and not-found)
     navigation-progress/   The top-edge bar while a page loads (+ store.ts, useReportNavigation), mounted in AppShell
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
