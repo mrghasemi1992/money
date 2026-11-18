@@ -6,6 +6,7 @@ import { ThemeSync } from "@/components/theme-sync";
 import { TimeZoneSync } from "@/components/time-zone-sync";
 import { LOCALE_DIRECTIONS } from "@/constants/locale";
 import { SIDEBAR_SCRIPT } from "@/constants/sidebar";
+import { STARTUP_IMAGES, STARTUP_IMAGES_PATH } from "@/constants/startup-image";
 import { THEME_PAGE_COLORS, THEME_SCRIPT } from "@/constants/theme";
 import { getPreferences } from "@/i18n/preferences";
 import { MESSAGES } from "@/messages";
@@ -20,12 +21,20 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("description"),
     // The installed app's name on iOS, instead of the page title («ورود | پول»). The default
     // status bar takes the theme color below; black-translucent would put white text on the
-    // light theme.
+    // light theme. The launch screen: one startup image per iPhone screen, orientation and
+    // system appearance (src/constants/startup-image.ts).
     appleWebApp: {
       capable: true,
       title: t("appName"),
       statusBarStyle: "default",
+      startupImage: STARTUP_IMAGES.map(({ file, media }) => ({
+        url: `${STARTUP_IMAGES_PATH}/${file}`,
+        media,
+      })),
     },
+    // Next.js writes only mobile-web-app-capable for `capable`; iOS shows startup images only
+    // with its own tag.
+    other: { "apple-mobile-web-app-capable": "yes" },
   };
 }
 

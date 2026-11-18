@@ -177,7 +177,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata                                                                                |
 | `/admin/users`                                                                                  | User management (admins only; others get not-found)                                                     |
 | `/api/auth/[...all]`                                                                            | Better Auth handler                                                                                     |
-| `/manifest.webmanifest`, `/app-icons/*.png`, `/apple-icon`, `/icon.svg`                         | Web app manifest (per user: language and theme) and icons, public                                       |
+| `/manifest.webmanifest`, `/app-icons/*`, `/startup-images/*`, `/apple-icon`, `/icon.svg`        | Web app manifest (per user: language and theme), icons and iOS launch screens, public                   |
 | `/mcp`                                                                                          | MCP endpoint (OAuth bearer token)                                                                       |
 
 All pages except `/login` and `/setup` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
@@ -190,6 +190,7 @@ src/
   app/                  App Router: layout (lang/dir, theme and sidebar scripts, manifest link, Providers), icon.svg, apple-icon.tsx, globals.css
     manifest.webmanifest/   The web app manifest (route.ts: name, language and colors of the installed app)
     app-icons/[file]/   The manifest's PNG icons, rendered at build time
+    startup-images/[file]/  The iOS launch screens (one per iPhone screen, orientation and theme), rendered at build time
     login/              Sign-in page (also Claude's sign-in, with the signed OAuth request; sends a new copy to /setup)
     setup/              Creating the first admin of a new copy (+ actions.ts: createFirstAdmin)
     oauth/consent/      The OAuth consent page for Claude
@@ -290,12 +291,12 @@ src/
     providers/          next-intl, preferences, Base UI direction, tooltip delay group, toast viewport
     theme-sync/         Re-applies the theme after hydration and follows OS / other-tab changes
     time-zone-sync/     Saves the device's OS time zone in a cookie and re-renders when it changed
-  constants/            account (types, name length), account-icons, app-icon (colors, the manifest's icons), auth (sign-in limit, login path), book (default
+  constants/            account (types, name length), account-icons, app-icon (colors, the wallet glyph, the manifest's icons), auth (sign-in limit, login path), book (default
                         settings), calendar (names, week start), category, category-icons (CATEGORY_ICONS),
                         category-icon-words (the picker's themes and search words), connector (paths, scope, allowed client origins, tool limits), csv (limits,
                         fields, header and type words, export columns and presets), currency (units, symbols), dashboard (section sizes), locale, media
-                        queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
-                        (script, cookie, page colors), time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
+                        queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, startup-image (iPhone screens, STARTUP_IMAGES), theme
+                        (script, cookie, page and brand colors), time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
                         user, worst-case (the data of the phone worst-case stories)
   helpers/              account form rules, account balance SQL (accountBalance), app-icon (the icon as a PNG), budgets (status, form rules,
                         month, transactions link), category color
@@ -306,7 +307,7 @@ src/
                         imported cells), csv-import (column guess, row schema, name matching, planImport, payload
                         schemas), csv-export (row, file name, presets), oauth-consent (consent requests),
                         release (getAppVersion, checkForUpdate),
-                        sign-in request (and the signed OAuth query), transaction form rules (transactionSchema), transaction filters (URL
+                        sign-in request (and the signed OAuth query), startup-image (the iOS launch screen as a PNG), transaction form rules (transactionSchema), transaction filters (URL
                         params, period, NO_TRANSACTION_FILTERS), user (placeholder email, temporary password)
   hooks/                useClipboard, useControllableState, usePreferences, useMediaQuery, useSidebarCollapsed,
                         useThemePreference
