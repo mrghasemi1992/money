@@ -87,7 +87,13 @@ export function MonthOverview({
             </span>
             <dt className={styles.label}>{row.label}</dt>
             <dd className={styles.value}>
-              <Amount value={row.value} type={row.type} size="lg" unit={unit} />
+              <Amount
+                value={row.value}
+                type={row.type}
+                size="lg"
+                unit={unit}
+                className={styles.amount}
+              />
             </dd>
           </div>
         ))}

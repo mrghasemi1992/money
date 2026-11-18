@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { BanknoteIcon, CreditCardIcon } from "lucide-react";
 
 import { CategoryChip } from "@/components/ui/category-chip";
+import {
+  LONG_ACCOUNT_NAME,
+  LONG_CATEGORY_NAME,
+  SMALL_PHONE_GLOBALS,
+  WORST_CASE_SCALE,
+} from "@/constants/worst-case";
 
 import { type BarListItem, BarList } from "./index";
 
@@ -110,3 +116,49 @@ export const Accounts: Story = {
 
 /** One item takes the whole bar. */
 export const Single: Story = { args: { items: CATEGORIES.slice(3, 4) } };
+
+/**
+ * The worst case on a 320px phone: amounts in the billions and long names. When the figures
+ * leave the name too little room, they wrap under it.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    items: [
+      {
+        id: "cafe",
+        name: LONG_CATEGORY_NAME,
+        label: <CategoryChip name={LONG_CATEGORY_NAME} color="orange" />,
+        value: 31240000 * WORST_CASE_SCALE,
+        color: "orange",
+        items: [
+          {
+            id: "cafe-sub",
+            name: LONG_CATEGORY_NAME,
+            value: 21910000 * WORST_CASE_SCALE,
+          },
+          {
+            id: "fruit",
+            name: "میوه و تره‌بار",
+            value: 9330000 * WORST_CASE_SCALE,
+          },
+        ],
+      },
+      {
+        id: "savings",
+        name: LONG_ACCOUNT_NAME,
+        value: 23500000 * WORST_CASE_SCALE,
+        icon: CreditCardIcon,
+      },
+      ...CATEGORIES.slice(0, 3).map((item) => ({
+        ...item,
+        value: item.value * WORST_CASE_SCALE,
+        items: item.items?.map((sub) => ({
+          ...sub,
+          value: sub.value * WORST_CASE_SCALE,
+        })),
+      })),
+    ],
+    defaultExpanded: ["cafe"],
+  },
+};

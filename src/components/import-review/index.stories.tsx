@@ -10,6 +10,8 @@ import {
   SAMPLE_IMPORT_FILE_FA,
 } from "@/components/csv-import/sample-import";
 
+import { SMALL_PHONE_GLOBALS, WORST_CASE_SCALE } from "@/constants/worst-case";
+
 import { ImportReview, type ImportReviewTab } from "./index";
 import { sample } from "@/helpers/sample";
 
@@ -92,4 +94,22 @@ export const Checking: Story = { args: { duplicates: null } };
 export const Mobile: Story = {
   ...Default,
   globals: { viewport: { value: "mobile2", isRotated: false } },
+};
+
+/**
+ * The worst case on a 320px phone: amounts in the billions. An amount that leaves the details
+ * too little room wraps under them.
+ */
+export const PhoneWorstCase: Story = {
+  ...Default,
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    plan: {
+      ...planned.plan,
+      rows: planned.plan.rows.map((row) => ({
+        ...row,
+        amount: row.amount * WORST_CASE_SCALE,
+      })),
+    },
+  },
 };

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
+
 import { TransactionSummary } from "./index";
 
 const meta = {
@@ -27,4 +29,15 @@ export const Phone: Story = {
 export const English: Story = {
   globals: { locale: "en", calendar: "gregorian", money: "USD" },
   args: { totals: { income: 520000, expense: 318450, count: 35 } },
+};
+
+/**
+ * The worst case on a 320px phone: income and expense in the billions of rials. The cells stack
+ * as rows, and an amount too long for its row wraps instead of leaving the card.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    totals: { income: 10099611340, expense: 10671315280, count: 412 },
+  },
 };

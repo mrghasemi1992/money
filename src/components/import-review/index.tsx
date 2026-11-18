@@ -279,7 +279,12 @@ export function ImportReview({
                       <span>{day(row.date)}</span>
                     </span>
                   </div>
-                  <Amount value={row.amount} type={row.type} icon />
+                  <Amount
+                    value={row.amount}
+                    type={row.type}
+                    icon
+                    className={styles.rowAmount}
+                  />
                 </li>
               );
             })}

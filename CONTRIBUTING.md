@@ -74,7 +74,7 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
    pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
    ```
 
-   Check UI changes in the browser and in Storybook, in Persian and English, light and dark, at phone and desktop widths.
+   Check UI changes in the browser and in Storybook, in Persian and English, light and dark, at phone and desktop widths. On phones that means down to 320px with amounts in the billions of rials and long names ([phone layout](docs/development/features/design-system.md)).
 
 5. **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/): `feat: …`, `fix: …`, `docs: …`, `chore: …`. They decide the next version, so pick the type with care; a change that asks something of self-hosters gets a `BREAKING CHANGE:` footer that says what to do ([releases](docs/development/releases.md)).
 6. **A pull request** that fills in the template: what changed, why, and how it was checked. Every PR gets a Vercel preview with its own database branch.

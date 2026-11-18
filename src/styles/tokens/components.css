@@ -38,6 +38,7 @@
   --settings-label-min: 160px; /* a settings row wraps its control below the name under this */
   --form-col-min: 220px; /* form fields side by side down to this width, then stacked */
   --page-title-min: 220px; /* the page header's actions wrap below the title under this */
+  --row-name-min: 120px; /* a row's name keeps this much room; its amount wraps below it first */
   --skeleton-card-min: 200px;
   --sidebar-w: 248px;
   --sidebar-w-collapsed: 76px;
@@ -212,6 +213,7 @@
   --import-preview-wide: 170px; /* the description's column of the preview */
   --import-match-arrow: 18px; /* the arrow between a name and its choice */
   --import-dot: 3px; /* between parts of a review row */
+  --import-row-main-min: 180px; /* a review row's title and details; its amount wraps below first */
   --import-dup-choice: 160px; /* a duplicate's skip / add switch */
   --import-note-min: 240px; /* a note beside its button, before the button wraps below */
 

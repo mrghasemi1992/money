@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
+
 import { MonthOverview, MonthOverviewSkeleton } from "./index";
 
 const meta = {
@@ -31,4 +33,10 @@ export const Empty: Story = { args: { totals: { income: 0, expense: 0 } } };
 
 export const Loading: Story = {
   render: () => <MonthOverviewSkeleton />,
+};
+
+/** The worst case on a 320px phone: amounts in the billions of rials stay in the card. */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: { totals: { income: 10099611340, expense: 10671315280 } },
 };

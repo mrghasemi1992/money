@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_BUDGET_MONTH } from "@/components/budget-list/sample-budgets";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 
 import { BudgetSummary, BudgetSummarySkeleton } from "./index";
 
@@ -45,3 +46,9 @@ export const PastMonth: Story = {
 };
 
 export const Loading: Story = { render: () => <BudgetSummarySkeleton /> };
+
+/** The worst case on a 320px phone: totals in the billions of rials stay in their cells. */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: { spent: 29065000000, budget: 37900000000 },
+};

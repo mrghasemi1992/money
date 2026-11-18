@@ -48,16 +48,18 @@
   box-shadow: var(--shadow-focus);
 }
 
+/* On a narrow card the figures wrap under the name, so the name never shrinks away. */
 .line {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
   inline-size: 100%;
 }
 
 .label {
   display: flex;
-  flex: 1;
+  flex: 1 1 var(--row-name-min);
   min-width: 0;
   overflow: hidden;
   color: var(--text-primary);
@@ -82,6 +84,15 @@
 .tileIcon {
   inline-size: var(--icon-size-sm);
   block-size: var(--icon-size-sm);
+}
+
+/* The amount, its share and the chevron: they wrap under the name together. */
+.figures {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
 }
 
 .amount {
@@ -151,7 +162,7 @@
 }
 
 .subName {
-  flex: 1;
+  flex: 1 1 var(--row-name-min);
   min-width: 0;
   overflow: hidden;
   color: var(--text-secondary);

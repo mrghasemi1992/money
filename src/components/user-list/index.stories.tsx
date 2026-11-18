@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
+
 import { UserList, UserListSkeleton } from "./index";
 import { SAMPLE_ADMIN_ID, SAMPLE_USERS } from "./sample-users";
 
@@ -33,3 +35,9 @@ export const Phone: Story = {
 };
 
 export const Loading: Story = { render: () => <UserListSkeleton /> };
+
+/** The cards' placeholders on a 320px phone stay inside their cards. */
+export const LoadingSmallPhone: Story = {
+  ...Loading,
+  globals: SMALL_PHONE_GLOBALS,
+};

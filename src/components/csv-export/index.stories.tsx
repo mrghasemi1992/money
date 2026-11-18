@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_ACCOUNT_OPTIONS } from "@/components/transaction-list/sample-transactions";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 import { daysBetween } from "@/utils/iso-date";
 
 import { CsvExport } from "./index";
@@ -49,3 +50,6 @@ export const Empty: Story = { args: { onCount: async () => 0 } };
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
+
+/** A 320px phone: the four ranges share the width, their labels on two lines (check English). */
+export const SmallPhone: Story = { globals: SMALL_PHONE_GLOBALS };

@@ -60,6 +60,12 @@
   margin: 0;
 }
 
+/* An amount wider than its cell puts its unit under the number. */
+.cellAmount {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
 .over .cellLabel {
   color: var(--status-danger-text);
   font-weight: var(--weight-medium);
