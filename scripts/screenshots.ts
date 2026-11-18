@@ -112,7 +112,7 @@ const SHOTS: Record<string, Shot> = {
     fullPage: true,
     callouts: [
       {
-        target: { role: "link", name: (m) => m.dashboard.unknown.action },
+        target: { text: (m) => m.dashboard.unknown.description },
         around: CARD,
       },
       { target: { role: "region", name: (m) => m.dashboard.balances.title } },

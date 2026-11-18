@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 import { unknownTransactionsHref } from "@/helpers/dashboard";
 
 import { UnknownNotice } from "./index";
@@ -23,6 +24,13 @@ export const Default: Story = {};
 /** One transaction: the English copy is singular. */
 export const One: Story = { args: { count: 1 } };
 
+/** On a phone the link's words go under the text, and the close button stays at the top end. */
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
+};
+
+/** The narrowest phone with a five-digit count (#131). */
+export const PhoneWorstCase: Story = {
+  args: { count: 12345 },
+  globals: SMALL_PHONE_GLOBALS,
 };

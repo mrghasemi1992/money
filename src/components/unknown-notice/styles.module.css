@@ -1,17 +1,38 @@
+/*
+ * The whole notice is one link (icon, text, «بررسی تراکنش‌ها ›»); the close button sits beside it,
+ * outside the link. In a narrow card the link's words go under the text, aligned with it, and the
+ * close button stays at the top end.
+ */
 .root {
+  container: unknown-notice / inline-size;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
   border: var(--border-width) solid var(--status-warning-border);
   border-radius: var(--radius-card);
   background: var(--status-warning-soft);
 }
 
+.link {
+  display: grid;
+  flex: 1;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "icon text action";
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  padding-inline-end: var(--space-2);
+  border-radius: var(--radius-card);
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
 .icon {
   display: flex;
-  flex: none;
+  grid-area: icon;
   align-items: center;
   justify-content: center;
   width: var(--report-tile);
@@ -28,7 +49,7 @@
 
 .text {
   display: flex;
-  flex: 1 1 var(--dashboard-notice-text-min);
+  grid-area: text;
   flex-direction: column;
   gap: var(--space-px);
   min-width: 0;
@@ -45,4 +66,55 @@
   margin: 0;
   color: var(--text-secondary);
   font: var(--type-caption);
+}
+
+.action {
+  display: inline-flex;
+  grid-area: action;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-link);
+  font: var(--type-label);
+  white-space: nowrap;
+  transition: var(--transition-control);
+}
+
+.chevron {
+  flex: none;
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+}
+
+@media (hover: hover) {
+  .link:hover .action {
+    color: var(--text-link-hover);
+    text-decoration-line: underline;
+  }
+}
+
+.close {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding-inline-end: var(--space-3);
+}
+
+@container unknown-notice (width < 36rem) {
+  .link {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon text"
+      ". action";
+    align-items: start;
+    row-gap: var(--space-2);
+  }
+
+  .action {
+    justify-self: start;
+  }
+
+  .close {
+    align-items: flex-start;
+    padding-block-start: var(--space-2);
+  }
 }

@@ -2,10 +2,10 @@
 
 import { ChevronRightIcon, CircleHelpIcon, XIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useId, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Link } from "@/components/ui/link";
 import {
   UNKNOWN_NOTICE_COOKIE,
   UNKNOWN_NOTICE_COOKIE_MAX_AGE,
@@ -25,7 +25,10 @@ type UnknownNoticeProps = {
   className?: string;
 };
 
-/** «۳ تراکنش ناشناس دارید»: a quiet amber notice with a link to the filtered list. */
+/**
+ * «۳ تراکنش ناشناس دارید»: a quiet amber notice that is one link to the filtered list, named by its
+ * title and «بررسی تراکنش‌ها», with the close button beside it.
+ */
 export function UnknownNotice({
   count,
   href,
@@ -36,6 +39,7 @@ export function UnknownNotice({
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const [closed, setClosed] = useState(false);
+  const id = useId();
   if (closed) return null;
 
   function close() {
@@ -45,34 +49,43 @@ export function UnknownNotice({
 
   return (
     <div className={cx(styles.root, className)}>
-      <span className={styles.icon} aria-hidden="true">
-        <CircleHelpIcon className={styles.glyph} />
-      </span>
-      <div className={styles.text}>
-        <p className={styles.title}>
-          {t("title", {
-            countNumber: count,
-            count: formatNumber(count, locale),
-          })}
-        </p>
-        <p className={styles.description}>{t("description")}</p>
-      </div>
-      <Button
+      <Link
         href={href}
-        variant="secondary"
-        size="sm"
-        iconEnd={ChevronRightIcon}
-        mirrorIcons
+        className={styles.link}
+        aria-labelledby={`${id}-title ${id}-action`}
+        aria-describedby={`${id}-description`}
       >
-        {t("action")}
-      </Button>
-      <IconButton
-        icon={XIcon}
-        label={tCommon("close")}
-        variant="ghost"
-        size="sm"
-        onClick={close}
-      />
+        <span className={styles.icon} aria-hidden="true">
+          <CircleHelpIcon className={styles.glyph} />
+        </span>
+        <span className={styles.text}>
+          <span id={`${id}-title`} className={styles.title}>
+            {t("title", {
+              countNumber: count,
+              count: formatNumber(count, locale),
+            })}
+          </span>
+          <span id={`${id}-description`} className={styles.description}>
+            {t("description")}
+          </span>
+        </span>
+        <span id={`${id}-action`} className={styles.action}>
+          {t("action")}
+          <ChevronRightIcon
+            className={cx(styles.chevron, "mirror-rtl")}
+            aria-hidden="true"
+          />
+        </span>
+      </Link>
+      <div className={styles.close}>
+        <IconButton
+          icon={XIcon}
+          label={tCommon("close")}
+          variant="ghost"
+          size="sm"
+          onClick={close}
+        />
+      </div>
     </div>
   );
 }
