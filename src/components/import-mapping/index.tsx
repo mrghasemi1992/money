@@ -50,6 +50,7 @@ const IGNORE = "none";
 /** The fields' columns in a grid, the main fields first, as the design orders them. */
 const FIELD_ORDER: CsvField[] = [
   "date",
+  "time",
   "amount",
   "type",
   "account",
@@ -215,6 +216,7 @@ export function ImportMapping({
             const hint = typeOff
               ? t("hints.typeSigned")
               : field === "type" ||
+                  field === "time" ||
                   field === "toAccount" ||
                   field === "tags" ||
                   field === "note"

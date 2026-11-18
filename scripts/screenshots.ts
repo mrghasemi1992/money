@@ -133,6 +133,15 @@ const SHOTS: Record<string, Shot> = {
       },
       { target: { role: "button", name: (m) => m.transactions.form.date } },
       {
+        // Its accessible name ends with «(اختیاری)» / “(optional)”.
+        target: {
+          role: "textbox",
+          name: (m) => m.transactions.form.time,
+          startsWith: true,
+        },
+        around: "div",
+      },
+      {
         target: { role: "combobox", name: (m) => m.transactions.form.account },
       },
       {

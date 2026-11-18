@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2Icon } from "lucide-react";
+import { ClockIcon, Trash2Icon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   type FormEvent,
@@ -49,7 +49,7 @@ import type {
   TransactionType,
 } from "@/types/transaction";
 import { todayIso } from "@/utils/iso-date";
-import { formatNumber } from "@/utils/number";
+import { formatNumber, toLatinDigits, toLocaleDigits } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
@@ -74,6 +74,9 @@ type TransactionDialogProps = {
   today?: string;
 };
 
+/** Characters of the time box: «14:30», or «14:30:12» copied from a statement. */
+const TIME_INPUT_MAX_LENGTH = 8;
+
 type Errors = Partial<Record<TransactionField, TransactionError>>;
 
 /** A new transaction, keeping the type, account and date of the previous one if given. */
@@ -86,6 +89,7 @@ function blank(
     type: keep?.type ?? "expense",
     amount: null,
     date: keep?.date ?? today,
+    time: null,
     accountId:
       keep?.accountId ??
       accounts.find((account) => !account.archived)?.id ??
@@ -102,6 +106,7 @@ function fromTransaction(transaction: Transaction): TransactionFormValues {
     type: transaction.type,
     amount: transaction.amount,
     date: transaction.date,
+    time: transaction.time,
     accountId: transaction.accountId,
     toAccountId: transaction.toAccountId,
     categoryId: transaction.categoryId,
@@ -167,7 +172,7 @@ function categoryGroups(
 
 /**
  * Adds or edits a transaction: type (هزینه / درآمد / انتقال), amount, date in the viewer's
- * calendar, account (from and to for a transfer), category with its subcategories (not for
+ * calendar with an optional time (`HH:MM`, typed in any digits), account (from and to for a transfer), category with its subcategories (not for
  * a transfer), description and tags with suggestions. A Dialog from 768px
  * up, a bottom Sheet on phones. «ثبت و افزودن بعدی» keeps the type, account and date.
  */
@@ -457,23 +462,48 @@ export function TransactionDialog({
         </Field>
 
         <div className={styles.grid}>
-          <Field
-            label={t("transactions.form.date")}
-            required
-            htmlFor={dateId}
-            error={errorFor("date")}
-          >
-            <DatePicker
-              id={dateId}
-              value={values.date}
-              max={today}
-              today={today}
-              format={isMobile ? "long" : "weekday"}
-              invalid={errorFor("date") !== undefined}
-              disabled={pending}
-              onValueChange={(date) => update({ date })}
-            />
-          </Field>
+          <div className={styles.when}>
+            <Field
+              label={t("transactions.form.date")}
+              required
+              htmlFor={dateId}
+              error={errorFor("date")}
+            >
+              <DatePicker
+                id={dateId}
+                value={values.date}
+                max={today}
+                today={today}
+                format={isMobile ? "long" : "weekday"}
+                invalid={errorFor("date") !== undefined}
+                disabled={pending}
+                onValueChange={(date) => update({ date })}
+              />
+            </Field>
+            <Field
+              label={t("transactions.form.time")}
+              optional
+              error={errorFor("time")}
+            >
+              {/* Kept in Latin digits, shown in the language's digits. */}
+              <TextField
+                iconStart={ClockIcon}
+                inputMode="numeric"
+                autoComplete="off"
+                className="tabular"
+                placeholder={toLocaleDigits(
+                  t("transactions.form.timePlaceholder"),
+                  locale,
+                )}
+                maxLength={TIME_INPUT_MAX_LENGTH}
+                value={toLocaleDigits(values.time ?? "", locale)}
+                readOnly={pending}
+                onValueChange={(time) =>
+                  update({ time: toLatinDigits(time) || null })
+                }
+              />
+            </Field>
+          </div>
           <Field
             label={t(
               isTransfer

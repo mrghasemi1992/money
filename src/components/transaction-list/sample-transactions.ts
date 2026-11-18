@@ -72,6 +72,8 @@ let next = 0;
 function sample(fields: {
   type: TransactionType;
   date: string;
+  /** `HH:MM`, when the bank printed one. */
+  time?: string;
   amount: number;
   from: number;
   to?: number;
@@ -94,6 +96,7 @@ function sample(fields: {
     id: `9b8c7d6e-0000-4000-8000-${String(++next).padStart(12, "0")}`,
     type: fields.type,
     date: fields.date,
+    time: fields.time ?? null,
     amount: fields.amount,
     accountId: from.id,
     toAccountId: to?.id ?? null,
@@ -115,6 +118,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
   sample({
     type: "expense",
     date: "2026-10-07",
+    time: "21:40",
     amount: 1850000,
     from: 0,
     category: "خوراک / سوپرمارکت",
@@ -124,6 +128,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
   sample({
     type: "expense",
     date: "2026-10-07",
+    time: "18:20",
     amount: 420000,
     from: 1,
     category: "حمل‌ونقل / تاکسی اینترنتی",
@@ -133,6 +138,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
   sample({
     type: "expense",
     date: "2026-10-07",
+    time: "13:05",
     amount: 2300000,
     from: 1,
     description: "",
@@ -141,6 +147,7 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
   sample({
     type: "transfer",
     date: "2026-10-06",
+    time: "09:12",
     amount: 5000000,
     from: 0,
     to: 1,
@@ -296,6 +303,7 @@ export const SAMPLE_ADD_TRANSACTION_ACTIONS = {
         type: "expense" as const,
         amount: 1000000,
         date: SAMPLE_TODAY,
+        time: null,
         accountId: SAMPLE_ACCOUNTS[0].id,
         toAccountId: null,
         categoryId: null,

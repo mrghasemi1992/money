@@ -57,7 +57,9 @@ import {
   parseImportAmount,
   parseImportDate,
   parseImportTags,
+  parseImportTime,
   parseImportType,
+  timeInImportDate,
 } from "./csv-values";
 
 /*
@@ -205,6 +207,7 @@ export function importMinorPerUnit(
 export type ParsedImportRow = {
   type: TransactionType;
   date: string;
+  time: string | null;
   amount: number;
   account: string;
   toAccount: string | null;
@@ -249,7 +252,11 @@ export function importRowSchema({
         const parsed = parseImportDate(value, dateOrder);
         if ("error" in parsed) return fail(context, parsed.error);
         if (parsed.iso > today) return fail(context, "dateFuture");
-        return parsed.iso;
+        return { iso: parsed.iso, time: timeInImportDate(value) };
+      }),
+      time: z.string().transform((value, context) => {
+        const parsed = parseImportTime(value);
+        return "error" in parsed ? fail(context, parsed.error) : parsed.time;
       }),
       amount: z.string().transform((value, context) => {
         const parsed = parseImportAmount(value, minorPerUnit);
@@ -304,7 +311,9 @@ export function importRowSchema({
       }
       return {
         type,
-        date: row.date,
+        date: row.date.iso,
+        // A time column wins over a time written after the date.
+        time: row.time ?? row.date.time,
         amount: row.amount.minor,
         account: row.account,
         toAccount: isTransfer ? row.toAccount : null,
@@ -571,6 +580,7 @@ export function planImport(
       line: record.line,
       type: row.type,
       date: row.date,
+      time: row.time,
       amount: row.amount,
       account: account.ref,
       toAccount: toAccount.ref,
@@ -738,6 +748,7 @@ export const duplicateQuerySchema = z
     z.object({
       line: z.number().int().positive(),
       date: z.iso.date(),
+      time: z.iso.time({ precision: -1 }).nullable(),
       accountId: z.uuid(),
       amount: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
       type: z.enum(["expense", "income", "transfer"]),
@@ -755,6 +766,7 @@ export function duplicateQuery(rows: ImportRow[]): DuplicateQuery {
           {
             line: row.line,
             date: row.date,
+            time: row.time,
             accountId: row.account.id,
             amount: row.amount,
             type: row.type,

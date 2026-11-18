@@ -124,26 +124,61 @@ function filterConditions(filters: TransactionFilters): SQL | undefined {
 }
 
 /**
- * Cursor of the row a page ended on: date, creation time (microseconds, as text, so no row
- * is skipped or repeated) and id. The list is ordered by the same three, newest first.
+ * The list's order, as one row value: date, whether there is a time (rows without one come
+ * last in a day, newest first), the time, when it was added, id. Never null, so it works in
+ * keyset comparisons; the same expressions as `transactions_list_index`.
  */
-type Cursor = { date: string; createdAt: string; id: string };
+const LIST_ORDER = [
+  transactions.date,
+  sql`(${transactions.time} is not null)`,
+  sql`coalesce(${transactions.time}, '00:00'::time)`,
+  transactions.createdAt,
+  transactions.id,
+];
+
+/** The transaction's time as `HH:MM`, or null. */
+const timeColumn = sql<
+  string | null
+>`to_char(${transactions.time}, 'HH24:MI')`.as("time");
+
+/** The creation time to the microsecond, as text, so a cursor skips or repeats no row. */
+const cursorTimeColumn = sql<string>`to_char(${transactions.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
+
+/**
+ * Cursor of the row a page ended on: date, time (`HH:MM`, or null), creation time and id, the
+ * values of `LIST_ORDER`.
+ */
+type Cursor = {
+  date: string;
+  time: string | null;
+  createdAt: string;
+  id: string;
+};
 
 function encodeCursor(cursor: Cursor): string {
-  return [cursor.date, cursor.createdAt, cursor.id].join("|");
+  return [cursor.date, cursor.time ?? "", cursor.createdAt, cursor.id].join(
+    "|",
+  );
 }
 
 function decodeCursor(value: string | null | undefined): Cursor | null {
   if (!value) return null;
-  const [date, createdAt, id] = value.split("|");
+  const [date, time, createdAt, id] = value.split("|");
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") ||
+    !/^(\d{2}:\d{2})?$/.test(time ?? "-") ||
     !/^[\d\-T:.Z]+$/.test(createdAt ?? "") ||
     !/^[0-9a-f-]{36}$/.test(id ?? "")
   ) {
     return null;
   }
-  return { date, createdAt, id };
+  return { date, time: time || null, createdAt, id };
+}
+
+/** Rows after the cursor in the list's order: older (`<`) or, for the export, newer (`>`). */
+function afterCursor(cursor: Cursor, direction: "<" | ">"): SQL {
+  const values = sql`(${cursor.date}::date, ${cursor.time !== null}, coalesce(${cursor.time}::time, '00:00'::time), ${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`;
+  return sql`(${sql.join(LIST_ORDER, sql`, `)}) ${sql.raw(direction)} ${values}`;
 }
 
 const toAccount = alias(accounts, "to_account");
@@ -152,9 +187,10 @@ const creator = alias(user, "creator");
 const editor = alias(user, "editor");
 
 /**
- * One page of transactions matching the filters, newest first (by date, then by when they
- * were added), with their accounts, category and who added and last changed them. Keyset
- * pagination on (date, created_at, id), so later pages cost the same as the first.
+ * One page of transactions matching the filters, newest first (by date, then time, rows
+ * without a time last, then by when they were added), with their accounts, category and who
+ * added and last changed them. Keyset pagination on `LIST_ORDER`, so later pages cost the
+ * same as the first.
  */
 export async function listTransactions(
   filters: TransactionFilters,
@@ -167,6 +203,7 @@ export async function listTransactions(
       id: transactions.id,
       type: transactions.type,
       date: transactions.date,
+      time: timeColumn,
       amount: transactions.amount,
       accountId: transactions.accountId,
       toAccountId: transactions.toAccountId,
@@ -176,7 +213,7 @@ export async function listTransactions(
       source: transactions.source,
       createdAt: transactions.createdAt,
       updatedAt: transactions.updatedAt,
-      cursorTime: sql<string>`to_char(${transactions.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
+      cursorTime: cursorTimeColumn,
       accountName: accounts.name,
       accountType: accounts.type,
       toAccountName: toAccount.name,
@@ -201,16 +238,10 @@ export async function listTransactions(
     .where(
       and(
         filterConditions(filters),
-        after
-          ? sql`(${transactions.date}, ${transactions.createdAt}, ${transactions.id}) < (${after.date}::date, ${after.createdAt}::timestamptz, ${after.id}::uuid)`
-          : undefined,
+        after ? afterCursor(after, "<") : undefined,
       ),
     )
-    .orderBy(
-      desc(transactions.date),
-      desc(transactions.createdAt),
-      desc(transactions.id),
-    )
+    .orderBy(...LIST_ORDER.map((value) => desc(value)))
     .limit(limit + 1);
 
   const page = rows.slice(0, limit);
@@ -220,6 +251,7 @@ export async function listTransactions(
       id: row.id,
       type: row.type,
       date: row.date,
+      time: row.time,
       amount: row.amount,
       accountId: row.accountId,
       toAccountId: row.toAccountId,
@@ -258,6 +290,7 @@ export async function listTransactions(
       rows.length > limit && last
         ? encodeCursor({
             date: last.date,
+            time: last.time,
             createdAt: last.cursorTime,
             id: last.id,
           })
@@ -380,6 +413,7 @@ export async function getTransactionInput(
       type: transactions.type,
       amount: transactions.amount,
       date: transactions.date,
+      time: timeColumn,
       accountId: transactions.accountId,
       toAccountId: transactions.toAccountId,
       categoryId: transactions.categoryId,
@@ -490,6 +524,7 @@ export async function deleteTransaction(
       type: transactions.type,
       amount: transactions.amount,
       date: transactions.date,
+      time: timeColumn,
       accountId: transactions.accountId,
       toAccountId: transactions.toAccountId,
       categoryId: transactions.categoryId,
@@ -528,6 +563,7 @@ const storedColumns = {
   type: transactions.type,
   amount: transactions.amount,
   date: transactions.date,
+  time: timeColumn,
   accountId: transactions.accountId,
   toAccountId: transactions.toAccountId,
   categoryId: transactions.categoryId,
@@ -556,7 +592,7 @@ export async function findSimilarTransactions(
     .where(
       sql`(${transactions.date}, ${transactions.accountId}, ${transactions.amount}, ${transactions.type}) in (${keys})`,
     )
-    .orderBy(desc(transactions.date), desc(transactions.createdAt));
+    .orderBy(...LIST_ORDER.map((value) => desc(value)));
 }
 
 /** Deletes several transactions. Returns the ones that existed, with what they stored. */
@@ -571,8 +607,9 @@ export async function deleteTransactions(
 }
 
 /**
- * One page of the transactions matching the filters for the CSV export, oldest first (by
- * date, then by when they were added), and the cursor of the next page. Same keyset as the
+ * One page of the transactions matching the filters for the CSV export, oldest first (the
+ * list's order turned round: by date, a day's rows without a time first, then by time and
+ * when they were added), and the cursor of the next page. Same keyset as the
  * list, the other way round, so a long export reads page by page while it streams.
  */
 export async function exportTransactions(
@@ -586,8 +623,9 @@ export async function exportTransactions(
       id: transactions.id,
       type: transactions.type,
       date: transactions.date,
+      time: timeColumn,
       amount: transactions.amount,
-      cursorTime: sql<string>`to_char(${transactions.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
+      cursorTime: cursorTimeColumn,
       accountName: accounts.name,
       toAccountName: toAccount.name,
       categoryName: categories.name,
@@ -603,16 +641,10 @@ export async function exportTransactions(
     .where(
       and(
         filterConditions(filters),
-        after
-          ? sql`(${transactions.date}, ${transactions.createdAt}, ${transactions.id}) > (${after.date}::date, ${after.createdAt}::timestamptz, ${after.id}::uuid)`
-          : undefined,
+        after ? afterCursor(after, ">") : undefined,
       ),
     )
-    .orderBy(
-      asc(transactions.date),
-      asc(transactions.createdAt),
-      asc(transactions.id),
-    )
+    .orderBy(...LIST_ORDER.map((value) => asc(value)))
     .limit(limit + 1);
 
   const page = rows.slice(0, limit);
@@ -621,6 +653,7 @@ export async function exportTransactions(
     rows: page.map((row) => ({
       type: row.type,
       date: row.date,
+      time: row.time,
       amount: row.amount,
       accountName: row.accountName,
       toAccountName: row.toAccountName,
@@ -634,6 +667,7 @@ export async function exportTransactions(
       rows.length > limit && last
         ? encodeCursor({
             date: last.date,
+            time: last.time,
             createdAt: last.cursorTime,
             id: last.id,
           })

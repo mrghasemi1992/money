@@ -363,6 +363,8 @@ const en: Messages = {
       type: "Type",
       amount: "Amount",
       date: "Date",
+      time: "Time",
+      timePlaceholder: "14:30",
       account: "Account",
       fromAccount: "From account",
       toAccount: "To account",
@@ -394,6 +396,7 @@ const en: Messages = {
         amountTooLarge: "This amount is too large.",
         dateMissing: "Choose a date.",
         dateFuture: "The date can’t be in the future.",
+        timeInvalid: "Write it as 14:30.",
         accountMissing: "Choose an account.",
         accountUnavailable:
           "This account was archived or deleted. Choose another one.",
@@ -414,6 +417,7 @@ const en: Messages = {
       title: "Transaction details",
       type: "Type",
       date: "Date",
+      time: "Time",
       account: "Account",
       fromAccount: "From account",
       toAccount: "To account",
@@ -1119,6 +1123,7 @@ const en: Messages = {
     columns: {
       gregorianDate: "Gregorian date",
       jalaliDate: "Jalali date",
+      time: "Time",
       type: "Type",
       amount: "Amount",
       currency: "Currency",
@@ -1243,6 +1248,7 @@ const en: Messages = {
         column: "Column {number}",
         fields: {
           date: "Date",
+          time: "Time",
           amount: "Amount",
           type: "Type",
           account: "Account",
@@ -1256,6 +1262,7 @@ const en: Messages = {
         hints: {
           type: "Expense, income or transfer",
           typeSigned: "Not needed with signed amounts.",
+          time: "Optional. Without it, a time written after the date is used.",
           toAccount: "Transfers only",
           tags: "Separate several tags with commas.",
           note: "Added to the end of the description.",
@@ -1341,6 +1348,7 @@ const en: Messages = {
         dateAmbiguous:
           "It isn’t clear which is the day and which the month in “{value}”. Write it as 2026-09-05.",
         dateFuture: "The date can’t be in the future.",
+        timeInvalid: "The time “{value}” couldn’t be read; write it as 14:30.",
         amountMissing: "The amount is empty.",
         amountInvalid: "The amount “{value}” isn’t a number.",
         amountZero: "The amount is zero.",

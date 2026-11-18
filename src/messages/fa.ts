@@ -356,6 +356,8 @@ const fa = {
       type: "نوع",
       amount: "مبلغ",
       date: "تاریخ",
+      time: "ساعت",
+      timePlaceholder: "14:30",
       account: "حساب",
       fromAccount: "از حساب",
       toAccount: "به حساب",
@@ -387,6 +389,7 @@ const fa = {
         amountTooLarge: "این مبلغ بیش از اندازه بزرگ است.",
         dateMissing: "تاریخ را انتخاب کنید.",
         dateFuture: "تاریخ نمی‌تواند در آینده باشد.",
+        timeInvalid: "به‌صورت ۱۴:۳۰ بنویسید.",
         accountMissing: "حساب را انتخاب کنید.",
         accountUnavailable:
           "این حساب بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
@@ -406,6 +409,7 @@ const fa = {
       title: "جزئیات تراکنش",
       type: "نوع",
       date: "تاریخ",
+      time: "ساعت",
       account: "حساب",
       fromAccount: "از حساب",
       toAccount: "به حساب",
@@ -1108,6 +1112,7 @@ const fa = {
     columns: {
       gregorianDate: "تاریخ میلادی",
       jalaliDate: "تاریخ شمسی",
+      time: "ساعت",
       type: "نوع",
       amount: "مبلغ",
       currency: "واحد پول",
@@ -1230,6 +1235,7 @@ const fa = {
         column: "ستون {number}",
         fields: {
           date: "تاریخ",
+          time: "ساعت",
           amount: "مبلغ",
           type: "نوع",
           account: "حساب",
@@ -1243,6 +1249,7 @@ const fa = {
         hints: {
           type: "هزینه، درآمد یا انتقال",
           typeSigned: "با مبلغ علامت‌دار لازم نیست.",
+          time: "اختیاری. بدون این ستون، ساعتِ نوشته‌شده بعد از تاریخ خوانده می‌شود.",
           toAccount: "فقط برای انتقال",
           tags: "چند برچسب با «،» جدا می‌شوند.",
           note: "به آخر شرح اضافه می‌شود.",
@@ -1323,6 +1330,7 @@ const fa = {
         dateAmbiguous:
           "معلوم نیست در «{value}» کدام روز و کدام ماه است؛ تاریخ را به‌صورت 2026-09-05 بنویسید.",
         dateFuture: "تاریخ نمی‌تواند در آینده باشد.",
+        timeInvalid: "ساعت «{value}» خوانده نشد؛ آن را به‌صورت ۱۴:۳۰ بنویسید.",
         amountMissing: "مبلغ خالی است.",
         amountInvalid: "مبلغ «{value}» عدد نیست.",
         amountZero: "مبلغ صفر است.",

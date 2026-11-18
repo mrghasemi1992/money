@@ -29,6 +29,7 @@ import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction, TransactionSource } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { todayIso } from "@/utils/iso-date";
+import { toLocaleDigits } from "@/utils/number";
 
 import styles from "./styles.module.css";
 
@@ -186,6 +187,14 @@ export function TransactionDetail({
               format: "weekday",
             })}
           </dd>
+          {transaction.time ? (
+            <>
+              <dt>{t("transactions.detail.time")}</dt>
+              <dd className="tabular">
+                {toLocaleDigits(transaction.time, locale)}
+              </dd>
+            </>
+          ) : null}
           {isTransfer ? (
             <>
               <dt>{t("transactions.detail.fromAccount")}</dt>
