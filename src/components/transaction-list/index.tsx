@@ -17,6 +17,7 @@ import type { Transaction, TransactionDayTotal } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
 import { addDays, todayIso } from "@/utils/iso-date";
+import { isDebtType } from "@/helpers/transaction";
 
 import styles from "./styles.module.css";
 
@@ -182,7 +183,9 @@ function TransactionRow({
   onDelete,
 }: TransactionRowProps) {
   const t = useTranslations();
-  const isTransfer = transaction.type === "transfer";
+  // A transfer's or debt's title names its accounts, so the row doesn't repeat the account.
+  const accountInTitle =
+    transaction.type === "transfer" || isDebtType(transaction.type);
   const { account, description } = transaction;
   const AccountIcon = ACCOUNT_TYPE_ICONS[account.type];
 
@@ -207,18 +210,18 @@ function TransactionRow({
           </button>
           <AssistantMark source={transaction.source} />
         </div>
-        {description || !isTransfer ? (
+        {description || !accountInTitle ? (
           <div className={cx(styles.meta, !description && styles.narrowOnly)}>
             {description ? (
               <span className={styles.description}>{description}</span>
             ) : null}
-            {description && !isTransfer ? (
+            {description && !accountInTitle ? (
               <i
                 className={cx(styles.metaDot, styles.narrowOnly)}
                 aria-hidden="true"
               />
             ) : null}
-            {isTransfer ? null : (
+            {accountInTitle ? null : (
               <span className={cx(styles.metaAccount, styles.narrowOnly)}>
                 {account.name}
               </span>
@@ -237,7 +240,7 @@ function TransactionRow({
       </div>
 
       <div className={cx(styles.account, styles.wideOnly)}>
-        {isTransfer ? null : (
+        {accountInTitle ? null : (
           <>
             <AccountIcon className={styles.accountIcon} aria-hidden="true" />
             <span className={styles.accountName}>{account.name}</span>

@@ -399,14 +399,16 @@ export function Transactions({
     ? ""
     : target.description
       ? target.description
-      : target.type === "transfer"
-        ? t("transactions.list.route", {
-            from: target.account.name,
-            to: target.toAccount?.name ?? "",
-          })
-        : target.category
-          ? categoryLabel(target.category)
-          : t("transactions.unknownTag");
+      : target.type === "receivable" || target.type === "payable"
+        ? t(`transactions.list.${target.type}`, { name: target.account.name })
+        : target.type === "transfer"
+          ? t("transactions.list.route", {
+              from: target.account.name,
+              to: target.toAccount?.name ?? "",
+            })
+          : target.category
+            ? categoryLabel(target.category)
+            : t("transactions.unknownTag");
   const deleteDescription = target
     ? t("transactions.delete.description", {
         description: deleteName,

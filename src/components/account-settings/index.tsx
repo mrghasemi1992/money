@@ -18,7 +18,10 @@ import {
   ArchivedAccountList,
 } from "@/components/account-list";
 import { AccountDialog } from "@/components/account-dialog";
-import { useShellCanWrite } from "@/components/add-transaction";
+import {
+  useAddTransactionWith,
+  useShellCanWrite,
+} from "@/components/add-transaction";
 import { ArchivedSection } from "@/components/archived-section";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageHeader } from "@/components/page-header";
@@ -95,6 +98,8 @@ export function AccountSettings({
   const counterparty = kind === "counterparty";
   // The page's own texts; the rest (menus, toasts) are shared from `accounts`.
   const page = counterparty ? "debts" : "accounts";
+  // The shell's add form, to record a «طلب» or «بدهی» on a person (writers only).
+  const addTransaction = useAddTransactionWith();
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   // Kept after a dialog closes, so its text stays while it animates out.
   const [target, setTarget] = useState<Account | null>(null);
@@ -185,7 +190,6 @@ export function AccountSettings({
                 type: account.type,
                 identifier: account.identifier,
                 openingBalance: account.openingBalance,
-                openingDate: account.openingDate,
               }),
             () =>
               toast.show({
@@ -344,6 +348,15 @@ export function AccountSettings({
                 onReorder={reorder}
                 onArchive={(account) => setArchived(account, true)}
                 onDelete={askDelete}
+                onRecordDebt={
+                  counterparty && canWrite && addTransaction
+                    ? (account) =>
+                        addTransaction({
+                          type: "receivable",
+                          accountId: account.id,
+                        })
+                    : undefined
+                }
                 busy={pending || reordering}
               />
             </Card>

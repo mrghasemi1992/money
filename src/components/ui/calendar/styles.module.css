@@ -31,10 +31,94 @@
   font: var(--type-heading);
 }
 
+/* The title opens the months, then the years. */
+.titleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-control);
+}
+
+.titleButton:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+@media (hover: hover) {
+  .titleButton:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.titleIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--text-muted);
+  stroke-width: var(--icon-stroke);
+}
+
+/* Months of a year, or a page of years: 3 a row, as tall as the days' grid. */
+.picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.pick {
+  height: var(--calendar-pick-h);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-primary);
+  font: var(--type-body);
+  cursor: pointer;
+  outline: 0;
+  transition: var(--transition-control);
+}
+
+.pick[data-today] {
+  box-shadow: inset 0 0 0 var(--calendar-today-ring) var(--brand-border-strong);
+  color: var(--brand-text);
+}
+
+.pick[data-current] {
+  background: var(--brand-solid);
+  color: var(--text-on-brand);
+  font-weight: var(--weight-bold);
+  box-shadow: none;
+}
+
+.pick:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+.pick:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .pick:hover:not(:disabled, [data-current]) {
+    background: var(--surface-hover);
+  }
+}
+
 .grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-0-5);
+}
+
+/* The days stay mounted while a picker shows (the grid keeps its focus target). */
+.grid[hidden] {
+  display: none;
 }
 
 .row {

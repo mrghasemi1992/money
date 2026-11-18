@@ -28,8 +28,6 @@ export type Account = {
   identifier: AccountIdentifier | null;
   /** In the book currency's smallest unit; may be 0 or negative. */
   openingBalance: number;
-  /** Counterparties only, optional: since when the opening balance was owed (ISO date). */
-  openingDate: string | null;
   /** Opening balance plus the account's transactions (see `accountBalance`). */
   balance: number;
   /** Hidden from forms; keeps its history. */
@@ -49,7 +47,6 @@ export type AccountInput = {
   type: AccountType;
   /** Typed as the user wrote it; the server normalizes and checks it per kind. */
   identifier: AccountIdentifier | null;
+  /** Always 0 for a counterparty (its debts are receivable / payable transactions). */
   openingBalance: number;
-  /** Counterparties only; null for the other types. */
-  openingDate: string | null;
 };

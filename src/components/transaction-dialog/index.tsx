@@ -26,13 +26,15 @@ import { MOBILE_QUERY } from "@/constants/media";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
+  TRANSACTION_FORM_KINDS,
   TRANSACTION_TAGS_MAX,
-  TRANSACTION_TYPES,
 } from "@/constants/transaction";
-import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
+import { TRANSACTION_FORM_KIND_ICONS } from "@/constants/transaction-icons";
 import { accountSelectOptions } from "@/helpers/account-options";
 import { categoryIcon } from "@/helpers/category";
 import {
+  isDebtType,
+  isIncomeOrExpense,
   type TransactionError,
   type TransactionField,
   transactionErrors,
@@ -70,34 +72,60 @@ type TransactionDialogProps = {
   ) => Promise<ActionResult<TransactionField>>;
   /** Edit mode: asks to delete the transaction (the caller confirms). */
   onDelete?: (transaction: Transaction) => void;
+  /**
+   * For a new transaction: starts with this type and account, such as a «طلب» on a person
+   * from the «طلب و بدهی» page.
+   */
+  preset?: Partial<Pick<TransactionFormValues, "type" | "accountId">>;
   /** Overrides today (the viewer's, from their time zone), for stories. */
   today?: string;
 };
+
+/** What the type control chooses: a money type, or «طلب/بدهی» for a receivable or payable. */
+type FormKind = (typeof TRANSACTION_FORM_KINDS)[number];
+
+function kindOf(type: TransactionType): FormKind {
+  return isDebtType(type) ? "debt" : type;
+}
+
+/** The first active account of the book's own money, or of the counterparties. */
+function firstAccount(
+  accounts: AccountOption[],
+  counterparty: boolean,
+): string {
+  return (
+    accounts.find(
+      (account) =>
+        !account.archived && (account.type === "counterparty") === counterparty,
+    )?.id ?? ""
+  );
+}
 
 /** Characters of the time box: «14:30», or «14:30:12» copied from a statement. */
 const TIME_INPUT_MAX_LENGTH = 8;
 
 type Errors = Partial<Record<TransactionField, TransactionError>>;
 
-/** A new transaction, keeping the type, account and date of the previous one if given. */
+/**
+ * A new transaction, keeping the type, account and date of the previous one if given, or
+ * starting from a preset type and account.
+ */
 function blank(
   today: string,
   accounts: AccountOption[],
-  keep?: TransactionFormValues,
+  keep?: Partial<TransactionFormValues>,
 ): TransactionFormValues {
+  const type = keep?.type ?? "expense";
   return {
-    type: keep?.type ?? "expense",
+    type,
     amount: null,
     date: keep?.date ?? today,
     time: null,
     accountId:
       keep?.accountId ??
-      // The first of the book's own accounts, never a person or lender.
-      accounts.find(
-        (account) => !account.archived && account.type !== "counterparty",
-      )?.id ??
-      "",
-    toAccountId: keep?.type === "transfer" ? keep.toAccountId : null,
+      // A debt is on a person or lender; anything else starts on the book's own money.
+      firstAccount(accounts, isDebtType(type)),
+    toAccountId: keep?.type === "transfer" ? (keep.toAccountId ?? null) : null,
     categoryId: null,
     description: "",
     tags: [],
@@ -129,7 +157,7 @@ function categoryGroups(
   keep: string | null | undefined,
   wholeLabel: string,
 ): ComboboxGroup[] {
-  if (type === "transfer") return [];
+  if (!isIncomeOrExpense(type)) return [];
   return categories[type].flatMap((category) => {
     const subcategories = category.subcategories.filter(
       (subcategory) => !subcategory.archived || subcategory.id === keep,
@@ -160,10 +188,13 @@ function categoryGroups(
 }
 
 /**
- * Adds or edits a transaction: type (هزینه / درآمد / انتقال), amount, date in the viewer's
- * calendar with an optional time (`HH:MM`, typed in any digits), account (from and to for a transfer), category with its subcategories (not for
- * a transfer), description and tags with suggestions. A Dialog from 768px
- * up, a bottom Sheet on phones. «ثبت و افزودن بعدی» keeps the type, account and date.
+ * Adds or edits a transaction: type (هزینه / درآمد / انتقال / طلب‌وبدهی), amount, date in the
+ * viewer's calendar with an optional time (`HH:MM`, typed in any digits), account (from and to
+ * for a transfer), category with its subcategories (income and expense only), description and
+ * tags with suggestions. «طلب/بدهی» records a debt on a person or lender without money moving
+ * (a receivable or payable, #47): its direction («طلب دارم» / «بدهکارم») and the person, picked
+ * from the counterparties only. A Dialog from 768px up, a bottom Sheet on phones. «ثبت و افزودن
+ * بعدی» keeps the type, account and date.
  */
 export function TransactionDialog({
   open,
@@ -172,6 +203,7 @@ export function TransactionDialog({
   options,
   onSubmit,
   onDelete,
+  preset,
   today: todayProp,
 }: TransactionDialogProps) {
   const t = useTranslations();
@@ -182,13 +214,16 @@ export function TransactionDialog({
   const today = todayProp ?? todayIso(timeZone);
   const formId = useId();
   const typeLabelId = useId();
+  const directionLabelId = useId();
   const dateId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
   const [another, setAnother] = useState(false);
   const [values, setValues] = useState<TransactionFormValues>(() =>
-    transaction ? fromTransaction(transaction) : blank(today, options.accounts),
+    transaction
+      ? fromTransaction(transaction)
+      : blank(today, options.accounts, preset),
   );
   const [errors, setErrors] = useState<Errors>({});
   const [serverError, setServerError] = useState<{
@@ -205,7 +240,7 @@ export function TransactionDialog({
     setValues(
       transaction
         ? fromTransaction(transaction)
-        : blank(today, options.accounts),
+        : blank(today, options.accounts, preset),
     );
     setErrors({});
     setServerError(null);
@@ -215,6 +250,8 @@ export function TransactionDialog({
 
   const editing = transaction !== null;
   const isTransfer = values.type === "transfer";
+  const isDebt = isDebtType(values.type);
+  const kind = kindOf(values.type);
   const accounts = useMemo(
     () =>
       accountSelectOptions(options.accounts, [
@@ -223,6 +260,21 @@ export function TransactionDialog({
       ]),
     [options.accounts, transaction],
   );
+  // A debt is on a person or lender: only the counterparties.
+  const counterpartyIds = useMemo(
+    () =>
+      new Set(
+        options.accounts
+          .filter((account) => account.type === "counterparty")
+          .map((account) => account.id),
+      ),
+    [options.accounts],
+  );
+  const accountChoices = isDebt
+    ? accounts
+        .filter((option) => counterpartyIds.has(option.value))
+        .map((option) => ({ ...option, separatorBefore: false }))
+    : accounts;
   const groups = useMemo(
     () =>
       categoryGroups(
@@ -251,12 +303,24 @@ export function TransactionDialog({
 
   function setType(type: TransactionType) {
     if (type === values.type) return;
+    const debt = isDebtType(type);
+    // Entering or leaving «طلب/بدهی» moves between the counterparties and the book's money.
+    const accountId =
+      debt !== isDebt || (debt && !counterpartyIds.has(values.accountId))
+        ? firstAccount(options.accounts, debt)
+        : values.accountId;
     update({
       type,
-      // Categories belong to one type; a transfer has none.
+      accountId,
+      // Categories belong to one type; transfers and debts have none.
       categoryId: null,
       toAccountId: type === "transfer" ? values.toAccountId : null,
     });
+  }
+
+  function setKind(next: FormKind) {
+    if (next === kind) return;
+    setType(next === "debt" ? "receivable" : next);
   }
 
   function message(error: TransactionError): string {
@@ -325,7 +389,7 @@ export function TransactionDialog({
   const submitLabel = editing
     ? t("transactions.form.submitEdit")
     : t("transactions.form.submit", { type: values.type });
-  const noAccounts = accounts.length === 0;
+  const noAccounts = accountChoices.length === 0;
 
   const footer = isMobile ? (
     <>
@@ -407,7 +471,11 @@ export function TransactionDialog({
       >
         {noAccounts ? (
           <p className={styles.notice} role="status">
-            {t("transactions.form.noAccounts")}
+            {t(
+              isDebt
+                ? "transactions.form.noCounterparties"
+                : "transactions.form.noAccounts",
+            )}
           </p>
         ) : null}
 
@@ -419,20 +487,49 @@ export function TransactionDialog({
           <SegmentedControl
             aria-labelledby={typeLabelId}
             fullWidth
-            value={values.type}
+            value={kind}
             disabled={pending}
             onValueChange={(value) => {
-              const type = TRANSACTION_TYPES.find((item) => item === value);
-              if (type) setType(type);
+              const next = TRANSACTION_FORM_KINDS.find(
+                (item) => item === value,
+              );
+              if (next) setKind(next);
             }}
-            options={TRANSACTION_TYPES.map((type) => ({
-              value: type,
-              label: t(`transactionType.${type}`),
-              icon: TRANSACTION_TYPE_ICONS[type],
-              tone: type,
+            options={TRANSACTION_FORM_KINDS.map((item) => ({
+              value: item,
+              label: t(`transactions.form.kinds.${item}`),
+              icon: TRANSACTION_FORM_KIND_ICONS[item],
+              tone: item === "debt" ? "transfer" : item,
             }))}
           />
         </div>
+
+        {isDebt ? (
+          <div className={styles.group}>
+            <span id={directionLabelId} className={styles.label}>
+              {t("transactions.form.direction")}
+            </span>
+            <SegmentedControl
+              aria-labelledby={directionLabelId}
+              fullWidth
+              value={values.type}
+              disabled={pending}
+              onValueChange={(value) =>
+                setType(value === "payable" ? "payable" : "receivable")
+              }
+              options={[
+                {
+                  value: "receivable",
+                  label: t("transactions.form.receivable"),
+                },
+                { value: "payable", label: t("transactions.form.payable") },
+              ]}
+            />
+            <span className={styles.hint}>
+              {t("transactions.form.debtHint")}
+            </span>
+          </div>
+        ) : null}
 
         <Field
           label={t("transactions.form.amount")}
@@ -497,15 +594,21 @@ export function TransactionDialog({
             label={t(
               isTransfer
                 ? "transactions.form.fromAccount"
-                : "transactions.form.account",
+                : isDebt
+                  ? "transactions.form.counterparty"
+                  : "transactions.form.account",
             )}
             required
             error={errorFor("accountId")}
           >
             <Select
-              options={accounts}
+              options={accountChoices}
               value={values.accountId || null}
-              placeholder={t("transactions.form.chooseAccount")}
+              placeholder={t(
+                isDebt
+                  ? "transactions.form.chooseCounterparty"
+                  : "transactions.form.chooseAccount",
+              )}
               disabled={pending || noAccounts}
               onValueChange={(accountId) =>
                 update({ accountId: accountId ?? "" })
@@ -529,7 +632,7 @@ export function TransactionDialog({
           ) : null}
         </div>
 
-        {isTransfer ? null : (
+        {isTransfer || isDebt ? null : (
           <Field
             label={t("transactions.form.category")}
             required

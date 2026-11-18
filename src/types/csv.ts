@@ -5,6 +5,7 @@ import type {
   IMPORT_STEPS,
 } from "@/constants/csv";
 
+import type { AccountType } from "./account";
 import type { CategoryColor, CategoryIcon, CategoryType } from "./category";
 import type { RialUnit } from "./currency";
 import type { TransactionInput } from "./transaction";
@@ -88,7 +89,12 @@ export type ImportRef =
   { kind: "existing"; id: string } | { kind: "new"; key: string };
 
 /** Accounts, categories and subcategories the import creates. */
-export type NewImportAccount = { key: string; name: string };
+export type NewImportAccount = {
+  key: string;
+  name: string;
+  /** The default type, or `counterparty` when a receivable or payable is on it. */
+  type: AccountType;
+};
 
 export type NewImportCategory = {
   key: string;
@@ -130,6 +136,7 @@ export type ImportRowErrorCode =
   | "typeInvalid"
   | "accountMissing"
   | "accountUnmatched"
+  | "debtAccountNotCounterparty"
   | "toAccountMissing"
   | "sameAccount"
   | "categoryUnmatched"

@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import {
+  DEBT_TYPES,
+  INCOME_EXPENSE_TYPES,
   NOTE_SEPARATOR,
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
@@ -33,6 +35,7 @@ export type TransactionError =
   | "timeInvalid"
   | "accountMissing"
   | "accountUnavailable"
+  | "accountNotCounterparty"
   | "toAccountMissing"
   | "toAccountUnavailable"
   | "sameAccount"
@@ -55,7 +58,24 @@ export function isUnknownTransaction(transaction: {
   type: TransactionType;
   categoryId: string | null;
 }): boolean {
-  return transaction.type !== "transfer" && !transaction.categoryId;
+  return isIncomeOrExpense(transaction.type) && !transaction.categoryId;
+}
+
+/** Whether a type is income or expense: the only ones totals, budgets and reports count. */
+export function isIncomeOrExpense(
+  type: TransactionType,
+): type is (typeof INCOME_EXPENSE_TYPES)[number] {
+  return (INCOME_EXPENSE_TYPES as readonly string[]).includes(type);
+}
+
+/**
+ * Whether a type is a debt recorded on a counterparty without money moving (`receivable`,
+ * `payable`): no destination account, no category, never income or expense.
+ */
+export function isDebtType(
+  type: TransactionType,
+): type is (typeof DEBT_TYPES)[number] {
+  return (DEBT_TYPES as readonly string[]).includes(type);
 }
 
 /** «خوراک / رستوران» for a subcategory, the category's own name otherwise. */
@@ -98,7 +118,9 @@ export type TransactionRuleOptions = {
 
 /**
  * The rules between fields: a transfer needs a different destination account, income and
- * expense a category (unless `categoryRequired` is false). Null when they hold.
+ * expense a category (unless `categoryRequired` is false); a receivable or payable needs
+ * neither (that its account is a counterparty is checked against the database). Null when they
+ * hold.
  */
 function crossFieldError(
   value: {
@@ -118,6 +140,7 @@ function crossFieldError(
     }
     return null;
   }
+  if (value.type === "receivable" || value.type === "payable") return null;
   return value.categoryId || !categoryRequired
     ? null
     : { path: ["categoryId"], message: "categoryMissing" };
@@ -129,8 +152,8 @@ function crossFieldError(
  * is the viewer's today: dates can't be in the future. Messages are `TransactionError` keys.
  * The Claude connector uses the same rules, without requiring a category.
  *
- * The output is ready to save: names tidied, a description of «؟» alone becomes empty, a
- * transfer has no category and income or expense no destination account.
+ * The output is ready to save: names tidied, a description of «؟» alone becomes empty, only a
+ * transfer has a destination account and only income or expense a category.
  */
 export function transactionSchema(
   today: string,
@@ -189,7 +212,7 @@ export function transactionSchema(
     .transform((value): TransactionInput => ({
       ...value,
       toAccountId: value.type === "transfer" ? value.toAccountId : null,
-      categoryId: value.type === "transfer" ? null : value.categoryId,
+      categoryId: isIncomeOrExpense(value.type) ? value.categoryId : null,
     }));
 }
 

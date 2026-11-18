@@ -14,13 +14,14 @@ const openingBalance = sql`${accounts}.${sql.identifier("opening_balance")}`;
 /**
  * SQL for an account's current balance, in the book currency's smallest unit:
  *
- *   opening balance + income − expense − transfers out + transfers in
+ *   opening balance + income − expense − transfers out + transfers in + receivables − payables
  *
  * Use it in a query that selects from `accounts`. The sum runs in Postgres (indexes on
  * `account_id` and `to_account_id`), so a balance is never added up in JavaScript. Transfers
  * move money between the book's own accounts: they change both balances but are never income
  * or expense. A counterparty's balance is what they owe the book: lending to them is a transfer
- * in (+), borrowing from them a transfer out (−), and an expense they paid for the book (−).
+ * in (+), borrowing from them a transfer out (−), an expense they paid for the book (−), and a
+ * debt recorded without money moving a receivable (+) or a payable (−).
  */
 export function accountBalance(): SQL<number> {
   return sql<number>`(${openingBalance} + coalesce((
@@ -28,7 +29,9 @@ export function accountBalance(): SQL<number> {
       when t.type = 'income' then t.amount
       when t.type = 'expense' then -t.amount
       when t.type = 'transfer' and t.account_id = ${accountId} then -t.amount
-      else t.amount
+      when t.type = 'transfer' then t.amount
+      when t.type = 'receivable' then t.amount
+      when t.type = 'payable' then -t.amount
     end)
     from ${transactions} t
     where t.account_id = ${accountId} or t.to_account_id = ${accountId}

@@ -31,6 +31,8 @@ const en: Messages = {
     income: "Income",
     expense: "Expense",
     transfer: "Transfer",
+    receivable: "Owed to me",
+    payable: "I owe",
   },
   role: {
     admin: "Admin",
@@ -72,6 +74,13 @@ const en: Messages = {
   calendar: {
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    previousYear: "Previous year",
+    nextYear: "Next year",
+    previousYears: "Earlier years",
+    nextYears: "Later years",
+    chooseMonth: "{title}, choose month and year",
+    chooseYear: "{title}, choose year",
+    yearRange: "{from}–{to}",
     pickDate: "Pick a date",
   },
   amountField: {
@@ -341,6 +350,8 @@ const en: Messages = {
       amount: "Amount",
       assistantTip: "Added by {name}",
       route: "{from} → {to}",
+      receivable: "{name} owes you",
+      payable: "You owe {name}",
       edit: "Edit",
       delete: "Delete",
       dayHeading: "<b>{relative}</b>, {date}",
@@ -363,6 +374,21 @@ const en: Messages = {
       newTitle: "New transaction",
       editTitle: "Edit transaction",
       type: "Type",
+      kinds: {
+        expense: "Expense",
+        income: "Income",
+        transfer: "Transfer",
+        debt: "Debt",
+      },
+      direction: "Who owes whom",
+      receivable: "Owed to me",
+      payable: "I owe",
+      debtHint:
+        "For a debt no money moved through your accounts for, such as one from before. Record lending and repayments as transfers.",
+      counterparty: "Person or lender",
+      chooseCounterparty: "Choose a person or lender",
+      noCounterparties:
+        "You have no people or lenders yet. Add one on Loans and debts first.",
       amount: "Amount",
       date: "Date",
       time: "Time",
@@ -380,14 +406,14 @@ const en: Messages = {
       noAccounts: "There are no accounts yet. Add one in Settings first.",
       description: "Description",
       descriptionPlaceholder:
-        "{type, select, income {e.g. October salary} transfer {e.g. Monthly savings} other {e.g. Weekly groceries}}",
+        "{type, select, income {e.g. October salary} transfer {e.g. Monthly savings} receivable {e.g. Loan from 2023} payable {e.g. Car purchase loan} other {e.g. Weekly groceries}}",
       descriptionHint: "Optional. Shown under the category.",
       tags: "Tags",
       tagPlaceholder: "Type and press Enter",
       tagSuggestions: "Existing tags",
       tagAdd: "Add “{tag}”",
       submit:
-        "{type, select, income {Add income} transfer {Add transfer} other {Add expense}}",
+        "{type, select, income {Add income} transfer {Add transfer} receivable {Add debt} payable {Add debt} other {Add expense}}",
       submitAnother: "Save and add another",
       submitAnotherShort: "Save & new",
       submitEdit: "Save changes",
@@ -402,6 +428,8 @@ const en: Messages = {
         accountMissing: "Choose an account.",
         accountUnavailable:
           "This account was archived or deleted. Choose another one.",
+        accountNotCounterparty:
+          "A debt can only be recorded on a person or lender from Loans and debts.",
         toAccountMissing: "Choose the destination account.",
         toAccountUnavailable:
           "The destination account was archived or deleted. Choose another one.",
@@ -423,6 +451,7 @@ const en: Messages = {
       account: "Account",
       fromAccount: "From account",
       toAccount: "To account",
+      counterparty: "Person or lender",
       category: "Category",
       tags: "Tags",
       addedBy: "Added by {name}",
@@ -929,8 +958,7 @@ const en: Messages = {
       youOwe: "You owe",
       settled: "Settled",
     },
-    since: "since {date}",
-    viewTransactions: "Transactions",
+    recordDebt: "Record a debt",
     dragHint:
       "Drag a row by its handle to reorder. The transaction form lists people and lenders in the same order.",
     moveHint:
@@ -939,16 +967,7 @@ const en: Messages = {
       newTitle: "New person or lender",
       editTitle: "Edit person or lender",
       namePlaceholder: "e.g. Ali, or Melli Bank loan",
-      direction: "From before",
-      owesYou: "Owes me",
-      youOwe: "I owe them",
-      opening: "Amount owed from before",
-      openingHint:
-        "A debt from before you started using Money, with no transaction of its own. Leave it empty if there is none.",
-      openingDate: "Since",
-      openingDateHint: "Optional: when the debt started.",
-      openingDatePlaceholder: "No date",
-      clearDate: "Remove date",
+      hint: "After adding them, record each debt with its date from the row menu with “Record a debt”, and lending, borrowing and repayments as transfers.",
       submitNew: "Add",
     },
     delete: {
@@ -967,7 +986,7 @@ const en: Messages = {
     empty: {
       title: "No loans or debts yet",
       description:
-        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record the loan and its repayments as transfers.",
+        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record the loan and its repayments as transfers, and a debt from before with “Record a debt”.",
       viewerTitle: "No loans or debts yet",
       viewerDescription:
         "When an editor or admin adds a person or lender, it shows here.",
@@ -1427,6 +1446,8 @@ const en: Messages = {
           "The type “{value}” isn’t known. Write expense, income or transfer.",
         accountMissing: "The account is empty.",
         accountUnmatched: "The account “{value}” isn’t matched.",
+        debtAccountNotCounterparty:
+          "A debt must be on a person or lender, and “{value}” is one of the book’s own accounts.",
         toAccountMissing: "The transfer has no destination account.",
         sameAccount: "The transfer’s from and to accounts are the same.",
         categoryUnmatched: "The category “{value}” isn’t matched.",

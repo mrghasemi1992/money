@@ -28,7 +28,6 @@ export async function listAccounts(): Promise<Account[]> {
       identifierKind: accounts.identifierKind,
       identifier: accounts.identifier,
       openingBalance: accounts.openingBalance,
-      openingDate: accounts.openingDate,
       balance: accountBalance(),
       archived: accounts.archived,
       transactionCount: accountTransactionCount(),
@@ -50,17 +49,17 @@ export async function listAccounts(): Promise<Account[]> {
 }
 
 /**
- * The columns of an account's input; only bank accounts keep an identifier, and only
- * counterparties an opening date.
+ * The columns of an account's input; only bank accounts keep an identifier, and a counterparty's
+ * opening balance is 0 (its debts are receivable / payable transactions).
  */
 function accountValues(input: AccountInput) {
-  const { identifier, openingDate, ...rest } = input;
+  const { identifier, ...rest } = input;
   const kept = input.type === "bank" ? identifier : null;
   return {
     ...rest,
+    openingBalance: input.type === "counterparty" ? 0 : input.openingBalance,
     identifierKind: kept?.kind ?? null,
     identifier: kept?.value ?? null,
-    openingDate: input.type === "counterparty" ? openingDate : null,
   };
 }
 

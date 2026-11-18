@@ -1,4 +1,7 @@
-import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
+import {
+  SAMPLE_ACCOUNTS,
+  SAMPLE_COUNTERPARTIES,
+} from "@/components/account-list/sample-accounts";
 import { SAMPLE_CATEGORIES } from "@/components/category-list/sample-categories";
 import {
   LONG_ACCOUNT_NAME,
@@ -31,8 +34,11 @@ const USERS = {
   amir: { id: "1f2e3d4c-0000-4000-8000-000000000002", name: "امیر رضایی" },
 };
 
+/** The book's accounts, then the people and lenders (from index 6: «علی رضایی», …). */
+const BOOK_ACCOUNTS = [...SAMPLE_ACCOUNTS, ...SAMPLE_COUNTERPARTIES];
+
 function account(index: number) {
-  const { id, name, type } = SAMPLE_ACCOUNTS[index];
+  const { id, name, type } = BOOK_ACCOUNTS[index];
   return { id, name, type };
 }
 
@@ -85,7 +91,7 @@ function sample(fields: {
   editedBy?: keyof typeof USERS;
 }): Transaction {
   const picked =
-    fields.category && fields.type !== "transfer"
+    fields.category && (fields.type === "income" || fields.type === "expense")
       ? category(fields.type, fields.category)
       : null;
   const from = account(fields.from);
@@ -177,6 +183,14 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     claude: true,
   }),
   sample({
+    type: "transfer",
+    date: "2026-10-04",
+    amount: 10000000,
+    from: 0,
+    to: 6,
+    description: "قرض برای تعمیر ماشین",
+  }),
+  sample({
     type: "income",
     date: "2026-10-04",
     amount: 12000000,
@@ -194,6 +208,13 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     description: "اقامت در رامسر — دو شب، با صبحانه",
     tags: ["سفر شمال", "خانواده"],
     by: "amir",
+  }),
+  sample({
+    type: "payable",
+    date: "2026-09-23",
+    amount: 3500000,
+    from: 8,
+    description: "قرض از قبل برای جشن تولد",
   }),
   sample({
     type: "income",
@@ -261,7 +282,7 @@ export function sampleDayTotals(rows: Transaction[]): TransactionDayTotal[] {
   }));
 }
 
-export const SAMPLE_ACCOUNT_OPTIONS: AccountOption[] = SAMPLE_ACCOUNTS.map(
+export const SAMPLE_ACCOUNT_OPTIONS: AccountOption[] = BOOK_ACCOUNTS.map(
   ({ id, name, type, archived }) => ({ id, name, type, archived }),
 );
 

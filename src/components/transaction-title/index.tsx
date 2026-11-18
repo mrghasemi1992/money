@@ -11,7 +11,7 @@ type TransactionTitleProps = {
   type: TransactionType;
   /** The category, or with a parent the subcategory: «خوراک / رستوران». */
   category: { name: string; parentName: string | null } | null;
-  /** A transfer's accounts: «رسالت ← بلو». */
+  /** A transfer's accounts: «رسالت ← بلو». A receivable's or payable's person is `from`. */
   from?: string;
   to?: string | null;
   /** On phones the title may take two lines before it is cut off (transaction rows). */
@@ -20,7 +20,8 @@ type TransactionTitleProps = {
 };
 
 /**
- * The first line of a transaction row: the category and subcategory, a transfer's route, or
+ * The first line of a transaction row: the category and subcategory, a transfer's route, a
+ * debt's person («طلب از علی», «بدهی به علی»), or
  * the «ناشناس» tag for an income or expense without a category. The description, when there
  * is one, goes under it in the row's own smaller style.
  */
@@ -34,6 +35,13 @@ export function TransactionTitle({
 }: TransactionTitleProps) {
   const t = useTranslations("transactions");
 
+  if (type === "receivable" || type === "payable") {
+    return (
+      <span className={cx(styles.root, wrap && styles.wrap, className)}>
+        {t(`list.${type}`, { name: from ?? "" })}
+      </span>
+    );
+  }
   if (type === "transfer") {
     return (
       <span className={cx(styles.root, wrap && styles.wrap, className)}>

@@ -1,8 +1,12 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useId, useState, type KeyboardEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -22,6 +26,7 @@ import {
   formatMonth,
   fromCalendarDate,
   isWeekend,
+  monthName,
   shiftMonth,
   toCalendarDate,
   weekColumn,
@@ -53,6 +58,16 @@ type CalendarProps = {
 
 const DAYS_PER_WEEK = 7;
 
+/** Months and years in their pickers: 3 per row, 12 at a time. */
+const PICKER_COLUMNS = 3;
+const YEARS_PER_PAGE = 12;
+
+/**
+ * What the calendar shows: a month's days, the months of a year (pick one), or a page of years
+ * (pick one, then its month). The title moves up a level; picking moves down.
+ */
+type CalendarMode = "days" | "months" | "years";
+
 function clamp(iso: string, min?: string, max?: string): string {
   if (min && iso < min) return min;
   if (max && iso > max) return max;
@@ -64,7 +79,10 @@ function clamp(iso: string, min?: string, max?: string): string {
  * tinted as the weekend; Gregorian weeks start on Monday with Saturday and Sunday tinted.
  * Takes and returns ISO dates; the calendar is only for display.
  * Keyboard: arrows move by day (the arrow's direction on screen, in RTL and LTR) and week,
- * Page Up/Down by month, Home/End to the start and end of the week, Enter or Space selects.
+ * Page Up/Down by month, Shift + Page Up/Down by year, Home/End to the start and end of the
+ * week, Enter or Space selects. The title opens the months of the year, and from there a page
+ * of years, so a date years back takes a few clicks (#47); arrows move between them and Escape
+ * goes back to the days.
  */
 export function Calendar({
   value,
@@ -98,7 +116,11 @@ export function Calendar({
     year: focusedDate.year,
     month: focusedDate.month,
   });
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<CalendarMode>("days");
+  // Looked up by id when focus moves (after React renders), not through refs: the pickers'
+  // handlers run inside lists the React Compiler can't tell apart from render.
+  const gridId = useId();
+  const pickerId = useId();
 
   const isDisabled = (iso: string) =>
     (min != null && iso < min) || (max != null && iso > max);
@@ -110,7 +132,8 @@ export function Calendar({
     setView({ year, month });
     // Focus after React renders the new month.
     requestAnimationFrame(() => {
-      gridRef.current
+      document
+        .getElementById(gridId)
         ?.querySelector<HTMLButtonElement>(`[data-iso="${next}"]`)
         ?.focus();
     });
@@ -124,6 +147,70 @@ export function Calendar({
       daysInMonth(calendar, next.year, next.month),
     );
     setFocused(clamp(fromCalendarDate({ ...next, day }, calendar), min, max));
+  }
+
+  /** Shows a month of the days view, keeping the focused day of the month where it fits. */
+  function openMonth(year: number, month: number) {
+    setView({ year, month });
+    setMode("days");
+    const day = Math.min(
+      toCalendarDate(focused, calendar).day,
+      daysInMonth(calendar, year, month),
+    );
+    moveFocus(fromCalendarDate({ year, month, day }, calendar));
+  }
+
+  /** Switches to the months or years picker and focuses its current item. */
+  function openPicker(next: Exclude<CalendarMode, "days">) {
+    setMode(next);
+    requestAnimationFrame(() => {
+      document
+        .getElementById(pickerId)
+        ?.querySelector<HTMLButtonElement>("[data-current]")
+        ?.focus();
+    });
+  }
+
+  /** Whether any day of a month, or of a year, can be picked. */
+  function monthEnabled(year: number, month: number): boolean {
+    const first = fromCalendarDate({ year, month, day: 1 }, calendar);
+    const last = fromCalendarDate(
+      { year, month, day: daysInMonth(calendar, year, month) },
+      calendar,
+    );
+    return !(max != null && first > max) && !(min != null && last < min);
+  }
+
+  function yearEnabled(year: number): boolean {
+    return Array.from({ length: 12 }, (_, index) => index + 1).some((month) =>
+      monthEnabled(year, month),
+    );
+  }
+
+  /** Arrow keys between the picker's buttons (on-screen direction), Escape back to days. */
+  function onPickerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      // Back to the days, not closing the popover the calendar is in.
+      event.preventDefault();
+      event.stopPropagation();
+      openMonth(view.year, view.month);
+      return;
+    }
+    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+    const moves: Record<string, number> = {
+      ArrowLeft: rtl ? 1 : -1,
+      ArrowRight: rtl ? -1 : 1,
+      ArrowUp: -PICKER_COLUMNS,
+      ArrowDown: PICKER_COLUMNS,
+    };
+    const move = moves[event.key];
+    if (move === undefined) return;
+    event.preventDefault();
+    const buttons = [
+      ...event.currentTarget.querySelectorAll<HTMLButtonElement>("button"),
+    ];
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    buttons[Math.min(buttons.length - 1, Math.max(0, index + move))]?.focus();
   }
 
   function select(iso: string) {
@@ -142,8 +229,8 @@ export function Calendar({
       ArrowDown: () => addDays(focused, DAYS_PER_WEEK),
       Home: () => addDays(focused, -column),
       End: () => addDays(focused, DAYS_PER_WEEK - 1 - column),
-      PageUp: () => addMonths(focused, -1, calendar),
-      PageDown: () => addMonths(focused, 1, calendar),
+      PageUp: () => addMonths(focused, event.shiftKey ? -12 : -1, calendar),
+      PageDown: () => addMonths(focused, event.shiftKey ? 12 : 1, calendar),
     };
     const step = steps[event.key];
     if (!step) return;
@@ -168,6 +255,28 @@ export function Calendar({
   );
   const focusedInView = cells.includes(focused);
   const title = formatMonth(calendar, locale, view.year, view.month);
+  const yearsStart = view.year - (view.year % YEARS_PER_PAGE);
+  const current = toCalendarDate(today, calendar);
+  const digits = (value: number) => toLocaleDigits(value, locale);
+  // The arrows step a month, a year or a page of years, by mode.
+  const step = {
+    days: {
+      previous: t("calendar.previousMonth"),
+      next: t("calendar.nextMonth"),
+      go: (delta: number) => showMonth(delta),
+    },
+    months: {
+      previous: t("calendar.previousYear"),
+      next: t("calendar.nextYear"),
+      go: (delta: number) => setView({ ...view, year: view.year + delta }),
+    },
+    years: {
+      previous: t("calendar.previousYears"),
+      next: t("calendar.nextYears"),
+      go: (delta: number) =>
+        setView({ ...view, year: view.year + delta * YEARS_PER_PAGE }),
+    },
+  }[mode];
   // Weekdays (0 = Sunday) in column order.
   const weekdays = Array.from(
     { length: DAYS_PER_WEEK },
@@ -182,29 +291,105 @@ export function Calendar({
         <IconButton
           icon={ChevronLeftIcon}
           mirrorIcon
-          label={t("calendar.previousMonth")}
+          label={step.previous}
           size="sm"
           tooltip={false}
-          onClick={() => showMonth(-1)}
+          onClick={() => step.go(-1)}
         />
-        <div className={styles.title} aria-live="polite">
-          {title}
-        </div>
+        {mode === "years" ? (
+          <div className={styles.title} aria-live="polite">
+            {t("calendar.yearRange", {
+              from: digits(yearsStart),
+              to: digits(yearsStart + YEARS_PER_PAGE - 1),
+            })}
+          </div>
+        ) : (
+          <button
+            type="button"
+            className={cx(styles.title, styles.titleButton)}
+            aria-live="polite"
+            aria-label={t(
+              mode === "days" ? "calendar.chooseMonth" : "calendar.chooseYear",
+              { title: mode === "days" ? title : digits(view.year) },
+            )}
+            onClick={() => openPicker(mode === "days" ? "months" : "years")}
+          >
+            {mode === "days" ? title : digits(view.year)}
+            <ChevronDownIcon className={styles.titleIcon} aria-hidden="true" />
+          </button>
+        )}
         <IconButton
           icon={ChevronRightIcon}
           mirrorIcon
-          label={t("calendar.nextMonth")}
+          label={step.next}
           size="sm"
           tooltip={false}
-          onClick={() => showMonth(1)}
+          onClick={() => step.go(1)}
         />
       </div>
 
+      {mode !== "days" ? (
+        <div
+          id={pickerId}
+          className={styles.picker}
+          role="group"
+          aria-label={
+            mode === "months"
+              ? digits(view.year)
+              : t("calendar.yearRange", {
+                  from: digits(yearsStart),
+                  to: digits(yearsStart + YEARS_PER_PAGE - 1),
+                })
+          }
+          onKeyDown={onPickerKeyDown}
+        >
+          {mode === "months"
+            ? Array.from({ length: 12 }, (_, index) => index + 1).map(
+                (month) => (
+                  <button
+                    key={month}
+                    type="button"
+                    className={styles.pick}
+                    disabled={!monthEnabled(view.year, month)}
+                    data-current={month === view.month || undefined}
+                    data-today={
+                      (view.year === current.year && month === current.month) ||
+                      undefined
+                    }
+                    onClick={() => openMonth(view.year, month)}
+                  >
+                    {monthName(calendar, locale, month)}
+                  </button>
+                ),
+              )
+            : Array.from(
+                { length: YEARS_PER_PAGE },
+                (_, index) => yearsStart + index,
+              ).map((year) => (
+                <button
+                  key={year}
+                  type="button"
+                  className={cx(styles.pick, "tabular")}
+                  disabled={!yearEnabled(year)}
+                  data-current={year === view.year || undefined}
+                  data-today={year === current.year || undefined}
+                  onClick={() => {
+                    setView({ ...view, year });
+                    openPicker("months");
+                  }}
+                >
+                  {digits(year)}
+                </button>
+              ))}
+        </div>
+      ) : null}
+
       <div
-        ref={gridRef}
+        id={gridId}
         role="grid"
         aria-label={title}
         className={styles.grid}
+        hidden={mode !== "days"}
         onKeyDown={onKeyDown}
       >
         <div role="row" className={styles.row}>
@@ -273,6 +458,7 @@ export function Calendar({
             disabled={isDisabled(today)}
             onClick={() => {
               select(today);
+              setMode("days");
               moveFocus(today);
             }}
           >

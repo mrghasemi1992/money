@@ -3,10 +3,10 @@ import {
   bigint,
   boolean,
   check,
-  date,
   integer,
   pgTable,
   text,
+  unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -22,7 +22,8 @@ import { id, oneOf, timestamps } from "./columns";
  * Where money is kept: bank cards, cash, … and the people and lenders money is owed to or by
  * (type `counterparty`, #47). Part of the one shared book, like every financial table.
  * Balance = opening balance + its transactions (`accountBalance`); a counterparty's is what
- * they owe the book (positive) or the book owes them (negative).
+ * they owe the book (positive) or the book owes them (negative). A counterparty's opening
+ * balance is always 0: a debt from before the book is a dated `receivable` or `payable`.
  */
 export const accounts = pgTable(
   "accounts",
@@ -41,11 +42,6 @@ export const accounts = pgTable(
      * or negative (an overdrawn card).
      */
     openingBalance: bigint({ mode: "number" }).notNull().default(0),
-    /**
-     * Counterparties only, optional: since when the opening balance was owed (Gregorian
-     * `YYYY-MM-DD`), for a debt from before the book with no transaction of its own (#47).
-     */
-    openingDate: date({ mode: "string" }),
     /** Hidden from forms; keeps its history. */
     archived: boolean().notNull().default(false),
     /** Position in lists and forms, from 0. Archived accounts keep theirs. */
@@ -59,5 +55,12 @@ export const accounts = pgTable(
       sql`(${table.identifierKind} is null and ${table.identifier} is null) or (${table.type} = 'bank' and ${table.identifier} is not null and ${table.identifierKind} in (${sql.raw(ACCOUNT_IDENTIFIER_KINDS.map((kind) => `'${kind}'`).join(", "))}))`,
     ),
     uniqueIndex("accounts_name_unique").on(sql`lower(${table.name})`),
+    // A counterparty's debts are dated receivable / payable transactions, not an opening balance.
+    check(
+      "accounts_counterparty_opening_check",
+      sql`${table.type} <> 'counterparty' or ${table.openingBalance} = 0`,
+    ),
+    // The target of transactions_debt_account_fk: receivables and payables are on counterparties.
+    unique("accounts_id_type_unique").on(table.id, table.type),
   ],
 );

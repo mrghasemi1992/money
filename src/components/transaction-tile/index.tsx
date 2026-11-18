@@ -1,4 +1,4 @@
-import { ArrowLeftRightIcon } from "lucide-react";
+import { ArrowLeftRightIcon, HandCoinsIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import { CATEGORY_ICONS } from "@/constants/category-icons";
@@ -14,7 +14,8 @@ type TransactionTileProps = {
 };
 
 /**
- * The square at the start of a transaction row: ⇄ for a transfer, the category's (or
+ * The square at the start of a transaction row: ⇄ for a transfer, a hand with coins for a debt
+ * (receivable, payable), the category's (or
  * subcategory's) icon on its hue, or a «؟» for an unknown one (income or expense without a
  * category). Decorative: the row says the same in words, and the amount carries the direction.
  */
@@ -23,6 +24,8 @@ export function TransactionTile({
   className,
 }: TransactionTileProps) {
   const isTransfer = transaction.type === "transfer";
+  const isDebt =
+    transaction.type === "receivable" || transaction.type === "payable";
   const { category } = transaction;
   const Icon = category
     ? CATEGORY_ICONS[knownCategoryIcon(category.icon)]
@@ -30,11 +33,12 @@ export function TransactionTile({
 
   const style: CSSProperties | undefined =
     category && !isTransfer ? categoryColorStyle(category.color) : undefined;
-  const kind = isTransfer
-    ? styles.transfer
-    : category
-      ? styles.category
-      : styles.unknown;
+  const kind =
+    isTransfer || isDebt
+      ? styles.transfer
+      : category
+        ? styles.category
+        : styles.unknown;
 
   return (
     <span
@@ -44,6 +48,8 @@ export function TransactionTile({
     >
       {isTransfer ? (
         <ArrowLeftRightIcon className={styles.icon} />
+      ) : isDebt ? (
+        <HandCoinsIcon className={styles.icon} />
       ) : Icon ? (
         <Icon className={styles.icon} />
       ) : (

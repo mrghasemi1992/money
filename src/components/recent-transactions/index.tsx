@@ -20,6 +20,7 @@ import type { Transaction } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
 import { addDays, todayIso } from "@/utils/iso-date";
+import { isDebtType } from "@/helpers/transaction";
 
 import styles from "./styles.module.css";
 
@@ -99,7 +100,9 @@ export function RecentTransactions({
       ) : (
         <ul className={styles.list}>
           {transactions.map((transaction) => {
-            const isTransfer = transaction.type === "transfer";
+            // A transfer's or debt's title names its accounts, so the row doesn't repeat the account.
+            const accountInTitle =
+              transaction.type === "transfer" || isDebtType(transaction.type);
             const { account, description } = transaction;
             return (
               <li key={transaction.id} className={styles.row}>
@@ -128,7 +131,7 @@ export function RecentTransactions({
                     <AssistantMark source={transaction.source} />
                   </div>
                   <div className={styles.details}>
-                    {description || !isTransfer ? (
+                    {description || !accountInTitle ? (
                       <>
                         <span className={styles.meta}>
                           {description ? (
@@ -141,10 +144,10 @@ export function RecentTransactions({
                               {description}
                             </span>
                           ) : null}
-                          {description && !isTransfer ? (
+                          {description && !accountInTitle ? (
                             <i className={styles.metaDot} aria-hidden="true" />
                           ) : null}
-                          {isTransfer ? null : (
+                          {accountInTitle ? null : (
                             <span
                               className={cx(styles.metaText, styles.account)}
                             >

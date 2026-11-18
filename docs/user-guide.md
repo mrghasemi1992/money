@@ -105,14 +105,15 @@ An account is anywhere your money sits: a bank account or card, cash, a savings 
 
 ![The loans and debts page](assets/user-guide/en/debts.png)
 
-1. **Add person or lender:** a name (a person, or a loan such as "Melli Bank loan"), and if they already owed you or you owed them before you started using Money, who owed whom, the amount and, optionally, since when.
+1. **Add person or lender:** a name: a person, or a loan such as "Melli Bank loan".
 2. **Net**, with what is owed to you and what you owe across everyone.
 3. **The people and lenders**, each with their balance: **Owes you**, **You owe** or **Settled**.
-4. **The menu:** **Edit**, **View transactions** (everything with that person), **Move up**, **Move down**, **Archive** and **Delete**.
+4. **The menu:** **Record a debt** (see below), **Edit**, **View transactions** (everything with that person), **Move up**, **Move down**, **Archive** and **Delete**.
 5. **Archived** ones are hidden from forms; their history stays.
 
 How to record each case, with **Add transaction**:
 
+- **A debt from before, with no bank transaction** (for example, you've owed Ali 50 million since Shahrivar 1402 and you're still paying it off): choose **Record a debt** in Ali's menu, or the **Debt** type in the form. Choose **I owe** or **Owed to me**, the amount you still owe, and the date it started. In the calendar, click the month's name to pick a month and year, and the year to jump years back. Each debt is its own entry with its date, so several old debts with one person stay separate.
 - **You lend Ali money:** a **transfer** from your account to Ali. **Ali pays you back:** a transfer from Ali to your account. Borrowing and repaying work the same way, the other way round.
 - **Ali paid for you** (dinner, rent): an **expense** from Ali's account, with its real category. You spent the money, and now you owe him.
 - **You forgive a debt:** an expense from the person's account, for example in a gifts category.
@@ -137,9 +138,9 @@ Click **Add transaction** (or **+** on a phone).
 
 ![The new transaction form](assets/user-guide/en/transaction-form.png)
 
-1. **Type:** expense, income, or a transfer between two of your own accounts, or with a person or lender on [Loans and debts](#loans-and-debts). Transfers don't count as income or expense.
+1. **Type:** expense, income, a transfer between two of your own accounts (or with a person or lender on [Loans and debts](#loans-and-debts)), or **Debt** for a debt with a person that no money moved for. Transfers and debts don't count as income or expense.
 2. **Amount**, in the book's currency. In a rial book you can type in rials or tomans, as you chose in [Settings](#settings). Persian digits work too.
-3. **Date:** today unless you pick another day. It can't be in the future.
+3. **Date:** today unless you pick another day. It can't be in the future. Click the month's name in the calendar to pick a month and year.
 4. **Time** (optional), such as 14:30, as the bank's SMS or statement shows it. Transactions of one day are listed by time, newest first, so with times they read in the same order as your bank's list; those without a time come last.
 5. **Account:** where the money came from or went to. A transfer asks for both accounts.
 6. **Category**, with its subcategories. Type to search.

@@ -43,6 +43,7 @@ import { maskIdentifier } from "@/helpers/account-identifier";
 import { canWrite } from "@/helpers/role";
 import { assistantName } from "@/helpers/transaction-source";
 import {
+  isDebtType,
   isUnknownTransaction,
   type TransactionError,
   transactionErrors,
@@ -110,6 +111,8 @@ const ERRORS: Record<TransactionError, string> = {
   accountMissing: "account_id is missing.",
   accountUnavailable:
     "account_id isn't an active account of the book (see list_accounts).",
+  accountNotCounterparty:
+    "a receivable or payable needs account_id of a counterparty (type counterparty in list_accounts).",
   toAccountMissing: "a transfer needs to_account_id.",
   toAccountUnavailable:
     "to_account_id isn't an active account of the book (see list_accounts).",
@@ -195,11 +198,13 @@ function view(
           to_account:
             listed?.toAccount?.name ?? names?.account(row.toAccountId) ?? null,
         }
-      : {
-          category_id: row.categoryId,
-          category,
-          ...(isUnknownTransaction(row) ? { unknown: true } : {}),
-        }),
+      : isDebtType(row.type)
+        ? {}
+        : {
+            category_id: row.categoryId,
+            category,
+            ...(isUnknownTransaction(row) ? { unknown: true } : {}),
+          }),
     description: row.description,
     tags: row.tags,
     ...(listed
@@ -252,14 +257,16 @@ const noteInput = z
 
 const newTransactionInput = z.object({
   type: typeInput.describe(
-    '"expense" (money spent), "income" (money received) or "transfer" (between two of the book\'s accounts)',
+    '"expense" (money spent), "income" (money received), "transfer" (between two of the book\'s accounts, also lending to, borrowing from or repaying a counterparty), or "receivable" / "payable" (a debt on a counterparty that no money of the book moved for, e.g. one from before: receivable = they owe the user, payable = the user owes them)',
   ),
   date: dateInput,
   time: timeInput.optional(),
   amount: amountInput,
   account_id: z
     .uuid()
-    .describe("The account (for a transfer: the one money leaves)"),
+    .describe(
+      "The account (for a transfer: the one money leaves; for a receivable or payable: the counterparty)",
+    ),
   to_account_id: z
     .uuid()
     .optional()
@@ -399,14 +406,6 @@ export function registerTools(server: McpServer, ctx: McpContext) {
               }
             : {}),
           balance: fromMinorUnits(account.balance, ctx.currency),
-          ...(account.openingDate
-            ? {
-                owed_since: formatConnectorDate(
-                  account.openingDate,
-                  ctx.user.calendar,
-                ),
-              }
-            : {}),
           ...(account.archived ? { archived: true } : {}),
         })),
       });
@@ -448,7 +447,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
       inputSchema: z.object({
         from: dateInput.optional().describe("First date to include"),
         to: dateInput.optional().describe("Last date to include"),
-        types: z.array(typeInput).max(3).optional(),
+        types: z.array(typeInput).max(TRANSACTION_TYPES.length).optional(),
         account_id: z.uuid().optional().describe("From or to this account"),
         category_id: z
           .uuid()

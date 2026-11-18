@@ -8,7 +8,6 @@ import {
 import { checkIdentifier } from "@/helpers/account-identifier";
 import type { AccountIdentifierError } from "@/helpers/account-identifier";
 import type { AccountInput, AccountKind, AccountType } from "@/types/account";
-import { isIsoDate } from "@/utils/iso-date";
 import { tidyName } from "@/utils/text";
 
 /**
@@ -39,8 +38,6 @@ export const accountSchema = z.object({
       return z.NEVER;
     }),
   openingBalance: z.number().int().safe(),
-  // Counterparties only (the query drops it for the other types).
-  openingDate: z.string().refine(isIsoDate).nullable(),
 }) satisfies z.ZodType<AccountInput>;
 
 /** Keys of the `accounts.form.errors` messages. */

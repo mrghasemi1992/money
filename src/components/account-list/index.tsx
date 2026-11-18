@@ -7,6 +7,7 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   GripVerticalIcon,
+  HandCoinsIcon,
   InfoIcon,
   ListIcon,
   PencilIcon,
@@ -24,10 +25,8 @@ import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { debtStatus } from "@/helpers/account";
 import { maskIdentifier } from "@/helpers/account-identifier";
 import { accountTransactionsHref } from "@/helpers/transaction-filters";
-import { usePreferences } from "@/hooks/use-preferences";
 import list from "@/styles/list.module.css";
 import type { Account, AccountKind } from "@/types/account";
-import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
 import { formatNumber } from "@/utils/number";
 import { isolate } from "@/utils/text";
@@ -47,6 +46,8 @@ type AccountListProps = {
   onArchive: (account: Account) => void;
   /** Asks first: delete, or archive when the account has transactions. */
   onDelete: (account: Account) => void;
+  /** Counterparties: opens the add form for a «طلب» or «بدهی» on this person. */
+  onRecordDebt?: (account: Account) => void;
   /** A change is being saved: the row menus are disabled until it finishes. */
   busy?: boolean;
 };
@@ -62,25 +63,14 @@ function moved(ids: string[], id: string, to: number): string[] {
 
 /**
  * The quiet line under an account's name: its type, its masked identifier and how many
- * transactions it has. For a counterparty, who owes whom and since when in place of the type.
+ * transactions it has. For a counterparty, who owes whom in place of the type.
  */
 export function useAccountMeta() {
   const t = useTranslations();
   const locale = useLocale();
-  const { calendar } = usePreferences();
   return (account: Account) =>
     (account.type === "counterparty"
-      ? t(`debts.status.${debtStatus(account.balance)}`) +
-        (account.openingDate && account.balance !== 0
-          ? " " +
-            t("debts.since", {
-              date: formatDate(account.openingDate, {
-                locale,
-                calendar,
-                format: "month",
-              }),
-            })
-          : "")
+      ? t(`debts.status.${debtStatus(account.balance)}`)
       : t(`accounts.types.${account.type}`)) +
     (account.identifier
       ? t("common.listSeparator") +
@@ -109,6 +99,7 @@ export function AccountList({
   onReorder,
   onArchive,
   onDelete,
+  onRecordDebt,
   busy = false,
 }: AccountListProps) {
   const t = useTranslations();
@@ -126,6 +117,15 @@ export function AccountList({
 
   function menuItems(account: Account, index: number): MenuItem[] {
     return [
+      ...(onRecordDebt
+        ? [
+            {
+              label: t("debts.recordDebt"),
+              icon: HandCoinsIcon,
+              onClick: () => onRecordDebt(account),
+            },
+          ]
+        : []),
       {
         label: t("accounts.actions.edit"),
         icon: PencilIcon,

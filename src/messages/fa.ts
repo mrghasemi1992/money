@@ -29,6 +29,8 @@ const fa = {
     income: "درآمد",
     expense: "هزینه",
     transfer: "انتقال",
+    receivable: "طلب",
+    payable: "بدهی",
   },
   role: {
     admin: "مدیر",
@@ -70,6 +72,13 @@ const fa = {
   calendar: {
     previousMonth: "ماه قبل",
     nextMonth: "ماه بعد",
+    previousYear: "سال قبل",
+    nextYear: "سال بعد",
+    previousYears: "سال‌های قبل",
+    nextYears: "سال‌های بعد",
+    chooseMonth: "{title}، انتخاب ماه و سال",
+    chooseYear: "{title}، انتخاب سال",
+    yearRange: "{from} تا {to}",
     pickDate: "انتخاب تاریخ",
   },
   amountField: {
@@ -334,6 +343,8 @@ const fa = {
       amount: "مبلغ",
       assistantTip: "ثبت‌شده با {name}",
       route: "{from} ← {to}",
+      receivable: "طلب از {name}",
+      payable: "بدهی به {name}",
       edit: "ویرایش",
       delete: "حذف",
       dayHeading: "<b>{relative}</b>، {date}",
@@ -356,6 +367,21 @@ const fa = {
       newTitle: "تراکنش جدید",
       editTitle: "ویرایش تراکنش",
       type: "نوع",
+      kinds: {
+        expense: "هزینه",
+        income: "درآمد",
+        transfer: "انتقال",
+        debt: "طلب/بدهی",
+      },
+      direction: "چه کسی بدهکار است",
+      receivable: "طلب دارم",
+      payable: "بدهکارم",
+      debtHint:
+        "برای طلب یا بدهی‌ای که پولی از حساب‌هایتان جابه‌جا نکرده، مثل بدهی‌ای از قبل. قرض دادن و بازپرداخت را با «انتقال» ثبت کنید.",
+      counterparty: "طرف حساب",
+      chooseCounterparty: "انتخاب طرف حساب",
+      noCounterparties:
+        "هنوز طرف حسابی ندارید. اول در «طلب و بدهی» یک طرف حساب اضافه کنید.",
       amount: "مبلغ",
       date: "تاریخ",
       time: "ساعت",
@@ -373,14 +399,14 @@ const fa = {
       noAccounts: "هنوز حسابی ندارید. اول در تنظیمات یک حساب اضافه کنید.",
       description: "توضیح",
       descriptionPlaceholder:
-        "{type, select, income {مثلاً حقوق مهر} transfer {مثلاً پس‌انداز ماهانه} other {مثلاً خرید هفتگی}}",
+        "{type, select, income {مثلاً حقوق مهر} transfer {مثلاً پس‌انداز ماهانه} receivable {مثلاً قرض سال ۱۴۰۲} payable {مثلاً قرض خرید ماشین} other {مثلاً خرید هفتگی}}",
       descriptionHint: "اختیاری. زیر دسته‌بندی نمایش داده می‌شود.",
       tags: "برچسب‌ها",
       tagPlaceholder: "بنویسید و Enter بزنید",
       tagSuggestions: "برچسب‌های موجود",
       tagAdd: "افزودن «{tag}»",
       submit:
-        "{type, select, income {ثبت درآمد} transfer {ثبت انتقال} other {ثبت هزینه}}",
+        "{type, select, income {ثبت درآمد} transfer {ثبت انتقال} receivable {ثبت طلب} payable {ثبت بدهی} other {ثبت هزینه}}",
       submitAnother: "ثبت و افزودن بعدی",
       submitAnotherShort: "ثبت و بعدی",
       submitEdit: "ذخیره تغییرات",
@@ -395,6 +421,8 @@ const fa = {
         accountMissing: "حساب را انتخاب کنید.",
         accountUnavailable:
           "این حساب بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
+        accountNotCounterparty:
+          "طلب و بدهی فقط روی طرف حساب‌های «طلب و بدهی» ثبت می‌شود.",
         toAccountMissing: "حساب مقصد را انتخاب کنید.",
         toAccountUnavailable:
           "حساب مقصد بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
@@ -415,6 +443,7 @@ const fa = {
       account: "حساب",
       fromAccount: "از حساب",
       toAccount: "به حساب",
+      counterparty: "طرف حساب",
       category: "دسته‌بندی",
       tags: "برچسب‌ها",
       addedBy: "ثبت توسط {name}",
@@ -918,8 +947,7 @@ const fa = {
       youOwe: "بدهکارید",
       settled: "تسویه",
     },
-    since: "از {date}",
-    viewTransactions: "تراکنش‌ها",
+    recordDebt: "ثبت طلب یا بدهی",
     dragHint:
       "برای تغییر ترتیب، ردیف را از دستگیره بکشید. فرم ثبت تراکنش هم طرف حساب‌ها را به همین ترتیب نشان می‌دهد.",
     moveHint:
@@ -928,16 +956,7 @@ const fa = {
       newTitle: "طرف حساب جدید",
       editTitle: "ویرایش طرف حساب",
       namePlaceholder: "مثلاً علی، یا وام بانک ملی",
-      direction: "از قبل",
-      owesYou: "به من بدهکار است",
-      youOwe: "به او بدهکارم",
-      opening: "مبلغ بدهی از قبل",
-      openingHint:
-        "بدهی‌ای که پیش از ثبت در پول وجود داشته و تراکنشی برایش ندارید. اگر نیست، خالی بگذارید.",
-      openingDate: "از تاریخ",
-      openingDateHint: "اختیاری؛ از کِی این بدهی بوده.",
-      openingDatePlaceholder: "بدون تاریخ",
-      clearDate: "حذف تاریخ",
+      hint: "بعد از افزودن، هر طلب یا بدهی را با تاریخش از منوی ردیف با «ثبت طلب یا بدهی» اضافه کنید، و قرض دادن، قرض گرفتن و بازپرداخت را با «انتقال».",
       submitNew: "افزودن طرف حساب",
     },
     delete: {
@@ -956,7 +975,7 @@ const fa = {
     empty: {
       title: "هنوز طلب یا بدهی‌ای ثبت نکرده‌اید",
       description:
-        "کسی را که به او قرض داده‌اید یا از او قرض گرفته‌اید، یا بانکی که از آن وام دارید، اضافه کنید. بعد قرض و بازپرداخت را با «انتقال» ثبت کنید.",
+        "کسی را که به او قرض داده‌اید یا از او قرض گرفته‌اید، یا بانکی که از آن وام دارید، اضافه کنید. بعد قرض و بازپرداخت را با «انتقال» ثبت کنید، و طلب یا بدهی‌ای از قبل را با «ثبت طلب یا بدهی».",
       viewerTitle: "هنوز طلب یا بدهی‌ای ثبت نشده است",
       viewerDescription:
         "وقتی ویرایشگر یا مدیر طرف حسابی بسازد، اینجا دیده می‌شود.",
@@ -1408,6 +1427,8 @@ const fa = {
           "نوع «{value}» شناخته نشد؛ هزینه، درآمد یا انتقال بنویسید.",
         accountMissing: "حساب خالی است.",
         accountUnmatched: "حساب «{value}» تطبیق داده نشد.",
+        debtAccountNotCounterparty:
+          "طلب و بدهی باید روی یک طرف حساب باشد، و «{value}» حساب خود دفتر است.",
         toAccountMissing: "انتقال حساب مقصد ندارد.",
         sameAccount: "حساب مبدأ و مقصد انتقال یکی است.",
         categoryUnmatched: "دسته‌بندی «{value}» تطبیق داده نشد.",

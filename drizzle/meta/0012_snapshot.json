@@ -1,5 +1,5 @@
 {
-  "id": "bc7546e4-5858-44a5-9a9b-85e133a2dd29",
+  "id": "fc3ff8d6-bcc1-4378-9bb6-a2c7fd3caeb2",
   "prevId": "0609fd89-6426-4ea7-b2ed-1068ccb4f94e",
   "version": "7",
   "dialect": "postgresql",
@@ -549,12 +549,6 @@
           "notNull": true,
           "default": 0
         },
-        "opening_date": {
-          "name": "opening_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
         "archived": {
           "name": "archived",
           "type": "boolean",
@@ -603,7 +597,16 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "accounts_id_type_unique": {
+          "name": "accounts_id_type_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "type"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {
         "accounts_type_check": {
@@ -613,6 +616,10 @@
         "accounts_identifier_check": {
           "name": "accounts_identifier_check",
           "value": "(\"accounts\".\"identifier_kind\" is null and \"accounts\".\"identifier\" is null) or (\"accounts\".\"type\" = 'bank' and \"accounts\".\"identifier\" is not null and \"accounts\".\"identifier_kind\" in ('accountNumber', 'cardNumber', 'sheba'))"
+        },
+        "accounts_counterparty_opening_check": {
+          "name": "accounts_counterparty_opening_check",
+          "value": "\"accounts\".\"type\" <> 'counterparty' or \"accounts\".\"opening_balance\" = 0"
         }
       },
       "isRLSEnabled": false
@@ -864,6 +871,16 @@
           "notNull": true,
           "default": "'web'"
         },
+        "debt_account_type": {
+          "name": "debt_account_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "case when \"transactions\".\"type\" in ('receivable', 'payable') then 'counterparty' end",
+            "type": "stored"
+          }
+        },
         "created_by": {
           "name": "created_by",
           "type": "uuid",
@@ -1044,6 +1061,21 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "transactions_debt_account_fk": {
+          "name": "transactions_debt_account_fk",
+          "tableFrom": "transactions",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_id",
+            "debt_account_type"
+          ],
+          "columnsTo": [
+            "id",
+            "type"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1052,7 +1084,7 @@
       "checkConstraints": {
         "transactions_type_check": {
           "name": "transactions_type_check",
-          "value": "\"transactions\".\"type\" in ('expense', 'income', 'transfer')"
+          "value": "\"transactions\".\"type\" in ('expense', 'income', 'transfer', 'receivable', 'payable')"
         },
         "transactions_source_check": {
           "name": "transactions_source_check",

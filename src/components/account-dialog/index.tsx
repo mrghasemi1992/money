@@ -1,15 +1,12 @@
 "use client";
 
-import { XIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, useId, useRef, useState, useTransition } from "react";
 
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { AmountField } from "@/components/ui/amount-field";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
 import { Field } from "@/components/ui/field";
-import { IconButton } from "@/components/ui/icon-button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
@@ -30,7 +27,6 @@ import type {
   AccountKind,
 } from "@/types/account";
 import type { ActionResult } from "@/types/action";
-import { todayIso } from "@/utils/iso-date";
 import { formatNumber } from "@/utils/number";
 
 import styles from "./styles.module.css";
@@ -56,16 +52,9 @@ type AccountDialogProps = {
 const NAME_INPUT = "account-name";
 const IDENTIFIER_INPUT = "account-identifier";
 
-/** Who owed whom before the book: a counterparty's opening balance is positive or negative. */
-type DebtDirection = "owesYou" | "youOwe";
-
-/**
- * The form's values; the starting balance may be empty while typing (saved as 0). A
- * counterparty's is typed as a positive amount with its direction.
- */
+/** The form's values; the starting balance may be empty while typing (saved as 0). */
 type FormValues = Omit<AccountInput, "openingBalance" | "identifier"> & {
   openingBalance: number | null;
-  direction: DebtDirection;
   /** The identifier's kind is kept while the value is empty. */
   identifierKind: AccountIdentifierKind;
   identifierValue: string;
@@ -81,11 +70,7 @@ function blank(account: Account | null, kind: AccountKind): FormValues {
         type: account.type,
         identifierKind: account.identifier?.kind ?? DEFAULT_IDENTIFIER_KIND,
         identifierValue: account.identifier?.value ?? "",
-        openingBalance: counterparty
-          ? Math.abs(account.openingBalance) || null
-          : account.openingBalance,
-        direction: account.openingBalance < 0 ? "youOwe" : "owesYou",
-        openingDate: account.openingDate,
+        openingBalance: account.openingBalance,
       }
     : {
         name: "",
@@ -93,8 +78,6 @@ function blank(account: Account | null, kind: AccountKind): FormValues {
         identifierKind: DEFAULT_IDENTIFIER_KIND,
         identifierValue: "",
         openingBalance: null,
-        direction: "owesYou",
-        openingDate: null,
       };
 }
 
@@ -103,9 +86,9 @@ function blank(account: Account | null, kind: AccountKind): FormValues {
  * optional account number, card number or Sheba, and starting balance, which may be zero or
  * negative. The current balance follows from it and the account's transactions.
  *
- * For a person or lender (`kind="counterparty"`): the name and an optional debt from before
- * the book, as who owed whom, the amount and since when; saved as a positive (they owe) or
- * negative (the book owes) opening balance.
+ * For a person or lender (`kind="counterparty"`): only the name. What they owe or are owed
+ * comes from transactions: transfers, and dated «طلب» / «بدهی» entries for debts that arose
+ * without money moving (such as one from before the book).
  */
 export function AccountDialog({
   open,
@@ -117,10 +100,8 @@ export function AccountDialog({
 }: AccountDialogProps) {
   const t = useTranslations();
   const locale = useLocale();
-  const { currency, timeZone } = usePreferences();
+  const { currency } = usePreferences();
   const counterparty = kind === "counterparty";
-  const directionLabelId = useId();
-  const openingDateId = useId();
   const toast = useToast();
   const formId = useId();
   const typeLabelId = useId();
@@ -155,20 +136,14 @@ export function AccountDialog({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const { identifierKind, identifierValue, direction, ...rest } = values;
-    const amount = values.openingBalance ?? 0;
+    const { identifierKind, identifierValue, ...rest } = values;
     const input: AccountInput = {
       ...rest,
       identifier:
         values.type === "bank" && identifierValue.trim() !== ""
           ? { kind: identifierKind, value: identifierValue }
           : null,
-      openingBalance: counterparty
-        ? direction === "youOwe"
-          ? -amount
-          : amount
-        : amount,
-      openingDate: counterparty && amount !== 0 ? values.openingDate : null,
+      openingBalance: counterparty ? 0 : (values.openingBalance ?? 0),
     };
     const found = accountFormError(input);
     if (found) {
@@ -251,78 +226,7 @@ export function AccountDialog({
         </Field>
         {counterparty ? (
           <>
-            <div className={styles.group}>
-              <span id={directionLabelId} className={styles.label}>
-                {t("debts.form.direction")}
-              </span>
-              <SegmentedControl
-                aria-labelledby={directionLabelId}
-                fullWidth
-                value={values.direction}
-                disabled={pending}
-                onValueChange={(value) =>
-                  setValues((current) => ({
-                    ...current,
-                    direction: value === "youOwe" ? "youOwe" : "owesYou",
-                  }))
-                }
-                options={[
-                  { value: "owesYou", label: t("debts.form.owesYou") },
-                  { value: "youOwe", label: t("debts.form.youOwe") },
-                ]}
-              />
-            </div>
-            <Field
-              label={t("debts.form.opening")}
-              optional
-              hint={t("debts.form.openingHint")}
-            >
-              <AmountField
-                size="lg"
-                showEquivalent={currency === "IRR"}
-                value={values.openingBalance}
-                readOnly={pending}
-                onValueChange={(openingBalance) =>
-                  setValues((current) => ({ ...current, openingBalance }))
-                }
-              />
-            </Field>
-            {values.openingBalance ? (
-              <Field
-                label={t("debts.form.openingDate")}
-                optional
-                htmlFor={openingDateId}
-                hint={t("debts.form.openingDateHint")}
-              >
-                <div className={styles.date}>
-                  <DatePicker
-                    id={openingDateId}
-                    className={styles.datePicker}
-                    value={values.openingDate}
-                    placeholder={t("debts.form.openingDatePlaceholder")}
-                    max={todayIso(timeZone)}
-                    disabled={pending}
-                    onValueChange={(openingDate) =>
-                      setValues((current) => ({ ...current, openingDate }))
-                    }
-                  />
-                  {values.openingDate ? (
-                    <IconButton
-                      icon={XIcon}
-                      label={t("debts.form.clearDate")}
-                      variant="ghost"
-                      disabled={pending}
-                      onClick={() =>
-                        setValues((current) => ({
-                          ...current,
-                          openingDate: null,
-                        }))
-                      }
-                    />
-                  ) : null}
-                </div>
-              </Field>
-            ) : null}
+            <p className={styles.hint}>{t("debts.form.hint")}</p>
           </>
         ) : (
           <>

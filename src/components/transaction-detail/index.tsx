@@ -21,7 +21,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { MOBILE_QUERY } from "@/constants/media";
 import { categoryIcon } from "@/helpers/category";
-import { isUnknownTransaction } from "@/helpers/transaction";
+import { isUnknownTransaction, isDebtType } from "@/helpers/transaction";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePreferences } from "@/hooks/use-preferences";
@@ -195,7 +195,12 @@ export function TransactionDetail({
               </dd>
             </>
           ) : null}
-          {isTransfer ? (
+          {isDebtType(transaction.type) ? (
+            <>
+              <dt>{t("transactions.detail.counterparty")}</dt>
+              <dd>{transaction.account.name}</dd>
+            </>
+          ) : isTransfer ? (
             <>
               <dt>{t("transactions.detail.fromAccount")}</dt>
               <dd>{transaction.account.name}</dd>

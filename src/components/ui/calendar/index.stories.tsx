@@ -51,6 +51,14 @@ export const LeapFebruary: Story = {
   },
 };
 
+/**
+ * Years back in a few clicks (#47): the title opens the months of the year, and the year there
+ * opens a page of years. Shift + Page Up/Down moves a year from the days.
+ */
+export const YearsBack: Story = {
+  args: { defaultValue: "2023-09-06", max: "2026-11-19" },
+};
+
 export const Flat: Story = {
   args: { flat: true },
   decorators: [

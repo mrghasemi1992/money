@@ -20,7 +20,10 @@
   --amount-soft: var(--amount-expense-soft);
 }
 
-.transfer {
+/* Transfers and debts recorded without money moving: neither income nor expense. */
+.transfer,
+.receivable,
+.payable {
   --amount-color: var(--amount-transfer);
   --amount-soft: var(--amount-transfer-soft);
 }
