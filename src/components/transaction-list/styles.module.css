@@ -1,7 +1,8 @@
 /*
  * Rows are a grid: tile | category, description and tags | amount | actions (from 768px up).
  * From 62rem of list width the account moves from beside the description to its own column
- * before the amount. On phones the actions go (the detail has them) and rows align to the top.
+ * before the amount. On phones the actions go (the detail has them), the title and the
+ * description get the whole width and the amount its own line at the end (#130).
  */
 
 .root {
@@ -205,15 +206,6 @@
   background: var(--text-placeholder);
 }
 
-.claudeBadge {
-  display: flex;
-  flex: none;
-}
-
-.claudeIcon {
-  display: none;
-}
-
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -269,40 +261,74 @@
 @media (--mobile) {
   .columns,
   .account,
-  .actions,
-  .claudeBadge {
+  .actions {
     display: none;
   }
 
+  /* The rows' parts go straight into the grid: title, description, tags, then the amount. */
   .row,
   .writable .row {
-    grid-template-columns: var(--transaction-tile) minmax(0, 1fr) auto;
+    grid-template-columns: var(--transaction-tile) minmax(0, 1fr);
+    grid-template-areas:
+      "tile title"
+      "tile meta"
+      "tile tags"
+      "tile amount";
     align-items: start;
-    gap: var(--space-3);
+    gap: 0 var(--space-3);
     padding: var(--space-3);
+  }
+
+  .tile {
+    grid-area: tile;
+  }
+
+  .main {
+    display: contents;
+  }
+
+  .titleLine,
+  .skeletonTitle {
+    grid-area: title;
+  }
+
+  .titleLine {
+    align-items: flex-start;
+    gap: var(--space-1-5);
+  }
+
+  .meta {
+    grid-area: meta;
+    margin-block-start: var(--space-0-5);
+  }
+
+  /* The account gives way first, down to a few letters; then the description. */
+  .description {
+    flex: 0 1 auto;
+  }
+
+  .metaAccount {
+    flex: 0 1000 auto;
+    min-width: var(--transaction-meta-account-min);
+    max-width: none;
+  }
+
+  .tags {
+    grid-area: tags;
+    min-width: 0;
+    margin-block-start: var(--space-1);
+  }
+
+  /* Its unit wraps under the number only if even its own line is too narrow. */
+  .amount {
+    grid-area: amount;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-block-start: var(--space-1);
   }
 
   .dayHead {
     padding-inline: var(--space-3);
-  }
-
-  .titleLine {
-    gap: var(--space-1-5);
-  }
-
-  .claudeIcon {
-    display: flex;
-    flex: none;
-    color: var(--brand-text);
-  }
-
-  .claudeIcon svg {
-    width: var(--icon-size-xs);
-    height: var(--icon-size-xs);
-  }
-
-  .amount {
-    padding-block-start: var(--space-0-5);
   }
 
   .more {

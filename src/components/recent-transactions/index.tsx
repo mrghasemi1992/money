@@ -1,22 +1,21 @@
 "use client";
 
-import { CalendarXIcon, ChevronRightIcon, SparklesIcon } from "lucide-react";
+import { CalendarXIcon, ChevronRightIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAddTransaction } from "@/components/add-transaction";
+import { AssistantMark } from "@/components/assistant-mark";
 import { TransactionDetail } from "@/components/transaction-detail";
 import { TransactionTile } from "@/components/transaction-tile";
 import { TransactionTitle } from "@/components/transaction-title";
 import { Amount } from "@/components/ui/amount";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DASHBOARD_RECENT_COUNT } from "@/constants/dashboard";
 import { usePreferences } from "@/hooks/use-preferences";
-import { assistantName } from "@/helpers/transaction-source";
 import type { Transaction } from "@/types/transaction";
 import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
@@ -39,7 +38,8 @@ const noop = () => {};
 /**
  * This month's latest transactions in one compact list: the tile, the category and
  * subcategory (a transfer's route, or the «ناشناس» tag) with a Claude mark, then the
- * description, the account and the day, and the signed amount. A row opens the transaction's
+ * description, the account and the day, and the signed amount (on phones the day and the amount
+ * get their own line, so the title and description get the whole width). A row opens the transaction's
  * detail; changes are made on the transactions page. A month without transactions shows an
  * empty state, with «افزودن تراکنش» when the shell's add form is on (editors and admins).
  */
@@ -103,7 +103,10 @@ export function RecentTransactions({
             const { account, description } = transaction;
             return (
               <li key={transaction.id} className={styles.row}>
-                <TransactionTile transaction={transaction} />
+                <TransactionTile
+                  transaction={transaction}
+                  className={styles.tile}
+                />
                 <div className={styles.main}>
                   <div className={styles.titleLine}>
                     <button
@@ -119,40 +122,42 @@ export function RecentTransactions({
                         category={transaction.category}
                         from={account.name}
                         to={transaction.toAccount?.name}
+                        wrap
                       />
                     </button>
-                    {assistantName(transaction.source) ? (
-                      <Badge
-                        tone="brand"
-                        size="sm"
-                        icon={SparklesIcon}
-                        title={t("transactions.list.assistantTip", {
-                          name: assistantName(transaction.source) ?? "",
-                        })}
-                      >
-                        {assistantName(transaction.source)}
-                      </Badge>
-                    ) : null}
+                    <AssistantMark source={transaction.source} />
                   </div>
-                  <div className={styles.meta}>
-                    {description ? (
+                  <div className={styles.details}>
+                    {description || !isTransfer ? (
                       <>
-                        <span
-                          className={cx(styles.metaText, styles.description)}
-                        >
-                          {description}
+                        <span className={styles.meta}>
+                          {description ? (
+                            <span
+                              className={cx(
+                                styles.metaText,
+                                styles.description,
+                              )}
+                            >
+                              {description}
+                            </span>
+                          ) : null}
+                          {description && !isTransfer ? (
+                            <i className={styles.metaDot} aria-hidden="true" />
+                          ) : null}
+                          {isTransfer ? null : (
+                            <span
+                              className={cx(styles.metaText, styles.account)}
+                            >
+                              {account.name}
+                            </span>
+                          )}
                         </span>
-                        <i className={styles.metaDot} aria-hidden="true" />
+                        <i
+                          className={cx(styles.metaDot, styles.dayDot)}
+                          aria-hidden="true"
+                        />
                       </>
                     ) : null}
-                    {isTransfer ? null : (
-                      <>
-                        <span className={cx(styles.metaText, styles.account)}>
-                          {account.name}
-                        </span>
-                        <i className={styles.metaDot} aria-hidden="true" />
-                      </>
-                    )}
                     <span className={styles.day}>{day(transaction.date)}</span>
                   </div>
                 </div>
@@ -220,7 +225,7 @@ export function RecentTransactionsSkeleton() {
                 width="var(--transaction-tile)"
                 height="var(--transaction-tile)"
                 radius="var(--radius-lg)"
-                className={styles.skeletonTile}
+                className={cx(styles.tile, styles.skeletonTile)}
               />
               <div className={styles.main}>
                 <span className={styles.skeletonTitle}>
@@ -230,7 +235,7 @@ export function RecentTransactionsSkeleton() {
                   <Skeleton variant="text" width={detail} />
                 </span>
               </div>
-              <span className={styles.skeletonAmount}>
+              <span className={cx(styles.amount, styles.skeletonAmount)}>
                 <Skeleton variant="text" width="88px" />
               </span>
             </div>

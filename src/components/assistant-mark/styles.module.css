@@ -1,0 +1,28 @@
+.badge {
+  display: flex;
+  flex: none;
+}
+
+.icon {
+  display: none;
+}
+
+@media (--mobile) {
+  .badge {
+    display: none;
+  }
+
+  .icon {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 1lh;
+    color: var(--brand-text);
+    font: var(--type-body);
+  }
+
+  .icon svg {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+  }
+}

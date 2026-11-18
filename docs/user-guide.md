@@ -135,7 +135,7 @@ After saving, a message offers **Undo** for a few seconds.
 2. **Income, expense and net** for everything shown.
 3. **Filters:** type, account, category, tag, who added it, a date range and a search of descriptions, tags and categories. The tag filter can show only the unknown transactions.
 4. **Each day** with its net.
-5. **A transaction:** its category (or «unknown»), its description, tags and account, and a Claude or ChatGPT badge if it was added by chat. Click it to see who added and last edited it, and its ID, which you can copy and give to Claude.
+5. **A transaction:** its category (or «unknown»), its description, tags and account, and a Claude or ChatGPT badge if it was added by chat (on a phone, only its sparkle icon). Click it to see who added and last edited it, and its ID, which you can copy and give to Claude.
 6. **Edit** and **Delete** (editors and admins). Deleting offers **Undo** too.
 
 ## Budget

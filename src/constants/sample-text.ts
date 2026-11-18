@@ -7,6 +7,10 @@
 export const SAMPLE_TEXT_EN: Record<string, string> = {
   "رستوران‌ها، کافه‌ها و غذای بیرون": "Restaurants, cafés and eating out",
   "حساب پس‌انداز مشترک خانواده": "Shared family savings account",
+  "ناهار و صبحانه کاری با همکاران":
+    "Working lunches and breakfasts with colleagues",
+  "شام تولد مادربزرگ با همه خانواده در رستوران سنتی":
+    "Grandma’s birthday dinner with the whole family at a traditional restaurant",
   "شماره حساب": "Account number",
   "شماره کارت": "Card number",
   "شماره شبا": "Sheba number",

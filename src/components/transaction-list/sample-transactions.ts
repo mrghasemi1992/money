@@ -1,5 +1,12 @@
 import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
 import { SAMPLE_CATEGORIES } from "@/components/category-list/sample-categories";
+import {
+  LONG_ACCOUNT_NAME,
+  LONG_CATEGORY_NAME,
+  LONG_DESCRIPTION,
+  LONG_SUBCATEGORY_NAME,
+  WORST_CASE_SCALE,
+} from "@/constants/worst-case";
 import type { CategoryType } from "@/types/category";
 import type {
   AccountOption,
@@ -190,6 +197,36 @@ export const SAMPLE_TRANSACTIONS: Transaction[] = [
     description: "",
   }),
 ];
+
+/**
+ * The phone worst case (#130): the sample transactions in the billions of rials, the first
+ * account renamed to a long name (so the transfer's route is long too), and the first row with
+ * a long category, subcategory and description; the unknown row has the long description too.
+ */
+export const WORST_CASE_TRANSACTIONS: Transaction[] = SAMPLE_TRANSACTIONS.map(
+  (row, index) => {
+    const rename = <T extends { id: string; name: string }>(item: T): T =>
+      item.id === SAMPLE_ACCOUNTS[0].id
+        ? { ...item, name: LONG_ACCOUNT_NAME }
+        : item;
+    return {
+      ...row,
+      amount: row.amount * WORST_CASE_SCALE,
+      account: rename(row.account),
+      toAccount: row.toAccount ? rename(row.toAccount) : null,
+      category:
+        index === 0 && row.category
+          ? {
+              ...row.category,
+              parentName: LONG_CATEGORY_NAME,
+              name: LONG_SUBCATEGORY_NAME,
+            }
+          : row.category,
+      description:
+        index === 0 || index === 2 ? LONG_DESCRIPTION : row.description,
+    };
+  },
+);
 
 function totals(rows: Transaction[]): TransactionTotals {
   return {

@@ -8,6 +8,17 @@
   text-overflow: ellipsis;
 }
 
+/* Phones: up to two lines, then an ellipsis. */
+@media (--mobile) {
+  .wrap {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+  }
+}
+
 .separator {
   color: var(--text-muted);
   font-weight: var(--weight-regular);
