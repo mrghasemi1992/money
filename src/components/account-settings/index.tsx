@@ -3,6 +3,7 @@
 import {
   ArchiveIcon,
   EyeIcon,
+  HandCoinsIcon,
   LandmarkIcon,
   PlusIcon,
   Trash2Icon,
@@ -31,7 +32,13 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
-import type { Account, AccountField, AccountInput } from "@/types/account";
+import { debtTotals } from "@/helpers/account";
+import type {
+  Account,
+  AccountField,
+  AccountInput,
+  AccountKind,
+} from "@/types/account";
 import type { ActionResult } from "@/types/action";
 import { cx } from "@/utils/cx";
 import { formatNumber } from "@/utils/number";
@@ -39,8 +46,13 @@ import { formatNumber } from "@/utils/number";
 import styles from "./styles.module.css";
 
 type AccountSettingsProps = {
-  /** Every account in its saved order, archived ones included. */
+  /** Every account of the page's kind in its saved order, archived ones included. */
   accounts: Account[];
+  /**
+   * The page: the book's own money (/accounts, with the total balance) or the people and
+   * lenders money is owed to or by (/debts, with what is owed each way).
+   */
+  kind?: AccountKind;
   /** Editors and admins; viewers see the page without write controls. */
   canWrite: boolean;
   onCreate: (
@@ -62,11 +74,14 @@ type DialogKind = "form" | "delete" | "blocked";
 /**
  * The /accounts page: the total balance of the active accounts, the accounts in
  * their order (drag or the row menu to reorder), archived ones below, and the add, edit,
- * archive and delete dialogs. Every change goes through a Server Action passed in as a prop,
+ * archive and delete dialogs. With `kind="counterparty"` it is the /debts page («طلب و بدهی»):
+ * the same list of people and lenders, with what is owed to the book, what it owes and the
+ * net in place of the total. Every change goes through a Server Action passed in as a prop,
  * which checks the role again; adds, deletes and archiving offer «واگرد» in their toast.
  */
 export function AccountSettings({
   accounts,
+  kind = "money",
   canWrite,
   onCreate,
   onUpdate,
@@ -77,6 +92,9 @@ export function AccountSettings({
   const t = useTranslations();
   const locale = useLocale();
   const toast = useToast();
+  const counterparty = kind === "counterparty";
+  // The page's own texts; the rest (menus, toasts) are shared from `accounts`.
+  const page = counterparty ? "debts" : "accounts";
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   // Kept after a dialog closes, so its text stays while it animates out.
   const [target, setTarget] = useState<Account | null>(null);
@@ -91,6 +109,7 @@ export function AccountSettings({
   const byId = new Map(active.map((account) => [account.id, account]));
   const ordered = order.flatMap((id) => byId.get(id) ?? []);
   const total = active.reduce((sum, account) => sum + account.balance, 0);
+  const debts = debtTotals(active.map((account) => account.balance));
 
   function open(kind: DialogKind, account: Account | null) {
     setTarget(account);
@@ -166,6 +185,7 @@ export function AccountSettings({
                 type: account.type,
                 identifier: account.identifier,
                 openingBalance: account.openingBalance,
+                openingDate: account.openingDate,
               }),
             () =>
               toast.show({
@@ -195,7 +215,7 @@ export function AccountSettings({
     const result = await onCreate(input);
     if (result.ok) {
       const id = result.id;
-      undoable(t("accounts.toasts.added"), () =>
+      undoable(t(`${page}.toasts.added`), () =>
         run(
           () => onDelete({ id }),
           () =>
@@ -216,13 +236,13 @@ export function AccountSettings({
   return (
     <div className={styles.root}>
       <PageHeader
-        title={t("accounts.title")}
-        subtitle={t("accounts.subtitle")}
+        title={t(`${page}.title`)}
+        subtitle={t(`${page}.subtitle`)}
         actions={
           canWrite ? (
             empty ? null : (
               <Button iconStart={PlusIcon} onClick={() => open("form", null)}>
-                {t("accounts.add")}
+                {t(`${page}.add`)}
               </Button>
             )
           ) : (
@@ -234,19 +254,19 @@ export function AccountSettings({
       {empty ? (
         <Card padding="md">
           <EmptyState
-            icon={LandmarkIcon}
+            icon={counterparty ? HandCoinsIcon : LandmarkIcon}
             title={t(
-              canWrite ? "accounts.empty.title" : "accounts.empty.viewerTitle",
+              canWrite ? `${page}.empty.title` : `${page}.empty.viewerTitle`,
             )}
             description={t(
               canWrite
-                ? "accounts.empty.description"
-                : "accounts.empty.viewerDescription",
+                ? `${page}.empty.description`
+                : `${page}.empty.viewerDescription`,
             )}
             action={
               canWrite ? (
                 <Button iconStart={PlusIcon} onClick={() => open("form", null)}>
-                  {t("accounts.add")}
+                  {t(`${page}.add`)}
                 </Button>
               ) : null
             }
@@ -255,27 +275,70 @@ export function AccountSettings({
         </Card>
       ) : (
         <>
-          <Card variant="brand" padding="lg">
-            <div className={styles.total}>
-              <span className={styles.totalLabel}>{t("accounts.total")}</span>
-              <Amount
-                value={total}
-                size="hero"
-                className={styles.totalAmount}
-              />
-              <span className={styles.totalNote}>
-                {t("accounts.totalNote", {
-                  countNumber: active.length,
-                  count: formatNumber(active.length, locale),
-                  archived: archived.length > 0 ? "true" : "false",
-                })}
-              </span>
-            </div>
-          </Card>
+          {counterparty ? (
+            <Card variant="brand" padding="lg">
+              <div className={styles.total}>
+                <span className={styles.totalLabel}>
+                  {t("debts.summary.net")}
+                </span>
+                <Amount
+                  value={debts.net}
+                  size="hero"
+                  className={styles.totalAmount}
+                />
+                <dl className={styles.debts}>
+                  <div className={styles.debt}>
+                    <dt className={styles.totalLabel}>
+                      {t("debts.summary.owedToYou")}
+                    </dt>
+                    <dd>
+                      <Amount
+                        value={debts.owedToYou}
+                        className={styles.totalAmount}
+                      />
+                    </dd>
+                  </div>
+                  <div className={styles.debt}>
+                    <dt className={styles.totalLabel}>
+                      {t("debts.summary.youOwe")}
+                    </dt>
+                    <dd>
+                      <Amount
+                        value={debts.youOwe}
+                        className={styles.totalAmount}
+                      />
+                    </dd>
+                  </div>
+                </dl>
+                <span className={styles.totalNote}>
+                  {t("debts.summary.note")}
+                </span>
+              </div>
+            </Card>
+          ) : (
+            <Card variant="brand" padding="lg">
+              <div className={styles.total}>
+                <span className={styles.totalLabel}>{t("accounts.total")}</span>
+                <Amount
+                  value={total}
+                  size="hero"
+                  className={styles.totalAmount}
+                />
+                <span className={styles.totalNote}>
+                  {t("accounts.totalNote", {
+                    countNumber: active.length,
+                    count: formatNumber(active.length, locale),
+                    archived: archived.length > 0 ? "true" : "false",
+                  })}
+                </span>
+              </div>
+            </Card>
+          )}
           <div className={styles.list}>
             <Card padding="none">
               <AccountList
                 accounts={ordered}
+                kind={kind}
                 canWrite={canWrite}
                 onEdit={(account) => open("form", account)}
                 onReorder={reorder}
@@ -284,7 +347,9 @@ export function AccountSettings({
                 busy={pending || reordering}
               />
             </Card>
-            {canWrite && active.length > 1 ? <AccountReorderHint /> : null}
+            {canWrite && active.length > 1 ? (
+              <AccountReorderHint kind={kind} />
+            ) : null}
           </div>
         </>
       )}
@@ -314,6 +379,7 @@ export function AccountSettings({
             open={dialog === "form"}
             onOpenChange={onOpenChange}
             account={target}
+            kind={kind}
             onSubmit={submit}
             onSaved={() => {
               if (target) {
@@ -327,10 +393,10 @@ export function AccountSettings({
           <ConfirmDialog
             open={dialog === "delete"}
             onOpenChange={onOpenChange}
-            title={t("accounts.delete.title")}
-            description={t("accounts.delete.description", { name })}
+            title={t(`${page}.delete.title`)}
+            description={t(`${page}.delete.description`, { name })}
             icon={Trash2Icon}
-            confirmLabel={t("accounts.delete.submit")}
+            confirmLabel={t(`${page}.delete.submit`)}
             pending={pending}
             onConfirm={() => target && remove(target)}
           />
@@ -338,8 +404,8 @@ export function AccountSettings({
             <ResponsiveDialog
               open={dialog === "blocked"}
               onOpenChange={onOpenChange}
-              title={t("accounts.blocked.title")}
-              description={t("accounts.blocked.archivedDescription", {
+              title={t(`${page}.blocked.title`)}
+              description={t(`${page}.blocked.archivedDescription`, {
                 name,
                 count,
               })}
@@ -356,11 +422,11 @@ export function AccountSettings({
             <ConfirmDialog
               open={dialog === "blocked"}
               onOpenChange={onOpenChange}
-              title={t("accounts.blocked.title")}
-              description={t("accounts.blocked.description", { name, count })}
+              title={t(`${page}.blocked.title`)}
+              description={t(`${page}.blocked.description`, { name, count })}
               icon={ArchiveIcon}
               tone="warning"
-              confirmLabel={t("accounts.blocked.submit")}
+              confirmLabel={t(`${page}.blocked.submit`)}
               pending={pending}
               onConfirm={() => target && setArchived(target, true)}
             />
@@ -375,18 +441,23 @@ export function AccountSettings({
  * The accounts page while it loads (loading.tsx): the header (with the add button for writers,
  * the view-only badge for viewers), the total card and the rows, each the size of the real one.
  */
-export function AccountSettingsSkeleton() {
+export function AccountSettingsSkeleton({
+  kind = "money",
+}: {
+  kind?: AccountKind;
+}) {
   const t = useTranslations();
   const canWrite = useShellCanWrite();
+  const page = kind === "counterparty" ? "debts" : "accounts";
   return (
     <div className={styles.root}>
       <PageHeader
-        title={t("accounts.title")}
-        subtitle={t("accounts.subtitle")}
+        title={t(`${page}.title`)}
+        subtitle={t(`${page}.subtitle`)}
         actions={
           canWrite ? (
             <Button iconStart={PlusIcon} disabled>
-              {t("accounts.add")}
+              {t(`${page}.add`)}
             </Button>
           ) : (
             <Badge icon={EyeIcon}>{t("common.viewOnly")}</Badge>
@@ -397,7 +468,9 @@ export function AccountSettingsSkeleton() {
       <Card padding="lg" aria-hidden="true">
         <div className={styles.total}>
           <span className={cx(styles.totalLabel, styles.skeletonLabel)}>
-            {t("accounts.total")}
+            {t(
+              kind === "counterparty" ? "debts.summary.net" : "accounts.total",
+            )}
           </span>
           <span className={styles.skeletonTotal}>
             <Skeleton variant="text" width="min(240px, 100%)" />
@@ -411,15 +484,21 @@ export function AccountSettingsSkeleton() {
         <Card padding="none">
           <AccountListSkeleton canWrite={canWrite} />
         </Card>
-        {canWrite ? <AccountReorderHint /> : null}
+        {canWrite ? <AccountReorderHint kind={kind} /> : null}
       </div>
     </div>
   );
 }
 
 /** The accounts didn't load (error.tsx): the page's header and a retry. */
-export function AccountSettingsError({ onRetry }: { onRetry: () => void }) {
-  const t = useTranslations("accounts");
+export function AccountSettingsError({
+  kind = "money",
+  onRetry,
+}: {
+  kind?: AccountKind;
+  onRetry: () => void;
+}) {
+  const t = useTranslations(kind === "counterparty" ? "debts" : "accounts");
   return (
     <div className={styles.root}>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />

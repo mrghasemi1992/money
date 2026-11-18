@@ -3,6 +3,7 @@ import {
   bigint,
   boolean,
   check,
+  date,
   integer,
   pgTable,
   text,
@@ -18,8 +19,10 @@ import {
 import { id, oneOf, timestamps } from "./columns";
 
 /**
- * Where money is kept: bank cards, cash, … Part of the one shared book, like every financial
- * table. Balance = opening balance + its transactions (`accountBalance`).
+ * Where money is kept: bank cards, cash, … and the people and lenders money is owed to or by
+ * (type `counterparty`, #47). Part of the one shared book, like every financial table.
+ * Balance = opening balance + its transactions (`accountBalance`); a counterparty's is what
+ * they owe the book (positive) or the book owes them (negative).
  */
 export const accounts = pgTable(
   "accounts",
@@ -38,6 +41,11 @@ export const accounts = pgTable(
      * or negative (an overdrawn card).
      */
     openingBalance: bigint({ mode: "number" }).notNull().default(0),
+    /**
+     * Counterparties only, optional: since when the opening balance was owed (Gregorian
+     * `YYYY-MM-DD`), for a debt from before the book with no transaction of its own (#47).
+     */
+    openingDate: date({ mode: "string" }),
     /** Hidden from forms; keeps its history. */
     archived: boolean().notNull().default(false),
     /** Position in lists and forms, from 0. Archived accounts keep theirs. */

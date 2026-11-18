@@ -13,7 +13,8 @@ import { accounts, categories, oauthConsent, transactions } from "./schema";
  */
 
 /**
- * How far the book is set up, in one statement: whether it has accounts, categories and
+ * How far the book is set up, in one statement: whether it has accounts of its own money (not
+ * only people and lenders), categories and
  * transactions, and whether this user has connected Claude. The dashboard shows its first-run
  * steps until the book has accounts and transactions.
  */
@@ -25,7 +26,9 @@ export async function getBookProgress(userId: string): Promise<BookProgress> {
     connected: boolean;
   }>(sql`
     select
-      exists (select 1 from ${accounts}) as has_accounts,
+      exists (
+        select 1 from ${accounts} where ${accounts.type} <> 'counterparty'
+      ) as has_accounts,
       exists (select 1 from ${categories}) as has_categories,
       exists (select 1 from ${transactions}) as has_transactions,
       exists (

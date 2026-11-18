@@ -8,11 +8,12 @@ export type NavKey =
   | "budgets"
   | "reports"
   | "accounts"
+  | "debts"
   | "categories"
   | "settings"
   | "users";
 
-/** Where a section sits: the main pages, the book's setup (accounts, categories) or the app's own pages. */
+/** Where a section sits: the main pages, the book's setup (accounts, loans and debts, categories) or the app's own pages. */
 export type NavGroup = "main" | "book" | "app";
 
 export type NavItem = {

@@ -230,6 +230,21 @@ export const EMPTY_TRANSACTION_PARAMS: TransactionFilterParams = {
   unknownOnly: false,
 };
 
+/**
+ * Every transaction from or to one account: from its oldest on (`firstDate`), so no month cuts
+ * them off. Without transactions, the current month.
+ */
+export function accountTransactionsHref(
+  accountId: string,
+  firstDate: string | null,
+): string {
+  return `/transactions${transactionParamsToSearch({
+    ...EMPTY_TRANSACTION_PARAMS,
+    from: firstDate,
+    accountId,
+  })}`;
+}
+
 /** Every transaction of the book: no period and no filters. */
 export const NO_TRANSACTION_FILTERS: TransactionFilters = {
   from: null,

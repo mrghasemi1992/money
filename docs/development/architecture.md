@@ -104,6 +104,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Users, roles, sign-in, first admin, user management, Better Auth | [features/users-and-auth.md](features/users-and-auth.md)                   |
 | Accounts and categories                                          | [features/accounts-and-categories.md](features/accounts-and-categories.md) |
+| Loans and debts (people and lenders)                             | [features/loans-and-debts.md](features/loans-and-debts.md)                 |
 | Transactions                                                     | [features/transactions.md](features/transactions.md)                       |
 | Budgets                                                          | [features/budgets.md](features/budgets.md)                                 |
 | Reports and charts                                               | [features/reports.md](features/reports.md)                                 |
@@ -135,7 +136,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Better Auth tables | `user` (with `username`, `display_username`, `role` (`admin` \| `editor` \| `viewer`), `banned`, and Money's preference fields `locale` (`fa` \| `en`), `calendar` (`jalali` \| `gregorian`), `rial_unit` (`rial` \| `toman`), `time_zone`), `session`, `account` (the password hash; Drizzle export `authAccount`, not to be confused with `accounts`), `verification`, `rate_limit`, and in `src/db/schema/oauth.ts` the JWT and OAuth provider tables: `jwks`, `oauth_client`, `oauth_consent` (with Money's `last_used_at`), `oauth_refresh_token`, `oauth_access_token`, `oauth_resource`, `oauth_client_resource`, `oauth_client_assertion` |
 | `book`             | One row (`id` 1): `currency` (`IRR` \| `USD` \| `EUR` \| `GBP`). No row until an admin first saves the settings; until then `DEFAULT_BOOK_SETTINGS` (IRR) applies (`getBookSettings` in `src/db/book.ts`)                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `accounts`         | `id`, `name` (unique ignoring case), `type` (`bank` \| `cash` \| `other`), `identifier_kind` (`accountNumber` \| `cardNumber` \| `sheba`) and `identifier` (both set or both null, bank accounts only), `opening_balance` (smallest unit, may be 0 or negative), `archived`, `sort_order`                                                                                                                                                                                                                                                                                                                                                         |
+| `accounts`         | `id`, `name` (unique ignoring case), `type` (`bank` \| `cash` \| `other` \| `counterparty`: a person or lender money is owed to or by, #47), `identifier_kind` (`accountNumber` \| `cardNumber` \| `sheba`) and `identifier` (both set or both null, bank accounts only), `opening_balance` (smallest unit, may be 0 or negative; a counterparty's is what they owed before the book, negative when the book owed them), `opening_date` (counterparties only, optional), `archived`, `sort_order`                                                                                                                                                 |
 | `categories`       | `id`, `type` (`income` \| `expense`), `name`, `color`, `icon` (a Lucide name from `CATEGORY_ICONS`, default `shapes`), `parent_id` (null for a category, set for a subcategory), `archived`                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `transactions`     | `id`, `type` (`income` \| `expense` \| `transfer`), `date`, `time` (optional local `HH:MM`; orders a day's rows, #128), `amount`, `account_id`, `to_account_id` (transfers only), `category_id` (category or subcategory; null for transfers, optional otherwise), `description` (the one free text, `''` when empty), `note` (no longer used: merged into the description by migration `0010`, #133; dropped in a later release), `tags` (`text[]`), `source` (`web` \| `mcp` \| `chatgpt` \| `csv`), `created_by`, `updated_by` (user ids), `created_at`, `updated_at`                                                                          |
 | `budgets`          | `id`, `category_id` (top-level expense category), `amount` (smallest unit, per month)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -145,6 +146,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 - Budgets and reports roll subcategory amounts up into their parent category.
 - Users are disabled (banned), never deleted, so `created_by` / `updated_by` always point to a real user.
 - Account balance = opening balance + income − expense − transfers out + transfers in. Transfers never count as income or expense in totals, budgets or reports.
+- **Loans and debts** are transfers between one of the book's accounts and a `counterparty` account, so they never count as income or expense either. A counterparty's balance is what they owe the book (positive) or the book owes them (negative). Counterparties are left out wherever the book's own money is meant: the accounts page, the dashboard's balances, `list_accounts`' total ([loans and debts](features/loans-and-debts.md), [decision 17](decisions.md#17-loans-and-debts-are-transfers-to-counterparty-accounts)).
 - **The database enforces these rules too** (constraints in `src/db/schema/`), so a bug in app code can't store bad data. Server code still validates first, to show a clear error:
   - amounts > 0; `type` (transactions, categories, accounts), `source`, `color`, `role`, `locale`, `calendar`, `rial_unit` and `currency` limited to their constants (CHECK constraints built with `oneOf`);
   - `book` has at most one row (`id = 1`);
@@ -169,6 +171,7 @@ Code is organised by what it does, and each layer only calls the ones below it:
 | `/reports/breakdown`, `/reports/trends`                                                         | Reports' breakdown and over-time tabs, same period params                                               |
 | `/settings`                                                                                     | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) |
 | `/accounts`                                                                                     | Accounts (viewers read only); `/settings/accounts` redirects here                                       |
+| `/debts`                                                                                        | Loans and debts (طلب و بدهی): people and lenders, what is owed each way (viewers read only)             |
 | `/categories`                                                                                   | Categories (viewers read only); `/settings/categories` redirects here                                   |
 | `/settings/connector`                                                                           | Claude and ChatGPT connector: URL, steps, connected apps (revoke), examples                             |
 | `/settings/import-export`                                                                       | CSV export (every role) and import (editors and admins)                                                 |
@@ -201,7 +204,8 @@ src/
                         export/route.ts: the CSV export), budgets
                         (+ actions.ts, loading.tsx, error.tsx), reports ((overview)/, breakdown/, trends/, each with
                         page.tsx and loading.tsx; period.ts, error.tsx), accounts and categories
-                        (+ actions.ts, loading.tsx, error.tsx), settings (+ actions.ts;
+                        (+ actions.ts, loading.tsx, error.tsx), debts (the accounts page's
+                        actions; loading.tsx, error.tsx), settings (+ actions.ts;
                         (overview)/ with the page and its loading.tsx; connector/ and import-export/ with
                         loading.tsx, error.tsx), admin/users
                         (+ actions.ts, loading.tsx),
@@ -273,7 +277,8 @@ src/
     user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
                         role-dialog/, reset-password-dialog/ (confirm, then the password once)
     responsive-dialog/, confirm-dialog/   Dialog on larger screens, Sheet on phones; a confirmation with one action
-    account-settings/, category-settings/   The /accounts and /categories pages (+ skeleton, error)
+    account-settings/, category-settings/   The /accounts and /categories pages (+ skeleton, error); with
+                        kind="counterparty", AccountSettings is the /debts page
     account-list/, account-dialog/   Account rows (drag handle, row menu, archived rows) and the add / edit form
     category-list/, category-dialog/, category-color-picker/, category-icon-picker/, starter-categories/
                         Category rows with subcategories, the category / subcategory form, the palette swatches,
@@ -298,7 +303,8 @@ src/
                         queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, startup-image (iPhone screens, STARTUP_IMAGES), theme
                         (script, cookie, page and brand colors), time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
                         user, worst-case (the data of the phone worst-case stories)
-  helpers/              account form rules, account balance SQL (accountBalance), app-icon (the icon as a PNG), budgets (status, form rules,
+  helpers/              account form rules and counterparties (isCounterparty, debtStatus, debtTotals), account
+                        options for pickers, account balance SQL (accountBalance, accountFirstDate), app-icon (the icon as a PNG), budgets (status, form rules,
                         month, transactions link), category color
                         style, icon and name rules, category-icon (guessCategoryIcon, iconMatches), dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,
                         isNavItemActive), new-user form rules (newUserSchema), first-admin form rules (firstAdminSchema), preferences, reports (URL params,
@@ -348,6 +354,7 @@ scripts/                create-user.ts (`pnpm user:create`), screenshots.ts (`pn
 | Account               | Where money sits: a bank account or card, cash, … (`accounts`). Not Better Auth's `account` table, which holds password hashes (Drizzle export `authAccount`). |
 | Category, subcategory | A label for income or expense. A subcategory has a parent and the parent's type; there is only one level.                                                      |
 | Transfer              | Money moved between two of the book's accounts. It changes balances but is never income or expense.                                                            |
+| Counterparty          | A person or lender money is owed to or by: an account of type `counterparty` on the «طلب و بدهی» page. Loans and repayments are transfers with it.             |
 | Unknown transaction   | An income or expense without a category, shown with the «ناشناس» / “unknown” tag until someone picks one.                                                      |
 | Source                | Where a transaction came from: `web`, `mcp` (Claude), `chatgpt` or `csv`.                                                                                      |
 | Role                  | admin, editor or viewer: what a user may do. Read fresh from the user record on every request.                                                                 |

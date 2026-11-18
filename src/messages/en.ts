@@ -66,6 +66,7 @@ const en: Messages = {
       work: "Work and education",
       money: "Money",
       other: "Other",
+      counterparty: "Person or lender",
     },
   },
   calendar: {
@@ -178,6 +179,7 @@ const en: Messages = {
     budgets: "Budget",
     reports: "Reports",
     accounts: "Accounts",
+    debts: "Loans and debts",
     categories: "Categories",
     more: "More",
     settings: "Settings",
@@ -833,6 +835,7 @@ const en: Messages = {
     menu: "Options for {name}",
     actions: {
       edit: "Edit",
+      transactions: "View transactions",
       moveUp: "Move up",
       moveDown: "Move down",
       archive: "Archive",
@@ -869,7 +872,8 @@ const en: Messages = {
       errors: {
         nameMissing: "Enter a name.",
         nameTooLong: "An account name can be at most {max} characters.",
-        nameTaken: "An account with this name already exists.",
+        nameTaken:
+          "An account, person or lender with this name already exists.",
         accountNumberInvalid:
           "An account number is digits only, between 5 and 30.",
         cardNumberInvalid: "A card number is 16 digits.",
@@ -907,6 +911,70 @@ const en: Messages = {
       archived: "“{name}” archived",
       restored: "“{name}” restored",
       deleted: "“{name}” deleted",
+    },
+  },
+  debts: {
+    title: "Loans and debts",
+    subtitle: "People who owe you or whom you owe, and your loans",
+    add: "Add person or lender",
+    list: "People and lenders",
+    summary: {
+      owedToYou: "Owed to you",
+      youOwe: "You owe",
+      net: "Net",
+      note: "Lending, borrowing and repaying are transfers: they never count as income or expense.",
+    },
+    status: {
+      owesYou: "Owes you",
+      youOwe: "You owe",
+      settled: "Settled",
+    },
+    since: "since {date}",
+    viewTransactions: "Transactions",
+    dragHint:
+      "Drag a row by its handle to reorder. The transaction form lists people and lenders in the same order.",
+    moveHint:
+      "Reorder from each row’s menu. The transaction form lists people and lenders in the same order.",
+    form: {
+      newTitle: "New person or lender",
+      editTitle: "Edit person or lender",
+      namePlaceholder: "e.g. Ali, or Melli Bank loan",
+      direction: "From before",
+      owesYou: "Owes me",
+      youOwe: "I owe them",
+      opening: "Amount owed from before",
+      openingHint:
+        "A debt from before you started using Money, with no transaction of its own. Leave it empty if there is none.",
+      openingDate: "Since",
+      openingDateHint: "Optional: when the debt started.",
+      openingDatePlaceholder: "No date",
+      clearDate: "Remove date",
+      submitNew: "Add",
+    },
+    delete: {
+      title: "Delete person or lender?",
+      description: "“{name}” will be deleted permanently.",
+      submit: "Delete",
+    },
+    blocked: {
+      title: "This can’t be deleted",
+      description:
+        "“{name}” has {count} transactions, and one with transactions can’t be deleted. Archive it to hide it from forms and keep its history.",
+      archivedDescription:
+        "“{name}” has {count} transactions, and one with transactions can’t be deleted. It stays archived so its history is kept.",
+      submit: "Archive",
+    },
+    empty: {
+      title: "No loans or debts yet",
+      description:
+        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record the loan and its repayments as transfers.",
+      viewerTitle: "No loans or debts yet",
+      viewerDescription:
+        "When an editor or admin adds a person or lender, it shows here.",
+    },
+    error: "Loans and debts didn’t load",
+    toasts: {
+      added: "Added",
     },
   },
   categories: {

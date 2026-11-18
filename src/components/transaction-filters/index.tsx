@@ -27,6 +27,7 @@ import { SearchField } from "@/components/ui/search-field";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { Tag } from "@/components/ui/tag";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
+import { accountSelectOptions } from "@/helpers/account-options";
 import {
   TRANSACTION_SEARCH_MAX_LENGTH,
   TRANSACTION_TYPES,
@@ -182,11 +183,11 @@ export function TransactionFilters({
 
   const accountOptions: SelectOption[] = [
     { value: ALL, label: t("allAccounts"), icon: LayersIcon },
-    ...options.accounts.map((account) => ({
-      value: account.id,
-      label: account.name,
-      icon: ACCOUNT_TYPE_ICONS[account.type],
-    })),
+    // Archived accounts too: their transactions are still in the book.
+    ...accountSelectOptions(
+      options.accounts,
+      options.accounts.map((account) => account.id),
+    ),
   ];
   const tags =
     params.tag && !options.tags.includes(params.tag)

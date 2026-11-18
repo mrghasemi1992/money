@@ -5,6 +5,9 @@
  * converted by their characters.
  */
 export const SAMPLE_TEXT_EN: Record<string, string> = {
+  "علی رضایی": "Ali Rezaei",
+  "وام بانک ملی": "Bank Melli loan",
+  "صندوق قرض‌الحسنه محل": "Neighbourhood loan fund",
   "رستوران‌ها، کافه‌ها و غذای بیرون": "Restaurants, cafés and eating out",
   "حساب پس‌انداز مشترک خانواده": "Shared family savings account",
   "ناهار و صبحانه کاری با همکاران":

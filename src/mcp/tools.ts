@@ -38,6 +38,7 @@ import {
   parseConnectorDate,
   toMinorUnits,
 } from "@/helpers/connector";
+import { debtTotals, isCounterparty } from "@/helpers/account";
 import { maskIdentifier } from "@/helpers/account-identifier";
 import { canWrite } from "@/helpers/role";
 import { assistantName } from "@/helpers/transaction-source";
@@ -367,19 +368,26 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     {
       title: "List accounts",
       description:
-        "The book's accounts (type bank, cash or other) with their ids and current balances, in the user's order. Bank accounts may carry an identifier (account number, card number or Sheba) shown masked to its last four characters; it is only a hint for telling accounts apart, e.g. a card ending in 6219 in a bank SMS. Use it to map an account name to account_id.",
+        "The book's accounts (type bank, cash or other) with their ids and current balances, in the user's order, and its people and lenders (type counterparty: someone the user lent to or borrowed from, or a bank loan). A counterparty's balance is what they owe the book when positive, or what the book owes them when negative. Bank accounts may carry an identifier (account number, card number or Sheba) shown masked to its last four characters; it is only a hint for telling accounts apart, e.g. a card ending in 6219 in a bank SMS. Use it to map an account or person name to account_id.",
       inputSchema: z.object({}),
       annotations: { readOnlyHint: true },
     },
     async () => {
       const accounts = await listAccounts();
       const active = accounts.filter((account) => !account.archived);
+      const money = active.filter((account) => !isCounterparty(account));
+      const debts = debtTotals(
+        active.filter(isCounterparty).map((account) => account.balance),
+      );
       return json({
         currency: ctx.currency,
+        // The book's own money; people and lenders are owed_to_user / owed_by_user.
         total_balance: fromMinorUnits(
-          active.reduce((sum, account) => sum + account.balance, 0),
+          money.reduce((sum, account) => sum + account.balance, 0),
           ctx.currency,
         ),
+        owed_to_user: fromMinorUnits(debts.owedToYou, ctx.currency),
+        owed_by_user: fromMinorUnits(debts.youOwe, ctx.currency),
         accounts: accounts.map((account) => ({
           id: account.id,
           name: account.name,
@@ -391,6 +399,14 @@ export function registerTools(server: McpServer, ctx: McpContext) {
               }
             : {}),
           balance: fromMinorUnits(account.balance, ctx.currency),
+          ...(account.openingDate
+            ? {
+                owed_since: formatConnectorDate(
+                  account.openingDate,
+                  ctx.user.calendar,
+                ),
+              }
+            : {}),
           ...(account.archived ? { archived: true } : {}),
         })),
       });

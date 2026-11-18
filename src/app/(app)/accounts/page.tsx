@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/auth/session";
 import { AccountSettings } from "@/components/account-settings";
 import { listAccounts } from "@/db/accounts";
+import { isCounterparty } from "@/helpers/account";
 import { canWrite, toUserRole } from "@/helpers/role";
 
 import {
@@ -21,7 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountsPage() {
   const { user } = await requireUser();
-  const accounts = await listAccounts();
+  // People and lenders (counterparties) are on /debts.
+  const accounts = (await listAccounts()).filter(
+    (account) => !isCounterparty(account),
+  );
 
   return (
     <AccountSettings

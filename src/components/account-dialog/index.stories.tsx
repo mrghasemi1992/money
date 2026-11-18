@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
+import {
+  SAMPLE_ACCOUNTS,
+  SAMPLE_COUNTERPARTIES,
+} from "@/components/account-list/sample-accounts";
 import type { AccountField, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 
@@ -46,3 +49,11 @@ export const Edit: Story = { args: { account: SAMPLE_ACCOUNTS[1] } };
 
 /** An overdrawn card: the starting balance accepts a minus sign. */
 export const Negative: Story = { args: { account: SAMPLE_ACCOUNTS[5] } };
+
+/** A new person or lender (/debts): who owed whom from before, how much and since when. */
+export const NewCounterparty: Story = { args: { kind: "counterparty" } };
+
+/** Editing a person who owed the book from before, with the date it started. */
+export const EditCounterparty: Story = {
+  args: { kind: "counterparty", account: SAMPLE_COUNTERPARTIES[0] },
+};

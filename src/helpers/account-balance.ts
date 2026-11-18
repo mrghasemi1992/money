@@ -19,7 +19,8 @@ const openingBalance = sql`${accounts}.${sql.identifier("opening_balance")}`;
  * Use it in a query that selects from `accounts`. The sum runs in Postgres (indexes on
  * `account_id` and `to_account_id`), so a balance is never added up in JavaScript. Transfers
  * move money between the book's own accounts: they change both balances but are never income
- * or expense.
+ * or expense. A counterparty's balance is what they owe the book: lending to them is a transfer
+ * in (+), borrowing from them a transfer out (−), and an expense they paid for the book (−).
  */
 export function accountBalance(): SQL<number> {
   return sql<number>`(${openingBalance} + coalesce((
@@ -32,6 +33,14 @@ export function accountBalance(): SQL<number> {
     from ${transactions} t
     where t.account_id = ${accountId} or t.to_account_id = ${accountId}
   ), 0))::bigint`.mapWith(Number);
+}
+
+/** SQL for the date of an account's oldest transaction (ISO), or null without any. */
+export function accountFirstDate(): SQL<string | null> {
+  return sql<string | null>`(
+    select min(t.date)::text from ${transactions} t
+    where t.account_id = ${accountId} or t.to_account_id = ${accountId}
+  )`;
 }
 
 /** SQL for how many transactions come from or go to an account. */

@@ -3,7 +3,10 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { withAddTransaction } from "@/components/add-transaction/sample-shell";
 import { useRef, useState } from "react";
 
-import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
+import {
+  SAMPLE_ACCOUNTS,
+  SAMPLE_COUNTERPARTIES,
+} from "@/components/account-list/sample-accounts";
 import type { Account, AccountInput } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 
@@ -86,6 +89,7 @@ export const Default: Story = {
               balance: input.openingBalance,
               archived: false,
               transactionCount: 0,
+              firstDate: null,
             },
           ]);
           return { ok: true, id };
@@ -127,6 +131,35 @@ export const Default: Story = {
       />
     );
   },
+};
+
+/**
+ * «طلب و بدهی» (/debts): people and lenders with who owes whom, the net and both totals, with
+ * the same working fakes.
+ */
+export const Debts: Story = {
+  ...Default,
+  args: { kind: "counterparty", accounts: SAMPLE_COUNTERPARTIES },
+};
+
+/** /debts for viewers. */
+export const DebtsViewer: Story = {
+  args: {
+    kind: "counterparty",
+    accounts: SAMPLE_COUNTERPARTIES,
+    canWrite: false,
+  },
+};
+
+/** /debts with nobody yet. */
+export const DebtsEmpty: Story = {
+  args: { kind: "counterparty", accounts: [] },
+};
+
+/** /debts loading.tsx */
+export const DebtsLoading: Story = {
+  render: () => <AccountSettingsSkeleton kind="counterparty" />,
+  decorators: [withAddTransaction],
 };
 
 /** Viewers: the same page without add, edit, reorder, archive or delete. */

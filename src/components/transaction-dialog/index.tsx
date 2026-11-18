@@ -18,11 +18,10 @@ import { Combobox, type ComboboxGroup } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field } from "@/components/ui/field";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { Select, type SelectOption } from "@/components/ui/select";
+import { Select } from "@/components/ui/select";
 import { TagInput } from "@/components/ui/tag-input";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
-import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { MOBILE_QUERY } from "@/constants/media";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
@@ -31,6 +30,7 @@ import {
   TRANSACTION_TYPES,
 } from "@/constants/transaction";
 import { TRANSACTION_TYPE_ICONS } from "@/constants/transaction-icons";
+import { accountSelectOptions } from "@/helpers/account-options";
 import { categoryIcon } from "@/helpers/category";
 import {
   type TransactionError,
@@ -92,7 +92,10 @@ function blank(
     time: null,
     accountId:
       keep?.accountId ??
-      accounts.find((account) => !account.archived)?.id ??
+      // The first of the book's own accounts, never a person or lender.
+      accounts.find(
+        (account) => !account.archived && account.type !== "counterparty",
+      )?.id ??
       "",
     toAccountId: keep?.type === "transfer" ? keep.toAccountId : null,
     categoryId: null,
@@ -113,20 +116,6 @@ function fromTransaction(transaction: Transaction): TransactionFormValues {
     description: transaction.description,
     tags: transaction.tags,
   };
-}
-
-/** Active accounts, plus the archived one(s) an edited transaction already uses. */
-function accountOptions(
-  accounts: AccountOption[],
-  keep: (string | null | undefined)[],
-): SelectOption[] {
-  return accounts
-    .filter((account) => !account.archived || keep.includes(account.id))
-    .map((account) => ({
-      value: account.id,
-      label: account.name,
-      icon: ACCOUNT_TYPE_ICONS[account.type],
-    }));
 }
 
 /**
@@ -228,7 +217,7 @@ export function TransactionDialog({
   const isTransfer = values.type === "transfer";
   const accounts = useMemo(
     () =>
-      accountOptions(options.accounts, [
+      accountSelectOptions(options.accounts, [
         transaction?.accountId,
         transaction?.toAccountId,
       ]),

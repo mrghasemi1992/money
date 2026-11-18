@@ -8,9 +8,11 @@ import {
   EllipsisVerticalIcon,
   GripVerticalIcon,
   InfoIcon,
+  ListIcon,
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { type DragEvent, useState } from "react";
 
@@ -19,9 +21,13 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
+import { debtStatus } from "@/helpers/account";
 import { maskIdentifier } from "@/helpers/account-identifier";
+import { accountTransactionsHref } from "@/helpers/transaction-filters";
+import { usePreferences } from "@/hooks/use-preferences";
 import list from "@/styles/list.module.css";
-import type { Account } from "@/types/account";
+import type { Account, AccountKind } from "@/types/account";
+import { formatDate } from "@/utils/calendar";
 import { cx } from "@/utils/cx";
 import { formatNumber } from "@/utils/number";
 import { isolate } from "@/utils/text";
@@ -31,6 +37,8 @@ import styles from "./styles.module.css";
 type AccountListProps = {
   /** Active accounts in their saved order. */
   accounts: Account[];
+  /** The book's own money (/accounts) or people and lenders (/debts). */
+  kind?: AccountKind;
   /** Editors and admins get the row menus and the drag handles. */
   canWrite: boolean;
   onEdit: (account: Account) => void;
@@ -52,12 +60,28 @@ function moved(ids: string[], id: string, to: number): string[] {
   return [...rest.slice(0, index), id, ...rest.slice(index)];
 }
 
-/** The quiet line under an account's name: its type, its masked identifier and how many transactions it has. */
+/**
+ * The quiet line under an account's name: its type, its masked identifier and how many
+ * transactions it has. For a counterparty, who owes whom and since when in place of the type.
+ */
 export function useAccountMeta() {
   const t = useTranslations();
   const locale = useLocale();
+  const { calendar } = usePreferences();
   return (account: Account) =>
-    t(`accounts.types.${account.type}`) +
+    (account.type === "counterparty"
+      ? t(`debts.status.${debtStatus(account.balance)}`) +
+        (account.openingDate && account.balance !== 0
+          ? " " +
+            t("debts.since", {
+              date: formatDate(account.openingDate, {
+                locale,
+                calendar,
+                format: "month",
+              }),
+            })
+          : "")
+      : t(`accounts.types.${account.type}`)) +
     (account.identifier
       ? t("common.listSeparator") +
         t(`accounts.identifierKinds.${account.identifier.kind}`) +
@@ -79,6 +103,7 @@ export function useAccountMeta() {
  */
 export function AccountList({
   accounts,
+  kind = "money",
   canWrite,
   onEdit,
   onReorder,
@@ -88,6 +113,7 @@ export function AccountList({
 }: AccountListProps) {
   const t = useTranslations();
   const meta = useAccountMeta();
+  const router = useRouter();
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
   const ids = accounts.map((account) => account.id);
@@ -105,6 +131,18 @@ export function AccountList({
         icon: PencilIcon,
         onClick: () => onEdit(account),
       },
+      ...(account.transactionCount > 0
+        ? [
+            {
+              label: t("accounts.actions.transactions"),
+              icon: ListIcon,
+              onClick: () =>
+                router.push(
+                  accountTransactionsHref(account.id, account.firstDate),
+                ),
+            },
+          ]
+        : []),
       {
         label: t("accounts.actions.moveUp"),
         icon: ChevronUpIcon,
@@ -160,7 +198,7 @@ export function AccountList({
     <div className={styles.root}>
       <ul
         className={list.list}
-        aria-label={t("accounts.list")}
+        aria-label={t(kind === "counterparty" ? "debts.list" : "accounts.list")}
         onDragLeave={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node)) {
             setOver(null);
@@ -235,8 +273,8 @@ export function AccountList({
 }
 
 /** How to reorder: drag the handle from 768px up, the row menu on phones. */
-export function AccountReorderHint() {
-  const t = useTranslations("accounts");
+export function AccountReorderHint({ kind = "money" }: { kind?: AccountKind }) {
+  const t = useTranslations(kind === "counterparty" ? "debts" : "accounts");
   return (
     <p className={styles.hint}>
       <InfoIcon className={styles.hintIcon} aria-hidden="true" />

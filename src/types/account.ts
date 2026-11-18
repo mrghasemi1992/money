@@ -5,6 +5,12 @@ import type {
 
 export type AccountType = (typeof ACCOUNT_TYPES)[number];
 
+/**
+ * Which page an account belongs to: the book's own money (/accounts) or the people and lenders
+ * money is owed to or by (/debts, type `counterparty`).
+ */
+export type AccountKind = "money" | "counterparty";
+
 export type AccountIdentifierKind = (typeof ACCOUNT_IDENTIFIER_KINDS)[number];
 
 /** An account's optional identifier, as stored (normalized). */
@@ -22,12 +28,16 @@ export type Account = {
   identifier: AccountIdentifier | null;
   /** In the book currency's smallest unit; may be 0 or negative. */
   openingBalance: number;
+  /** Counterparties only, optional: since when the opening balance was owed (ISO date). */
+  openingDate: string | null;
   /** Opening balance plus the account's transactions (see `accountBalance`). */
   balance: number;
   /** Hidden from forms; keeps its history. */
   archived: boolean;
   /** Transactions from or to this account. Accounts with any can't be deleted. */
   transactionCount: number;
+  /** The date of its oldest transaction, for a link to all of them; null without any. */
+  firstDate: string | null;
 };
 
 /** Fields of the account form an error can belong to. */
@@ -40,4 +50,6 @@ export type AccountInput = {
   /** Typed as the user wrote it; the server normalizes and checks it per kind. */
   identifier: AccountIdentifier | null;
   openingBalance: number;
+  /** Counterparties only; null for the other types. */
+  openingDate: string | null;
 };
