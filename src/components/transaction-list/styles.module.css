@@ -205,6 +205,11 @@
   background: var(--text-placeholder);
 }
 
+.claudeBadge {
+  display: flex;
+  flex: none;
+}
+
 .claudeIcon {
   display: none;
 }

@@ -205,17 +205,19 @@ function TransactionRow({
           </button>
           {assistantName(transaction.source) ? (
             <>
-              <Badge
-                tone="brand"
-                size="sm"
-                icon={SparklesIcon}
-                title={t("transactions.list.assistantTip", {
-                  name: assistantName(transaction.source) ?? "",
-                })}
-                className={styles.claudeBadge}
-              >
-                {assistantName(transaction.source)}
-              </Badge>
+              {/* Hidden on phones by its own wrapper: a class on Badge would tie with Badge's own display. */}
+              <span className={styles.claudeBadge}>
+                <Badge
+                  tone="brand"
+                  size="sm"
+                  icon={SparklesIcon}
+                  title={t("transactions.list.assistantTip", {
+                    name: assistantName(transaction.source) ?? "",
+                  })}
+                >
+                  {assistantName(transaction.source)}
+                </Badge>
+              </span>
               <span
                 className={styles.claudeIcon}
                 title={t("transactions.list.assistantTip", {
