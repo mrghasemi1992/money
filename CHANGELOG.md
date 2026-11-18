@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.6.0](https://github.com/mrghasemi1992/money/compare/v0.5.0...v0.6.0) (2026-11-18)
+
+
+### Features
+
+* filter transactions by who added them ([#51](https://github.com/mrghasemi1992/money/issues/51)) ([#106](https://github.com/mrghasemi1992/money/issues/106)) ([09e2172](https://github.com/mrghasemi1992/money/commit/09e2172bf03b88f17606f1e1527c19a7fdd33de0))
+* one text field on a transaction instead of description and note ([#137](https://github.com/mrghasemi1992/money/issues/137)) ([1616566](https://github.com/mrghasemi1992/money/commit/16165667401c166222058d5ec3f1fc8f5d2568a2))
+* show the logo while the installed app opens, instead of a black screen ([#149](https://github.com/mrghasemi1992/money/issues/149)) ([239c695](https://github.com/mrghasemi1992/money/commit/239c695d4195d5b4aa88e0998c84ff6a064faa45)), closes [#132](https://github.com/mrghasemi1992/money/issues/132)
+
+
+### Bug fixes
+
+* check the login redirect after normalizing it ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#109](https://github.com/mrghasemi1992/money/issues/109)) ([e56f61f](https://github.com/mrghasemi1992/money/commit/e56f61f4c1a0766229349179861fb73b0565fd8a))
+* close the Better Auth endpoints Money doesn't use ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#115](https://github.com/mrghasemi1992/money/issues/115)) ([54bbe25](https://github.com/mrghasemi1992/money/commit/54bbe2536ebe7c1d98d458bd4719d91d501050e2))
+* **deps:** upgrade Next.js and Zod past security advisories ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#108](https://github.com/mrghasemi1992/money/issues/108)) ([13c07b4](https://github.com/mrghasemi1992/money/commit/13c07b4464a75b290a5d65a105fde2e368a728a6))
+* disconnect apps on a password reset or change ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#110](https://github.com/mrghasemi1992/money/issues/110)) ([5f639dc](https://github.com/mrghasemi1992/money/commit/5f639dcf32aa5ecb69ca73ee9828e0ff8b285f3f))
+* give transaction rows on phones room for the title and description ([#147](https://github.com/mrghasemi1992/money/issues/147)) ([5e99311](https://github.com/mrghasemi1992/money/commit/5e993112c2532b44273b8fbd946cdfb24c6e5f05)), closes [#130](https://github.com/mrghasemi1992/money/issues/130)
+* keep amounts and controls inside their cards on phones ([#145](https://github.com/mrghasemi1992/money/issues/145)) ([9db408e](https://github.com/mrghasemi1992/money/commit/9db408eefccf54005f7f1c97c471a38e9c7f1313))
+* keep the full padding on the widest segment of a segmented control ([#143](https://github.com/mrghasemi1992/money/issues/143)) ([d7fb01e](https://github.com/mrghasemi1992/money/commit/d7fb01e23568c816d721319ebdbcd12885f77930))
+* let only Claude and ChatGPT connect ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#111](https://github.com/mrghasemi1992/money/issues/111)) ([75477d5](https://github.com/mrghasemi1992/money/commit/75477d5396a922a87f55cb23edc00435b5d641f4))
+* limit attempts to change the password ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#116](https://github.com/mrghasemi1992/money/issues/116)) ([67517ce](https://github.com/mrghasemi1992/money/commit/67517ceef24d383374fb554798d3dbf319028646))
+* make the unknown transactions notice one link, with its action under the text on phones ([#148](https://github.com/mrghasemi1992/money/issues/148)) ([ec39ed3](https://github.com/mrghasemi1992/money/commit/ec39ed37b3d5c238bb73066e26e23a6d1d2847de)), closes [#131](https://github.com/mrghasemi1992/money/issues/131)
+* name both Claude and ChatGPT in the connector copy ([#141](https://github.com/mrghasemi1992/money/issues/141)) ([d1fd7a9](https://github.com/mrghasemi1992/money/commit/d1fd7a994552a2f7c642cd642b5d83dc012d6297)), closes [#136](https://github.com/mrghasemi1992/money/issues/136)
+* name the installed app and color its loading screen by the user's language and theme ([#142](https://github.com/mrghasemi1992/money/issues/142)) ([1e29091](https://github.com/mrghasemi1992/money/commit/1e29091d38cfea146617dc344af6852fb829bbeb)), closes [#134](https://github.com/mrghasemi1992/money/issues/134)
+* round the hover of the last settings row ([#138](https://github.com/mrghasemi1992/money/issues/138)) ([bba6492](https://github.com/mrghasemi1992/money/commit/bba6492018d34841a4bbe54cb284a4658e972528)), closes [#19](https://github.com/mrghasemi1992/money/issues/19)
+* send security headers ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#114](https://github.com/mrghasemi1992/money/issues/114)) ([20feac2](https://github.com/mrghasemi1992/money/commit/20feac260f6b33c598fb9d7a2d63c9ee50bda026))
+* show only the assistant icon on phones, not the badge too ([#146](https://github.com/mrghasemi1992/money/issues/146)) ([6cc69d7](https://github.com/mrghasemi1992/money/commit/6cc69d741982c9cd66927cbc087376112f4a49de))
+* show only this month's transactions in the dashboard's recent list ([#139](https://github.com/mrghasemi1992/money/issues/139)) ([eabc8ca](https://github.com/mrghasemi1992/money/commit/eabc8ca1c526d2ebc3bce49f58f50b43835505d5)), closes [#135](https://github.com/mrghasemi1992/money/issues/135)
+* span the full table width with the divider above the empty state ([#140](https://github.com/mrghasemi1992/money/issues/140)) ([c694167](https://github.com/mrghasemi1992/money/commit/c694167ebf8e5af11889ea8c0876137788605805)), closes [#16](https://github.com/mrghasemi1992/money/issues/16)
+* update Better Auth to 1.7.22 ([#72](https://github.com/mrghasemi1992/money/issues/72)) ([#113](https://github.com/mrghasemi1992/money/issues/113)) ([d80629c](https://github.com/mrghasemi1992/money/commit/d80629c68f81f58e0271c879ca6974c8c811091e))
+
 ## [0.5.0](https://github.com/mrghasemi1992/money/compare/v0.4.1...v0.5.0) (2026-11-12)
 
 
