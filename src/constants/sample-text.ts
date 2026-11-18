@@ -5,6 +5,12 @@
  * converted by their characters.
  */
 export const SAMPLE_TEXT_EN: Record<string, string> = {
+  "رستوران‌ها، کافه‌ها و غذای بیرون": "Restaurants, cafés and eating out",
+  "حساب پس‌انداز مشترک خانواده": "Shared family savings account",
+  "شماره حساب": "Account number",
+  "شماره کارت": "Card number",
+  "شماره شبا": "Sheba number",
+  شناسه: "Identifier",
   "Claude را به دفتر خود وصل کنید.": "Connect Claude to your book.",
   "«خرید هفتگی» به مبلغ ۸۵۰٬۰۰۰ ریال برای همیشه حذف می‌شود.":
     "“Weekly shopping” for $8,500.00 will be deleted for good.",

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { REPORT_SECTION_PATHS } from "@/constants/report";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 
 import { ReportTabs } from "./index";
 
@@ -35,3 +36,6 @@ export const OverTime: Story = {
     nextjs: { navigation: { pathname: REPORT_SECTION_PATHS.trends } },
   },
 };
+
+/** A 320px phone: the labels without their icons, so «Breakdown» and «Over time» fit (check English). */
+export const SmallPhone: Story = { globals: SMALL_PHONE_GLOBALS };

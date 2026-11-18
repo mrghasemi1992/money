@@ -12,6 +12,7 @@ import {
   ConnectorSettingsSkeleton,
 } from "./index";
 import { sample } from "@/helpers/sample";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 
@@ -91,6 +92,12 @@ export const RevokeFails: Story = {
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
+
+/**
+ * A 320px phone: the long button names of Claude's and ChatGPT's settings («I understand and
+ * want to continue») wrap with the sentence, their chips with them. Check it in English.
+ */
+export const SmallPhone: Story = { globals: SMALL_PHONE_GLOBALS };
 
 /** loading.tsx */
 export const Loading: Story = {

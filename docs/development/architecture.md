@@ -295,7 +295,7 @@ src/
                         fields, header and type words, export columns and presets), currency (units, symbols), dashboard (section sizes), locale, media
                         queries, navigation (NAV_ITEMS), release (upstream repo, GitHub URLs, update check), report (periods, URL params, limits), sidebar (storage key, script), starter-categories, theme
                         (script, cookie, page colors), time zone, transaction (types, sources, «؟» marks, limits, page size), transaction-icons,
-                        user
+                        user, worst-case (the data of the phone worst-case stories)
   helpers/              account form rules, account balance SQL (accountBalance), app-icon (the icon as a PNG), budgets (status, form rules,
                         month, transactions link), category color
                         style, icon and name rules, category-icon (guessCategoryIcon, iconMatches), dashboard (closestBudgets, spendingSlices, links), money formatting (also compact, and axis scales) and input, navigation (getNavItems,

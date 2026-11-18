@@ -73,6 +73,14 @@
     var(--font-mono);
 }
 
+/* A hero amount in the billions doesn't fit a small phone at full size (placeholders follow). */
+@media (--small-phone) {
+  :root {
+    --type-amount-hero: var(--weight-bold) var(--text-2xl) /
+      var(--leading-tight) var(--font-sans);
+  }
+}
+
 /*
  * English interface. The composed --type-* roles above read --font-sans on this same element,
  * so they pick up the Latin face.

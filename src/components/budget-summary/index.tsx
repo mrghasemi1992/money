@@ -63,7 +63,11 @@ export function BudgetSummary({
             <div className={styles.cell}>
               <dt className={styles.cellLabel}>{t("total")}</dt>
               <dd className={styles.cellValue}>
-                <Amount value={budget} size="lg" />
+                <Amount
+                  value={budget}
+                  size="lg"
+                  className={styles.cellAmount}
+                />
               </dd>
             </div>
             <div className={cx(styles.cell, over && styles.over)}>
@@ -74,7 +78,7 @@ export function BudgetSummary({
                 <Amount
                   value={Math.abs(budget - spent)}
                   size="lg"
-                  className={styles.remaining}
+                  className={cx(styles.cellAmount, styles.remaining)}
                 />
               </dd>
             </div>

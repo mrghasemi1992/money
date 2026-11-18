@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { ArrowDownIcon, ArrowLeftRightIcon, ArrowUpIcon } from "lucide-react";
 
+import { sample } from "@/helpers/sample";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
+
 import { SegmentedControl, type SegmentOption } from "./index";
 
 const transactionTypes: SegmentOption[] = [
@@ -60,3 +63,27 @@ export const PlainSmall: Story = {
 };
 
 export const Disabled: Story = { args: { disabled: true } };
+
+/**
+ * The worst case on a 320px phone: options that don't fit give up room in proportion to their
+ * labels; a label wraps onto a second line and an icon goes above its label, so the control
+ * never leaves the screen. Check it in English too.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  render: (args) => (
+    <div style={{ display: "grid", gap: "var(--space-4)" }}>
+      <SegmentedControl {...args} fullWidth />
+      <SegmentedControl
+        {...args}
+        fullWidth
+        aria-label={sample("شناسه")}
+        options={sample([
+          { value: "account", label: "شماره حساب" },
+          { value: "card", label: "شماره کارت" },
+          { value: "sheba", label: "شماره شبا" },
+        ])}
+      />
+    </div>
+  ),
+};

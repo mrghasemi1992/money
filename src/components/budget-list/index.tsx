@@ -235,6 +235,7 @@ export function UnbudgetedList({
               variant="secondary"
               size="sm"
               iconStart={PlusIcon}
+              className={styles.unbudgetedAdd}
               onClick={() => onAdd(category)}
               aria-label={t("unbudgeted.add", { name: category.name })}
             >
@@ -320,10 +321,16 @@ export function UnbudgetedListSkeleton({
             className={styles.unbudgetedChip}
           />
           <span className={styles.unbudgetedSpent}>
-            <Skeleton variant="text" width="96px" />
+            <Skeleton variant="text" width="min(96px, 100%)" />
           </span>
           {canWrite ? (
-            <Button variant="secondary" size="sm" iconStart={PlusIcon} disabled>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconStart={PlusIcon}
+              className={styles.unbudgetedAdd}
+              disabled
+            >
               {t("add")}
             </Button>
           ) : null}

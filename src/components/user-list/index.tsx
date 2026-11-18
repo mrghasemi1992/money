@@ -504,7 +504,7 @@ export function UserListSkeleton() {
                   {badge("56px")}
                 </div>
                 <p className={styles.meta}>
-                  <Skeleton variant="text" width="160px" />
+                  <Skeleton variant="text" width="min(160px, 100%)" />
                 </p>
               </div>
               {menu}

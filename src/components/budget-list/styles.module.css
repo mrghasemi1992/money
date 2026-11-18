@@ -261,3 +261,34 @@
   font-feature-settings: var(--font-features-tabular);
   white-space: nowrap;
 }
+
+/*
+ * Phones: no room for the name, the amount and the button on one line. The amount goes on a line
+ * of its own under the name (in line with it, past the icon tile); the button stays beside the name.
+ */
+@media (--mobile) {
+  .unbudgetedRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "chip button"
+      "spent spent";
+    gap: var(--space-0-5) var(--space-3);
+    padding-block: var(--space-2);
+  }
+
+  .unbudgetedChip {
+    grid-area: chip;
+  }
+
+  .unbudgetedSpent {
+    grid-area: spent;
+    min-width: 0;
+    padding-inline-start: calc(var(--cat-icon) + var(--space-2));
+    white-space: normal;
+  }
+
+  .unbudgetedAdd {
+    grid-area: button;
+  }
+}

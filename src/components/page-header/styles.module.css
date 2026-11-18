@@ -32,11 +32,14 @@
   font: var(--type-body);
 }
 
+/* Never wider than the page: a control in here that needs more room scrolls or wraps inside. */
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (--mobile) {

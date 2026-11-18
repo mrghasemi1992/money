@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Card } from "@/components/ui/card";
+import {
+  LONG_CATEGORY_NAME,
+  SMALL_PHONE_GLOBALS,
+  WORST_CASE_SCALE,
+} from "@/constants/worst-case";
 
 import { BudgetList, UnbudgetedList } from "./index";
 import { SAMPLE_BUDGET_CATEGORIES } from "./sample-budgets";
@@ -71,6 +76,27 @@ export const Unbudgeted: Story = {
   render: (args) => (
     <UnbudgetedList
       categories={sample(UNBUDGETED)}
+      canWrite={args.canWrite}
+      onAdd={() => {}}
+    />
+  ),
+};
+
+/**
+ * The worst case on a 320px phone: a long name and spending in the billions. On phones the
+ * amount goes under the name and the button stays at the end.
+ */
+export const UnbudgetedPhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  render: (args) => (
+    <UnbudgetedList
+      categories={sample(
+        UNBUDGETED.map((category, index) => ({
+          ...category,
+          name: index === 0 ? LONG_CATEGORY_NAME : category.name,
+          spent: category.spent * WORST_CASE_SCALE,
+        })),
+      )}
       canWrite={args.canWrite}
       onAdd={() => {}}
     />

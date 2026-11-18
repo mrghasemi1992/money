@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 import type { ActionResult } from "@/types/action";
 
 import { DisplaySettings } from "./index";
@@ -53,3 +54,6 @@ export const SaveFails: Story = {
     },
   },
 };
+
+/** A 320px phone: the theme switch's three options give up room instead of leaving the card. */
+export const SmallPhone: Story = { globals: SMALL_PHONE_GLOBALS };

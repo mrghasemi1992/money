@@ -73,8 +73,14 @@
   min-width: 0;
 }
 
+/* On a narrow card the amount wraps under the title, so the title never shrinks away. */
+.line {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
 .title {
-  flex: 1;
+  flex: 1 1 var(--row-name-min);
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -83,6 +89,7 @@
 
 .amount {
   flex: none;
+  margin-inline-start: auto;
 }
 
 .meta {

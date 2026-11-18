@@ -8,6 +8,7 @@ import {
 import { resolveReportPeriod } from "@/helpers/report";
 import { usePreferences } from "@/hooks/use-preferences";
 import { REPORT_SECTION_PATHS } from "@/constants/report";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 import type { ReportParams, ReportSection } from "@/types/report";
 
 import { Reports, ReportsError, ReportsSkeleton } from "./index";
@@ -206,6 +207,18 @@ export const CustomRange: Story = {
 };
 
 /** No income or expense in the period: an invitation to add a transaction. */
+/**
+ * A 320px phone: the period switch scrolls inside the header instead of widening the page, and
+ * the cards' figures wrap under their names. Check it in English and with the toman unit.
+ */
+export const SmallPhone: Story = {
+  args: { section: "breakdown" },
+  globals: SMALL_PHONE_GLOBALS,
+  parameters: {
+    nextjs: { navigation: { pathname: REPORT_SECTION_PATHS.breakdown } },
+  },
+};
+
 export const Empty: Story = { args: { empty: true } };
 
 /** Viewers can't add transactions, so the empty state only suggests another period. */

@@ -45,14 +45,23 @@
 }
 
 .label {
-  flex: 1;
-  min-width: 0;
+  flex: 1 0 auto;
   color: var(--text-secondary);
   font: var(--type-label);
 }
 
+/* On a narrow card the amount puts its unit under the number rather than leave the card. */
 .value {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
   margin: 0;
+}
+
+.amount {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 0;
 }
 
 .skeletonTile {
@@ -61,4 +70,16 @@
 
 .skeletonValue {
   font: var(--type-amount-lg);
+}
+
+/* Phones: the smaller amount size of the phone layout, as in the transactions' totals. */
+@media (--mobile) {
+  .amount {
+    font: var(--type-amount);
+    font-weight: var(--weight-bold);
+  }
+
+  .skeletonValue {
+    font: var(--type-amount);
+  }
 }

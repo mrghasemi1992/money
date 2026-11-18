@@ -122,20 +122,22 @@ export function BarList({
                 </span>
               ) : null}
               <span className={styles.label}>{item.label ?? item.name}</span>
-              <Amount
-                value={item.value}
-                size="sm"
-                unit={unit}
-                className={styles.amount}
-              />
-              {percent(item.value, total)}
-              {anyExpandable ? (
-                <span className={styles.chevronSlot} aria-hidden="true">
-                  {expandable ? (
-                    <ChevronDownIcon className={styles.chevron} />
-                  ) : null}
-                </span>
-              ) : null}
+              <span className={styles.figures}>
+                <Amount
+                  value={item.value}
+                  size="sm"
+                  unit={unit}
+                  className={styles.amount}
+                />
+                {percent(item.value, total)}
+                {anyExpandable ? (
+                  <span className={styles.chevronSlot} aria-hidden="true">
+                    {expandable ? (
+                      <ChevronDownIcon className={styles.chevron} />
+                    ) : null}
+                  </span>
+                ) : null}
+              </span>
             </span>
             <span className={styles.track} aria-hidden="true">
               <span
@@ -167,14 +169,16 @@ export function BarList({
                   <li key={sub.id} className={styles.sub}>
                     <span className={styles.line}>
                       <span className={styles.subName}>{sub.name}</span>
-                      <Amount
-                        value={sub.value}
-                        size="sm"
-                        unit={unit}
-                        className={styles.subAmount}
-                      />
-                      {percent(sub.value, item.value, item.name)}
-                      <span className={styles.chevronSlot} />
+                      <span className={styles.figures}>
+                        <Amount
+                          value={sub.value}
+                          size="sm"
+                          unit={unit}
+                          className={styles.subAmount}
+                        />
+                        {percent(sub.value, item.value, item.name)}
+                        <span className={styles.chevronSlot} />
+                      </span>
                     </span>
                     <span
                       className={cx(styles.track, styles.subTrack)}
@@ -246,13 +250,15 @@ export function BarListSkeleton({
                   <Skeleton variant="text" width={name} />
                 )}
               </span>
-              <span className={styles.skeletonAmount}>
-                <Skeleton variant="text" width="80px" />
+              <span className={styles.figures}>
+                <span className={styles.skeletonAmount}>
+                  <Skeleton variant="text" width="80px" />
+                </span>
+                <span className={styles.percent}>
+                  <Skeleton variant="text" />
+                </span>
+                {expandable ? <span className={styles.chevronSlot} /> : null}
               </span>
-              <span className={styles.percent}>
-                <Skeleton variant="text" />
-              </span>
-              {expandable ? <span className={styles.chevronSlot} /> : null}
             </span>
             <span className={styles.track}>
               <span

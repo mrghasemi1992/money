@@ -78,11 +78,23 @@
   .item {
     flex: 1 1 0;
     display: flex;
+    min-inline-size: 0;
   }
 
+  /* A label too long for its third of a small phone wraps onto a second line. */
   .tab {
     flex: 1;
     min-block-size: var(--tap-min);
     padding-inline: var(--space-2);
+    line-height: var(--leading-tight);
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* Small phones: the labels alone, so «Breakdown» and «Over time» fit their third. */
+@media (--small-phone) {
+  .icon {
+    display: none;
   }
 }

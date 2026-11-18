@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { MONEY_UNITS } from "@/constants/currency";
+import { SMALL_PHONE_GLOBALS } from "@/constants/worst-case";
 
 import { Amount } from "./index";
 
@@ -97,4 +98,20 @@ export const Column: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * The worst case on a 320px phone: a hero amount in the billions with its icon and word. Below
+ * 480px the hero size steps down a size (`--type-amount-hero`), and the unit and word wrap under
+ * the number rather than leave the screen.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    value: 102870000000,
+    type: "expense",
+    size: "hero",
+    icon: true,
+    label: true,
+  },
 };

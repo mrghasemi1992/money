@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_ACCOUNTS } from "@/components/account-list/sample-accounts";
+import {
+  LONG_ACCOUNT_NAME,
+  SMALL_PHONE_GLOBALS,
+  WORST_CASE_SCALE,
+} from "@/constants/worst-case";
 
 import { BalanceOverview, BalanceOverviewSkeleton } from "./index";
 
@@ -41,4 +46,19 @@ export const Mobile: Story = {
 
 export const Loading: Story = {
   render: () => <BalanceOverviewSkeleton />,
+};
+
+/**
+ * The worst case on a 320px phone: balances in the billions and a long account name. The total
+ * steps down a size below 480px and puts its unit under the number rather than leave the card.
+ */
+export const PhoneWorstCase: Story = {
+  globals: SMALL_PHONE_GLOBALS,
+  args: {
+    accounts: SAMPLE_ACCOUNTS.map((account, index) => ({
+      ...account,
+      name: index === 0 ? LONG_ACCOUNT_NAME : account.name,
+      balance: account.balance * WORST_CASE_SCALE,
+    })),
+  },
 };

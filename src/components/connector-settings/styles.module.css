@@ -154,7 +154,7 @@
   line-height: var(--leading-relaxed);
 }
 
-/* «Settings › Connectors» stays on one line. */
+/* «Settings › Connectors» stays on one line where it fits. */
 .path {
   white-space: nowrap;
 }
@@ -172,6 +172,21 @@
   font-family: var(--font-manrope), var(--font-sans);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
+}
+
+/* Phones: a long path or button name wraps like the sentence around it, its chip with it. */
+@media (--mobile) {
+  .path,
+  .chip {
+    white-space: normal;
+  }
+
+  .chip {
+    display: inline;
+    margin-inline: 0;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
 }
 
 .separator {

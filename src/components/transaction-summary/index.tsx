@@ -51,7 +51,7 @@ export function TransactionSummary({
   ] as const;
 
   return (
-    <Card padding="none" className={className}>
+    <Card padding="none" className={cx(styles.card, className)}>
       <dl className={styles.root}>
         {cells.map(({ key, label, icon: Icon, value, type }) => (
           <div key={key} className={styles.cell}>
