@@ -79,8 +79,10 @@ export const EditUnknown: Story = {
 
 /** No accounts yet: the form says to add one first. */
 /**
- * «طلب/بدهی»: a debt on a person or lender that no money of the book moved for, such as one from
- * before, opened from the «طلب و بدهی» page with the person chosen.
+ * «طلب/بدهی»: a loan or a repayment with a person or lender, opened from the «طلب و بدهی» page
+ * with the person chosen. What happened (قرض دادم، قرض گرفتم، پس گرفتم، پس دادم) and the account
+ * decide how it is saved: a transfer with one of the book's accounts, a receivable or payable
+ * with «هیچ‌کدام» (a debt from before).
  */
 export const Debt: Story = {
   args: {

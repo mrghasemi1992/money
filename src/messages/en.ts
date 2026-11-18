@@ -380,11 +380,23 @@ const en: Messages = {
         transfer: "Transfer",
         debt: "Debt",
       },
-      direction: "Who owes whom",
-      receivable: "Owed to me",
-      payable: "I owe",
-      debtHint:
-        "For a debt no money moved through your accounts for, such as one from before. Record lending and repayments as transfers.",
+      action: "What happened",
+      actions: {
+        lend: "I lent",
+        borrow: "I borrowed",
+        collect: "Paid back to me",
+        repay: "I paid back",
+      },
+      moneyFrom: "From which account",
+      moneyTo: "To which account",
+      noMoney: "None: no money moved",
+      moneyHint: "This account’s balance changes too.",
+      noMoneyHint:
+        "For a debt from before, or without a payment: only the person’s balance changes.",
+      submitDebt:
+        "{action, select, lend {Add loan} borrow {Add loan} other {Add repayment}}",
+      debtPlaceholder:
+        "{action, select, lend {e.g. For the car repair} borrow {e.g. For the rent} other {e.g. First installment}}",
       counterparty: "Person or lender",
       chooseCounterparty: "Choose a person or lender",
       noCounterparties:
@@ -951,7 +963,7 @@ const en: Messages = {
       owedToYou: "Owed to you",
       youOwe: "You owe",
       net: "Net",
-      note: "Lending, borrowing and repaying are transfers: they never count as income or expense.",
+      note: "Lending, borrowing and repaying never count as income or expense.",
     },
     status: {
       owesYou: "Owes you",
@@ -967,7 +979,7 @@ const en: Messages = {
       newTitle: "New person or lender",
       editTitle: "Edit person or lender",
       namePlaceholder: "e.g. Ali, or Melli Bank loan",
-      hint: "After adding them, record each debt with its date from the row menu with “Record a debt”, and lending, borrowing and repayments as transfers.",
+      hint: "After adding them, record loans, repayments and debts from before from the row menu with “Record a debt”.",
       submitNew: "Add",
     },
     delete: {
@@ -986,7 +998,7 @@ const en: Messages = {
     empty: {
       title: "No loans or debts yet",
       description:
-        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record the loan and its repayments as transfers, and a debt from before with “Record a debt”.",
+        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record loans, repayments and debts from before with “Record a debt”.",
       viewerTitle: "No loans or debts yet",
       viewerDescription:
         "When an editor or admin adds a person or lender, it shows here.",

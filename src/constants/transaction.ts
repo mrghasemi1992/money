@@ -20,7 +20,7 @@ export const DEBT_TYPES = ["receivable", "payable"] as const;
 
 /**
  * What the transaction form chooses between, in its order: the money types, and «طلب/بدهی»
- * (`debt`), which is `receivable` or `payable` by its direction.
+ * (`debt`), which records a loan or a repayment with a person or lender (see DEBT_ACTIONS).
  */
 export const TRANSACTION_FORM_KINDS = [
   "expense",
@@ -63,3 +63,11 @@ export const TRANSACTION_TAG_SUGGESTIONS_MAX = 200;
 
 /** Characters of a search on the transactions page. */
 export const TRANSACTION_SEARCH_MAX_LENGTH = 100;
+
+/**
+ * What happened, in the form's «طلب/بدهی» kind, in its order: «قرض دادم», «قرض گرفتم», «پس گرفتم»
+ * (they paid the book back), «پس دادم» (the book paid them back). With one of the book's accounts
+ * it is saved as a transfer; without one (a debt from before, or no payment) as a receivable or
+ * payable. See `debtEntry` in src/helpers/debt.ts.
+ */
+export const DEBT_ACTIONS = ["lend", "borrow", "collect", "repay"] as const;
