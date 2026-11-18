@@ -116,6 +116,7 @@ export function exportRow(
   const cells: Record<CsvExportColumn, string> = {
     gregorianDate: transaction.date,
     jalaliDate: formatConnectorDate(transaction.date, "jalali"),
+    time: transaction.time ?? "",
     type: typeLabels[transaction.type],
     amount: formatMajorAmount(transaction.amount, currency),
     currency,

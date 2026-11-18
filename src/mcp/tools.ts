@@ -105,6 +105,7 @@ const ERRORS: Record<TransactionError, string> = {
   amountTooLarge: "amount is too large.",
   dateMissing: "date is missing or isn't a real date.",
   dateFuture: "date is in the future (see today).",
+  timeInvalid: "time must be HH:MM, 24-hour, e.g. 14:30.",
   accountMissing: "account_id is missing.",
   accountUnavailable:
     "account_id isn't an active account of the book (see list_accounts).",
@@ -182,6 +183,7 @@ function view(
   return {
     id: row.id,
     date: formatConnectorDate(row.date, ctx.user.calendar),
+    ...(row.time ? { time: row.time } : {}),
     type: row.type,
     amount: fromMinorUnits(row.amount, ctx.currency),
     account_id: row.accountId,
@@ -215,6 +217,13 @@ const dateInput = z
     "Date: Jalali YYYY/MM/DD (e.g. 1405/07/16) or Gregorian YYYY-MM-DD (e.g. 2026-10-08)",
   );
 
+const timeInput = z
+  .string()
+  .max(10)
+  .describe(
+    "Optional time of day, HH:MM 24-hour (e.g. 14:30), as the bank SMS or statement prints it",
+  );
+
 const typeInput = z.enum(TRANSACTION_TYPES);
 
 const amountInput = z
@@ -245,6 +254,7 @@ const newTransactionInput = z.object({
     '"expense" (money spent), "income" (money received) or "transfer" (between two of the book\'s accounts)',
   ),
   date: dateInput,
+  time: timeInput.optional(),
   amount: amountInput,
   account_id: z
     .uuid()
@@ -280,6 +290,7 @@ async function checkTransaction(
   raw: {
     type: TransactionInput["type"];
     date: string | null;
+    time: string | null;
     amount: number | null;
     accountId: string;
     toAccountId: string | null;
@@ -417,7 +428,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     {
       title: "List transactions",
       description:
-        "Find saved transactions, newest first, with the totals of every matching transaction. All filters are optional. Use it to answer questions about spending, check what is already saved, or look up ids before editing.",
+        "Find saved transactions, newest first (by date, then time), with the totals of every matching transaction. All filters are optional. Use it to answer questions about spending, check what is already saved, or look up ids before editing.",
       inputSchema: z.object({
         from: dateInput.optional().describe("First date to include"),
         to: dateInput.optional().describe("Last date to include"),
@@ -502,7 +513,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     "add_transactions",
     {
       title: "Add transactions",
-      description: `Save up to ${MCP_ADD_MAX} transactions, all or none. Returns the saved transactions with their ids, and existing transactions with the same date, account, amount and type as possible duplicates.`,
+      description: `Save up to ${MCP_ADD_MAX} transactions, all or none. Returns the saved transactions with their ids, and existing transactions with the same date, account, amount and type (and the same time, when both have one) as possible duplicates.`,
       inputSchema: z.object({
         transactions: z.array(newTransactionInput).min(1).max(MCP_ADD_MAX),
       }),
@@ -522,6 +533,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
             {
               type: item.type,
               date: parseConnectorDate(item.date),
+              time: item.time ?? null,
               amount: toMinorUnits(item.amount, ctx.currency),
               accountId: item.account_id,
               toAccountId: item.to_account_id ?? null,
@@ -555,8 +567,10 @@ export function registerTools(server: McpServer, ctx: McpContext) {
       const ids = await createTransactions(data, ctx.user.id, ctx.source);
       const names = await loadNames();
       const saved = data.map((input, index) => ({ ...input, id: ids[index]! }));
+      // Two different times of day are two transactions, not a duplicate.
       const sameKey = (a: TransactionInput, b: TransactionInput) =>
         a.date === b.date &&
+        (a.time === null || b.time === null || a.time === b.time) &&
         a.accountId === b.accountId &&
         a.amount === b.amount &&
         a.type === b.type;
@@ -585,6 +599,10 @@ export function registerTools(server: McpServer, ctx: McpContext) {
         id: z.uuid(),
         type: typeInput.optional(),
         date: dateInput.optional(),
+        time: timeInput
+          .nullable()
+          .optional()
+          .describe("HH:MM 24-hour; null removes the time"),
         amount: amountInput.optional(),
         account_id: z.uuid().optional(),
         to_account_id: z.uuid().nullable().optional(),
@@ -623,6 +641,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
             input.date === undefined
               ? current.date
               : parseConnectorDate(input.date),
+          time: input.time === undefined ? current.time : input.time,
           amount:
             input.amount === undefined
               ? current.amount

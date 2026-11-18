@@ -11,11 +11,13 @@ import {
 import type { TransactionInput, TransactionType } from "@/types/transaction";
 import { isIsoDate } from "@/utils/iso-date";
 import { tidyName } from "@/utils/text";
+import { parseTimeOfDay } from "@/utils/time-of-day";
 
 /** Fields of the transaction form, as errors point at them. */
 export type TransactionField =
   | "amount"
   | "date"
+  | "time"
   | "accountId"
   | "toAccountId"
   | "categoryId"
@@ -28,6 +30,7 @@ export type TransactionError =
   | "amountTooLarge"
   | "dateMissing"
   | "dateFuture"
+  | "timeInvalid"
   | "accountMissing"
   | "accountUnavailable"
   | "toAccountMissing"
@@ -145,6 +148,19 @@ export function transactionSchema(
         .string({ error: "dateMissing" })
         .refine(isIsoDate, "dateMissing")
         .refine((date) => date <= today, "dateFuture"),
+      // Optional; typed or copied times ("9:05", "۰۹:۰۵") are saved as `HH:MM`.
+      time: z
+        .string()
+        .nullish()
+        .transform((value, context) => {
+          if (!value?.trim()) return null;
+          const time = parseTimeOfDay(value);
+          if (time === null) {
+            context.addIssue({ code: "custom", message: "timeInvalid" });
+            return z.NEVER;
+          }
+          return time;
+        }),
       accountId: z.uuid({ error: "accountMissing" }),
       toAccountId: z.uuid().nullable(),
       categoryId: z.uuid().nullable(),
@@ -208,6 +224,7 @@ const ERRORS = new Set<string>([
   "amountTooLarge",
   "dateMissing",
   "dateFuture",
+  "timeInvalid",
   "accountMissing",
   "toAccountMissing",
   "sameAccount",
@@ -228,6 +245,8 @@ function toTransactionError(
       return "amountMissing";
     case "date":
       return "dateMissing";
+    case "time":
+      return "timeInvalid";
     case "toAccountId":
       return "toAccountMissing";
     case "categoryId":
@@ -245,6 +264,7 @@ function toTransactionError(
 export const TRANSACTION_FIELDS: TransactionField[] = [
   "amount",
   "date",
+  "time",
   "accountId",
   "toAccountId",
   "categoryId",

@@ -120,6 +120,7 @@ export type ImportRowErrorCode =
   | "dateInvalid"
   | "dateAmbiguous"
   | "dateFuture"
+  | "timeInvalid"
   | "amountMissing"
   | "amountInvalid"
   | "amountZero"
@@ -178,6 +179,8 @@ export type ImportResult = {
 export type ExportedTransaction = {
   type: TransactionInput["type"];
   date: string;
+  /** `HH:MM`, or null. */
+  time: string | null;
   /** In the book currency's smallest unit. */
   amount: number;
   accountName: string;

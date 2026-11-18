@@ -119,11 +119,12 @@ Click **Add transaction** (or **+** on a phone).
 1. **Type:** expense, income, or a transfer between two of your own accounts. Transfers don't count as income or expense.
 2. **Amount**, in the book's currency. In a rial book you can type in rials or tomans, as you chose in [Settings](#settings). Persian digits work too.
 3. **Date:** today unless you pick another day. It can't be in the future.
-4. **Account:** where the money came from or went to. A transfer asks for both accounts.
-5. **Category**, with its subcategories. Type to search.
-6. **Description** (optional): anything the category doesn't say, such as the shop or a detail you want to remember.
-7. **Tags** (optional), for example whose expense it was or a trip it belongs to.
-8. **Save and add another** saves and keeps the form open with the same type, account and date, for entering several at once.
+4. **Time** (optional), such as 14:30, as the bank's SMS or statement shows it. Transactions of one day are listed by time, newest first, so with times they read in the same order as your bank's list; those without a time come last.
+5. **Account:** where the money came from or went to. A transfer asks for both accounts.
+6. **Category**, with its subcategories. Type to search.
+7. **Description** (optional): anything the category doesn't say, such as the shop or a detail you want to remember.
+8. **Tags** (optional), for example whose expense it was or a trip it belongs to.
+9. **Save and add another** saves and keeps the form open with the same type, account and date, for entering several at once.
 
 After saving, a message offers **Undo** for a few seconds.
 
@@ -197,10 +198,10 @@ When the assistant can't tell a transaction's category, it saves it as «unknown
 ![The import and export page](assets/user-guide/en/import-export.png)
 
 1. **Export range:** this month, last month, this year or custom dates, and an account or all of them.
-2. **Download CSV:** a file that Excel and other spreadsheets open, with each date in both the Jalali and the Gregorian calendar.
+2. **Download CSV:** a file that Excel and other spreadsheets open, with each date in both the Jalali and the Gregorian calendar, and the time when a transaction has one.
 3. **Import** in five steps:
    - **Upload file:** a UTF-8 CSV file of up to 4 MB and 10,000 rows. **Download sample file** shows the format.
-   - **Map columns:** say which column is the date, amount, type, account, category and so on. Money guesses from the column names. In a rial book, say whether the amounts are in rials or tomans. Dates can be Jalali or Gregorian, even mixed.
+   - **Map columns:** say which column is the date, amount, type, account, category and so on. Money guesses from the column names. In a rial book, say whether the amounts are in rials or tomans. Dates can be Jalali or Gregorian, even mixed. A time column is optional; without one, a time written after the date (1405/06/24 14:30) is used.
    - **Match names:** accounts and categories the book doesn't have yet become new ones, or are matched to existing ones.
    - **Review:** the rows that are ready, the rows with errors (with the reason), and possible duplicates of transactions already in the book, which are skipped unless you choose to add them.
    - **Result:** what was added and created. Rows that failed can be downloaded, fixed and imported again.

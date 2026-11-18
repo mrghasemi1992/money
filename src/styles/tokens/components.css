@@ -37,6 +37,7 @@
   --settings-field-max: 320px;
   --settings-label-min: 160px; /* a settings row wraps its control below the name under this */
   --form-col-min: 220px; /* form fields side by side down to this width, then stacked */
+  --time-field-w: 112px; /* the transaction form's time box, beside the date */
   --page-title-min: 220px; /* the page header's actions wrap below the title under this */
   --row-name-min: 120px; /* a row's name keeps this much room; its amount wraps below it first */
   --skeleton-card-min: 200px;

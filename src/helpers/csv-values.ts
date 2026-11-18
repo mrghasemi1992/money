@@ -5,6 +5,7 @@ import type { TransactionType } from "@/types/transaction";
 import { fromCalendarDate, isValidCalendarDate } from "@/utils/calendar";
 import { toLatinDigits } from "@/utils/number";
 import { normalizePersian, tidyName } from "@/utils/text";
+import { parseTimeOfDay } from "@/utils/time-of-day";
 
 /*
  * Reading the cells of an imported CSV file: dates of either calendar, amounts written with
@@ -112,6 +113,31 @@ export function parseImportDate(
     parts.year >= GREGORIAN_YEAR_MIN ? "gregorian" : "jalali";
   if (!isValidCalendarDate(parts, calendar)) return { error: "dateInvalid" };
   return { iso: fromCalendarDate(parts, calendar), calendar };
+}
+
+/**
+ * A time written after the date in a date cell («1405/06/24 14:30», «2026-09-15T09:05:00»), as
+ * `HH:MM`, or null. A time with a time zone («…Z», «+03:30») isn't the bank's local time and
+ * is left out.
+ */
+export function timeInImportDate(value: string): string | null {
+  const match = /[ T,]\s*(\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?)$/.exec(
+    cleanDate(value),
+  );
+  return match ? parseTimeOfDay(match[1].replace(/\.\d+$/, "")) : null;
+}
+
+/**
+ * A time cell as `HH:MM`: «14:30», «۱۴:۳۰», «9.05», «14:30:12» (seconds dropped). An empty cell
+ * is null.
+ */
+export function parseImportTime(
+  value: string,
+): { time: string | null } | { error: "timeInvalid" } {
+  const text = cleanDate(value);
+  if (text === "") return { time: null };
+  const time = parseTimeOfDay(text);
+  return time ? { time } : { error: "timeInvalid" };
 }
 
 /** The calendar a date cell is written in, or null when it isn't a date. */

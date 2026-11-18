@@ -88,6 +88,8 @@ type SampleKey = Exclude<
 /** The sample file's rows, in the export's format and the viewer's language (amounts in rials). */
 const SAMPLE_ROWS: {
   daysAgo: number;
+  /** `HH:MM`, for the rows that have one. */
+  time?: string;
   type: TransactionType;
   amount: number;
   account: SampleKey;
@@ -99,6 +101,7 @@ const SAMPLE_ROWS: {
 }[] = [
   {
     daysAgo: 12,
+    time: "18:40",
     type: "expense",
     amount: 8_500_000,
     account: "bank",
@@ -324,6 +327,7 @@ export function CsvImport({
         {
           type: row.type,
           date: addDays(today, -row.daysAgo),
+          time: row.time ?? null,
           amount: Math.round(row.amount * scale),
           accountName: name(row.account) ?? "",
           toAccountName: name(row.toAccount),

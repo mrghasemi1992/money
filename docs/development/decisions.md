@@ -115,3 +115,13 @@ Each entry: **Decision**, **Why**, **Trade-off**, **Where**. A new entry also re
 - **Trade-off:** no place for long text apart from the label; a long description is cut off in lists and shown in full only in the detail. The limit went from 100 to 300 so a merged note fits. MCP clients that still send `note` keep working until the parameter is removed: it is added to the description (`withNote`).
 - **Alternatives considered:** keeping the note only in the detail for longer text (still two fields to choose between); merging the note into the description without clearing it (the previous version would have shown the text twice).
 - **Where:** `src/helpers/transaction.ts` (`withNote`), `drizzle/0010_merge_notes.sql`, `src/mcp/tools.ts` (`noteInput`), `src/helpers/csv-import.ts`, [transactions](features/transactions.md).
+
+## 16. A transaction's time is local and optional
+
+- **Decision:** a transaction has an optional time of day, a Postgres `time` without a time zone (`HH:MM` through the app), stored as the local time the bank printed, like the date. Within a day, the list orders by it, newest first, and rows without a time come last; then by `created_at` and id as before. The web form, the connector (`time` in `add_transactions` and `update_transaction`) and the CSV import and export carry it.
+- **Status:** Accepted.
+- **Date:** 2026-11, #128.
+- **Why:** bank SMS and statements print a local date and time, and the date is already stored as written, so the time joins it the same way: copied, never converted, and the same for everyone in the family. Ordering by `created_at` alone put a day's rows in the order they were entered, and rows of one `add_transactions` call or one import in an arbitrary or file order, not the bank's.
+- **Trade-off:** a time means nothing outside its date's place: a family member in another time zone sees the bank's time, not their own (as with the date). The time isn't checked against the clock, only the date against today. Keyset pagination can't compare nulls, so the order and its index use `time is not null` and `coalesce(time, '00:00')` instead of the column.
+- **Alternatives considered:** a `timestamptz` replacing the date (every query, the calendar rules and the MCP boundary would change, and a missing time would need a made-up one); storing the time in UTC (needs the user's time zone at write time, and the same SMS would read differently for two users); ordering nulls first (rows entered without a time would sit above the day's timed rows, out of the bank's order).
+- **Where:** `src/db/schema/transactions.ts`, `drizzle/0011_transaction_time.sql`, `LIST_ORDER` in `src/db/transactions.ts`, `src/utils/time-of-day.ts`, [transactions](features/transactions.md).

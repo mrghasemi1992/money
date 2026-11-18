@@ -7,6 +7,7 @@ import {
   index,
   pgTable,
   text,
+  time,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -35,6 +36,11 @@ export const transactions = pgTable(
     type: text({ enum: TRANSACTION_TYPES }).notNull(),
     /** Gregorian `YYYY-MM-DD`, no time zone. Converted to the user's calendar only in the UI and MCP. */
     date: date({ mode: "string" }).notNull(),
+    /**
+     * Optional `HH:MM`, the local time the bank printed (no time zone, like the date), so a
+     * day's transactions follow the bank's order (#128). Null when not known.
+     */
+    time: time(),
     /** In the book currency's smallest unit (rials, cents), always positive; `type` gives the direction. */
     amount: bigint({ mode: "number" }).notNull(),
     accountId: uuid()
@@ -80,8 +86,16 @@ export const transactions = pgTable(
       "transactions_transfer_check",
       sql`case when ${table.type} = 'transfer' then ${table.toAccountId} is not null and ${table.toAccountId} <> ${table.accountId} and ${table.categoryId} is null else ${table.toAccountId} is null end`,
     ),
-    // The list's order (newest first) and its keyset pagination; also serves date ranges.
-    index("transactions_list_index").on(table.date, table.createdAt, table.id),
+    // The list's order (newest first, a day's rows without a time last) and its keyset
+    // pagination, with the same expressions as `listOrder` in src/db/transactions.ts; also
+    // serves date ranges.
+    index("transactions_list_index").on(
+      table.date,
+      sql`(${table.time} is not null)`,
+      sql`coalesce(${table.time}, '00:00'::time)`,
+      table.createdAt,
+      table.id,
+    ),
     index().on(table.accountId),
     index().on(table.toAccountId),
     index().on(table.categoryId),

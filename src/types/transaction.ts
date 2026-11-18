@@ -18,6 +18,11 @@ export type TransactionInput = {
   amount: number;
   /** Gregorian ISO date. */
   date: string;
+  /**
+   * Optional local time `HH:MM` (24-hour, Latin digits), as the bank printed it; orders a day's
+   * transactions. Null when not known.
+   */
+  time: string | null;
   accountId: string;
   /** Transfers only. */
   toAccountId: string | null;

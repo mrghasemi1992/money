@@ -34,7 +34,8 @@ function chunks<T>(items: T[], size: number): T[][] {
 
 /**
  * Ready rows that look like a transaction the book already has: the same date, account,
- * amount and type (as the Claude connector warns). One match per row, the newest.
+ * amount and type, and the same time when both have one (as the Claude connector warns). One
+ * match per row, the newest.
  */
 export async function findImportDuplicates(
   query: DuplicateQuery,
@@ -46,7 +47,8 @@ export async function findImportDuplicates(
       ),
     )
   ).flat();
-  const byKey = new Map<string, (typeof stored)[number]>();
+  // Newest first, as findSimilarTransactions orders them.
+  const byKey = new Map<string, (typeof stored)[number][]>();
   for (const transaction of stored) {
     const key = [
       transaction.date,
@@ -54,12 +56,17 @@ export async function findImportDuplicates(
       transaction.amount,
       transaction.type,
     ].join("|");
-    if (!byKey.has(key)) byKey.set(key, transaction);
+    byKey.set(key, [...(byKey.get(key) ?? []), transaction]);
   }
   return query.flatMap((row) => {
-    const match = byKey.get(
-      [row.date, row.accountId, row.amount, row.type].join("|"),
-    );
+    const match = byKey
+      .get([row.date, row.accountId, row.amount, row.type].join("|"))
+      ?.find(
+        (transaction) =>
+          row.time === null ||
+          transaction.time === null ||
+          transaction.time === row.time,
+      );
     return match
       ? [
           {
@@ -140,6 +147,7 @@ export async function saveImport(
         part.map((row) => ({
           type: row.type,
           date: row.date,
+          time: row.time,
           amount: row.amount,
           accountId: idOf(row.account),
           toAccountId: row.toAccount ? idOf(row.toAccount) : null,
