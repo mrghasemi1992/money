@@ -60,14 +60,26 @@ Code that catches a failed request (most of Money's client calls return a failur
 
 ## Components
 
-`renderWithApp` (`src/test/render.tsx`) renders inside the app's `Providers`: Persian, Jalali, rials and Tehran time unless the test passes `locale`, `calendar`, `currency` or `rialUnit`. Find elements as a user would, by role and label, with the copy from `src/messages/fa.ts`:
+`renderWithApp` (`src/test/render.tsx`) renders inside the app's `Providers`: Persian, Jalali, rials and Tehran time unless the test passes `locale`, `calendar`, `currency` or `rialUnit`. Find elements as a user would, by role and accessible name, with the copy as the app shows it: `t` (`src/test/messages.ts`) is the Persian translator, so messages with values work too:
 
 ```ts
-renderWithApp(<Login />);
-await userEvent.setup().click(screen.getByRole("button", { name: fa.login.submit }));
+renderWithApp(<BudgetDialog open category={food} … />);
+await user.type(screen.getByRole("textbox", { name: t("budgets.form.amount") }), "۱۵۰۰۰۰۰۰");
+expect(screen.getByRole("dialog", { name: t("budgets.form.editTitle", { name: "خوراک" }) }));
 ```
 
+Pass the sample data the stories use (`sample-*.ts` next to the components), so tests and stories show the same book.
+
+Helpers in `src/test/`:
+
+- `findToast(title)` (`queries.ts`): the toast with that title. Toasts sit outside an open dialog and are hidden from the accessibility tree, and their live region repeats the text, so `findByText` doesn't work for them.
+- `startsWith(text)` (`queries.ts`): an accessible name that starts with the text. Optional fields add «(اختیاری)» to their label, and a checkbox's name includes its description.
+- `setViewport("mobile")` (`browser.ts`): phone width for `matchMedia`, so `useMediaQuery` picks the Sheet instead of the Dialog. Every test starts on desktop. `browser.ts` also stubs the other browser APIs jsdom lacks (`ResizeObserver`, `scrollIntoView`), and reduced motion matches, so nothing waits for animations.
+- Code that reads today (`todayIso`) gets a fixed date with `vi.useFakeTimers({ toFake: ["Date"] })` and `vi.setSystemTime(…)`; fake only `Date`, so user-event's timers keep running.
+
 Next.js hooks that need the App Router, such as `useRouter`, are mocked in the test (`vi.mock("next/navigation", …)`).
+
+When a query can't find something, the error lists every role and accessible name on the page; reading it is the quickest way to see what a screen reader gets.
 
 ## CI
 
