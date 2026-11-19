@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { importRowSchema } from "./csv-import";
+import { SAMPLE_TRANSACTION_OPTIONS } from "@/components/transaction-list/sample-transactions";
+import { CSV_FIELDS } from "@/constants/csv";
+import type { CsvField } from "@/types/csv";
+
+import {
+  accountKey,
+  categoryKey,
+  importRowSchema,
+  planImport,
+  usedNewItems,
+} from "./csv-import";
 
 const TODAY = "2026-11-19";
 
@@ -161,5 +171,95 @@ describe("importRowSchema with signed amounts", () => {
         }),
       ),
     ).toMatchObject({ data: { description: "Coffee — with Sara" } });
+  });
+});
+
+describe("planImport", () => {
+  const book = SAMPLE_TRANSACTION_OPTIONS;
+  const melli = book.accounts.find((account) => account.name === "بانک ملی")!;
+  const food = book.categories.expense.find(
+    (category) => category.name === "خوراک",
+  )!;
+  const context = { book, currency: "IRR" as const, today: TODAY };
+  const format = { amountMode: "typed" as const, rialUnit: "rial" as const };
+
+  function record(line: number, cells: Partial<Record<CsvField, string>>) {
+    return { line, cells: CSV_FIELDS.map((field) => cells[field] ?? "") };
+  }
+  const expense = (line: number, cells: Partial<Record<CsvField, string>>) =>
+    record(line, {
+      date: "1405/07/10",
+      amount: "1000",
+      type: "هزینه",
+      ...cells,
+    });
+
+  it("matches the book's names however their letters are written", () => {
+    // Arabic «ي» and «ك» fold to Persian ones; extra spaces don't matter.
+    const plan = planImport(
+      [expense(2, { account: "بانك  ملي", category: "خوراك" })],
+      format,
+      context,
+      {},
+    );
+    expect(plan.errors).toEqual([]);
+    expect(plan.rows[0]).toMatchObject({
+      account: { kind: "existing", id: melli.id },
+      category: { kind: "existing", id: food.id },
+    });
+  });
+
+  it("fails rows on an unknown name until the user chooses for it", () => {
+    const records = [
+      expense(2, { account: "کارت جدید" }),
+      expense(3, { account: "کارت جدید" }),
+    ];
+    const unmatched = planImport(records, format, context, {});
+    expect(unmatched.rows).toEqual([]);
+    expect(unmatched.errors.map((error) => error.code)).toEqual([
+      "accountUnmatched",
+      "accountUnmatched",
+    ]);
+    expect(unmatched.names).toEqual([
+      expect.objectContaining({ kind: "account", name: "کارت جدید", rows: 2 }),
+    ]);
+
+    const key = accountKey("کارت جدید");
+    const created = planImport(records, format, context, { [key]: "new" });
+    expect(created.rows).toHaveLength(2);
+    expect(created.accounts).toEqual([
+      expect.objectContaining({ key, name: "کارت جدید" }),
+    ]);
+
+    const mapped = planImport(records, format, context, { [key]: melli.id });
+    expect(mapped.rows[0]!.account).toEqual({ kind: "existing", id: melli.id });
+    expect(mapped.accounts).toEqual([]);
+  });
+
+  it("leaves a category out when the user chose none", () => {
+    const key = categoryKey("expense", "سرگرمی جدید");
+    const plan = planImport(
+      [expense(2, { account: "بانک ملی", category: "سرگرمی جدید" })],
+      format,
+      context,
+      { [key]: "none" },
+    );
+    expect(plan.rows[0]).toMatchObject({ category: null });
+    expect(plan.categories).toEqual([]);
+  });
+
+  it("creates only what the ready rows use", () => {
+    const key = accountKey("حساب تازه");
+    const plan = planImport(
+      // The only row on the new account has no amount, so the account isn't needed.
+      [record(2, { date: "1405/07/10", type: "هزینه", account: "حساب تازه" })],
+      format,
+      context,
+      { [key]: "new" },
+    );
+    expect(plan.errors.map((error) => error.code)).toEqual(["amountMissing"]);
+    expect(
+      usedNewItems(plan.rows, plan.accounts, plan.categories).accounts,
+    ).toEqual([]);
   });
 });
