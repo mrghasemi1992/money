@@ -75,7 +75,7 @@ function getBaseURL() {
  * - Public sign-up, sign-in by email (users have no real email) and the username availability
  *   check (it would reveal which usernames exist).
  * - The JWT plugin's session-to-JWT endpoint: its keys only sign OAuth access tokens.
- * - The admin plugin's endpoints. User management runs through /admin/users, whose actions
+ * - The admin plugin's endpoints. User management runs through /settings/users, whose actions
  *   keep the last admin, never delete users and revoke apps; over HTTP an admin could skip all
  *   of that (set-role, ban-user, remove-user, impersonate-user, …).
  * - Profile and account endpoints Money replaces or doesn't use: update-user would let anyone
@@ -126,7 +126,7 @@ const DISABLED_PATHS = [
 ];
 
 /**
- * What an admin may do through the admin plugin: only what /admin/users calls (create a user
+ * What an admin may do through the admin plugin: only what /settings/users calls (create a user
  * with a role, set a temporary password, enable a user and end their sessions). Role changes and
  * disabling run as Money's own guarded SQL (src/db/users.ts).
  */
@@ -150,11 +150,11 @@ function withoutInitDuringBuild<Plugin extends { init?: unknown }>(
 
 /**
  * Better Auth: sign-in by username and password, invite only.
- * - Nobody can sign up. Users are created by an admin on /admin/users (admin plugin) or by
+ * - Nobody can sign up. Users are created by an admin on /settings/users (admin plugin) or by
  *   `pnpm user:create`.
  * - Banned users can't sign in (admin plugin; checked after the password).
  * - Roles admin, editor and viewer. Only admins may use the admin plugin's user management, and
- *   only the parts /admin/users needs (`adminRole`), never over HTTP (`DISABLED_PATHS`); editors
+ *   only the parts /settings/users needs (`adminRole`), never over HTTP (`DISABLED_PATHS`); editors
  *   and viewers have no admin permissions. Reading and writing the book is checked by
  *   Money itself (`src/auth/session.ts`, `src/helpers/role.ts`), not by Better Auth.
  * - Each user's display preferences (language, calendar, rial or toman) are extra user fields,

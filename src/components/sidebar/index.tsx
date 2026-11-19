@@ -29,17 +29,19 @@ type SidebarProps = {
 
 /**
  * Desktop and tablet navigation on the start side (right in Persian, left in English): the
- * logo, the sections and the user menu. Collapses to an icon rail; the choice is saved on this
+ * logo, the sections, settings at the bottom and the user menu. Collapses to an icon rail; the choice is saved on this
  * device. Hidden on phones, which use the top bar and the tab bar.
  */
 export function Sidebar({ items, user, onSignOut, className }: SidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useSidebarCollapsed();
-  // The main pages, the book's setup, then the app's own pages, a line between groups.
-  const groups = (["main", "book", "app"] as const)
+  // The main pages, then the book's setup, a line between them. The app's own pages
+  // (settings) sit at the bottom, above the user menu.
+  const groups = (["main", "book"] as const)
     .map((group) => items.filter((item) => item.group === group))
     .filter((group) => group.length > 0);
+  const appItems = items.filter((item) => item.group === "app");
 
   function renderItem(item: NavItem) {
     const Icon = item.icon;
@@ -93,6 +95,12 @@ export function Sidebar({ items, user, onSignOut, className }: SidebarProps) {
       </nav>
 
       <div className={styles.foot}>
+        {appItems.length > 0 ? (
+          <>
+            <div className={styles.nav}>{appItems.map(renderItem)}</div>
+            <div className={styles.separator} aria-hidden="true" />
+          </>
+        ) : null}
         <UserMenu
           name={user.name}
           role={user.role}

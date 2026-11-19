@@ -10,10 +10,12 @@ export type NavKey =
   | "accounts"
   | "debts"
   | "categories"
-  | "settings"
-  | "users";
+  | "settings";
 
-/** Where a section sits: the main pages, the book's setup (accounts, loans and debts, categories) or the app's own pages. */
+/**
+ * Where a section sits: the main pages (loans and debts among them), the book's setup
+ * (accounts, categories) or the app's own pages (settings, at the bottom of the sidebar).
+ */
 export type NavGroup = "main" | "book" | "app";
 
 export type NavItem = {
@@ -24,13 +26,11 @@ export type NavItem = {
   group: NavGroup;
   /** A main page with its own tab in the mobile bottom bar. The other sections are behind its «More» tab. */
   tab?: boolean;
-  /** On phones the top bar links to it (settings), so the «More» menu leaves it out. */
-  topBar?: boolean;
   /**
    * Pages under it that are its tabs, not subpages (/reports/breakdown): the phone's top bar
    * gives them no back button.
    */
   tabs?: readonly Route[];
-  /** Only admins see it (user management). The page itself checks the role with requireAdmin(). */
+  /** Only admins see it. The page itself checks the role with requireAdmin(). */
   adminOnly?: boolean;
 };

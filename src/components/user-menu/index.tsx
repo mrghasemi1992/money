@@ -1,11 +1,17 @@
 "use client";
 
 import { Menu } from "@base-ui/react/menu";
-import { ChevronsUpDownIcon, LoaderCircleIcon, LogOutIcon } from "lucide-react";
+import {
+  ChevronsUpDownIcon,
+  LoaderCircleIcon,
+  LogOutIcon,
+  SettingsIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
+import { Link } from "@/components/ui/link";
 import menu from "@/styles/menu.module.css";
 import type { UserRole } from "@/types/user";
 import { cx } from "@/utils/cx";
@@ -28,7 +34,10 @@ type UserMenuProps = {
   open?: boolean;
 };
 
-/** The signed-in user's menu: who is signed in, and signing out. Settings and theme live on /settings. */
+/**
+ * The signed-in user's menu: who is signed in, a link to settings (profile, password, display,
+ * and for admins the book and user management), and signing out.
+ */
 export function UserMenu({
   name,
   role,
@@ -94,6 +103,15 @@ export function UserMenu({
                 <Menu.Separator className={menu.separator} />
               </>
             ) : null}
+            <Menu.LinkItem
+              render={<Link href="/settings" />}
+              className={menu.item}
+              closeOnClick
+            >
+              <SettingsIcon className={menu.icon} aria-hidden="true" />
+              <span className={menu.text}>{t("nav.settings")}</span>
+            </Menu.LinkItem>
+            <Menu.Separator className={menu.separator} />
             <Menu.Item
               className={cx(menu.item, menu.danger)}
               disabled={signingOut}

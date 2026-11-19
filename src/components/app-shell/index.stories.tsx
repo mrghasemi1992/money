@@ -65,14 +65,12 @@ export const Mobile: Story = {
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
 
-/** Settings isn't a tab: the phone top bar offers a way back. */
-export const MobileSettings: Story = {
+/** A settings subpage (user management): the phone top bar offers a way back to settings. */
+export const MobileSettingsSubpage: Story = {
   args: {
-    children: (
-      <PageHeader title="تنظیمات" subtitle="پروفایل، رمز عبور و نمایش" />
-    ),
+    children: <PageHeader title="مدیریت کاربران" />,
   },
-  parameters: { nextjs: { navigation: { pathname: "/settings" } } },
+  parameters: { nextjs: { navigation: { pathname: "/settings/users" } } },
   globals: { viewport: { value: "mobile2", isRotated: false } },
 };
 

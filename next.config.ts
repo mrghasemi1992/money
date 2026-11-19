@@ -28,8 +28,14 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
   async redirects() {
-    // Accounts and categories moved out of Settings into the main navigation.
+    // Accounts and categories moved out of Settings into the main navigation; user management
+    // moved into Settings.
     return [
+      {
+        source: "/admin/users",
+        destination: "/settings/users",
+        permanent: true,
+      },
       {
         source: "/settings/accounts",
         destination: "/accounts",

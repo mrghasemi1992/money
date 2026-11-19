@@ -4,7 +4,7 @@
  * Asks for the username, display name, role, language and password at the prompt (the password is not
  * shown), so they never end up in shell history. Use it to create the first admin from a
  * terminal (without one, /setup does it with the setup code); admins create the other users on
- * /admin/users. Writes to the database in DATABASE_URL from
+ * /settings/users. Writes to the database in DATABASE_URL from
  * .env.local.
  *
  * Runs with the "react-server" condition, which makes the `server-only` imports of src/auth and

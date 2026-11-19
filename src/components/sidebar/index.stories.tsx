@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Admin: Story = {};
 
-/** Without user management. */
+/** The same sections: user management is a settings subpage. */
 export const Editor: Story = {
   args: {
     items: getNavItems("editor"),
@@ -33,9 +33,9 @@ export const Editor: Story = {
   },
 };
 
-/** A subpage marks its section: /settings/connector → Settings. */
+/** A subpage marks its section: /settings/users → Settings, at the bottom. */
 export const SettingsSubpage: Story = {
-  parameters: { nextjs: { navigation: { pathname: "/settings/connector" } } },
+  parameters: { nextjs: { navigation: { pathname: "/settings/users" } } },
 };
 
 /** The icon rail. Hover or focus an icon for its label. */

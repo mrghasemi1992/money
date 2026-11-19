@@ -30,8 +30,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Budgets, accounts and categories; the current page is marked. */
+/**
+ * Budgets and loans and debts, a line, accounts and categories, a line, settings; the current
+ * page is marked. Every role gets the same sections (user management is a settings subpage).
+ */
 export const Editor: Story = {};
 
-/** Admins also get user management, after a line. */
-export const Admin: Story = { args: { items: more("admin") } };
+export const OnSettings: Story = {
+  parameters: { nextjs: { navigation: { pathname: "/settings/users" } } },
+};

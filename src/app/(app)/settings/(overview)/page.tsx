@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SettingsPage() {
   const { user } = await requireUser();
   const t = await getTranslations();
-  // Book settings belong to admins, like user management.
+  // Book settings and the link to user management belong to admins.
   const isAdmin = canManageUsers(toUserRole(user.role));
   const currencyLocked = isAdmin ? await bookHoldsAmounts() : true;
   const version = getAppVersion();

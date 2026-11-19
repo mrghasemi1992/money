@@ -44,8 +44,8 @@ type AppShellProps = {
 /**
  * The frame around every signed-in page. From 768px up: the sidebar on the start side. On
  * phones: a top bar, the bottom tab bar and the floating add button. A skip link jumps past
- * the navigation. Admins also get user management; editors and admins the add-transaction
- * buttons. The pages check the role again on the server.
+ * the navigation. Editors and admins get the add-transaction buttons. The pages check the role
+ * again on the server.
  */
 export function AppShell({
   user,

@@ -1470,7 +1470,7 @@ const en: Messages = {
     },
   },
   settings: {
-    subtitle: "Accounts, categories, profile and display",
+    subtitle: "Your settings and the book’s",
     failed: "Couldn’t save. Check your internet connection and try again.",
     profile: {
       title: "Profile",
@@ -1511,6 +1511,10 @@ const en: Messages = {
     data: {
       title: "Book data",
       importExport: "Download transactions as CSV, or add them from a file",
+    },
+    members: {
+      title: "Book members",
+      users: "Create users, change roles and reset passwords",
     },
     assistants: {
       title: "AI assistants",

@@ -24,8 +24,8 @@ type TabBarProps = {
 
 /**
  * The phone layout's bottom bar: a small capsule floating over the page, centred, with an icon
- * for each main page, a «More» tab that opens a menu of the other sections (budgets, accounts,
- * categories, …) and, for editors and admins (inside an enabled AddTransactionProvider), a small
+ * for each main page, a «More» tab that opens a menu of the other sections (budgets, loans and
+ * debts, accounts, categories, settings) and, for editors and admins (inside an enabled AddTransactionProvider), a small
  * add-transaction button after a divider. The current page's icon is royal with a dot under it.
  * The icons carry their names for screen readers. Hidden from 768px up.
  */
