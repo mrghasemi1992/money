@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "storybook-static/**",
+    // Test coverage report (pnpm test:coverage):
+    "coverage/**",
     // Vendored Claude Code skills (see "Claude Code setup" in CLAUDE.md):
     ".claude/skills/**",
     // Claude Code session worktrees (full checkouts with their own builds):

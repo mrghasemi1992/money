@@ -24,6 +24,7 @@ The docs are the source of truth for how Money works. This file only holds what 
 | Design system, app shell, skeletons, pending states, copy | [docs/development/features/design-system.md](docs/development/features/design-system.md) |
 | Releases, deployments, migrations, Dependabot, version check | [docs/development/releases.md](docs/development/releases.md) |
 | Local development, Neon branches | [docs/development/local-development.md](docs/development/local-development.md) |
+| Tests, CI | [docs/development/testing.md](docs/development/testing.md) |
 | Setup, scripts, workflow, the feature checklist | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Self-hosting and updating a copy | [docs/self-hosting.md](docs/self-hosting.md), [docs/updating.md](docs/updating.md) |
 
@@ -38,6 +39,7 @@ If the code and a doc disagree, say so to the user instead of picking one silent
 - **Transfers are never income or expense** in totals, budgets or reports. Neither are loans and debts: a person or lender is an account of type `counterparty` (#47), loans are transfers with it, and a debt no money moved for is a `receivable` or `payable` on it. Count only `income` and `expense` (`INCOME_EXPENSE_TYPES`), never "everything but transfers", and leave counterparties out wherever the book's own money is meant (`isCounterparty`). Balances come from `accountBalance()` in SQL; sum in Postgres, never in JavaScript.
 - **The database enforces the rules too** (constraints in `src/db/schema/`); validate on the server first anyway, to show a clear error. Neon's HTTP driver has no interactive transactions: use `db.batch([...])` for writes that belong together.
 - **Migrations stay backward compatible** with the previous version (expand, then contract) and are never edited once applied ([releases](docs/development/releases.md#migration-rules)).
+- **Tests never reach a database:** `@/db` fails any test that calls it; mock the query module (`vi.mock("@/db/transactions")`). Tests go next to the code ([testing](docs/development/testing.md)).
 - **Server-only code** (`src/db/`, `src/auth/`, `src/mcp/`) imports `server-only`. A Better Auth endpoint Money doesn't use goes on `DISABLED_PATHS`.
 - **No user-facing text in components**, and every string in both `src/messages/fa.ts` and `src/messages/en.ts`. Every layout works right to left and left to right (logical CSS properties only). Tokens only, no hard-coded values.
 - **Library versions:** Next.js and Better Auth here may be newer than your training data. Check `node_modules/next/dist/docs/` (see `AGENTS.md`) and the current Better Auth docs (its MCP plugin is being replaced by the OAuth Provider plugin) before using an API.
@@ -51,7 +53,7 @@ If the code and a doc disagree, say so to the user instead of picking one silent
 - **Branches:** before creating any branch, check out `main` and `git pull`. Names follow Conventional Branch (`feature/…`, `bugfix/…`, `hotfix/…`, `release/…`, `chore/…`).
 - **Approval before committing:** never commit without asking first. Show the changed files and the proposed commit message, then wait for an explicit OK. An earlier approval doesn't cover later commits. The same goes for pushing, opening PRs and anything else that publishes.
 - **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:` …). A change self-hosters must act on gets a `BREAKING CHANGE:` footer that says what to do.
-- **Checks before a PR:** `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`. Check UI changes in the browser (both languages, both themes, phone and desktop) and in Storybook.
+- **Checks before a PR:** `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm test`, `pnpm build` (CI runs all but the build). Check UI changes in the browser (both languages, both themes, phone and desktop) and in Storybook.
 - **Keep the docs up to date.** Every change updates the docs it affects, in the same PR: the feature doc, `docs/development/architecture.md` (data, routes, folders), `docs/development/decisions.md` (a key decision), `docs/development/conventions.md`, `CONTRIBUTING.md`, the self-hosting and release docs, the user guide in both languages (`docs/user-guide.md`, `docs/user-guide.fa.md`) with its screenshots (`pnpm docs:screenshots`, while Storybook runs), `README.md`, and this file when a rule for agents changes. The full table is in [CONTRIBUTING.md](CONTRIBUTING.md#keep-the-docs-up-to-date). When a decision changes, update the doc that records it. Docs are in English, quoting the interface in Persian where it helps.
 - **PRs** fill in `.github/pull_request_template.md`. Screens are designed in Claude Design first; there are no hand-written design specs.
 - **Releases:** merge release-please's release PR when the changes since the last release should reach self-hosted copies.

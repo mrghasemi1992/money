@@ -102,6 +102,7 @@ Each entry: **Decision**, **Why**, **Trade-off**, **Where**. A new entry also re
 ## 14. No automated tests yet
 
 - **Decision:** tests are planned but not in place; the checks are lint, type check, format check, build and manual checks in the browser and Storybook.
+- **Status:** Superseded by entry 18 (#70).
 - **Why:** the features came first.
 - **Trade-off:** regressions are caught by hand. Write code that is easy to test (small pure functions, data logic apart from the UI), so tests can be added without rewriting it.
 - **Where:** [CONTRIBUTING.md](../../CONTRIBUTING.md#workflow).
@@ -136,3 +137,13 @@ Each entry: **Decision**, **Why**, **Trade-off**, **Where**. A new entry also re
 - **Trade-off:** people sit in the accounts table, so every place that means "the book's money" must leave them out (`isCounterparty`), and every place that sums money must count only income and expense (`INCOME_EXPENSE_TYPES`), not "everything but transfers". The previous version doesn't know the new types: after a rollback, a counterparty or a debt added in between would reach screens that can't show it. A loan's interest and principal take two transactions; nothing calculates interest or schedules installments yet. Transactions already in «قرض و بدهی» are moved by hand, because the data doesn't say who.
 - **Alternatives considered:** new transaction types `lent`, `borrowed`, `repaid` with a `person_id` (the issue's first idea: "repaid" needs a direction, so four types in every rule, form, filter and tool, and a debt with no bank movement, or an expense someone paid for the book, can't be recorded without an account); a `person_id` plus a flag on income and expense (keeps loans inside income and expense and needs every total to exclude them); a separate `people` table with its own ledger (a second set of balances to keep consistent with transfers); an opening balance with a date on the counterparty (one amount and one date per person, and not in their ledger; tried first in this PR); a hidden system "opening balances" account that old debts are transferred from (true double entry, but a fake account every list, picker, filter, export and tool would have to hide); transactions without an account (would break the rule that every amount belongs to an account, which balances rely on).
 - **Where:** `src/constants/account.ts`, `src/constants/transaction.ts`, `src/helpers/account.ts`, `src/helpers/transaction.ts`, `src/helpers/account-balance.ts`, `drizzle/0012_counterparties.sql`, `src/app/(app)/debts/`, [loans and debts](features/loans-and-debts.md).
+
+## 18. Unit and component tests that never reach a database
+
+- **Decision:** Vitest runs unit tests in Node and component tests in jsdom (Testing Library, MSW for network calls). `@/db` is replaced by a client that fails the test on any call, so tests mock the query modules instead. CI runs lint, type check, format check and the tests on every pull request; the Vercel preview is the build check.
+- **Status:** Accepted. Supersedes entry 14.
+- **Date:** 2026-11, #70.
+- **Why:** the rules live in small pure functions (`src/helpers`, `src/utils`) and the role checks in a few places, so they are cheap to test. Local development's database is a real copy of the book (`dev` branch), so a test that writes to it would change data someone looks at; tests that need no database also need no secrets in CI.
+- **Alternatives considered:** Jest (needs its own TypeScript and ESM transforms; Vitest reads the same Vite setup as Storybook), happy-dom (faster, but jsdom is closer to a browser for Base UI's focus and dialog behavior), and tests against the `dev` branch or a throwaway Neon branch (slower, need secrets in CI, and the `dev` branch holds a copy of real data).
+- **Trade-off:** the SQL in `src/db` isn't tested, only mocked: a wrong query passes the tests. Integration tests against a Neon branch can come later. Screens are still checked by hand in the browser and Storybook.
+- **Where:** [testing](testing.md), `vitest.config.mts`, `src/test/`, `.github/workflows/ci.yml`.

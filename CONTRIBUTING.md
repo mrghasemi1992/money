@@ -54,6 +54,9 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
 | `pnpm typecheck`        | Generate route types (`next typegen`), then type check                         |
 | `pnpm format`           | Format every file with Prettier                                                |
 | `pnpm format:check`     | Check formatting                                                               |
+| `pnpm test`             | Run the unit and component tests once ([testing](docs/development/testing.md)) |
+| `pnpm test:watch`       | Run the tests of changed files while you work                                  |
+| `pnpm test:coverage`    | Run the tests with a coverage report in `coverage/`                            |
 | `pnpm storybook`        | Start Storybook on `money.localhost:6006`                                      |
 | `pnpm build-storybook`  | Build the static Storybook                                                     |
 | `pnpm db:generate`      | Generate a SQL migration from the schema in `src/db/schema/`                   |
@@ -68,10 +71,10 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
 1. **An issue first.** Work starts from a GitHub issue that says what and why.
 2. **A branch from a fresh `main`.** Check out `main` and `git pull` before creating any branch. Names follow [Conventional Branch](https://conventionalbranch.org/): `feature/…`, `bugfix/…`, `hotfix/…`, `release/…`, `chore/…`, lowercase letters, numbers and hyphens.
 3. **The change, with its docs.** Code, messages in both languages, stories, and the docs it affects.
-4. **The checks**, which must all pass before merging:
+4. **The checks**, which must all pass before merging (CI runs all but the build on every pull request; the Vercel preview builds it):
 
    ```bash
-   pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
+   pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm build
    ```
 
    Check UI changes in the browser and in Storybook, in Persian and English, light and dark, at phone and desktop widths. On phones that means down to 320px with amounts in the billions of rials and long names ([phone layout](docs/development/features/design-system.md)).
@@ -94,6 +97,7 @@ Not every feature needs every step, but go through the list:
 - [ ] **Components**, one folder each with `index.tsx`, `styles.module.css` and `index.stories.tsx`, tokens only, logical CSS properties only.
 - [ ] **Copy** in `src/messages/fa.ts` and `src/messages/en.ts`; Persian sample text in stories, with its English in `src/constants/sample-text.ts`.
 - [ ] **Roles:** viewers see no write controls, and the server refuses them anyway.
+- [ ] **Tests** next to the code: the rules, the role checks of actions and tools, and what a component lets the user do ([testing](docs/development/testing.md)).
 - [ ] **The connector:** if Claude should be able to use it, a tool in `src/mcp/tools.ts` and a line in its instructions.
 - [ ] **Docs** (next section).
 
@@ -147,6 +151,7 @@ Every change updates the docs it affects, in the same pull request. A PR whose c
 | Updating, releases, migrations, deployments         | `docs/updating.md`, `docs/development/releases.md`                                                                                                       |
 | Local development or database branches              | `docs/development/local-development.md`                                                                                                                  |
 | A key decision, or the reason behind one            | `docs/development/decisions.md`                                                                                                                          |
+| The test setup or CI                                | `docs/development/testing.md`                                                                                                                            |
 | A screen or a flow users see                        | `docs/user-guide.md` and `docs/user-guide.fa.md`; retake its screenshots with `pnpm docs:screenshots` (callouts are defined in `scripts/screenshots.ts`) |
 | What Money can do                                   | `README.md`                                                                                                                                              |
 | A rule for AI agents                                | `CLAUDE.md`                                                                                                                                              |
