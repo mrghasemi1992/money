@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRightIcon, EyeOffIcon } from "lucide-react";
+import { ArrowRightIcon, CircleAlertIcon, EyeOffIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useId } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Field } from "@/components/ui/field";
@@ -124,13 +125,23 @@ export function ImportMapping({
           })
       : null;
 
+  const unitMissing = showErrors && !rialUnit;
+  const modeLabelId = useId();
+  const unitLabelId = useId();
+  const unitNoteId = useId();
+
   const preview = rows.slice(0, CSV_PREVIEW_ROWS);
 
   return (
     <div className={styles.root}>
       <div className={styles.format}>
-        <Field label={t("mode")}>
+        {/* Labelled groups, not Fields: Field would name every option «مبلغ و نوع» or «واحد مبلغ‌ها». */}
+        <div className={styles.group}>
+          <span id={modeLabelId} className={styles.label}>
+            {t("mode")}
+          </span>
           <RadioGroup
+            aria-labelledby={modeLabelId}
             value={amountMode}
             onValueChange={(value) =>
               onAmountModeChange(value === "signed" ? "signed" : "typed")
@@ -148,7 +159,7 @@ export function ImportMapping({
               },
             ]}
           />
-        </Field>
+        </div>
         <div className={styles.formatSide}>
           <div className={styles.calendar}>
             <span className={styles.groupLabel}>{t("calendar")}</span>
@@ -181,13 +192,16 @@ export function ImportMapping({
             )}
           </div>
           {showUnit ? (
-            <Field
-              label={t("unit")}
-              required
-              hint={unitHint}
-              error={showErrors && !rialUnit ? t("unitMissing") : null}
-            >
+            <div className={styles.group}>
+              <span id={unitLabelId} className={styles.label}>
+                {t("unit")}
+                <span className={styles.required} aria-hidden="true">
+                  *
+                </span>
+              </span>
               <SegmentedControl
+                aria-labelledby={unitLabelId}
+                aria-describedby={unitNoteId}
                 fullWidth
                 value={rialUnit ?? ""}
                 onValueChange={(value) =>
@@ -198,7 +212,20 @@ export function ImportMapping({
                   { value: "toman", label: tp("rialUnits.toman") },
                 ]}
               />
-            </Field>
+              {unitMissing ? (
+                <p id={unitNoteId} className={styles.error}>
+                  <CircleAlertIcon
+                    className={styles.errorIcon}
+                    aria-hidden="true"
+                  />
+                  {t("unitMissing")}
+                </p>
+              ) : unitHint ? (
+                <p id={unitNoteId} className={styles.groupHint}>
+                  {unitHint}
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

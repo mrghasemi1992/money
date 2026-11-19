@@ -32,6 +32,8 @@ type SegmentedControlProps = {
   "aria-label"?: string;
   /** The id of a visible label, such as a settings row's name. */
   "aria-labelledby"?: string;
+  /** The id of a hint under it. */
+  "aria-describedby"?: string;
 };
 
 /** Compact one-of-few switch, such as هزینه / درآمد / انتقال. Arrow keys move the selection. */
