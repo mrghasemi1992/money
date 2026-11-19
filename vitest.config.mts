@@ -30,7 +30,8 @@ export default defineConfig({
         test: {
           name: "node",
           environment: "node",
-          include: ["src/**/*.test.ts"],
+          // Root config files have their tests next to them (next.config.test.ts).
+          include: ["src/**/*.test.ts", "*.test.ts"],
           setupFiles: ["src/test/setup.ts"],
         },
       },

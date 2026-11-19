@@ -21,7 +21,7 @@ One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "get
 | `node`  | `*.test.ts`  | Node        | Helpers, utils, constants, i18n, auth and role checks, MCP tools, Server Actions, Route Handlers |
 | `dom`   | `*.test.tsx` | jsdom       | Components, with Testing Library, `@testing-library/user-event` and jest-dom matchers            |
 
-- **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)).
+- **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
 - **What to test:** behavior someone relies on: the rules in `src/helpers`, what a role may do, what the connector accepts and returns, what a user sees and can do in a component. No snapshot dumps, and no tests that only check that a mock was set up.
 
 ## No database in tests
@@ -58,6 +58,33 @@ server.use(
 
 Code that catches a failed request (most of Money's client calls return a failure instead of throwing) won't fail the test by itself, so assert on what the user sees, or count the requests.
 
+## Server code
+
+Server Actions, Route Handlers and the session checks run for real, against stand-ins for what they call on the server: `src/test/server.ts` replaces `@/auth` (the session lookup and the Better Auth calls the actions make), `next/headers`, `next/navigation`, `next/cache`, `next-intl/server` and `@/i18n/preferences`. A test file mocks the modules its code imports with it, then signs in:
+
+```ts
+vi.mock("@/auth", () => import("@/test/server"));
+vi.mock("next/headers", () => import("@/test/server"));
+vi.mock("next/navigation", () => import("@/test/server"));
+vi.mock("next/cache", () => import("@/test/server"));
+vi.mock("next-intl/server", () => import("@/test/server"));
+
+beforeEach(() => resetServer());
+
+it("refuses viewers", async () => {
+  signInAs("viewer");
+  expect(await outcome(() => createTransaction(input))).toBe("notFound");
+  expect(insertTransaction).not.toHaveBeenCalled();
+});
+```
+
+- `signInAs(role, user?)` and `signOut()`; `TEST_USER_ID` is the signed-in user, to check that an action records the session's user and not one from its input.
+- `outcome(call)` is `"allowed"`, `"notFound"` (`requireWrite` and `requireAdmin` refusing) or `"redirect /login…"` (no session); `redirect` and `notFound` throw `NavigationError`, as Next's do.
+- `setLocale`, `setCurrency`, `setRequestHeaders` and `setRequestCookies` shape the request; `getTranslations` returns the real messages, so expected errors come from `t` (`src/test/messages.ts`).
+- `refresh` and the `auth.api` calls are `vi.fn()`s to assert on or make fail (`mockRejectedValue(new APIError(…))`).
+
+Every write action has a test that a viewer is refused before anything is written, and the security fixes of #72 each have a regression test: the closed Better Auth endpoints (`src/auth/index.test.ts`, through the real handler), the admin role's permissions, the security headers (`next.config.test.ts`), the connector's allowed apps (`src/helpers/connector.test.ts`, `src/mcp/auth.test.ts`), `getSafeRedirect`, and password changes and resets disconnecting apps.
+
 ## Components
 
 `renderWithApp` (`src/test/render.tsx`) renders inside the app's `Providers`: Persian, Jalali, rials and Tehran time unless the test passes `locale`, `calendar`, `currency` or `rialUnit`. Find elements as a user would, by role and accessible name, with the copy as the app shows it: `t` (`src/test/messages.ts`) is the Persian translator, so messages with values work too:
@@ -87,5 +114,7 @@ When a query can't find something, the error lists every role and accessible nam
 
 ## Not covered yet
 
-- **Database queries** (`src/db/*.ts`): they are only mocked. Integration tests against a Neon branch, behind a `TEST_DATABASE_URL` and skipped when it isn't set, are a later step.
+- **Database queries** (`src/db/*.ts`): they are only mocked. That includes the rules the database enforces in one statement: the attempt limit's window (`takeAttempt`), keeping the last admin (`setUserRole`, `disableUser`), balances (`accountBalance`), the book currency lock and the import's single batch. Integration tests against a Neon branch, behind a `TEST_DATABASE_URL` and skipped when it isn't set, are a later step.
+- **Pages** (`page.tsx`, `layout.tsx`): async Server Components aren't rendered in tests; what they hand to components is tested through the components and the queries' callers.
+- **The MCP route** (`src/app/mcp/route.ts`, `src/mcp/handler.ts`) end to end: the token check and the tools are tested apart.
 - **End-to-end tests** in a browser: none yet; screens are checked by hand in the browser and Storybook.
