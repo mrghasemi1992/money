@@ -55,9 +55,10 @@ export const budgetSchema = z.object({
   categoryId: z.uuid({ error: "categoryMissing" }),
   amount: z
     .number({ error: "amountMissing" })
+    // Before .int(), which also refuses unsafe integers: a huge amount is too large, not missing.
+    .max(Number.MAX_SAFE_INTEGER, "amountTooLarge")
     .int("amountMissing")
-    .positive("amountMissing")
-    .max(Number.MAX_SAFE_INTEGER, "amountTooLarge"),
+    .positive("amountMissing"),
 }) satisfies z.ZodType<BudgetInput>;
 
 /** Each field's first error, or null when the input is valid. */
