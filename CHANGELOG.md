@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0](https://github.com/mrghasemi1992/money/compare/v0.6.0...v0.7.0) (2026-11-19)
+
+
+### Features
+
+* record a transaction's time so a day's order matches the bank ([#128](https://github.com/mrghasemi1992/money/issues/128)) ([#151](https://github.com/mrghasemi1992/money/issues/151)) ([1bb2303](https://github.com/mrghasemi1992/money/commit/1bb230395b9234b0d0afd7081fcc169598c300c2))
+* regroup the navigation and move user management into settings ([#67](https://github.com/mrghasemi1992/money/issues/67)) ([#155](https://github.com/mrghasemi1992/money/issues/155)) ([a13001c](https://github.com/mrghasemi1992/money/commit/a13001c0630bea69bdff376f78cb6b8cab5e6144))
+* track loans and debts with people and lenders as accounts ([#154](https://github.com/mrghasemi1992/money/issues/154)) ([540c5ac](https://github.com/mrghasemi1992/money/commit/540c5acc93eb28d457f76e538f9b8d94ba06d13c))
+
 ## [0.6.0](https://github.com/mrghasemi1992/money/compare/v0.5.0...v0.6.0) (2026-11-18)
 
 
