@@ -45,6 +45,13 @@ export const Transfer: Story = {
   },
 };
 
+/** A receivable or payable (#47): a hand with coins on the transfer colors. */
+export const Debt: Story = {
+  args: {
+    transaction: { type: "payable", category: null },
+  },
+};
+
 /** An expense without a category, still to be identified. */
 export const Unknown: Story = {
   args: {

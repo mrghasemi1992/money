@@ -17,10 +17,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** On a tab page (dashboard, transactions, budget, reports). */
+/** On a tab page (dashboard, transactions, reports): the logo and the user menu, which links to settings. */
 export const OnTab: Story = {};
 
-/** On other pages, a back button leads to the dashboard. */
+/** On a subpage, a back button leads to its parent (here /settings/users → /settings). */
 export const WithBack: Story = { args: { backHref: "/settings" } };
 
 export const Viewer: Story = {

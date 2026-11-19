@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 
+import { SAMPLE_COUNTERPARTIES } from "@/components/account-list/sample-accounts";
 import {
   SAMPLE_CREATORS,
   SAMPLE_TODAY,
@@ -56,6 +57,18 @@ export const Active: Story = {
       to: "2026-10-07",
       categoryId: SAMPLE_TRANSACTION_OPTIONS.categories.expense[0].id,
       createdBy: SAMPLE_CREATORS[0].id,
+    },
+  },
+};
+
+/** Everything with one person (#47): lending, repayments and debts, with «طلب» and «بدهی». */
+export const Debts: Story = {
+  args: {
+    defaultOpen: true,
+    params: {
+      ...EMPTY_TRANSACTION_PARAMS,
+      types: ["transfer", "receivable", "payable"],
+      accountId: SAMPLE_COUNTERPARTIES[0].id,
     },
   },
 };
