@@ -39,3 +39,7 @@ export const Editor: Story = {};
 export const OnSettings: Story = {
   parameters: { nextjs: { navigation: { pathname: "/settings/users" } } },
 };
+
+export const OnDebts: Story = {
+  parameters: { nextjs: { navigation: { pathname: "/debts" } } },
+};

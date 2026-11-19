@@ -32,6 +32,16 @@ export const Transfer: Story = {
   args: { type: "transfer", category: null, from: "رسالت", to: "بلو" },
 };
 
+/** A receivable (#47): the person owes the book. */
+export const Receivable: Story = {
+  args: { type: "receivable", category: null, from: "علی رضایی" },
+};
+
+/** A payable: the book owes the person. */
+export const Payable: Story = {
+  args: { type: "payable", category: null, from: "مریم" },
+};
+
 /** An income or expense without a category gets the «ناشناس» tag. */
 export const Unknown: Story = {
   args: { category: null },

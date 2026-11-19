@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_TRANSACTIONS } from "@/components/transaction-list/sample-transactions";
 
-import { TransactionDetail } from "./index";
 import { sample } from "@/helpers/sample";
+
+import { TransactionDetail } from "./index";
 
 const byDescription = (description: string) => {
   const found = sample(SAMPLE_TRANSACTIONS).find(
@@ -50,6 +51,21 @@ export const Unknown: Story = {
 
 export const Transfer: Story = {
   args: { transaction: byDescription("انتقال برای خرج ماه") },
+};
+
+/** With the time of day the bank printed (#128), under the date. */
+export const WithTime: Story = {
+  args: { transaction: byDescription("خرید هفتگی سوپرمارکت") },
+};
+
+/** Money lent to a person (#47): a transfer from one of the book's accounts to them. */
+export const Loan: Story = {
+  args: { transaction: byDescription("قرض برای تعمیر ماشین") },
+};
+
+/** A debt no money of the book moved for: «بدهی به مریم», with «طرف حساب». */
+export const Payable: Story = {
+  args: { transaction: byDescription("قرض از قبل برای جشن تولد") },
 };
 
 /** Viewers: no edit or delete. */

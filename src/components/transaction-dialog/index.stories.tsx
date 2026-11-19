@@ -1,15 +1,15 @@
-import { SAMPLE_COUNTERPARTIES } from "@/components/account-list/sample-accounts";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import { SAMPLE_COUNTERPARTIES } from "@/components/account-list/sample-accounts";
 import {
   SAMPLE_TODAY,
   SAMPLE_TRANSACTION_OPTIONS,
   SAMPLE_TRANSACTIONS,
 } from "@/components/transaction-list/sample-transactions";
+import { sample } from "@/helpers/sample";
 import type { TransactionFormValues } from "@/types/transaction";
 
 import { TransactionDialog } from "./index";
-import { sample } from "@/helpers/sample";
 
 const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 500));
 
@@ -50,7 +50,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const New: Story = {};
 
-/** Editing: delete at the start of the footer. */
+/** Editing: delete at the start of the footer. The time the bank printed is kept. */
 export const Edit: Story = {
   args: {
     transaction:
@@ -77,7 +77,6 @@ export const EditUnknown: Story = {
   },
 };
 
-/** No accounts yet: the form says to add one first. */
 /**
  * «طلب/بدهی», opened from the «طلب و بدهی» page with the person chosen: «طلب دارم» / «بدهکارم»,
  * the person, the book's account the money moved through, and «بدون حساب» for a debt from
@@ -89,6 +88,26 @@ export const Debt: Story = {
   },
 };
 
+/** Money lent to a person, a transfer to them, opens in «طلب/بدهی» with «طلب دارم». */
+export const EditLoan: Story = {
+  args: {
+    transaction:
+      SAMPLE_TRANSACTIONS.find(
+        (item) =>
+          item.type === "transfer" && item.toAccount?.type === "counterparty",
+      ) ?? null,
+  },
+};
+
+/** A payable from before the book: «بدهکارم» with «بدون حساب» checked. */
+export const EditPayable: Story = {
+  args: {
+    transaction:
+      SAMPLE_TRANSACTIONS.find((item) => item.type === "payable") ?? null,
+  },
+};
+
+/** No accounts yet: the form says to add one first. */
 export const NoAccounts: Story = {
   args: { options: { ...SAMPLE_TRANSACTION_OPTIONS, accounts: [] } },
 };

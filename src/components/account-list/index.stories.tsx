@@ -2,12 +2,13 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 
 import { Card } from "@/components/ui/card";
-
-import { AccountList, AccountReorderHint } from "./index";
-import { SAMPLE_ACCOUNTS } from "./sample-accounts";
 import { sample } from "@/helpers/sample";
 
+import { AccountList, AccountReorderHint } from "./index";
+import { SAMPLE_ACCOUNTS, SAMPLE_COUNTERPARTIES } from "./sample-accounts";
+
 const active = SAMPLE_ACCOUNTS.filter((account) => !account.archived);
+const people = SAMPLE_COUNTERPARTIES.filter((account) => !account.archived);
 
 const meta = {
   title: "Components/AccountList",
@@ -57,3 +58,15 @@ export const Reorder: Story = {
 
 /** Viewers see balances only: no handles, no menus. */
 export const ReadOnly: Story = { args: { canWrite: false } };
+
+/**
+ * People and lenders on «طلب و بدهی» (#47): the quiet line says who owes whom («طلب دارید»,
+ * «بدهکارید», «تسویه»), and the menu adds «ثبت طلب یا بدهی».
+ */
+export const Counterparties: Story = {
+  args: { kind: "counterparty", accounts: people },
+};
+
+export const CounterpartiesReadOnly: Story = {
+  args: { ...Counterparties.args, canWrite: false },
+};

@@ -53,8 +53,14 @@ export const OnDashboard: Story = {
   parameters: { nextjs: { navigation: { pathname: "/" } } },
 };
 
-/** A page behind «More» (budgets, accounts, categories) marks the «More» tab. */
+/** A page behind «More» (budgets, loans and debts, accounts, categories, settings) marks the «More» tab. */
 export const OnAccounts: Story = {
   ...WithAddButton,
   parameters: { nextjs: { navigation: { pathname: "/accounts" } } },
+};
+
+/** Loans and debts (#47) is behind «More» too. */
+export const OnDebts: Story = {
+  ...WithAddButton,
+  parameters: { nextjs: { navigation: { pathname: "/debts" } } },
 };
