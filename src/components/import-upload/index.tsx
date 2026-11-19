@@ -201,7 +201,8 @@ export function ImportUpload({
         </div>
       )}
 
-      {error && !file ? (
+      {/* Also with a file: a file of only a header row is read, then refused at «بعدی». */}
+      {error ? (
         <p id={errorId} className={styles.error} role="alert">
           {error}
         </p>

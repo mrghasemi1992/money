@@ -506,7 +506,11 @@ export function CsvImport({
             reading={reading}
             error={fileError}
             hasHeader={hasHeader}
-            onHasHeaderChange={setHasHeader}
+            onHasHeaderChange={(next) => {
+              // The row count changes, so a «no rows» error may no longer hold.
+              setHasHeader(next);
+              setFileError(null);
+            }}
             onFile={readFile}
             onRemove={reset}
             onDownloadSample={downloadSample}
