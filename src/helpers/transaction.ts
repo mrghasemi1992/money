@@ -164,9 +164,10 @@ export function transactionSchema(
       type: z.enum(TRANSACTION_TYPES),
       amount: z
         .number({ error: "amountMissing" })
+        // Before .int(), which also refuses unsafe integers: a huge amount is too large, not missing.
+        .max(Number.MAX_SAFE_INTEGER, "amountTooLarge")
         .int("amountMissing")
-        .positive("amountMissing")
-        .max(Number.MAX_SAFE_INTEGER, "amountTooLarge"),
+        .positive("amountMissing"),
       date: z
         .string({ error: "dateMissing" })
         .refine(isIsoDate, "dateMissing")

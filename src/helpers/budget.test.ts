@@ -47,4 +47,13 @@ describe("budgetErrors", () => {
       amount: "amountMissing",
     });
   });
+
+  it("calls an amount beyond a safe integer too large, not missing", () => {
+    expect(
+      budgetErrors({ categoryId, amount: Number.MAX_SAFE_INTEGER + 2 }),
+    ).toEqual({ amount: "amountTooLarge" });
+    expect(
+      budgetErrors({ categoryId, amount: Number.MAX_SAFE_INTEGER }),
+    ).toBeNull();
+  });
 });
