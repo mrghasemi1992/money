@@ -81,6 +81,9 @@ export function NewUserDialog({
   const toast = useToast();
   const { copied, copy } = useClipboard();
   const formId = useId();
+  const roleLabelId = useId();
+  const languageLabelId = useId();
+  const languageHintId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [generating, startGenerating] = useTransition();
@@ -296,8 +299,13 @@ export function NewUserDialog({
             />
           </div>
         </Field>
-        <Field label={t("users.form.role")}>
+        {/* Labelled groups, not Fields: Field would name every option «نقش» or «زبان». */}
+        <div className={styles.group}>
+          <span id={roleLabelId} className={styles.label}>
+            {t("users.form.role")}
+          </span>
           <RadioGroup
+            aria-labelledby={roleLabelId}
             value={values.role}
             disabled={pending}
             onValueChange={(value) => set("role", toUserRole(value))}
@@ -307,12 +315,14 @@ export function NewUserDialog({
               description: t(`users.roleDescriptions.${role}`),
             }))}
           />
-        </Field>
-        <Field
-          label={t("users.form.language")}
-          hint={t("users.form.languageHint")}
-        >
+        </div>
+        <div className={styles.group}>
+          <span id={languageLabelId} className={styles.label}>
+            {t("users.form.language")}
+          </span>
           <SegmentedControl
+            aria-labelledby={languageLabelId}
+            aria-describedby={languageHintId}
             fullWidth
             value={values.locale}
             disabled={pending}
@@ -328,7 +338,10 @@ export function NewUserDialog({
               lang: option,
             }))}
           />
-        </Field>
+          <p id={languageHintId} className={styles.hint}>
+            {t("users.form.languageHint")}
+          </p>
+        </div>
       </form>
     </ResponsiveDialog>
   );

@@ -48,6 +48,7 @@ export function CsvExport({ accounts, onCount, onDownload }: CsvExportProps) {
   const locale = useLocale();
   const { calendar, timeZone, currency } = usePreferences();
   const today = todayIso(timeZone);
+  const rangeLabelId = useId();
   const fromId = useId();
   const toId = useId();
 
@@ -107,8 +108,13 @@ export function CsvExport({ accounts, onCount, onDownload }: CsvExportProps) {
       subtitle={t("importExport.export.subtitle")}
     >
       <div className={styles.root}>
-        <Field label={t("importExport.export.range")}>
+        {/* A labelled group, not a Field: Field would name every option «بازه». */}
+        <div className={styles.group}>
+          <span id={rangeLabelId} className={styles.label}>
+            {t("importExport.export.range")}
+          </span>
           <SegmentedControl
+            aria-labelledby={rangeLabelId}
             className={styles.presets}
             value={preset}
             onValueChange={choosePreset}
@@ -117,7 +123,7 @@ export function CsvExport({ accounts, onCount, onDownload }: CsvExportProps) {
               label: t(`importExport.export.presets.${value}`),
             }))}
           />
-        </Field>
+        </div>
         <div className={styles.fields}>
           <Field label={t("importExport.export.from")} htmlFor={fromId}>
             <DatePicker

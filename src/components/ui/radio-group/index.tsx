@@ -28,6 +28,8 @@ type RadioGroupProps = {
   name?: string;
   className?: string;
   "aria-label"?: string;
+  /** The id of a visible label (a form's group label). */
+  "aria-labelledby"?: string;
 };
 
 /** One of a few options, all visible. Arrow keys move between them. */

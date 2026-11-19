@@ -4,6 +4,17 @@
   gap: var(--space-4);
 }
 
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.label {
+  color: var(--text-primary);
+  font: var(--type-label);
+}
+
 .fields {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
