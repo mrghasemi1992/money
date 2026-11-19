@@ -89,16 +89,12 @@
   background: var(--border-default);
 }
 
-/* Settings, a line, then the user menu. */
+/* The user menu, at the bottom. */
 .foot {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   margin-block-start: auto;
-}
-
-.foot .separator {
-  margin-block: var(--space-2);
 }
 
 /* Collapsed to an icon rail */
