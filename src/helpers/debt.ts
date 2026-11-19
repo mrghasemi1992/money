@@ -1,49 +1,81 @@
-import type { DEBT_ACTIONS } from "@/constants/transaction";
 import type { TransactionFormValues } from "@/types/transaction";
 
-/** What happened with a person or lender: lent, borrowed, paid back to the book, paid back. */
-export type DebtAction = (typeof DEBT_ACTIONS)[number];
-
-/** Whether the action raises what the person owes the book: money goes to them. */
-export function raisesTheirDebt(action: DebtAction): boolean {
-  return action === "lend" || action === "repay";
-}
+/**
+ * Who owes whom after a «طلب و بدهی» entry: «طلب دارم» raises what the person owes the book,
+ * «بدهکارم» what the book owes them. Named after the types it saves without an account.
+ */
+export type DebtDirection = "receivable" | "payable";
 
 /**
- * How a loan or repayment with a person is stored (#47). With one of the book's accounts, money
- * moved, so it is a transfer between that account and the person: to them when lending or
- * paying back, from them when borrowing or being paid back. Without one (a debt from before, or
- * settled outside the book's accounts), only the person's balance changes: a receivable when it
- * raises what they owe, a payable when it lowers it. Pure, so the form and tests share it.
+ * How an entry of the form's «طلب و بدهی» tab is stored (#47). With one of the book's accounts,
+ * money moved: a transfer from that account to the person («طلب دارم»: lent to them, or paid
+ * them back) or from the person to it («بدهکارم»: borrowed, or paid back by them). With «بدون
+ * حساب» (a debt from before, or settled outside the book's accounts), only the person's balance
+ * changes: a receivable or a payable. Pure, so the form and tests share it.
  */
 export function debtEntry(
-  action: DebtAction,
+  direction: DebtDirection,
   personId: string,
   moneyAccountId: string | null,
 ): Pick<TransactionFormValues, "type" | "accountId" | "toAccountId"> {
-  const toThem = raisesTheirDebt(action);
   if (moneyAccountId === null) {
-    return {
-      type: toThem ? "receivable" : "payable",
-      accountId: personId,
-      toAccountId: null,
-    };
+    return { type: direction, accountId: personId, toAccountId: null };
   }
-  return toThem
+  return direction === "receivable"
     ? { type: "transfer", accountId: moneyAccountId, toAccountId: personId }
     : { type: "transfer", accountId: personId, toAccountId: moneyAccountId };
 }
 
 /**
- * The form fields a stored entry's person and account errors belong to: which of `accountId`
- * and `toAccountId` holds the person, and which the book's account.
+ * Which of a stored entry's `accountId` and `toAccountId` holds the person and which the book's
+ * account, so errors land on the right field.
  */
 export function debtFields(
-  action: DebtAction,
+  direction: DebtDirection,
   moneyAccountId: string | null,
 ): { person: "accountId" | "toAccountId"; money: "accountId" | "toAccountId" } {
-  if (moneyAccountId !== null && raisesTheirDebt(action)) {
-    return { person: "toAccountId", money: "accountId" };
+  return moneyAccountId !== null && direction === "receivable"
+    ? { person: "toAccountId", money: "accountId" }
+    : { person: "accountId", money: "toAccountId" };
+}
+
+/** A stored transaction as a «طلب و بدهی» entry: what the tab shows when editing it. */
+export type DebtDraft = {
+  direction: DebtDirection;
+  personId: string;
+  /** One of the book's accounts, or null for «بدون حساب». */
+  moneyAccountId: string | null;
+};
+
+/**
+ * Reads a stored transaction back as a «طلب و بدهی» entry, the reverse of `debtEntry`: a
+ * receivable or payable, or a transfer between one of the book's accounts and one person.
+ * Null for anything else (a transfer between two of the book's accounts, or two people).
+ */
+export function debtDraftOf(
+  transaction: Pick<
+    TransactionFormValues,
+    "type" | "accountId" | "toAccountId"
+  >,
+  isCounterparty: (accountId: string) => boolean,
+): DebtDraft | null {
+  const { type, accountId, toAccountId } = transaction;
+  if (type === "receivable" || type === "payable") {
+    return { direction: type, personId: accountId, moneyAccountId: null };
   }
-  return { person: "accountId", money: "toAccountId" };
+  if (type !== "transfer" || !toAccountId) return null;
+  const fromPerson = isCounterparty(accountId);
+  const toPerson = isCounterparty(toAccountId);
+  if (fromPerson === toPerson) return null;
+  return toPerson
+    ? {
+        direction: "receivable",
+        personId: toAccountId,
+        moneyAccountId: accountId,
+      }
+    : {
+        direction: "payable",
+        personId: accountId,
+        moneyAccountId: toAccountId,
+      };
 }

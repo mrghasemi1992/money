@@ -380,23 +380,15 @@ const en: Messages = {
         transfer: "Transfer",
         debt: "Debt",
       },
-      action: "What happened",
-      actions: {
-        lend: "I lent",
-        borrow: "I borrowed",
-        collect: "Paid back to me",
-        repay: "I paid back",
-      },
+      direction: "Who owes whom",
+      receivable: "Owed to me",
+      payable: "I owe",
       moneyFrom: "From which account",
       moneyTo: "To which account",
-      noMoney: "None: no money moved",
       moneyHint: "This account’s balance changes too.",
-      noMoneyHint:
+      withoutAccount: "Without an account",
+      withoutAccountHint:
         "For a debt from before, or without a payment: only the person’s balance changes.",
-      submitDebt:
-        "{action, select, lend {Add loan} borrow {Add loan} other {Add repayment}}",
-      debtPlaceholder:
-        "{action, select, lend {e.g. For the car repair} borrow {e.g. For the rent} other {e.g. First installment}}",
       counterparty: "Person or lender",
       chooseCounterparty: "Choose a person or lender",
       noCounterparties:

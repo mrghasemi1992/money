@@ -373,23 +373,15 @@ const fa = {
         transfer: "انتقال",
         debt: "طلب/بدهی",
       },
-      action: "چه اتفاقی افتاد؟",
-      actions: {
-        lend: "قرض دادم",
-        borrow: "قرض گرفتم",
-        collect: "پس گرفتم",
-        repay: "پس دادم",
-      },
+      direction: "چه کسی بدهکار است؟",
+      receivable: "طلب دارم",
+      payable: "بدهکارم",
       moneyFrom: "از کدام حساب؟",
       moneyTo: "به کدام حساب؟",
-      noMoney: "هیچ‌کدام، پولی جابه‌جا نشد",
       moneyHint: "موجودی این حساب هم تغییر می‌کند.",
-      noMoneyHint:
+      withoutAccount: "بدون حساب",
+      withoutAccountHint:
         "برای بدهی‌ای از قبل یا بدون پرداخت؛ فقط مانده‌ی طرف حساب تغییر می‌کند.",
-      submitDebt:
-        "{action, select, lend {ثبت قرض} borrow {ثبت قرض} other {ثبت بازپرداخت}}",
-      debtPlaceholder:
-        "{action, select, lend {مثلاً برای تعمیر ماشین} borrow {مثلاً برای اجاره} other {مثلاً قسط اول}}",
       counterparty: "طرف حساب",
       chooseCounterparty: "انتخاب طرف حساب",
       noCounterparties:

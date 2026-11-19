@@ -111,14 +111,14 @@ An account is anywhere your money sits: a bank account or card, cash, a savings 
 4. **The menu:** **Record a debt** (see below), **Edit**, **View transactions** (everything with that person), **Move up**, **Move down**, **Archive** and **Delete**.
 5. **Archived** ones are hidden from forms; their history stays.
 
-How to record each case: choose **Record a debt** in the person's menu, or the **Debt** type in **Add transaction**. Then pick **What happened** (**I lent**, **I borrowed**, **Paid back to me**, **I paid back**), the person, and the account the money left or reached:
+How to record each case: choose **Record a debt** in the person's menu, or the **Debt** tab in **Add transaction**. Pick **Owed to me** or **I owe**, the person, and the account the money left or reached. Tick **Without an account** when no money moved through your accounts. (The **Transfer** tab is only for moving money between your own accounts.)
 
-- **You lend Ali money from your card:** **I lent**, Ali, your card. The card's balance goes down and Ali owes you. **Ali pays you back:** **Paid back to me**, Ali, the account it reached.
-- **A debt from before, with no bank transaction** (for example, you've owed Ali 50 million since Shahrivar 1402 and you're still paying it off): **I borrowed**, Ali, and **None: no money moved** as the account, with the amount you still owe and the date it started. In the calendar, click the month's name to pick a month and year, and the year to jump years back. Each debt is its own entry with its date, so several old debts with one person stay separate. Each installment you pay from now on: **I paid back**, Ali, the account you pay from.
+- **You lend Ali money from your card:** **Owed to me**, Ali, your card. The card's balance goes down and Ali owes you. **Ali pays you back:** **I owe**, Ali, the account it reached; his debt goes down.
+- **A debt from before, with no bank transaction** (for example, you've owed Ali 50 million since Shahrivar 1402 and you're still paying it off): **I owe**, Ali, tick **Without an account**, and enter the amount you still owe and the date it started. In the calendar, click the month's name to pick a month and year, and the year to jump years back. Each debt is its own entry with its date, so several old debts with one person stay separate. Each installment you pay from now on: **Owed to me**, Ali, the account you pay from. The two choices say which way this entry moves Ali's balance, so a repayment reads as **Owed to me** even while you still owe him.
 - **Ali paid for you** (dinner, rent): an **expense** from Ali's account, with its real category. You spent the money, and now you owe him.
 - **You forgive a debt:** an expense from the person's account, for example in a gifts category.
-- **A loan installment:** **I paid back** to the loan for the part that repays it, and an expense (such as "loan interest") for the interest, if you know it.
-- **Transactions already in a category like «قرض و بدهی»:** edit them into a transfer with the right person, so they leave your expenses.
+- **A loan installment:** **Owed to me** on the loan for the part that repays it, from the account you pay from, and an expense (such as "loan interest") for the interest, if you know it.
+- **Transactions already in a category like «قرض و بدهی»:** edit them into the **Debt** tab with the right person, so they leave your expenses.
 
 ## Categories
 
@@ -138,7 +138,7 @@ Click **Add transaction** (or **+** on a phone).
 
 ![The new transaction form](assets/user-guide/en/transaction-form.png)
 
-1. **Type:** expense, income, a transfer between two of your own accounts (or with a person or lender on [Loans and debts](#loans-and-debts)), or **Debt** for lending, borrowing and paying back with a person (see [Loans and debts](#loans-and-debts)). Transfers and debts don't count as income or expense.
+1. **Type:** expense, income, a transfer between two of your own accounts, or **Debt** for lending, borrowing and paying back with a person or lender (see [Loans and debts](#loans-and-debts)). Transfers and debts don't count as income or expense.
 2. **Amount**, in the book's currency. In a rial book you can type in rials or tomans, as you chose in [Settings](#settings). Persian digits work too.
 3. **Date:** today unless you pick another day. It can't be in the future. Click the month's name in the calendar to pick a month and year.
 4. **Time** (optional), such as 14:30, as the bank's SMS or statement shows it. Transactions of one day are listed by time, newest first, so with times they read in the same order as your bank's list; those without a time come last.

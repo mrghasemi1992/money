@@ -1,6 +1,6 @@
 "use client";
 
-import { ClockIcon, HandCoinsIcon, Trash2Icon } from "lucide-react";
+import { ClockIcon, Trash2Icon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   type FormEvent,
@@ -18,7 +18,8 @@ import { Combobox, type ComboboxGroup } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field } from "@/components/ui/field";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { Select, type SelectOption } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import { TagInput } from "@/components/ui/tag-input";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast";
@@ -26,17 +27,16 @@ import { MOBILE_QUERY } from "@/constants/media";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
-  DEBT_ACTIONS,
   TRANSACTION_FORM_KINDS,
   TRANSACTION_TAGS_MAX,
 } from "@/constants/transaction";
 import { TRANSACTION_FORM_KIND_ICONS } from "@/constants/transaction-icons";
 import { accountSelectOptions } from "@/helpers/account-options";
 import {
-  type DebtAction,
+  type DebtDirection,
+  debtDraftOf,
   debtEntry,
   debtFields,
-  raisesTheirDebt,
 } from "@/helpers/debt";
 import { categoryIcon } from "@/helpers/category";
 import {
@@ -91,23 +91,24 @@ type TransactionDialogProps = {
 /** What the type control chooses: a money type, or «طلب/بدهی» for a loan or repayment. */
 type FormKind = (typeof TRANSACTION_FORM_KINDS)[number];
 
-/** The «طلب/بدهی» kind's choices: what happened, with whom, and through which account. */
-type DebtDraft = {
-  action: DebtAction;
+/**
+ * The «طلب/بدهی» tab's choices: who owes whom, the person, the book's account and «بدون حساب».
+ * The account is kept while the box is ticked, so unticking brings it back.
+ */
+type DebtForm = {
+  direction: DebtDirection;
   personId: string;
-  /** One of the book's accounts, or null when no money moved (a debt from before). */
-  moneyAccountId: string | null;
+  moneyAccountId: string;
+  withoutAccount: boolean;
 };
 
-/** The «هیچ‌کدام» option of the account select: no money of the book moved. */
-const NO_MONEY = "none";
-
-/**
- * Where a form opens: transfers stay transfers (lending and repaying are both one, so the action
- * isn't known), receivables and payables open as «طلب/بدهی» without an account.
- */
-function initialKind(type: TransactionType): FormKind {
-  return isDebtType(type) ? "debt" : type;
+/** What a debt form saves: no account with «بدون حساب». */
+function debtValues(debt: DebtForm) {
+  return debtEntry(
+    debt.direction,
+    debt.personId,
+    debt.withoutAccount ? null : debt.moneyAccountId,
+  );
 }
 
 /** The first active account of the book's own money, or of the counterparties. */
@@ -155,34 +156,45 @@ function blank(
 }
 
 /**
- * The «طلب/بدهی» draft a form opens with: a receivable or payable being edited (as a loan or a
- * borrowing with no account), a preset person (from the «طلب و بدهی» page, with the first of
- * the book's accounts), or a loan from the first person and account.
+ * Where a form opens: the tab and the «طلب/بدهی» choices. A receivable or payable, or a transfer
+ * between one of the book's accounts and one person, opens in «طلب/بدهی» (`debtDraftOf`); a new
+ * form with a preset debt type (from the «طلب و بدهی» page) too. Anything else opens in its
+ * type's tab, with a debt form ready on the first person and account.
  */
-function initialDebt(
+function initialForm(
   transaction: Transaction | null,
   preset: TransactionDialogProps["preset"],
   accounts: AccountOption[],
-): DebtDraft {
-  if (transaction && isDebtType(transaction.type)) {
+): { kind: FormKind; debt: DebtForm } {
+  const isCounterparty = (id: string) =>
+    accounts.some(
+      (account) => account.id === id && account.type === "counterparty",
+    );
+  const fallback: DebtForm = {
+    direction: preset?.type === "payable" ? "payable" : "receivable",
+    personId:
+      preset?.accountId && isCounterparty(preset.accountId)
+        ? preset.accountId
+        : firstAccount(accounts, true),
+    moneyAccountId: firstAccount(accounts, false),
+    withoutAccount: false,
+  };
+  if (transaction) {
+    const draft = debtDraftOf(transaction, isCounterparty);
+    if (!draft) return { kind: transaction.type as FormKind, debt: fallback };
     return {
-      action: transaction.type === "payable" ? "borrow" : "lend",
-      personId: transaction.accountId,
-      moneyAccountId: null,
+      kind: "debt",
+      debt: {
+        direction: draft.direction,
+        personId: draft.personId,
+        moneyAccountId: draft.moneyAccountId ?? fallback.moneyAccountId,
+        withoutAccount: draft.moneyAccountId === null,
+      },
     };
   }
-  const presetPerson =
-    preset?.accountId &&
-    accounts.some(
-      (account) =>
-        account.id === preset.accountId && account.type === "counterparty",
-    )
-      ? preset.accountId
-      : null;
   return {
-    action: preset?.type === "payable" ? "borrow" : "lend",
-    personId: presetPerson ?? firstAccount(accounts, true),
-    moneyAccountId: firstAccount(accounts, false) || null,
+    kind: preset?.type && isDebtType(preset.type) ? "debt" : "expense",
+    debt: fallback,
   };
 }
 
@@ -268,7 +280,7 @@ export function TransactionDialog({
   const today = todayProp ?? todayIso(timeZone);
   const formId = useId();
   const typeLabelId = useId();
-  const actionLabelId = useId();
+  const directionLabelId = useId();
   const dateId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -279,11 +291,11 @@ export function TransactionDialog({
       ? fromTransaction(transaction)
       : blank(today, options.accounts, preset),
   );
-  const [kind, setKindState] = useState<FormKind>(() =>
-    initialKind(transaction?.type ?? preset?.type ?? "expense"),
+  const [kind, setKindState] = useState<FormKind>(
+    () => initialForm(transaction, preset, options.accounts).kind,
   );
-  const [debt, setDebt] = useState<DebtDraft>(() =>
-    initialDebt(transaction, preset, options.accounts),
+  const [debt, setDebt] = useState<DebtForm>(
+    () => initialForm(transaction, preset, options.accounts).debt,
   );
   const [errors, setErrors] = useState<Errors>({});
   const [serverError, setServerError] = useState<{
@@ -297,20 +309,15 @@ export function TransactionDialog({
   );
   if (open && openedFor !== transaction) {
     setOpenedFor(transaction);
-    const start = initialDebt(transaction, preset, options.accounts);
-    const startKind = initialKind(
-      transaction?.type ?? preset?.type ?? "expense",
-    );
-    setKindState(startKind);
-    setDebt(start);
+    const start = initialForm(transaction, preset, options.accounts);
+    setKindState(start.kind);
+    setDebt(start.debt);
     setValues({
       ...(transaction
         ? fromTransaction(transaction)
         : blank(today, options.accounts, preset)),
-      // A new «طلب/بدهی» starts as its draft says (a loan from the first account).
-      ...(startKind === "debt" && !transaction
-        ? debtEntry(start.action, start.personId, start.moneyAccountId)
-        : {}),
+      // A new «طلب/بدهی» starts as its form says (to the person from the first account).
+      ...(start.kind === "debt" && !transaction ? debtValues(start.debt) : {}),
     });
     setErrors({});
     setServerError(null);
@@ -343,17 +350,26 @@ export function TransactionDialog({
   const personChoices = accounts
     .filter((option) => counterpartyIds.has(option.value))
     .map((option) => ({ ...option, separatorBefore: false }));
-  const moneyChoices: SelectOption[] = [
-    ...accounts.filter((option) => !counterpartyIds.has(option.value)),
-    {
-      value: NO_MONEY,
-      label: t("transactions.form.noMoney"),
-      icon: HandCoinsIcon,
-      separatorBefore: true,
-    },
-  ];
-  const debtField = debtFields(debt.action, debt.moneyAccountId);
-  const accountChoices = isDebt ? personChoices : accounts;
+  const moneyChoices = accounts.filter(
+    (option) => !counterpartyIds.has(option.value),
+  );
+  // Transfers are between the book's own accounts (people are in «طلب/بدهی»), except people
+  // an edited transfer already has, so it can still be shown.
+  const transferChoices = accounts.filter(
+    (option) =>
+      !counterpartyIds.has(option.value) ||
+      option.value === transaction?.accountId ||
+      option.value === transaction?.toAccountId,
+  );
+  const debtField = debtFields(
+    debt.direction,
+    debt.withoutAccount ? null : debt.moneyAccountId,
+  );
+  const accountChoices = isDebt
+    ? personChoices
+    : isTransfer
+      ? transferChoices
+      : accounts;
   const groups = useMemo(
     () =>
       categoryGroups(
@@ -380,14 +396,11 @@ export function TransactionDialog({
     }
   }
 
-  /** Changes the «طلب/بدهی» draft and the stored fields it makes. */
-  function updateDebt(patch: Partial<DebtDraft>) {
+  /** Changes the «طلب/بدهی» choices and the stored fields they make. */
+  function updateDebt(patch: Partial<DebtForm>) {
     const next = { ...debt, ...patch };
     setDebt(next);
-    update({
-      ...debtEntry(next.action, next.personId, next.moneyAccountId),
-      categoryId: null,
-    });
+    update({ ...debtValues(next), categoryId: null });
   }
 
   function setKind(next: FormKind) {
@@ -395,8 +408,8 @@ export function TransactionDialog({
     setKindState(next);
     if (next === "debt") {
       // Keep a person or an account already chosen where it fits.
-      const draft: DebtDraft = {
-        action: debt.action,
+      const draft: DebtForm = {
+        ...debt,
         personId: counterpartyIds.has(values.accountId)
           ? values.accountId
           : debt.personId || firstAccount(options.accounts, true),
@@ -406,22 +419,26 @@ export function TransactionDialog({
             : debt.moneyAccountId,
       };
       setDebt(draft);
-      update({
-        ...debtEntry(draft.action, draft.personId, draft.moneyAccountId),
-        categoryId: null,
-      });
+      update({ ...debtValues(draft), categoryId: null });
       return;
     }
     // Leaving «طلب/بدهی», or between the money types: categories belong to one type.
+    // A transfer is between the book's own accounts, so a person never carries over to it.
     const accountId =
-      isDebt || counterpartyIds.has(values.accountId)
-        ? (debt.moneyAccountId ?? firstAccount(options.accounts, false))
+      isDebt || (next === "transfer" && counterpartyIds.has(values.accountId))
+        ? debt.moneyAccountId || firstAccount(options.accounts, false)
         : values.accountId;
     update({
       type: next,
       accountId,
       categoryId: null,
-      toAccountId: next === "transfer" && !isDebt ? values.toAccountId : null,
+      toAccountId:
+        next === "transfer" &&
+        !isDebt &&
+        values.toAccountId &&
+        !counterpartyIds.has(values.toAccountId)
+          ? values.toAccountId
+          : null,
     });
   }
 
@@ -476,9 +493,7 @@ export function TransactionDialog({
       if (addAnother) {
         setValues({
           ...blank(today, options.accounts, values),
-          ...(isDebt
-            ? debtEntry(debt.action, debt.personId, debt.moneyAccountId)
-            : {}),
+          ...(isDebt ? debtValues(debt) : {}),
         });
         setErrors({});
         amountRef.current?.focus();
@@ -495,9 +510,9 @@ export function TransactionDialog({
 
   const submitLabel = editing
     ? t("transactions.form.submitEdit")
-    : isDebt
-      ? t("transactions.form.submitDebt", { action: debt.action })
-      : t("transactions.form.submit", { type: values.type });
+    : t("transactions.form.submit", {
+        type: isDebt ? debt.direction : values.type,
+      });
   const noAccounts = accountChoices.length === 0;
 
   const footer = isMobile ? (
@@ -615,22 +630,26 @@ export function TransactionDialog({
 
         {isDebt ? (
           <div className={styles.group}>
-            <span id={actionLabelId} className={styles.label}>
-              {t("transactions.form.action")}
+            <span id={directionLabelId} className={styles.label}>
+              {t("transactions.form.direction")}
             </span>
             <SegmentedControl
-              aria-labelledby={actionLabelId}
+              aria-labelledby={directionLabelId}
               fullWidth
-              value={debt.action}
+              value={debt.direction}
               disabled={pending}
-              onValueChange={(value) => {
-                const action = DEBT_ACTIONS.find((item) => item === value);
-                if (action) updateDebt({ action });
-              }}
-              options={DEBT_ACTIONS.map((action) => ({
-                value: action,
-                label: t(`transactions.form.actions.${action}`),
-              }))}
+              onValueChange={(value) =>
+                updateDebt({
+                  direction: value === "payable" ? "payable" : "receivable",
+                })
+              }
+              options={[
+                {
+                  value: "receivable",
+                  label: t("transactions.form.receivable"),
+                },
+                { value: "payable", label: t("transactions.form.payable") },
+              ]}
             />
           </div>
         ) : null}
@@ -712,32 +731,29 @@ export function TransactionDialog({
                   }
                 />
               </Field>
-              <Field
-                label={t(
-                  raisesTheirDebt(debt.action)
-                    ? "transactions.form.moneyFrom"
-                    : "transactions.form.moneyTo",
-                )}
-                required
-                hint={t(
-                  debt.moneyAccountId === null
-                    ? "transactions.form.noMoneyHint"
-                    : "transactions.form.moneyHint",
-                )}
-                error={errorFor(debtField.money)}
-              >
-                <Select
-                  options={moneyChoices}
-                  value={debt.moneyAccountId ?? NO_MONEY}
-                  disabled={pending || noAccounts}
-                  onValueChange={(value) =>
-                    updateDebt({
-                      moneyAccountId:
-                        value === NO_MONEY || value === null ? null : value,
-                    })
-                  }
-                />
-              </Field>
+              {debt.withoutAccount ? null : (
+                <Field
+                  label={t(
+                    debt.direction === "receivable"
+                      ? "transactions.form.moneyFrom"
+                      : "transactions.form.moneyTo",
+                  )}
+                  required
+                  hint={t("transactions.form.moneyHint")}
+                  error={errorFor(debtField.money)}
+                >
+                  <Select
+                    options={moneyChoices}
+                    value={debt.moneyAccountId || null}
+                    placeholder={t("transactions.form.chooseAccount")}
+                    invalid={errorFor(debtField.money) !== undefined}
+                    disabled={pending || noAccounts}
+                    onValueChange={(moneyAccountId) =>
+                      updateDebt({ moneyAccountId: moneyAccountId ?? "" })
+                    }
+                  />
+                </Field>
+              )}
             </>
           ) : (
             <>
@@ -767,7 +783,7 @@ export function TransactionDialog({
                   error={errorFor("toAccountId")}
                 >
                   <Select
-                    options={accounts}
+                    options={transferChoices}
                     value={values.toAccountId}
                     placeholder={t("transactions.form.chooseAccount")}
                     disabled={pending || noAccounts}
@@ -778,6 +794,16 @@ export function TransactionDialog({
             </>
           )}
         </div>
+
+        {isDebt ? (
+          <Checkbox
+            label={t("transactions.form.withoutAccount")}
+            description={t("transactions.form.withoutAccountHint")}
+            checked={debt.withoutAccount}
+            disabled={pending}
+            onCheckedChange={(withoutAccount) => updateDebt({ withoutAccount })}
+          />
+        ) : null}
 
         {isTransfer || isDebt ? null : (
           <Field
@@ -809,15 +835,9 @@ export function TransactionDialog({
         >
           <TextField
             autoComplete="off"
-            placeholder={
-              isDebt
-                ? t("transactions.form.debtPlaceholder", {
-                    action: debt.action,
-                  })
-                : t("transactions.form.descriptionPlaceholder", {
-                    type: values.type,
-                  })
-            }
+            placeholder={t("transactions.form.descriptionPlaceholder", {
+              type: isDebt ? debt.direction : values.type,
+            })}
             value={values.description}
             readOnly={pending}
             onValueChange={(description) => update({ description })}
