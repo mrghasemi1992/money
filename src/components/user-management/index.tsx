@@ -34,7 +34,7 @@ type UserManagementProps = {
 type DialogKind = "new" | "role" | "demote" | "disable" | "reset";
 
 /**
- * The /admin/users page: the user list and its dialogs (new user, change role, remove admin
+ * The /settings/users page: the user list and its dialogs (new user, change role, remove admin
  * rights, disable, reset password). Every change goes through a Server Action passed in as a
  * prop, which checks the admin again; the page refreshes with the new list afterwards.
  */
@@ -149,6 +149,7 @@ export function UserManagement({
       <PageHeader
         title={t("nav.users")}
         subtitle={t("users.subtitle")}
+        back={{ href: "/settings", label: t("nav.settings") }}
         actions={
           <Button iconStart={UserPlusIcon} onClick={() => open("new")}>
             {t("users.newUser")}
@@ -225,6 +226,7 @@ export function UserManagementSkeleton() {
       <PageHeader
         title={t("nav.users")}
         subtitle={t("users.subtitle")}
+        back={{ href: "/settings", label: t("nav.settings") }}
         actions={
           <Button iconStart={UserPlusIcon} disabled>
             {t("users.newUser")}

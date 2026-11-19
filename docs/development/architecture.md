@@ -161,30 +161,30 @@ Code is organised by what it does, and each layer only calls the ones below it:
 
 ## Routes
 
-| Route                                                                                           | Page                                                                                                    |
-| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `/login`                                                                                        | Sign in                                                                                                 |
-| `/setup`                                                                                        | Create the first admin (only while there are no users)                                                  |
-| `/`                                                                                             | Dashboard (داشبورد)                                                                                     |
-| `/transactions`                                                                                 | Transactions (تراکنش‌ها)                                                                                |
-| `/budgets`                                                                                      | Budgets (بودجه), `?month=`                                                                              |
-| `/reports`                                                                                      | Reports (گزارش‌ها): the overview tab, `?period=` / `?month=` / `?from=&to=`                             |
-| `/reports/breakdown`, `/reports/trends`                                                         | Reports' breakdown and over-time tabs, same period params                                               |
-| `/settings`                                                                                     | Settings (تنظیمات): profile, password, language, calendar, rial or toman, theme; book currency (admins) |
-| `/accounts`                                                                                     | Accounts (viewers read only); `/settings/accounts` redirects here                                       |
-| `/debts`                                                                                        | Loans and debts (طلب و بدهی): people and lenders, what is owed each way (viewers read only)             |
-| `/categories`                                                                                   | Categories (viewers read only); `/settings/categories` redirects here                                   |
-| `/settings/connector`                                                                           | Claude and ChatGPT connector: URL, steps, connected apps (revoke), examples                             |
-| `/settings/import-export`                                                                       | CSV export (every role) and import (editors and admins)                                                 |
-| `/transactions/export`                                                                          | CSV export Route Handler (`?from=&to=&account=`)                                                        |
-| `/oauth/consent`                                                                                | OAuth consent for Claude (outside the app shell)                                                        |
-| `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata                                                                                |
-| `/admin/users`                                                                                  | User management (admins only; others get not-found)                                                     |
-| `/api/auth/[...all]`                                                                            | Better Auth handler                                                                                     |
-| `/manifest.webmanifest`, `/app-icons/*`, `/startup-images/*`, `/apple-icon`, `/icon.svg`        | Web app manifest (per user: language and theme), icons and iOS launch screens, public                   |
-| `/mcp`                                                                                          | MCP endpoint (OAuth bearer token)                                                                       |
+| Route                                                                                           | Page                                                                                          |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `/login`                                                                                        | Sign in                                                                                       |
+| `/setup`                                                                                        | Create the first admin (only while there are no users)                                        |
+| `/`                                                                                             | Dashboard (داشبورد)                                                                           |
+| `/transactions`                                                                                 | Transactions (تراکنش‌ها)                                                                      |
+| `/budgets`                                                                                      | Budgets (بودجه), `?month=`                                                                    |
+| `/reports`                                                                                      | Reports (گزارش‌ها): the overview tab, `?period=` / `?month=` / `?from=&to=`                   |
+| `/reports/breakdown`, `/reports/trends`                                                         | Reports' breakdown and over-time tabs, same period params                                     |
+| `/settings`                                                                                     | Settings (تنظیمات): profile, password, display, links to its subpages; book currency (admins) |
+| `/accounts`                                                                                     | Accounts (viewers read only); `/settings/accounts` redirects here                             |
+| `/debts`                                                                                        | Loans and debts (طلب و بدهی): people and lenders, what is owed each way (viewers read only)   |
+| `/categories`                                                                                   | Categories (viewers read only); `/settings/categories` redirects here                         |
+| `/settings/connector`                                                                           | Claude and ChatGPT connector: URL, steps, connected apps (revoke), examples                   |
+| `/settings/import-export`                                                                       | CSV export (every role) and import (editors and admins)                                       |
+| `/settings/users`                                                                               | User management (admins only; others get not-found); `/admin/users` redirects here            |
+| `/transactions/export`                                                                          | CSV export Route Handler (`?from=&to=&account=`)                                              |
+| `/oauth/consent`                                                                                | OAuth consent for Claude (outside the app shell)                                              |
+| `/.well-known/oauth-protected-resource/mcp`, `/.well-known/oauth-authorization-server/api/auth` | OAuth discovery metadata                                                                      |
+| `/api/auth/[...all]`                                                                            | Better Auth handler                                                                           |
+| `/manifest.webmanifest`, `/app-icons/*`, `/startup-images/*`, `/apple-icon`, `/icon.svg`        | Web app manifest (per user: language and theme), icons and iOS launch screens, public         |
+| `/mcp`                                                                                          | MCP endpoint (OAuth bearer token)                                                             |
 
-All pages except `/login` and `/setup` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/admin/users`; viewers see them without write controls.
+All pages except `/login` and `/setup` require a session (`/oauth/consent` sends signed-out visitors to `/login` with Claude's request). Every signed-in role can open every page except `/settings/users`; viewers see them without write controls.
 
 ## Project structure
 
@@ -208,8 +208,7 @@ src/
                         (+ actions.ts, loading.tsx, error.tsx), debts (the accounts page's
                         actions; loading.tsx, error.tsx), settings (+ actions.ts;
                         (overview)/ with the page and its loading.tsx; connector/ and import-export/ with
-                        loading.tsx, error.tsx), admin/users
-                        (+ actions.ts, loading.tsx),
+                        loading.tsx, error.tsx; users/ with actions.ts and loading.tsx),
                         [...rest] (unknown paths → not-found in the shell)
     api/auth/[...all]/  Better Auth handler
   auth/                 Better Auth config (index.ts), getSession / requireUser / requireWrite / requireAdmin (session.ts), signOut (actions.ts),
@@ -275,7 +274,7 @@ src/
                         and the Claude or ChatGPT mark (a badge, an icon on phones)
     page-header/, page-skeleton/, page-status/   Page building blocks (title, loading, error and not-found)
     navigation-progress/   The top-edge bar while a page loads (+ store.ts, useReportNavigation), mounted in AppShell
-    user-management/    The /admin/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
+    user-management/    The /settings/users page: user-list/ (table and cards, filters, row menu), new-user-dialog/,
                         role-dialog/, reset-password-dialog/ (confirm, then the password once)
     responsive-dialog/, confirm-dialog/   Dialog on larger screens, Sheet on phones; a confirmation with one action
     account-settings/, category-settings/   The /accounts and /categories pages (+ skeleton, error); with

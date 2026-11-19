@@ -10,5 +10,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The first section of /settings: the book's accounts and categories pages. */
+/** The first sections of /settings: import and export, and the Claude and ChatGPT connector. */
 export const Default: Story = {};
+
+/** Admins also get user management. */
+export const Admin: Story = { args: { isAdmin: true } };

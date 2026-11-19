@@ -60,7 +60,7 @@ New versions come out as [releases](https://github.com/mrghasemi1992/money/relea
 
 - **Currency:** an IRR (rial) book is the default. For dollars, euros or pounds, change it in **Settings → Book settings** before you record any amounts. It can't change once the book holds amounts.
 - **Accounts and categories:** the dashboard walks you through your accounts, categories and first transaction.
-- **Family members:** add them in **User management** (`/admin/users`), each with their own username and role. Make a second admin too: Money can't email a forgotten password, so another admin is how a password gets reset.
+- **Family members:** add them in **Settings → User management** (`/settings/users`), each with their own username and role. Make a second admin too: Money can't email a forgotten password, so another admin is how a password gets reset.
 - **Claude or ChatGPT:** connect them in **Settings → Claude** (`/settings/connector`).
 - **Your own domain:** add it in Vercel → **Settings → Domains**, then open **Deployments** and **Redeploy** the latest one, so Money uses the new address. Connect Claude again afterwards, with the new address.
 

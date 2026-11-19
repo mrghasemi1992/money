@@ -11,7 +11,7 @@ The docs are the source of truth for how Money works. This file only holds what 
 
 | Area | Doc |
 |------|-----|
-| Users, roles, sign-in, `/setup`, `/admin/users`, Better Auth, security headers | [docs/development/features/users-and-auth.md](docs/development/features/users-and-auth.md) |
+| Users, roles, sign-in, `/setup`, `/settings/users`, Better Auth, security headers | [docs/development/features/users-and-auth.md](docs/development/features/users-and-auth.md) |
 | Accounts and categories | [docs/development/features/accounts-and-categories.md](docs/development/features/accounts-and-categories.md) |
 | Loans and debts (people and lenders, `/debts`) | [docs/development/features/loans-and-debts.md](docs/development/features/loans-and-debts.md) |
 | Transactions | [docs/development/features/transactions.md](docs/development/features/transactions.md) |

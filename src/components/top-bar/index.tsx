@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftIcon, SettingsIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import type { Route } from "next";
 import { useTranslations } from "next-intl";
 
@@ -20,7 +20,10 @@ type TopBarProps = {
   className?: string;
 };
 
-/** The phone layout's top bar: the logo, settings and the user menu. Hidden from 768px up. */
+/**
+ * The phone layout's top bar: the logo (and a back button on subpages) and the user menu, which
+ * also links to settings. Hidden from 768px up.
+ */
 export function TopBar({ user, backHref, onSignOut, className }: TopBarProps) {
   const t = useTranslations();
   return (
@@ -39,12 +42,6 @@ export function TopBar({ user, backHref, onSignOut, className }: TopBarProps) {
         <Logo size="md" />
       </div>
       <div className={styles.end}>
-        <IconButton
-          href="/settings"
-          icon={SettingsIcon}
-          label={t("nav.settings")}
-          tooltip={false}
-        />
         <UserMenu
           name={user.name}
           role={user.role}

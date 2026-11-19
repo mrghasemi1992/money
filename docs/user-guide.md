@@ -40,19 +40,19 @@ There is no sign-up page. An admin creates your account and gives you a username
 
 ![The app on a computer: the menu on the side and the dashboard](assets/user-guide/en/shell.png)
 
-1. **The menu:** Dashboard, Transactions, Budget and Reports; then Accounts, Loans and debts, and Categories; then Settings (and User management for admins).
+1. **The menu:** Dashboard, Transactions, Budget, Loans and debts, and Reports; under a line, Accounts and Categories; Settings at the bottom.
 2. **Collapse menu** shrinks the menu to icons. Money remembers your choice on this device.
 3. **Add transaction** opens the form for a new transaction from any page (editors and admins).
-4. **Your account:** your name and role. Click it to sign out.
+4. **Your account:** your name and role. Click it for Settings or to sign out.
 
 On a phone, the menu becomes a small bar at the bottom of the screen:
 
 <img src="assets/user-guide/en/shell-phone.png" alt="The app on a phone, with the tab bar at the bottom" width="390">
 
 1. **Tabs** for the dashboard, transactions and reports.
-2. **More** opens the other sections: budget, accounts, categories and user management.
+2. **More** opens the other sections: budget, loans and debts, accounts, categories and settings.
 3. **+** adds a transaction (editors and admins).
-4. **Your account** (sign out). Settings is the gear icon next to it.
+4. **Your account:** settings and sign out.
 
 ## Install on your phone
 
@@ -243,6 +243,8 @@ Everything in one import is saved together, or nothing is.
 At the end, **About Money** shows the version. Admins see a notice there when a new version is out; the person who set up your copy can install it ([updating](updating.md)).
 
 ## User management (admins)
+
+Open it from **Settings** → **User management**.
 
 ![The user management page](assets/user-guide/en/users.png)
 

@@ -38,7 +38,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** At the bottom of the expanded sidebar; the menu opens above it. */
+/** At the bottom of the expanded sidebar; the menu (settings, sign out) opens above it. */
 export const Sidebar: Story = {};
 
 export const SidebarOpen: Story = { args: { open: true } };

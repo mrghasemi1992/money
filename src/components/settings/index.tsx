@@ -37,8 +37,8 @@ type SettingsProps = {
 };
 
 /**
- * The /settings page's sections: links to accounts and categories, profile, password,
- * display, for admins the book, and the app's version.
+ * The /settings page's sections: links to import and export, user management (admins) and the
+ * connector, then profile, password, display, for admins the book, and the app's version.
  */
 export function Settings({
   user,
@@ -54,7 +54,7 @@ export function Settings({
 }: SettingsProps) {
   return (
     <div className={styles.root}>
-      <SettingsLinks />
+      <SettingsLinks isAdmin={isAdmin} />
       <ProfileSettings
         name={user.name}
         username={user.username}

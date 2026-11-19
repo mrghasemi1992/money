@@ -70,10 +70,11 @@
   font: var(--type-eyebrow);
 }
 
+/* --border-default: --border-subtle almost matches the dark popup surface. */
 .separator {
   height: 1px;
   margin-block: var(--space-1);
-  background: var(--border-subtle);
+  background: var(--border-default);
 }
 
 .item {
