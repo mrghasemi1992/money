@@ -31,14 +31,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Budgets and loans and debts, a line, accounts and categories, a line, settings; the current
- * page is marked. Every role gets the same sections (user management is a settings subpage).
+ * Budgets and loans and debts, a line, accounts and categories; the current page is marked.
+ * Every role gets the same sections. Settings isn't here: it is in the top bar's user menu.
  */
 export const Editor: Story = {};
-
-export const OnSettings: Story = {
-  parameters: { nextjs: { navigation: { pathname: "/settings/users" } } },
-};
 
 export const OnDebts: Story = {
   parameters: { nextjs: { navigation: { pathname: "/debts" } } },

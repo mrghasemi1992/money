@@ -14,9 +14,12 @@ export function getPhoneTabs(items: readonly NavItem[]): NavItem[] {
   return items.filter((item) => item.tab);
 }
 
-/** The sections behind the mobile bottom bar's «More» tab: all but the tabs, settings last. */
+/**
+ * The sections behind the mobile bottom bar's «More» tab: all but the tabs and the app's own
+ * pages (settings), which the user menu in the top bar links to.
+ */
 export function getMoreItems(items: readonly NavItem[]): NavItem[] {
-  return items.filter((item) => !item.tab);
+  return items.filter((item) => !item.tab && item.group !== "app");
 }
 
 /** Whether `href` is the current page or one of its subpages (/settings for /settings/connector). */

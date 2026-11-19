@@ -14,7 +14,7 @@ import { cx } from "@/utils/cx";
 import styles from "./styles.module.css";
 
 type MoreMenuProps = {
-  /** The sections that aren't tabs (budgets, loans and debts, accounts, categories, settings). */
+  /** The sections that aren't tabs (budgets, loans and debts, accounts, categories). */
   items: readonly NavItem[];
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -14,7 +14,7 @@ export type NavKey =
 
 /**
  * Where a section sits: the main pages (loans and debts among them), the book's setup
- * (accounts, categories) or the app's own pages (settings, at the bottom of the sidebar).
+ * (accounts, categories) or the app's own pages (settings: in the user menu, not in the sidebar or the «More» menu).
  */
 export type NavGroup = "main" | "book" | "app";
 
