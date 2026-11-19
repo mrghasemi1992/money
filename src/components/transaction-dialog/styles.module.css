@@ -7,6 +7,17 @@
 .group {
   display: flex;
   flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.label {
+  color: var(--text-primary);
+  font: var(--type-label);
+}
+
+.hint {
+  color: var(--text-muted);
+  font: var(--type-caption);
 }
 
 /* The amount is the form's main field: larger digits than the other inputs. */

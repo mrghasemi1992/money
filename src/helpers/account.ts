@@ -7,7 +7,7 @@ import {
 } from "@/constants/account";
 import { checkIdentifier } from "@/helpers/account-identifier";
 import type { AccountIdentifierError } from "@/helpers/account-identifier";
-import type { AccountInput } from "@/types/account";
+import type { AccountInput, AccountKind, AccountType } from "@/types/account";
 import { tidyName } from "@/utils/text";
 
 /**
@@ -71,4 +71,42 @@ export function accountFormError(input: unknown): AccountFormError | null {
     }
   }
   return null;
+}
+
+/** The page an account of this type belongs to: /debts for a counterparty, /accounts otherwise. */
+export function accountKind(type: AccountType): AccountKind {
+  return type === "counterparty" ? "counterparty" : "money";
+}
+
+/** Whether an account is a person or lender money is owed to or by (#47). */
+export function isCounterparty(account: { type: AccountType }): boolean {
+  return account.type === "counterparty";
+}
+
+/**
+ * What a counterparty's balance means: they owe the book (positive), the book owes them
+ * (negative) or nothing is owed.
+ */
+export function debtStatus(balance: number): "owesYou" | "youOwe" | "settled" {
+  if (balance > 0) return "owesYou";
+  if (balance < 0) return "youOwe";
+  return "settled";
+}
+
+/**
+ * Totals of the counterparties' balances: what is owed to the book (the positive ones), what
+ * it owes (the negative ones, as a positive amount) and the net. The balances come from SQL.
+ */
+export function debtTotals(balances: number[]): {
+  owedToYou: number;
+  youOwe: number;
+  net: number;
+} {
+  let owedToYou = 0;
+  let youOwe = 0;
+  for (const balance of balances) {
+    if (balance > 0) owedToYou += balance;
+    else youOwe -= balance;
+  }
+  return { owedToYou, youOwe, net: owedToYou - youOwe };
 }

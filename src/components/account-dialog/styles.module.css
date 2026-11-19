@@ -14,3 +14,10 @@
   color: var(--text-primary);
   font: var(--type-label);
 }
+
+/* A counterparty's form: how its debts are recorded. */
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+  font: var(--type-caption);
+}

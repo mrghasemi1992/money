@@ -4,6 +4,7 @@ import { and, asc, eq, ne, sql } from "drizzle-orm";
 
 import {
   accountBalance,
+  accountFirstDate,
   accountTransactionCount,
 } from "@/helpers/account-balance";
 import type { Account, AccountInput } from "@/types/account";
@@ -30,6 +31,7 @@ export async function listAccounts(): Promise<Account[]> {
       balance: accountBalance(),
       archived: accounts.archived,
       transactionCount: accountTransactionCount(),
+      firstDate: accountFirstDate(),
     })
     .from(accounts)
     .orderBy(
@@ -46,12 +48,16 @@ export async function listAccounts(): Promise<Account[]> {
   }));
 }
 
-/** The columns of an account's input; only bank accounts keep an identifier. */
+/**
+ * The columns of an account's input; only bank accounts keep an identifier, and a counterparty's
+ * opening balance is 0 (its debts are receivable / payable transactions).
+ */
 function accountValues(input: AccountInput) {
   const { identifier, ...rest } = input;
   const kept = input.type === "bank" ? identifier : null;
   return {
     ...rest,
+    openingBalance: input.type === "counterparty" ? 0 : input.openingBalance,
     identifierKind: kept?.kind ?? null,
     identifier: kept?.value ?? null,
   };

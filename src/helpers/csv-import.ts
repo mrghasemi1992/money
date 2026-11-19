@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { DEFAULT_ACCOUNT_TYPE } from "@/constants/account";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/category";
 import {
   CSV_CELL_MAX_LENGTH,
@@ -13,10 +14,16 @@ import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TAG_MAX_LENGTH,
   TRANSACTION_TAGS_MAX,
+  TRANSACTION_TYPES,
 } from "@/constants/transaction";
 import { nextCategoryColor } from "@/helpers/category";
 import { guessCategoryIcon } from "@/helpers/category-icon";
-import { tidyDescription, withNote } from "@/helpers/transaction";
+import {
+  isDebtType,
+  isIncomeOrExpense,
+  tidyDescription,
+  withNote,
+} from "@/helpers/transaction";
 import type { CalendarSystem } from "@/types/calendar";
 import type {
   Category,
@@ -302,7 +309,7 @@ export function importRowSchema({
       ) {
         return fail(context, "sameAccount", "toAccount");
       }
-      if (!isTransfer && row.subcategory && !row.category) {
+      if (isIncomeOrExpense(type) && row.subcategory && !row.category) {
         return fail(context, "subcategoryWithoutCategory", "subcategory");
       }
       const description = withNote(row.description, row.note);
@@ -317,8 +324,9 @@ export function importRowSchema({
         amount: row.amount.minor,
         account: row.account,
         toAccount: isTransfer ? row.toAccount : null,
-        category: isTransfer ? null : row.category || null,
-        subcategory: isTransfer ? null : row.subcategory || null,
+        // Only income and expense have a category; transfers and debts ignore the cells.
+        category: isIncomeOrExpense(type) ? row.category || null : null,
+        subcategory: isIncomeOrExpense(type) ? row.subcategory || null : null,
         description,
         tags: row.tags,
       };
@@ -445,17 +453,39 @@ export function planImport(
     return matches[entry.key];
   }
 
-  function resolveAccount(name: string): Resolved {
+  /**
+   * An account name as a reference. A debt (receivable, payable) must be on a counterparty:
+   * an existing one, or a new account, which is then created as one.
+   */
+  function resolveAccount(name: string, debt = false): Resolved {
     const existing = index.accounts.get(foldCsvText(name));
-    if (existing)
+    const isCounterparty = (id: string) =>
+      book.accounts.find((account) => account.id === id)?.type ===
+      "counterparty";
+    if (existing) {
+      if (debt && !isCounterparty(existing.id)) {
+        return { ok: false, code: "debtAccountNotCounterparty" };
+      }
       return { ok: true, ref: { kind: "existing", id: existing.id } };
+    }
     const key = accountKey(name);
     const choice = unknown({ kind: "account", key, name, rows: 0 });
     if (choice === "new") {
-      if (!newAccounts.has(key)) newAccounts.set(key, { key, name });
+      const known = newAccounts.get(key);
+      newAccounts.set(key, {
+        key,
+        name,
+        type:
+          debt || known?.type === "counterparty"
+            ? "counterparty"
+            : DEFAULT_ACCOUNT_TYPE,
+      });
       return { ok: true, ref: { kind: "new", key } };
     }
     if (choice && book.accounts.some((account) => account.id === choice)) {
+      if (debt && !isCounterparty(choice)) {
+        return { ok: false, code: "debtAccountNotCounterparty" };
+      }
       return { ok: true, ref: { kind: "existing", id: choice } };
     }
     return { ok: false, code: "accountUnmatched" };
@@ -542,12 +572,12 @@ export function planImport(
     }
 
     const row = parsed.data;
-    const account = resolveAccount(row.account);
+    const account = resolveAccount(row.account, isDebtType(row.type));
     const toAccount = row.toAccount
       ? resolveAccount(row.toAccount)
       : ({ ok: true, ref: null } as const);
     const category =
-      row.category && row.type !== "transfer"
+      row.category && isIncomeOrExpense(row.type)
         ? resolveCategory(row.type, row.category, row.subcategory)
         : ({ ok: true, ref: null } as const);
 
@@ -751,7 +781,7 @@ export const duplicateQuerySchema = z
       time: z.iso.time({ precision: -1 }).nullable(),
       accountId: z.uuid(),
       amount: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-      type: z.enum(["expense", "income", "transfer"]),
+      type: z.enum(TRANSACTION_TYPES),
     }),
   )
   .max(CSV_IMPORT_MAX_ROWS);

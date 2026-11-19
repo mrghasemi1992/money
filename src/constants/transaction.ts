@@ -1,5 +1,33 @@
-/** Transaction types, in the order forms list them. Stored as text in `transactions.type`. */
-export const TRANSACTION_TYPES = ["expense", "income", "transfer"] as const;
+/**
+ * Transaction types. Stored as text in `transactions.type`. `receivable` and `payable` (#47) are
+ * a debt recorded on a person or lender (a `counterparty` account) without money moving through
+ * the book's accounts, such as one from before the book: `receivable` raises what they owe the
+ * book, `payable` what the book owes them. Like transfers, they are never income or expense.
+ */
+export const TRANSACTION_TYPES = [
+  "expense",
+  "income",
+  "transfer",
+  "receivable",
+  "payable",
+] as const;
+
+/** The types that are income or expense: the only ones totals, budgets and reports count. */
+export const INCOME_EXPENSE_TYPES = ["expense", "income"] as const;
+
+/** A debt recorded on a counterparty without money moving (see TRANSACTION_TYPES). */
+export const DEBT_TYPES = ["receivable", "payable"] as const;
+
+/**
+ * What the transaction form chooses between, in its order: the money types, and «طلب/بدهی»
+ * (`debt`): a loan, a repayment or a debt from before with a person or lender (`debtEntry`).
+ */
+export const TRANSACTION_FORM_KINDS = [
+  "expense",
+  "income",
+  "transfer",
+  "debt",
+] as const;
 
 /**
  * Where a transaction was recorded. Stored in `transactions.source`. «mcp» is Claude (the

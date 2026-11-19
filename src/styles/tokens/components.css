@@ -270,6 +270,7 @@
   --calendar-w: 300px;
   --calendar-wd-h: 28px;
   --calendar-day-h: 36px;
+  --calendar-pick-h: 52px; /* a month or year in the pickers: 4 rows, about the days' height */
   --calendar-today-ring: 1.5px;
 
   /* Overlays */

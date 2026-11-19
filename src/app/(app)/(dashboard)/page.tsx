@@ -34,6 +34,7 @@ import {
   UNKNOWN_NOTICE_COOKIE,
 } from "@/constants/dashboard";
 import { listAccounts } from "@/db/accounts";
+import { isCounterparty } from "@/helpers/account";
 import { listBudgetCategories } from "@/db/budgets";
 import { getBookProgress } from "@/db/dashboard";
 import { categoryTotals } from "@/db/reports";
@@ -151,7 +152,11 @@ async function UnknownSection() {
 }
 
 async function BalancesSection() {
-  return <BalanceOverview accounts={await listAccounts()} />;
+  // People and lenders aren't money the book holds: they are on /debts.
+  const accounts = (await listAccounts()).filter(
+    (account) => !isCounterparty(account),
+  );
+  return <BalanceOverview accounts={accounts} />;
 }
 
 async function MonthSection({ month }: { month: BudgetMonth }) {

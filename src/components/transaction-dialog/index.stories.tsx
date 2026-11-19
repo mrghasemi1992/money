@@ -1,3 +1,4 @@
+import { SAMPLE_COUNTERPARTIES } from "@/components/account-list/sample-accounts";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import {
@@ -77,6 +78,17 @@ export const EditUnknown: Story = {
 };
 
 /** No accounts yet: the form says to add one first. */
+/**
+ * «طلب/بدهی», opened from the «طلب و بدهی» page with the person chosen: «طلب دارم» / «بدهکارم»,
+ * the person, the book's account the money moved through, and «بدون حساب» for a debt from
+ * before (only the person's balance changes).
+ */
+export const Debt: Story = {
+  args: {
+    preset: { type: "payable", accountId: SAMPLE_COUNTERPARTIES[0].id },
+  },
+};
+
 export const NoAccounts: Story = {
   args: { options: { ...SAMPLE_TRANSACTION_OPTIONS, accounts: [] } },
 };

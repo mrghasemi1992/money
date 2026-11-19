@@ -3,7 +3,6 @@ import "server-only";
 import { sql } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 
-import { DEFAULT_ACCOUNT_TYPE } from "@/constants/account";
 import { CSV_DUPLICATE_CHUNK, CSV_INSERT_CHUNK } from "@/constants/csv";
 import type { DuplicateQuery } from "@/helpers/csv-import";
 import type {
@@ -114,7 +113,7 @@ export async function saveImport(
         plan.accounts.map((account, index) => ({
           id: idOf({ kind: "new", key: account.key }),
           name: account.name,
-          type: DEFAULT_ACCOUNT_TYPE,
+          type: account.type,
           openingBalance: 0,
           sortOrder: sql`(select coalesce(max(${accounts.sortOrder}), -1) + ${index + 1} from ${accounts})`,
         })),

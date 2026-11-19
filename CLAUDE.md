@@ -13,6 +13,7 @@ The docs are the source of truth for how Money works. This file only holds what 
 |------|-----|
 | Users, roles, sign-in, `/setup`, `/admin/users`, Better Auth, security headers | [docs/development/features/users-and-auth.md](docs/development/features/users-and-auth.md) |
 | Accounts and categories | [docs/development/features/accounts-and-categories.md](docs/development/features/accounts-and-categories.md) |
+| Loans and debts (people and lenders, `/debts`) | [docs/development/features/loans-and-debts.md](docs/development/features/loans-and-debts.md) |
 | Transactions | [docs/development/features/transactions.md](docs/development/features/transactions.md) |
 | Budgets | [docs/development/features/budgets.md](docs/development/features/budgets.md) |
 | Reports and charts | [docs/development/features/reports.md](docs/development/features/reports.md) |
@@ -34,7 +35,7 @@ If the code and a doc disagree, say so to the user instead of picking one silent
 - **The acting user** (`created_by`, `updated_by`) comes from the session or the OAuth token, never from input.
 - **Dates are stored as Gregorian** (`date`, ISO strings through the app). Convert to the viewer's calendar only in date components and at the MCP boundary. Months, budgets and reports follow the viewer's calendar (`monthRange`); "today" is in the viewer's time zone (`todayIso`).
 - **Amounts are integers in the book currency's smallest unit** (rials, cents, pence), positive, with the type giving the direction. Format only with `src/helpers/money.ts` or the `Amount` component. Toman is display only.
-- **Transfers are never income or expense** in totals, budgets or reports. Balances come from `accountBalance()` in SQL; sum in Postgres, never in JavaScript.
+- **Transfers are never income or expense** in totals, budgets or reports. Neither are loans and debts: a person or lender is an account of type `counterparty` (#47), loans are transfers with it, and a debt no money moved for is a `receivable` or `payable` on it. Count only `income` and `expense` (`INCOME_EXPENSE_TYPES`), never "everything but transfers", and leave counterparties out wherever the book's own money is meant (`isCounterparty`). Balances come from `accountBalance()` in SQL; sum in Postgres, never in JavaScript.
 - **The database enforces the rules too** (constraints in `src/db/schema/`); validate on the server first anyway, to show a clear error. Neon's HTTP driver has no interactive transactions: use `db.batch([...])` for writes that belong together.
 - **Migrations stay backward compatible** with the previous version (expand, then contract) and are never edited once applied ([releases](docs/development/releases.md#migration-rules)).
 - **Server-only code** (`src/db/`, `src/auth/`, `src/mcp/`) imports `server-only`. A Better Auth endpoint Money doesn't use goes on `DISABLED_PATHS`.

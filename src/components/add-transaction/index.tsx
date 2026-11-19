@@ -28,6 +28,16 @@ import styles from "./styles.module.css";
 /** Opens the add-transaction form; null outside an AddTransactionProvider or for viewers. */
 const AddTransactionContext = createContext<(() => void) | null>(null);
 
+/** What the form can start with: a type and an account (a «طلب» on a person, say). */
+export type AddTransactionPreset = Partial<
+  Pick<TransactionFormValues, "type" | "accountId">
+>;
+
+/** Opens the add-transaction form with a preset; null where AddTransactionContext is. */
+const AddTransactionWithContext = createContext<
+  ((preset: AddTransactionPreset) => void) | null
+>(null);
+
 /** The Server Actions the form uses: add, and delete for «واگرد». */
 export type AddTransactionActions = {
   onCreate: (
@@ -65,20 +75,34 @@ export function AddTransactionProvider({
   children,
 }: AddTransactionProviderProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const [preset, setPreset] = useState<AddTransactionPreset | undefined>();
 
   if (!enabled || !options || !actions) return children;
 
   return (
-    <AddTransactionContext value={() => setOpen(true)}>
-      {children}
-      <Suspense fallback={null}>
-        <AddTransactionForm
-          open={open}
-          onOpenChange={setOpen}
-          options={options}
-          actions={actions}
-        />
-      </Suspense>
+    <AddTransactionContext
+      value={() => {
+        setPreset(undefined);
+        setOpen(true);
+      }}
+    >
+      <AddTransactionWithContext
+        value={(next) => {
+          setPreset(next);
+          setOpen(true);
+        }}
+      >
+        {children}
+        <Suspense fallback={null}>
+          <AddTransactionForm
+            open={open}
+            onOpenChange={setOpen}
+            options={options}
+            actions={actions}
+            preset={preset}
+          />
+        </Suspense>
+      </AddTransactionWithContext>
     </AddTransactionContext>
   );
 }
@@ -88,11 +112,13 @@ function AddTransactionForm({
   onOpenChange,
   options,
   actions,
+  preset,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   options: Promise<TransactionOptions>;
   actions: AddTransactionActions;
+  preset?: AddTransactionPreset;
 }) {
   const t = useTranslations();
   const toast = useToast();
@@ -141,6 +167,7 @@ function AddTransactionForm({
       transaction={null}
       options={resolved}
       onSubmit={submit}
+      preset={preset}
     />
   );
 }
@@ -148,6 +175,15 @@ function AddTransactionForm({
 /** Opens the add-transaction form, or null when there is none (viewers, outside the provider). */
 export function useAddTransaction(): (() => void) | null {
   return useContext(AddTransactionContext);
+}
+
+/**
+ * Opens the add-transaction form starting with a type and account (a «طلب» on a person from
+ * the «طلب و بدهی» page), or null when there is no form.
+ */
+export function useAddTransactionWith():
+  ((preset: AddTransactionPreset) => void) | null {
+  return useContext(AddTransactionWithContext);
 }
 
 /**

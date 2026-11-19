@@ -344,6 +344,8 @@ export function CsvImport({
             expense: t("transactionType.expense"),
             income: t("transactionType.income"),
             transfer: t("transactionType.transfer"),
+            receivable: t("transactionType.receivable"),
+            payable: t("transactionType.payable"),
           },
           tagSeparator: t("common.listSeparator"),
         },

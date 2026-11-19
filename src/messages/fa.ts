@@ -29,6 +29,8 @@ const fa = {
     income: "درآمد",
     expense: "هزینه",
     transfer: "انتقال",
+    receivable: "طلب",
+    payable: "بدهی",
   },
   role: {
     admin: "مدیر",
@@ -64,11 +66,19 @@ const fa = {
       work: "کار و آموزش",
       money: "مالی",
       other: "سایر",
+      counterparty: "طرف حساب",
     },
   },
   calendar: {
     previousMonth: "ماه قبل",
     nextMonth: "ماه بعد",
+    previousYear: "سال قبل",
+    nextYear: "سال بعد",
+    previousYears: "سال‌های قبل",
+    nextYears: "سال‌های بعد",
+    chooseMonth: "{title}، انتخاب ماه و سال",
+    chooseYear: "{title}، انتخاب سال",
+    yearRange: "{from} تا {to}",
     pickDate: "انتخاب تاریخ",
   },
   amountField: {
@@ -174,6 +184,7 @@ const fa = {
     budgets: "بودجه",
     reports: "گزارش‌ها",
     accounts: "حساب‌ها",
+    debts: "طلب و بدهی",
     categories: "دسته‌بندی‌ها",
     more: "بیشتر",
     settings: "تنظیمات",
@@ -332,6 +343,8 @@ const fa = {
       amount: "مبلغ",
       assistantTip: "ثبت‌شده با {name}",
       route: "{from} ← {to}",
+      receivable: "طلب از {name}",
+      payable: "بدهی به {name}",
       edit: "ویرایش",
       delete: "حذف",
       dayHeading: "<b>{relative}</b>، {date}",
@@ -354,6 +367,25 @@ const fa = {
       newTitle: "تراکنش جدید",
       editTitle: "ویرایش تراکنش",
       type: "نوع",
+      kinds: {
+        expense: "هزینه",
+        income: "درآمد",
+        transfer: "انتقال",
+        debt: "طلب/بدهی",
+      },
+      direction: "چه کسی بدهکار است؟",
+      receivable: "طلب دارم",
+      payable: "بدهکارم",
+      moneyFrom: "از کدام حساب؟",
+      moneyTo: "به کدام حساب؟",
+      moneyHint: "موجودی این حساب هم تغییر می‌کند.",
+      withoutAccount: "بدون حساب",
+      withoutAccountHint:
+        "برای بدهی‌ای از قبل یا بدون پرداخت؛ فقط مانده‌ی طرف حساب تغییر می‌کند.",
+      counterparty: "طرف حساب",
+      chooseCounterparty: "انتخاب طرف حساب",
+      noCounterparties:
+        "هنوز طرف حسابی ندارید. اول در «طلب و بدهی» یک طرف حساب اضافه کنید.",
       amount: "مبلغ",
       date: "تاریخ",
       time: "ساعت",
@@ -371,14 +403,14 @@ const fa = {
       noAccounts: "هنوز حسابی ندارید. اول در تنظیمات یک حساب اضافه کنید.",
       description: "توضیح",
       descriptionPlaceholder:
-        "{type, select, income {مثلاً حقوق مهر} transfer {مثلاً پس‌انداز ماهانه} other {مثلاً خرید هفتگی}}",
+        "{type, select, income {مثلاً حقوق مهر} transfer {مثلاً پس‌انداز ماهانه} receivable {مثلاً قرض سال ۱۴۰۲} payable {مثلاً قرض خرید ماشین} other {مثلاً خرید هفتگی}}",
       descriptionHint: "اختیاری. زیر دسته‌بندی نمایش داده می‌شود.",
       tags: "برچسب‌ها",
       tagPlaceholder: "بنویسید و Enter بزنید",
       tagSuggestions: "برچسب‌های موجود",
       tagAdd: "افزودن «{tag}»",
       submit:
-        "{type, select, income {ثبت درآمد} transfer {ثبت انتقال} other {ثبت هزینه}}",
+        "{type, select, income {ثبت درآمد} transfer {ثبت انتقال} receivable {ثبت طلب} payable {ثبت بدهی} other {ثبت هزینه}}",
       submitAnother: "ثبت و افزودن بعدی",
       submitAnotherShort: "ثبت و بعدی",
       submitEdit: "ذخیره تغییرات",
@@ -393,6 +425,8 @@ const fa = {
         accountMissing: "حساب را انتخاب کنید.",
         accountUnavailable:
           "این حساب بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
+        accountNotCounterparty:
+          "طلب و بدهی فقط روی طرف حساب‌های «طلب و بدهی» ثبت می‌شود.",
         toAccountMissing: "حساب مقصد را انتخاب کنید.",
         toAccountUnavailable:
           "حساب مقصد بایگانی یا حذف شده است. حساب دیگری انتخاب کنید.",
@@ -413,6 +447,7 @@ const fa = {
       account: "حساب",
       fromAccount: "از حساب",
       toAccount: "به حساب",
+      counterparty: "طرف حساب",
       category: "دسته‌بندی",
       tags: "برچسب‌ها",
       addedBy: "ثبت توسط {name}",
@@ -824,6 +859,7 @@ const fa = {
     menu: "گزینه‌های {name}",
     actions: {
       edit: "ویرایش",
+      transactions: "مشاهده تراکنش‌ها",
       moveUp: "انتقال به بالا",
       moveDown: "انتقال به پایین",
       archive: "بایگانی",
@@ -860,7 +896,7 @@ const fa = {
       errors: {
         nameMissing: "نام را وارد کنید.",
         nameTooLong: "نام حساب باید حداکثر {max} نویسه باشد.",
-        nameTaken: "حسابی با این نام وجود دارد.",
+        nameTaken: "حساب یا طرف حساب دیگری این نام را دارد.",
         accountNumberInvalid: "شمارهٔ حساب باید فقط رقم باشد، بین ۵ تا ۳۰ رقم.",
         cardNumberInvalid: "شمارهٔ کارت باید ۱۶ رقم باشد.",
         shebaInvalid: "شبا باید IR و ۲۴ رقم باشد.",
@@ -897,6 +933,60 @@ const fa = {
       archived: "«{name}» بایگانی شد",
       restored: "«{name}» بازگردانی شد",
       deleted: "«{name}» حذف شد",
+    },
+  },
+  debts: {
+    title: "طلب و بدهی",
+    subtitle: "کسانی که به شما بدهکارند یا به آن‌ها بدهکارید، و وام‌ها",
+    add: "افزودن طرف حساب",
+    list: "فهرست طرف حساب‌ها",
+    summary: {
+      owedToYou: "طلب شما",
+      youOwe: "بدهی شما",
+      net: "خالص",
+      note: "قرض دادن، قرض گرفتن و بازپرداخت جزو درآمد و هزینه حساب نمی‌شوند.",
+    },
+    status: {
+      owesYou: "طلب دارید",
+      youOwe: "بدهکارید",
+      settled: "تسویه",
+    },
+    recordDebt: "ثبت طلب یا بدهی",
+    dragHint:
+      "برای تغییر ترتیب، ردیف را از دستگیره بکشید. فرم ثبت تراکنش هم طرف حساب‌ها را به همین ترتیب نشان می‌دهد.",
+    moveHint:
+      "ترتیب را از منوی هر طرف حساب تغییر دهید. فرم ثبت تراکنش هم طرف حساب‌ها را به همین ترتیب نشان می‌دهد.",
+    form: {
+      newTitle: "طرف حساب جدید",
+      editTitle: "ویرایش طرف حساب",
+      namePlaceholder: "مثلاً علی، یا وام بانک ملی",
+      hint: "بعد از افزودن، قرض دادن، قرض گرفتن، بازپرداخت و بدهی‌های از قبل را از منوی ردیف با «ثبت طلب یا بدهی» ثبت کنید.",
+      submitNew: "افزودن طرف حساب",
+    },
+    delete: {
+      title: "حذف طرف حساب؟",
+      description: "«{name}» برای همیشه حذف می‌شود.",
+      submit: "حذف طرف حساب",
+    },
+    blocked: {
+      title: "این طرف حساب حذف نمی‌شود",
+      description:
+        "«{name}» {count} تراکنش دارد و طرف حسابی که تراکنش دارد حذف نمی‌شود. بایگانی‌اش کنید تا در فرم‌ها نیاید و تاریخچه‌اش بماند.",
+      archivedDescription:
+        "«{name}» {count} تراکنش دارد و طرف حسابی که تراکنش دارد حذف نمی‌شود. بایگانی‌شده می‌ماند تا تاریخچه‌اش حفظ شود.",
+      submit: "بایگانی طرف حساب",
+    },
+    empty: {
+      title: "هنوز طلب یا بدهی‌ای ثبت نکرده‌اید",
+      description:
+        "کسی را که به او قرض داده‌اید یا از او قرض گرفته‌اید، یا بانکی که از آن وام دارید، اضافه کنید. بعد قرض، بازپرداخت و بدهی‌های از قبل را با «ثبت طلب یا بدهی» ثبت کنید.",
+      viewerTitle: "هنوز طلب یا بدهی‌ای ثبت نشده است",
+      viewerDescription:
+        "وقتی ویرایشگر یا مدیر طرف حسابی بسازد، اینجا دیده می‌شود.",
+    },
+    error: "طلب و بدهی بارگذاری نشد",
+    toasts: {
+      added: "طرف حساب افزوده شد",
     },
   },
   categories: {
@@ -1341,6 +1431,8 @@ const fa = {
           "نوع «{value}» شناخته نشد؛ هزینه، درآمد یا انتقال بنویسید.",
         accountMissing: "حساب خالی است.",
         accountUnmatched: "حساب «{value}» تطبیق داده نشد.",
+        debtAccountNotCounterparty:
+          "طلب و بدهی باید روی یک طرف حساب باشد، و «{value}» حساب خود دفتر است.",
         toAccountMissing: "انتقال حساب مقصد ندارد.",
         sameAccount: "حساب مبدأ و مقصد انتقال یکی است.",
         categoryUnmatched: "دسته‌بندی «{value}» تطبیق داده نشد.",

@@ -60,9 +60,10 @@ function likePattern(search: string): string {
 
 /**
  * Unknown transactions: income and expense without a category. They show the «ناشناس» /
- * “unknown” tag, which is derived from this and never stored in `tags`.
+ * “unknown” tag, which is derived from this and never stored in `tags`. Transfers, receivables
+ * and payables never have a category.
  */
-const UNKNOWN = sql`(${column("type")} <> 'transfer' and ${column("category_id")} is null)`;
+const UNKNOWN = sql`(${column("type")} in ('income', 'expense') and ${column("category_id")} is null)`;
 
 /** The unknown tag's word in every language, folded for the search. */
 const UNKNOWN_TAG_WORDS = Object.values(MESSAGES).map((messages) =>
@@ -428,11 +429,14 @@ export async function getTransactionInput(
 
 /** Problems with the accounts and category a transaction points to. */
 export type ReferenceError =
-  "accountUnavailable" | "toAccountUnavailable" | "categoryUnavailable";
+  | "accountUnavailable"
+  | "accountNotCounterparty"
+  | "toAccountUnavailable"
+  | "categoryUnavailable";
 
 /**
  * Checks that the accounts and the category exist, aren't archived and the category has the
- * transaction's type. An edit may keep the archived account or category it already had.
+ * transaction's type, and that a receivable's or payable's account is a counterparty. An edit may keep the archived account or category it already had.
  * Returns the first problem, or null.
  */
 export async function checkTransactionReferences(
@@ -444,7 +448,11 @@ export async function checkTransactionReferences(
   );
   const [accountRows, categoryRows] = await Promise.all([
     db
-      .select({ id: accounts.id, archived: accounts.archived })
+      .select({
+        id: accounts.id,
+        type: accounts.type,
+        archived: accounts.archived,
+      })
       .from(accounts)
       .where(inArray(accounts.id, accountIds)),
     input.categoryId
@@ -468,6 +476,14 @@ export async function checkTransactionReferences(
     return row !== undefined && (!row.archived || kept.has(id));
   };
   if (!usable(input.accountId)) return "accountUnavailable";
+  // A receivable or payable is a debt on a person or lender (the database refuses others too).
+  if (
+    (input.type === "receivable" || input.type === "payable") &&
+    accountRows.find((account) => account.id === input.accountId)?.type !==
+      "counterparty"
+  ) {
+    return "accountNotCounterparty";
+  }
   if (input.toAccountId && !usable(input.toAccountId)) {
     return "toAccountUnavailable";
   }

@@ -216,6 +216,20 @@ const SHOTS: Record<string, Shot> = {
       { target: { role: "button", name: (m) => m.accounts.archived } },
     ],
   },
+  debts: {
+    story: "components-accountsettings--debts",
+    fullPage: true,
+    callouts: [
+      { target: { role: "button", name: (m) => m.debts.add } },
+      { target: { text: (m) => m.debts.summary.net }, around: CARD },
+      { target: { role: "list", name: (m) => m.debts.list } },
+      {
+        target: { role: "button", name: (m) => m.accounts.menu },
+        corner: "top-end",
+      },
+      { target: { role: "button", name: (m) => m.accounts.archived } },
+    ],
+  },
   categories: {
     story: "components-categorysettings--default",
     fullPage: true,

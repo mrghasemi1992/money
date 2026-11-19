@@ -2,6 +2,7 @@ import {
   BanknoteIcon,
   CreditCardIcon,
   PiggyBankIcon,
+  UserRoundIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,4 +17,5 @@ export const ACCOUNT_TYPE_ICONS: Record<AccountType, LucideIcon> = {
   bank: CreditCardIcon,
   cash: BanknoteIcon,
   other: PiggyBankIcon,
+  counterparty: UserRoundIcon,
 };

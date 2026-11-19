@@ -11,6 +11,7 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: 46240000,
     archived: false,
     transactionCount: 42,
+    firstDate: "2026-05-03",
   },
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b02",
@@ -21,6 +22,7 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: 14680000,
     archived: false,
     transactionCount: 18,
+    firstDate: "2026-06-11",
   },
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b03",
@@ -31,6 +33,7 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: 1950000,
     archived: false,
     transactionCount: 9,
+    firstDate: "2026-08-20",
   },
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b04",
@@ -41,6 +44,7 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: 38000000,
     archived: false,
     transactionCount: 3,
+    firstDate: "2026-07-01",
   },
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b05",
@@ -51,6 +55,7 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: 2000000,
     archived: false,
     transactionCount: 0,
+    firstDate: null,
   },
   {
     id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2b06",
@@ -61,5 +66,68 @@ export const SAMPLE_ACCOUNTS: Account[] = [
     balance: -1200000,
     archived: true,
     transactionCount: 27,
+    firstDate: "2025-11-02",
+  },
+];
+
+/**
+ * People and lenders for the /debts stories (accounts of type `counterparty`): positive balances
+ * owe the book, negative ones are owed by it.
+ */
+export const SAMPLE_COUNTERPARTIES: Account[] = [
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2c01",
+    name: "علی رضایی",
+    type: "counterparty",
+    identifier: null,
+    openingBalance: 0,
+    balance: 25000000,
+    archived: false,
+    transactionCount: 3,
+    firstDate: "2026-02-14",
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2c02",
+    name: "وام بانک ملی",
+    type: "counterparty",
+    identifier: null,
+    openingBalance: 0,
+    balance: -840000000,
+    archived: false,
+    transactionCount: 7,
+    firstDate: "2026-04-21",
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2c03",
+    name: "مریم",
+    type: "counterparty",
+    identifier: null,
+    openingBalance: 0,
+    balance: -3500000,
+    archived: false,
+    transactionCount: 1,
+    firstDate: "2026-09-30",
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2c04",
+    name: "سارا محمدی",
+    type: "counterparty",
+    identifier: null,
+    openingBalance: 0,
+    balance: 0,
+    archived: false,
+    transactionCount: 2,
+    firstDate: "2026-06-02",
+  },
+  {
+    id: "5d0f6f43-6a8c-4c3e-9a51-0d8e7f1a2c05",
+    name: "صندوق قرض‌الحسنه محل",
+    type: "counterparty",
+    identifier: null,
+    openingBalance: 0,
+    balance: 0,
+    archived: true,
+    transactionCount: 12,
+    firstDate: "2025-04-10",
   },
 ];

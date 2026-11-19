@@ -31,6 +31,8 @@ const en: Messages = {
     income: "Income",
     expense: "Expense",
     transfer: "Transfer",
+    receivable: "Owed to me",
+    payable: "I owe",
   },
   role: {
     admin: "Admin",
@@ -66,11 +68,19 @@ const en: Messages = {
       work: "Work and education",
       money: "Money",
       other: "Other",
+      counterparty: "Person or lender",
     },
   },
   calendar: {
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    previousYear: "Previous year",
+    nextYear: "Next year",
+    previousYears: "Earlier years",
+    nextYears: "Later years",
+    chooseMonth: "{title}, choose month and year",
+    chooseYear: "{title}, choose year",
+    yearRange: "{from}–{to}",
     pickDate: "Pick a date",
   },
   amountField: {
@@ -178,6 +188,7 @@ const en: Messages = {
     budgets: "Budget",
     reports: "Reports",
     accounts: "Accounts",
+    debts: "Loans and debts",
     categories: "Categories",
     more: "More",
     settings: "Settings",
@@ -339,6 +350,8 @@ const en: Messages = {
       amount: "Amount",
       assistantTip: "Added by {name}",
       route: "{from} → {to}",
+      receivable: "{name} owes you",
+      payable: "You owe {name}",
       edit: "Edit",
       delete: "Delete",
       dayHeading: "<b>{relative}</b>, {date}",
@@ -361,6 +374,25 @@ const en: Messages = {
       newTitle: "New transaction",
       editTitle: "Edit transaction",
       type: "Type",
+      kinds: {
+        expense: "Expense",
+        income: "Income",
+        transfer: "Transfer",
+        debt: "Debt",
+      },
+      direction: "Who owes whom",
+      receivable: "Owed to me",
+      payable: "I owe",
+      moneyFrom: "From which account",
+      moneyTo: "To which account",
+      moneyHint: "This account’s balance changes too.",
+      withoutAccount: "Without an account",
+      withoutAccountHint:
+        "For a debt from before, or without a payment: only the person’s balance changes.",
+      counterparty: "Person or lender",
+      chooseCounterparty: "Choose a person or lender",
+      noCounterparties:
+        "You have no people or lenders yet. Add one on Loans and debts first.",
       amount: "Amount",
       date: "Date",
       time: "Time",
@@ -378,14 +410,14 @@ const en: Messages = {
       noAccounts: "There are no accounts yet. Add one in Settings first.",
       description: "Description",
       descriptionPlaceholder:
-        "{type, select, income {e.g. October salary} transfer {e.g. Monthly savings} other {e.g. Weekly groceries}}",
+        "{type, select, income {e.g. October salary} transfer {e.g. Monthly savings} receivable {e.g. Loan from 2023} payable {e.g. Car purchase loan} other {e.g. Weekly groceries}}",
       descriptionHint: "Optional. Shown under the category.",
       tags: "Tags",
       tagPlaceholder: "Type and press Enter",
       tagSuggestions: "Existing tags",
       tagAdd: "Add “{tag}”",
       submit:
-        "{type, select, income {Add income} transfer {Add transfer} other {Add expense}}",
+        "{type, select, income {Add income} transfer {Add transfer} receivable {Add debt} payable {Add debt} other {Add expense}}",
       submitAnother: "Save and add another",
       submitAnotherShort: "Save & new",
       submitEdit: "Save changes",
@@ -400,6 +432,8 @@ const en: Messages = {
         accountMissing: "Choose an account.",
         accountUnavailable:
           "This account was archived or deleted. Choose another one.",
+        accountNotCounterparty:
+          "A debt can only be recorded on a person or lender from Loans and debts.",
         toAccountMissing: "Choose the destination account.",
         toAccountUnavailable:
           "The destination account was archived or deleted. Choose another one.",
@@ -421,6 +455,7 @@ const en: Messages = {
       account: "Account",
       fromAccount: "From account",
       toAccount: "To account",
+      counterparty: "Person or lender",
       category: "Category",
       tags: "Tags",
       addedBy: "Added by {name}",
@@ -833,6 +868,7 @@ const en: Messages = {
     menu: "Options for {name}",
     actions: {
       edit: "Edit",
+      transactions: "View transactions",
       moveUp: "Move up",
       moveDown: "Move down",
       archive: "Archive",
@@ -869,7 +905,8 @@ const en: Messages = {
       errors: {
         nameMissing: "Enter a name.",
         nameTooLong: "An account name can be at most {max} characters.",
-        nameTaken: "An account with this name already exists.",
+        nameTaken:
+          "An account, person or lender with this name already exists.",
         accountNumberInvalid:
           "An account number is digits only, between 5 and 30.",
         cardNumberInvalid: "A card number is 16 digits.",
@@ -907,6 +944,60 @@ const en: Messages = {
       archived: "“{name}” archived",
       restored: "“{name}” restored",
       deleted: "“{name}” deleted",
+    },
+  },
+  debts: {
+    title: "Loans and debts",
+    subtitle: "People who owe you or whom you owe, and your loans",
+    add: "Add person or lender",
+    list: "People and lenders",
+    summary: {
+      owedToYou: "Owed to you",
+      youOwe: "You owe",
+      net: "Net",
+      note: "Lending, borrowing and repaying never count as income or expense.",
+    },
+    status: {
+      owesYou: "Owes you",
+      youOwe: "You owe",
+      settled: "Settled",
+    },
+    recordDebt: "Record a debt",
+    dragHint:
+      "Drag a row by its handle to reorder. The transaction form lists people and lenders in the same order.",
+    moveHint:
+      "Reorder from each row’s menu. The transaction form lists people and lenders in the same order.",
+    form: {
+      newTitle: "New person or lender",
+      editTitle: "Edit person or lender",
+      namePlaceholder: "e.g. Ali, or Melli Bank loan",
+      hint: "After adding them, record loans, repayments and debts from before from the row menu with “Record a debt”.",
+      submitNew: "Add",
+    },
+    delete: {
+      title: "Delete person or lender?",
+      description: "“{name}” will be deleted permanently.",
+      submit: "Delete",
+    },
+    blocked: {
+      title: "This can’t be deleted",
+      description:
+        "“{name}” has {count} transactions, and one with transactions can’t be deleted. Archive it to hide it from forms and keep its history.",
+      archivedDescription:
+        "“{name}” has {count} transactions, and one with transactions can’t be deleted. It stays archived so its history is kept.",
+      submit: "Archive",
+    },
+    empty: {
+      title: "No loans or debts yet",
+      description:
+        "Add someone you lent money to or borrowed from, or a bank you have a loan with. Then record loans, repayments and debts from before with “Record a debt”.",
+      viewerTitle: "No loans or debts yet",
+      viewerDescription:
+        "When an editor or admin adds a person or lender, it shows here.",
+    },
+    error: "Loans and debts didn’t load",
+    toasts: {
+      added: "Added",
     },
   },
   categories: {
@@ -1359,6 +1450,8 @@ const en: Messages = {
           "The type “{value}” isn’t known. Write expense, income or transfer.",
         accountMissing: "The account is empty.",
         accountUnmatched: "The account “{value}” isn’t matched.",
+        debtAccountNotCounterparty:
+          "A debt must be on a person or lender, and “{value}” is one of the book’s own accounts.",
         toAccountMissing: "The transfer has no destination account.",
         sameAccount: "The transfer’s from and to accounts are the same.",
         categoryUnmatched: "The category “{value}” isn’t matched.",

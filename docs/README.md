@@ -27,6 +27,7 @@ For anyone who changes the code: the maintainer, a contributor or an AI agent. R
 5. The doc of the area you work on:
    - [Users, roles and sign-in](development/features/users-and-auth.md)
    - [Accounts and categories](development/features/accounts-and-categories.md)
+   - [Loans and debts](development/features/loans-and-debts.md)
    - [Transactions](development/features/transactions.md)
    - [Budgets](development/features/budgets.md)
    - [Reports](development/features/reports.md)

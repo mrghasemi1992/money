@@ -1,11 +1,15 @@
 import type { AccountType } from "@/types/account";
 
 /**
- * Kinds of account, in the order the form lists them. Stored as text in `accounts.type`; the
- * icon (ACCOUNT_TYPE_ICONS), the label (`accounts.types` messages) and whether the account can
- * carry an identifier (`bank` only) depend on it.
+ * Kinds of account. Stored as text in `accounts.type`; the icon (ACCOUNT_TYPE_ICONS), the label
+ * (`accounts.types` messages) and whether the account can carry an identifier (`bank` only)
+ * depend on it. A `counterparty` is a person or lender money is owed to or by (#47): it lives on
+ * /debts, not /accounts, and its balance is what they owe (positive) or are owed (negative).
  */
-export const ACCOUNT_TYPES = ["bank", "cash", "other"] as const;
+export const ACCOUNT_TYPES = ["bank", "cash", "other", "counterparty"] as const;
+
+/** The kinds of the book's own money (the /accounts page and its form), in the form's order. */
+export const MONEY_ACCOUNT_TYPES = ["bank", "cash", "other"] as const;
 
 export const DEFAULT_ACCOUNT_TYPE: AccountType = "bank";
 

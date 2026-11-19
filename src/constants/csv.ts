@@ -136,6 +136,8 @@ export const CSV_TYPE_WORDS: Record<TransactionType, string[]> = {
   ],
   income: ["درآمد", "دریافت", "واریز", "income", "credit", "deposit", "refund"],
   transfer: ["انتقال", "transfer"],
+  receivable: ["طلب", "receivable", "owed to me"],
+  payable: ["بدهی", "payable", "i owe"],
 };
 
 /** Characters that start a formula in spreadsheets; text cells starting with one get a «'». */

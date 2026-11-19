@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { type SQL, sql } from "drizzle-orm";
 import {
   bigint,
   check,
@@ -28,6 +28,9 @@ import { id, oneOf, timestamps } from "./columns";
  * - The category's type equals the transaction's type: the (category_id, type) foreign key.
  *   No category has the type "transfer", so transfers can't have one.
  * - Transfers have a different destination account; income and expense have none.
+ * - Receivables and payables (a debt recorded without money moving) are on a counterparty
+ *   account, with no destination account and no category: transactions_debt_account_fk, the
+ *   transfer check and the category foreign key.
  */
 export const transactions = pgTable(
   "transactions",
@@ -65,6 +68,16 @@ export const transactions = pgTable(
       .notNull()
       .default(sql`'{}'::text[]`),
     source: text({ enum: TRANSACTION_SOURCES }).notNull().default("web"),
+    /**
+     * 'counterparty' for a receivable or payable, null otherwise: with
+     * transactions_debt_account_fk it makes their account a person or lender.
+     */
+    debtAccountType: text()
+      .$type<"counterparty">()
+      .generatedAlwaysAs(
+        (): SQL =>
+          sql`case when ${transactions.type} in ('receivable', 'payable') then 'counterparty' end`,
+      ),
     /** Who added it (web, MCP or CSV import). Users are disabled, never deleted. */
     createdBy: uuid()
       .notNull()
@@ -103,6 +116,11 @@ export const transactions = pgTable(
       name: "transactions_category_fk",
       columns: [table.categoryId, table.type],
       foreignColumns: [categories.id, categories.type],
+    }),
+    foreignKey({
+      name: "transactions_debt_account_fk",
+      columns: [table.accountId, table.debtAccountType],
+      foreignColumns: [accounts.id, accounts.type],
     }),
   ],
 );
