@@ -1,14 +1,32 @@
 import { z } from "zod";
 
-import {
-  ACCOUNT_IDENTIFIER_KINDS,
-  ACCOUNT_NAME_MAX_LENGTH,
-  ACCOUNT_TYPES,
-} from "@/constants/account";
-import { checkIdentifier } from "@/helpers/account-identifier";
+import { ACCOUNT_NAME_MAX_LENGTH, ACCOUNT_TYPES } from "@/constants/account";
+import { checkIdentifierValue } from "@/helpers/account-identifier";
 import type { AccountIdentifierError } from "@/helpers/account-identifier";
-import type { AccountInput, AccountKind, AccountType } from "@/types/account";
+import type {
+  AccountField,
+  AccountInput,
+  AccountIdentifierKind,
+  AccountKind,
+  AccountType,
+} from "@/types/account";
 import { tidyName } from "@/utils/text";
+
+/** One identifier field of the account form: optional, checked and normalized per kind. */
+function identifierField(kind: AccountIdentifierKind) {
+  return z
+    .string()
+    .max(100)
+    .nullable()
+    .transform((raw, context) => {
+      const checked = checkIdentifierValue(kind, raw);
+      if (!checked.ok) {
+        context.addIssue({ code: "custom", message: checked.error });
+        return z.NEVER;
+      }
+      return checked.value;
+    });
+}
 
 /**
  * The account form's rules, shared by the form (to show errors before sending) and the Server
@@ -25,18 +43,11 @@ export const accountSchema = z.object({
         .max(ACCOUNT_NAME_MAX_LENGTH, "nameTooLong"),
     ),
   type: z.enum(ACCOUNT_TYPES),
-  identifier: z
-    .object({
-      kind: z.enum(ACCOUNT_IDENTIFIER_KINDS),
-      value: z.string().max(100),
-    })
-    .nullable()
-    .transform((identifier, context) => {
-      const checked = checkIdentifier(identifier);
-      if (checked.ok) return checked.identifier;
-      context.addIssue({ code: "custom", message: checked.error });
-      return z.NEVER;
-    }),
+  identifiers: z.object({
+    accountNumber: identifierField("accountNumber"),
+    cardNumber: identifierField("cardNumber"),
+    sheba: identifierField("sheba"),
+  }),
   openingBalance: z.number().int().safe(),
 }) satisfies z.ZodType<AccountInput>;
 
@@ -46,9 +57,9 @@ export type AccountNameError = "nameMissing" | "nameTooLong" | "nameTaken";
 /** An account form problem: the field it belongs to and the message key. */
 export type AccountFormError =
   | { field: "name"; key: AccountNameError }
-  | { field: "identifier"; key: AccountIdentifierError };
+  | { field: Exclude<AccountField, "name">; key: AccountIdentifierError };
 
-/** The form's first problem (the name's before the identifier's), or null when it is valid. */
+/** The form's first problem (the name's before the identifiers'), or null when it is valid. */
 export function accountFormError(input: unknown): AccountFormError | null {
   const parsed = accountSchema.safeParse(input);
   if (parsed.success) return null;
@@ -61,13 +72,17 @@ export function accountFormError(input: unknown): AccountFormError | null {
   }
   for (const issue of parsed.error.issues) {
     const key = issue.message;
+    const field = issue.path[1];
     if (
-      issue.path[0] === "identifier" &&
+      issue.path[0] === "identifiers" &&
+      (field === "accountNumber" ||
+        field === "cardNumber" ||
+        field === "sheba") &&
       (key === "accountNumberInvalid" ||
         key === "cardNumberInvalid" ||
         key === "shebaInvalid")
     ) {
-      return { field: "identifier", key };
+      return { field, key };
     }
   }
   return null;

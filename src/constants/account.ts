@@ -14,8 +14,8 @@ export const MONEY_ACCOUNT_TYPES = ["bank", "cash", "other"] as const;
 export const DEFAULT_ACCOUNT_TYPE: AccountType = "bank";
 
 /**
- * What an account's optional identifier is, stored in `accounts.identifier_kind` next to the
- * normalized `identifier` (Latin digits, no spaces; a Sheba with its uppercase «IR»).
+ * A bank account's optional identifiers, each stored in its own column (`accounts.account_number`,
+ * `card_number`, `sheba`) normalized: Latin digits, no spaces; a Sheba with its uppercase «IR».
  */
 export const ACCOUNT_IDENTIFIER_KINDS = [
   "accountNumber",

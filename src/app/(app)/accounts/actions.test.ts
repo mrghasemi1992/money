@@ -45,7 +45,7 @@ describe("accounts", () => {
   const account = {
     name: "  بانک ملی ",
     type: "bank",
-    identifier: null,
+    identifiers: { accountNumber: null, cardNumber: null, sheba: null },
     openingBalance: 1_000_000,
   };
 

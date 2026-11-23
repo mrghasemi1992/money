@@ -25,8 +25,9 @@ export async function listAccounts(): Promise<Account[]> {
       id: accounts.id,
       name: accounts.name,
       type: accounts.type,
-      identifierKind: accounts.identifierKind,
-      identifier: accounts.identifier,
+      accountNumber: accounts.accountNumber,
+      cardNumber: accounts.cardNumber,
+      sheba: accounts.sheba,
       openingBalance: accounts.openingBalance,
       balance: accountBalance(),
       archived: accounts.archived,
@@ -39,27 +40,25 @@ export async function listAccounts(): Promise<Account[]> {
       asc(accounts.createdAt),
       asc(accounts.id),
     );
-  return rows.map(({ identifierKind, identifier, ...account }) => ({
+  return rows.map(({ accountNumber, cardNumber, sheba, ...account }) => ({
     ...account,
-    identifier:
-      identifierKind && identifier
-        ? { kind: identifierKind, value: identifier }
-        : null,
+    identifiers: { accountNumber, cardNumber, sheba },
   }));
 }
 
 /**
- * The columns of an account's input; only bank accounts keep an identifier, and a counterparty's
+ * The columns of an account's input; only bank accounts keep identifiers, and a counterparty's
  * opening balance is 0 (its debts are receivable / payable transactions).
  */
 function accountValues(input: AccountInput) {
-  const { identifier, ...rest } = input;
-  const kept = input.type === "bank" ? identifier : null;
+  const { identifiers, ...rest } = input;
+  const kept = input.type === "bank" ? identifiers : null;
   return {
     ...rest,
     openingBalance: input.type === "counterparty" ? 0 : input.openingBalance,
-    identifierKind: kept?.kind ?? null,
-    identifier: kept?.value ?? null,
+    accountNumber: kept?.accountNumber ?? null,
+    cardNumber: kept?.cardNumber ?? null,
+    sheba: kept?.sheba ?? null,
   };
 }
 
@@ -104,7 +103,7 @@ export async function createAccount(
 }
 
 /**
- * Changes an account's name, type, identifier and opening balance. Returns "ok", "missing" (no such
+ * Changes an account's name, type, identifiers and opening balance. Returns "ok", "missing" (no such
  * account) or "taken" (another account has the name).
  */
 export async function updateAccount(

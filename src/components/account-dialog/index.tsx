@@ -23,6 +23,7 @@ import type {
   Account,
   AccountField,
   AccountIdentifierKind,
+  AccountIdentifiers,
   AccountInput,
   AccountKind,
 } from "@/types/account";
@@ -37,7 +38,7 @@ type AccountDialogProps = {
   /** The account to edit; null for a new one. Kept while the dialog closes. */
   account: Account | null;
   /**
-   * The book's own money (type, identifier, starting balance) or a person or lender (who owed
+   * The book's own money (type, identifiers, starting balance) or a person or lender (who owed
    * whom from before, how much and since when).
    */
   kind?: AccountKind;
@@ -50,17 +51,13 @@ type AccountDialogProps = {
 };
 
 const NAME_INPUT = "account-name";
-const IDENTIFIER_INPUT = "account-identifier";
 
-/** The form's values; the starting balance may be empty while typing (saved as 0). */
-type FormValues = Omit<AccountInput, "openingBalance" | "identifier"> & {
+/** The form's values; the starting balance may be empty while typing (saved as 0) and the
+ * identifiers as the user typed them (empty means none). */
+type FormValues = Omit<AccountInput, "openingBalance" | "identifiers"> & {
   openingBalance: number | null;
-  /** The identifier's kind is kept while the value is empty. */
-  identifierKind: AccountIdentifierKind;
-  identifierValue: string;
+  identifiers: Record<AccountIdentifierKind, string>;
 };
-
-const DEFAULT_IDENTIFIER_KIND: AccountIdentifierKind = "accountNumber";
 
 function blank(account: Account | null, kind: AccountKind): FormValues {
   const counterparty = kind === "counterparty";
@@ -68,22 +65,39 @@ function blank(account: Account | null, kind: AccountKind): FormValues {
     ? {
         name: account.name,
         type: account.type,
-        identifierKind: account.identifier?.kind ?? DEFAULT_IDENTIFIER_KIND,
-        identifierValue: account.identifier?.value ?? "",
+        identifiers: {
+          accountNumber: account.identifiers.accountNumber ?? "",
+          cardNumber: account.identifiers.cardNumber ?? "",
+          sheba: account.identifiers.sheba ?? "",
+        },
         openingBalance: account.openingBalance,
       }
     : {
         name: "",
         type: counterparty ? "counterparty" : DEFAULT_ACCOUNT_TYPE,
-        identifierKind: DEFAULT_IDENTIFIER_KIND,
-        identifierValue: "",
+        identifiers: { accountNumber: "", cardNumber: "", sheba: "" },
         openingBalance: null,
       };
 }
 
 /**
- * Adds or edits an account: name, type (bank account, cash, other), for a bank account an
- * optional account number, card number or Sheba, and starting balance, which may be zero or
+ * The identifiers of an account form, as the schema expects: an empty field is no identifier.
+ * (The server normalizes and checks each value.)
+ */
+function toIdentifiers(
+  values: Record<AccountIdentifierKind, string>,
+): AccountIdentifiers {
+  return {
+    accountNumber:
+      values.accountNumber.trim() === "" ? null : values.accountNumber,
+    cardNumber: values.cardNumber.trim() === "" ? null : values.cardNumber,
+    sheba: values.sheba.trim() === "" ? null : values.sheba,
+  };
+}
+
+/**
+ * Adds or edits an account: name, type (bank account, cash, other), for a bank account the
+ * optional account number, card number and Sheba, and starting balance, which may be zero or
  * negative. The current balance follows from it and the account's transactions.
  *
  * For a person or lender (`kind="counterparty"`): only the name. What they owe or are owed
@@ -111,7 +125,7 @@ export function AccountDialog({
   const [errors, setErrors] = useState<Partial<Record<AccountField, string>>>(
     {},
   );
-  const identifierKindLabelId = useId();
+  const identifierLabelId = useId();
 
   // Each opening starts from the account (or an empty form).
   const [openedFor, setOpenedFor] = useState<Account | null | undefined>(
@@ -129,20 +143,16 @@ export function AccountDialog({
     setErrors({ [field]: message });
     formRef.current
       ?.querySelector<HTMLInputElement>(
-        `[name="${field === "name" ? NAME_INPUT : IDENTIFIER_INPUT}"]`,
+        `[name="${field === "name" ? NAME_INPUT : `account-${field}`}"]`,
       )
       ?.focus();
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const { identifierKind, identifierValue, ...rest } = values;
     const input: AccountInput = {
-      ...rest,
-      identifier:
-        values.type === "bank" && identifierValue.trim() !== ""
-          ? { kind: identifierKind, value: identifierValue }
-          : null,
+      ...values,
+      identifiers: toIdentifiers(values.identifiers),
       openingBalance: counterparty ? 0 : (values.openingBalance ?? 0),
     };
     const found = accountFormError(input);
@@ -257,52 +267,39 @@ export function AccountDialog({
             </div>
             {values.type === "bank" ? (
               <div className={styles.group}>
-                <span id={identifierKindLabelId} className={styles.label}>
+                <span id={identifierLabelId} className={styles.label}>
                   {t("accounts.form.identifier")}
                 </span>
-                <SegmentedControl
-                  aria-labelledby={identifierKindLabelId}
-                  fullWidth
-                  value={values.identifierKind}
-                  disabled={pending}
-                  onValueChange={(value) => {
-                    setValues((current) => ({
-                      ...current,
-                      identifierKind:
-                        ACCOUNT_IDENTIFIER_KINDS.find(
-                          (kind) => kind === value,
-                        ) ?? current.identifierKind,
-                    }));
-                    setErrors({});
-                  }}
-                  options={ACCOUNT_IDENTIFIER_KINDS.map((kind) => ({
-                    value: kind,
-                    label: t(`accounts.identifierKinds.${kind}`),
-                  }))}
-                />
-                <Field
-                  label={t(`accounts.identifierKinds.${values.identifierKind}`)}
-                  hint={t(
-                    `accounts.form.identifierHints.${values.identifierKind}`,
-                  )}
-                  error={errors.identifier}
-                >
-                  <TextField
-                    name={IDENTIFIER_INPUT}
-                    dir="ltr"
-                    inputMode={
-                      values.identifierKind === "sheba" ? "text" : "numeric"
-                    }
-                    autoComplete="off"
-                    placeholder={t("accounts.form.identifierOptional")}
-                    value={values.identifierValue}
-                    readOnly={pending}
-                    onValueChange={(identifierValue) => {
-                      setValues((current) => ({ ...current, identifierValue }));
-                      setErrors({});
-                    }}
-                  />
-                </Field>
+                {ACCOUNT_IDENTIFIER_KINDS.map((identifierKind) => (
+                  <Field
+                    key={identifierKind}
+                    label={t(`accounts.identifierKinds.${identifierKind}`)}
+                    hint={t(`accounts.form.identifierHints.${identifierKind}`)}
+                    error={errors[identifierKind]}
+                  >
+                    <TextField
+                      name={`account-${identifierKind}`}
+                      dir="ltr"
+                      inputMode={
+                        identifierKind === "sheba" ? "text" : "numeric"
+                      }
+                      autoComplete="off"
+                      placeholder={t("accounts.form.identifierOptional")}
+                      value={values.identifiers[identifierKind]}
+                      readOnly={pending}
+                      onValueChange={(value) => {
+                        setValues((current) => ({
+                          ...current,
+                          identifiers: {
+                            ...current.identifiers,
+                            [identifierKind]: value,
+                          },
+                        }));
+                        setErrors({});
+                      }}
+                    />
+                  </Field>
+                ))}
               </div>
             ) : null}
             <Field

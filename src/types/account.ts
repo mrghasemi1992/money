@@ -13,10 +13,14 @@ export type AccountKind = "money" | "counterparty";
 
 export type AccountIdentifierKind = (typeof ACCOUNT_IDENTIFIER_KINDS)[number];
 
-/** An account's optional identifier, as stored (normalized). */
-export type AccountIdentifier = {
-  kind: AccountIdentifierKind;
-  value: string;
+/**
+ * A bank account's optional identifiers, as stored (normalized). One account can carry all
+ * three; every kind is null for cash, other and counterparty accounts.
+ */
+export type AccountIdentifiers = {
+  accountNumber: string | null;
+  cardNumber: string | null;
+  sheba: string | null;
 };
 
 /** An account as the accounts page lists it, with its live balance. */
@@ -24,8 +28,8 @@ export type Account = {
   id: string;
   name: string;
   type: AccountType;
-  /** Account number, card number or Sheba; bank accounts only. Show it masked in lists. */
-  identifier: AccountIdentifier | null;
+  /** Account number, card number and Sheba; bank accounts only. Show them masked in lists. */
+  identifiers: AccountIdentifiers;
   /** In the book currency's smallest unit; may be 0 or negative. */
   openingBalance: number;
   /** Opening balance plus the account's transactions (see `accountBalance`). */
@@ -39,14 +43,14 @@ export type Account = {
 };
 
 /** Fields of the account form an error can belong to. */
-export type AccountField = "name" | "identifier";
+export type AccountField = "name" | "accountNumber" | "cardNumber" | "sheba";
 
 /** What the account form edits. */
 export type AccountInput = {
   name: string;
   type: AccountType;
-  /** Typed as the user wrote it; the server normalizes and checks it per kind. */
-  identifier: AccountIdentifier | null;
+  /** Typed as the user wrote it; the server normalizes and checks each kind. */
+  identifiers: AccountIdentifiers;
   /** Always 0 for a counterparty (its debts are receivable / payable transactions). */
   openingBalance: number;
 };

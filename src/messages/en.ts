@@ -888,7 +888,7 @@ const en: Messages = {
       name: "Name",
       namePlaceholder: "e.g. Mellat Bank card",
       type: "Type",
-      identifier: "Account identifier (optional)",
+      identifier: "Account identifiers (optional)",
       identifierOptional: "Leave empty if you don’t need it",
       identifierHints: {
         accountNumber: "Digits only; spaces and dashes are removed.",

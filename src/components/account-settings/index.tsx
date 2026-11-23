@@ -188,7 +188,7 @@ export function AccountSettings({
               onCreate({
                 name: account.name,
                 type: account.type,
-                identifier: account.identifier,
+                identifiers: account.identifiers,
                 openingBalance: account.openingBalance,
               }),
             () =>
