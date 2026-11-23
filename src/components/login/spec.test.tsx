@@ -95,4 +95,14 @@ describe("Login", () => {
     expect(screen.getByLabelText(fa.login.username)).toHaveFocus();
     expect(requests).not.toHaveBeenCalled();
   });
+
+  it("labels every field and the submit for keyboard and screen readers", () => {
+    renderWithApp(<Login returnTo="/" />);
+
+    expect(screen.getByLabelText(fa.login.username)).toHaveAccessibleName();
+    expect(screen.getByLabelText(fa.login.password)).toHaveAccessibleName();
+    expect(
+      screen.getByRole("button", { name: fa.login.submit }),
+    ).toHaveAccessibleName();
+  });
 });

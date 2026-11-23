@@ -59,6 +59,21 @@ async function upload(
 }
 
 describe("CsvImport", () => {
+  it("marks the current step and names the first step's controls", () => {
+    setup();
+
+    const uploadStep = screen
+      .getAllByText(t("importExport.import.steps.upload"))
+      .find((element) => element.closest("ol"))!
+      .closest("li")!;
+    expect(uploadStep).toHaveAttribute("aria-current", "step");
+    expect(
+      screen.getByRole("button", {
+        name: t("importExport.import.upload.choose"),
+      }),
+    ).toHaveAccessibleName();
+  });
+
   it("reads a file, maps it, checks it and adds the good rows", async () => {
     const { user, view, onCheckDuplicates, onImport } = setup();
 

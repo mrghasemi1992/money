@@ -139,4 +139,24 @@ describe("BudgetDialog", () => {
       amount: 2000,
     });
   });
+
+  it("labels every control, opens with focus inside and closes with Escape", async () => {
+    const { user, onOpenChange } = setup();
+    const dialog = screen.getByRole("dialog", {
+      name: t("budgets.form.newTitle"),
+    });
+
+    for (const control of [
+      ...within(dialog).getAllByRole("textbox"),
+      ...within(dialog).getAllByRole("combobox"),
+    ]) {
+      expect(control).toHaveAccessibleName();
+    }
+    // Focus starts in the dialog, so Tab moves through it first.
+    await user.tab();
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
 });

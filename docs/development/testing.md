@@ -24,6 +24,10 @@ One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "get
 - **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
 - **What to test:** behavior someone relies on: the rules in `src/helpers`, what a role may do, what the connector accepts and returns, what a user sees and can do in a component. No snapshot dumps, and no tests that only check that a mock was set up.
 
+## Coverage
+
+`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`) and holds a floor: it fails when a metric falls below the threshold set in `vitest.config.mts`. The thresholds are the baseline of the tests written for issue #71 — 44% statements, 43% branches, 36% functions, 45% lines — and CI runs the coverage report, so it fails only below that baseline. When a pull request adds code or tests, raise the thresholds with it, so the number only goes up; never lower them to make a run pass.
+
 ## No database in tests
 
 Local development runs on a `dev` Neon branch ([local development](local-development.md)), which is still a real database with a copy of the book, so unit tests never touch one. `src/test/setup.ts`, which runs before every test file:
@@ -110,7 +114,7 @@ When a query can't find something, the error lists every role and accessible nam
 
 ## CI
 
-`.github/workflows/ci.yml` runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test` on every pull request and every push to `main`, with `contents: read` only and no secrets. Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.
+`.github/workflows/ci.yml` runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test:coverage` on every pull request and every push to `main`, with `contents: read` only and no secrets. Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.
 
 ## Not covered yet
 

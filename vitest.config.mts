@@ -57,6 +57,14 @@ export default defineConfig({
         "src/db/schema/**",
       ],
       reporter: ["text-summary", "html"],
+      // The baseline of the tests written for #71, as CI floors below. Raise the
+      // numbers as the app grows, never below them.
+      thresholds: {
+        statements: 44,
+        branches: 43,
+        functions: 36,
+        lines: 45,
+      },
     },
   },
 });

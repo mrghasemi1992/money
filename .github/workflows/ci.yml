@@ -33,4 +33,5 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm format:check
-      - run: pnpm test
+      # With coverage, so the thresholds in vitest.config.mts hold the baseline.
+      - run: pnpm test:coverage
