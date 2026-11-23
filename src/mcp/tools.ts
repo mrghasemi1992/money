@@ -40,6 +40,7 @@ import {
 } from "@/helpers/connector";
 import { debtTotals, isCounterparty } from "@/helpers/account";
 import { maskIdentifier } from "@/helpers/account-identifier";
+import type { Account } from "@/types/account";
 import { canWrite } from "@/helpers/role";
 import { assistantName } from "@/helpers/transaction-source";
 import {
@@ -334,6 +335,27 @@ async function checkTransaction(
   return { data: parsed.data };
 }
 
+/**
+ * A bank account's identifiers for Claude: each present kind masked to its last four
+ * characters, in `snake_case`, so an SMS's «•••• 6219» can tell accounts apart.
+ */
+function maskedIdentifiers(account: Account) {
+  const masked = {
+    account_number: account.identifiers.accountNumber
+      ? maskIdentifier(account.identifiers.accountNumber)
+      : null,
+    card_number: account.identifiers.cardNumber
+      ? maskIdentifier(account.identifiers.cardNumber)
+      : null,
+    sheba: account.identifiers.sheba
+      ? maskIdentifier(account.identifiers.sheba)
+      : null,
+  };
+  return Object.values(masked).some((value) => value !== null)
+    ? { identifiers: masked }
+    : {};
+}
+
 /** Registers the tools for one request: read tools for everyone, write tools for writers. */
 export function registerTools(server: McpServer, ctx: McpContext) {
   const writer = canWrite(ctx.user.role);
@@ -375,7 +397,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
     {
       title: "List accounts",
       description:
-        "The book's accounts (type bank, cash or other) with their ids and current balances, in the user's order, and its people and lenders (type counterparty: someone the user lent to or borrowed from, or a bank loan). A counterparty's balance is what they owe the book when positive, or what the book owes them when negative. Bank accounts may carry an identifier (account number, card number or Sheba) shown masked to its last four characters; it is only a hint for telling accounts apart, e.g. a card ending in 6219 in a bank SMS. Use it to map an account or person name to account_id.",
+        "The book's accounts (type bank, cash or other) with their ids and current balances, in the user's order, and its people and lenders (type counterparty: someone the user lent to or borrowed from, or a bank loan). A counterparty's balance is what they owe the book when positive, or what the book owes them when negative. Bank accounts may carry identifiers (account number, card number and/or Sheba), each shown masked to its last four characters; they are only a hint for telling accounts apart, e.g. a card ending in 6219 in a bank SMS. Use them to map an account or person name to account_id.",
       inputSchema: z.object({}),
       annotations: { readOnlyHint: true },
     },
@@ -399,12 +421,7 @@ export function registerTools(server: McpServer, ctx: McpContext) {
           id: account.id,
           name: account.name,
           type: account.type,
-          ...(account.identifier
-            ? {
-                identifier_kind: account.identifier.kind,
-                identifier: maskIdentifier(account.identifier),
-              }
-            : {}),
+          ...maskedIdentifiers(account),
           balance: fromMinorUnits(account.balance, ctx.currency),
           ...(account.archived ? { archived: true } : {}),
         })),

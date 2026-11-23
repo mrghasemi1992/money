@@ -879,7 +879,7 @@ const fa = {
       name: "نام",
       namePlaceholder: "مثلاً کارت بانک ملت",
       type: "نوع",
-      identifier: "شناسهٔ حساب (اختیاری)",
+      identifier: "شناسه‌های حساب (اختیاری)",
       identifierOptional: "خالی بگذارید اگر لازم نیست",
       identifierHints: {
         accountNumber: "فقط رقم؛ فاصله و خط تیره حذف می‌شود.",

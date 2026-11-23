@@ -31,11 +31,20 @@ export const accounts = pgTable(
     id: id(),
     /** Unique, ignoring case. */
     name: text().notNull(),
-    /** Decides the icon and label (bank account, cash or other); only bank accounts have an identifier. */
+    /** Decides the icon and label (bank account, cash or other); only bank accounts have identifiers. */
     type: text({ enum: ACCOUNT_TYPES }).notNull().default(DEFAULT_ACCOUNT_TYPE),
-    /** What `identifier` is: both are set or both null (see `accountIdentifier` rules). */
+    /** Optional account number, normalized (Latin digits, no separators); bank accounts only. */
+    accountNumber: text(),
+    /** Optional card number, normalized (16 Latin digits); bank accounts only. */
+    cardNumber: text(),
+    /** Optional Sheba, normalized («IR» + 24 Latin digits); bank accounts only. */
+    sheba: text(),
+    /**
+     * No longer read or written: migration 0013 moved each identifier into its own column
+     * (`account_number`, `card_number`, `sheba`). Kept so the previous version keeps working;
+     * a later release drops them (see releases, migration rules).
+     */
     identifierKind: text({ enum: ACCOUNT_IDENTIFIER_KINDS }),
-    /** Optional account number, card number or Sheba, normalized (Latin digits, «IR» uppercase). */
     identifier: text(),
     /**
      * In the book currency's smallest unit (rials, cents), on the day recording starts. May be 0
@@ -52,7 +61,8 @@ export const accounts = pgTable(
     check("accounts_type_check", oneOf(table.type, ACCOUNT_TYPES)),
     check(
       "accounts_identifier_check",
-      sql`(${table.identifierKind} is null and ${table.identifier} is null) or (${table.type} = 'bank' and ${table.identifier} is not null and ${table.identifierKind} in (${sql.raw(ACCOUNT_IDENTIFIER_KINDS.map((kind) => `'${kind}'`).join(", "))}))`,
+      // Each identifier belongs to a bank account: null for cash, other and counterparties.
+      sql`(${table.type} = 'bank' or (${table.accountNumber} is null and ${table.cardNumber} is null and ${table.sheba} is null))`,
     ),
     uniqueIndex("accounts_name_unique").on(sql`lower(${table.name})`),
     // A counterparty's debts are dated receivable / payable transactions, not an opening balance.

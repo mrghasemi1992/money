@@ -4,7 +4,7 @@ import {
   CARD_NUMBER_LENGTH,
   SHEBA_DIGITS_LENGTH,
 } from "@/constants/account";
-import type { AccountIdentifier, AccountIdentifierKind } from "@/types/account";
+import type { AccountIdentifierKind } from "@/types/account";
 import { toLatinDigits } from "@/utils/number";
 
 /** Keys of the `accounts.form.errors` messages for an identifier. */
@@ -51,21 +51,20 @@ export function normalizeIdentifier(
 }
 
 /**
- * The identifier of an account form, normalized: null when none was typed (a blank value),
- * or the error to show on the identifier field.
+ * One identifier of an account form, normalized: null when none was typed (a blank value),
+ * or the error to show on its field when it doesn't fit its kind.
  */
-export function checkIdentifier(identifier: AccountIdentifier | null):
-  | { ok: true; identifier: AccountIdentifier | null }
-  | {
-      ok: false;
-      error: AccountIdentifierError;
-    } {
-  if (!identifier || identifier.value.trim() === "") {
-    return { ok: true, identifier: null };
-  }
-  const value = normalizeIdentifier(identifier.kind, identifier.value);
-  if (value === null) return { ok: false, error: ERRORS[identifier.kind] };
-  return { ok: true, identifier: { kind: identifier.kind, value } };
+export function checkIdentifierValue(
+  kind: AccountIdentifierKind,
+  raw: string | null,
+):
+  | { ok: true; value: string | null }
+  | { ok: false; error: AccountIdentifierError } {
+  if (raw === null || raw.trim() === "") return { ok: true, value: null };
+  const value = normalizeIdentifier(kind, raw);
+  return value === null
+    ? { ok: false, error: ERRORS[kind] }
+    : { ok: true, value };
 }
 
 /** How many trailing characters a masked identifier still shows. */
@@ -75,6 +74,6 @@ const VISIBLE_TAIL = 4;
  * The identifier for lists: only its last four characters, «•••• 6219». The whole value is
  * for the edit form; lists, reports and Claude get this.
  */
-export function maskIdentifier(identifier: AccountIdentifier): string {
-  return `•••• ${identifier.value.slice(-VISIBLE_TAIL)}`;
+export function maskIdentifier(value: string): string {
+  return `•••• ${value.slice(-VISIBLE_TAIL)}`;
 }

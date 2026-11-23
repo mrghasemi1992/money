@@ -222,7 +222,7 @@ describe("list_accounts", () => {
     overrides: Partial<Account> &
       Pick<Account, "id" | "name" | "type" | "balance">,
   ): Account => ({
-    identifier: null,
+    identifiers: { accountNumber: null, cardNumber: null, sheba: null },
     openingBalance: 0,
     archived: false,
     transactionCount: 0,
@@ -237,7 +237,11 @@ describe("list_accounts", () => {
         name: "ملت",
         type: "bank",
         balance: 10_000_000,
-        identifier: { kind: "cardNumber", value: "6104337812346219" },
+        identifiers: {
+          accountNumber: null,
+          cardNumber: "6104337812346219",
+          sheba: "IR820540102680020817909002",
+        },
       }),
       account({ id: "b", name: "نقدی", type: "cash", balance: 500_000 }),
       account({
@@ -271,8 +275,14 @@ describe("list_accounts", () => {
     });
     const accounts = (result as { accounts: Record<string, unknown>[] })
       .accounts;
-    expect(accounts[0]).toMatchObject({ identifier: "•••• 6219" });
+    expect(accounts[0]).toMatchObject({
+      identifiers: {
+        card_number: "•••• 6219",
+        sheba: "•••• 9002",
+      },
+    });
     expect(JSON.stringify(result)).not.toContain("6104337812346219");
+    expect(JSON.stringify(result)).not.toContain("IR820540102680020817909002");
     expect(accounts[4]).toMatchObject({ archived: true });
   });
 });

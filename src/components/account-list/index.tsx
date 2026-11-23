@@ -21,6 +21,7 @@ import { Amount } from "@/components/ui/amount";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ACCOUNT_IDENTIFIER_KINDS } from "@/constants/account";
 import { ACCOUNT_TYPE_ICONS } from "@/constants/account-icons";
 import { debtStatus } from "@/helpers/account";
 import { maskIdentifier } from "@/helpers/account-identifier";
@@ -62,27 +63,36 @@ function moved(ids: string[], id: string, to: number): string[] {
 }
 
 /**
- * The quiet line under an account's name: its type, its masked identifier and how many
+ * The quiet line under an account's name: its type, its masked identifiers and how many
  * transactions it has. For a counterparty, who owes whom in place of the type.
  */
 export function useAccountMeta() {
   const t = useTranslations();
   const locale = useLocale();
-  return (account: Account) =>
-    (account.type === "counterparty"
-      ? t(`debts.status.${debtStatus(account.balance)}`)
-      : t(`accounts.types.${account.type}`)) +
-    (account.identifier
-      ? t("common.listSeparator") +
-        t(`accounts.identifierKinds.${account.identifier.kind}`) +
-        " " +
-        isolate(maskIdentifier(account.identifier))
-      : "") +
-    t("common.listSeparator") +
-    t("common.transactionCount", {
-      countNumber: account.transactionCount,
-      count: formatNumber(account.transactionCount, locale),
-    });
+  return (account: Account) => {
+    const identifiers = ACCOUNT_IDENTIFIER_KINDS.map((kind) => {
+      const value = account.identifiers[kind];
+      return value
+        ? t(`accounts.identifierKinds.${kind}`) +
+            " " +
+            isolate(maskIdentifier(value))
+        : null;
+    }).filter((text) => text !== null);
+    return (
+      (account.type === "counterparty"
+        ? t(`debts.status.${debtStatus(account.balance)}`)
+        : t(`accounts.types.${account.type}`)) +
+      (identifiers.length > 0
+        ? t("common.listSeparator") +
+          identifiers.join(t("common.listSeparator"))
+        : "") +
+      t("common.listSeparator") +
+      t("common.transactionCount", {
+        countNumber: account.transactionCount,
+        count: formatNumber(account.transactionCount, locale),
+      })
+    );
+  };
 }
 
 /**
