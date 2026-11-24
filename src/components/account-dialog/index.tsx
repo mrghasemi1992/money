@@ -26,6 +26,7 @@ import type {
   AccountIdentifiers,
   AccountInput,
   AccountKind,
+  AccountType,
 } from "@/types/account";
 import type { ActionResult } from "@/types/action";
 import { formatNumber } from "@/utils/number";
@@ -80,13 +81,23 @@ function blank(account: Account | null, kind: AccountKind): FormValues {
       };
 }
 
+const NO_IDENTIFIERS: AccountIdentifiers = {
+  accountNumber: null,
+  cardNumber: null,
+  sheba: null,
+};
+
 /**
- * The identifiers of an account form, as the schema expects: an empty field is no identifier.
+ * The identifiers of an account form, as the schema expects: an empty field is no identifier,
+ * and only a bank account sends any. The fields stay filled in the form when the type changes,
+ * so switching back to bank brings them back, but a hidden field is neither checked nor saved.
  * (The server normalizes and checks each value.)
  */
 function toIdentifiers(
+  type: AccountType,
   values: Record<AccountIdentifierKind, string>,
 ): AccountIdentifiers {
+  if (type !== "bank") return NO_IDENTIFIERS;
   return {
     accountNumber:
       values.accountNumber.trim() === "" ? null : values.accountNumber,
@@ -152,7 +163,7 @@ export function AccountDialog({
     event.preventDefault();
     const input: AccountInput = {
       ...values,
-      identifiers: toIdentifiers(values.identifiers),
+      identifiers: toIdentifiers(values.type, values.identifiers),
       openingBalance: counterparty ? 0 : (values.openingBalance ?? 0),
     };
     const found = accountFormError(input);
