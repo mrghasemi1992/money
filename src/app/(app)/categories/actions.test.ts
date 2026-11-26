@@ -6,6 +6,7 @@ import {
   createSubcategory as insertSubcategory,
   getCategory,
 } from "@/db/categories";
+import * as db from "@/db/categories";
 import { t } from "@/test/messages";
 import { outcome, resetServer, signInAs } from "@/test/server";
 
@@ -41,7 +42,10 @@ describe("every write", () => {
     ) => Promise<unknown>)[]) {
       expect(await outcome(() => write({ id: ID }))).toBe("notFound");
     }
-    expect(insertCategory).not.toHaveBeenCalled();
+    // Not one query ran: the role check comes before reading the input.
+    for (const query of Object.values(db)) {
+      expect(query).not.toHaveBeenCalled();
+    }
   });
 });
 

@@ -32,18 +32,45 @@ function setup(props: Partial<Parameters<typeof TransactionList>[0]> = {}) {
   return { ...handlers, user: userEvent.setup() };
 }
 
-const days = [...new Set(SAMPLE_TRANSACTIONS.map((row) => row.date))];
+const dayHeadings = () =>
+  screen
+    .getAllByRole("heading", { level: 2 })
+    .map((heading) => heading.textContent);
 
 describe("TransactionList", () => {
-  it("groups the rows by day, newest first, with today named", () => {
+  it("groups the rows by day, newest first, with today and yesterday named", () => {
     setup();
 
-    const headings = screen.getAllByRole("heading", { level: 2 });
-    expect(headings).toHaveLength(days.length);
-    expect(headings[0]).toHaveTextContent(t("common.today"));
+    // The samples are 11 transactions on 6 days; today is 15 Mehr 1405 (7 October 2026).
+    const headings = dayHeadings();
+    expect(headings).toHaveLength(6);
+    expect(headings[0]).toContain("امروز، چهارشنبه ۱۵ مهر ۱۴۰۵");
+    expect(headings[1]).toContain("دیروز، سه‌شنبه ۱۴ مهر ۱۴۰۵");
+    expect(headings[2]).toContain("دوشنبه ۱۳ مهر ۱۴۰۵");
+    expect(headings[5]).toContain("چهارشنبه ۱ مهر ۱۴۰۵");
     const lists = screen.getAllByRole("list");
     const rows = lists.flatMap((list) => within(list).getAllByRole("listitem"));
-    expect(rows).toHaveLength(SAMPLE_TRANSACTIONS.length);
+    expect(rows).toHaveLength(11);
+  });
+
+  it("names the days in the viewer's calendar", () => {
+    renderWithApp(
+      <TransactionList
+        transactions={SAMPLE_TRANSACTIONS}
+        dayTotals={sampleDayTotals(SAMPLE_TRANSACTIONS)}
+        canWrite={false}
+        today={SAMPLE_TODAY}
+        onOpen={vi.fn()}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onLoadMore={vi.fn()}
+      />,
+      { calendar: "gregorian" },
+    );
+
+    const headings = dayHeadings();
+    expect(headings[0]).toContain("امروز، چهارشنبه ۷ اکتبر ۲۰۲۶");
+    expect(headings[5]).toContain("چهارشنبه ۲۳ سپتامبر ۲۰۲۶");
   });
 
   it("gives writers an edit and a delete button on each row", async () => {

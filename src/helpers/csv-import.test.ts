@@ -248,6 +248,42 @@ describe("planImport", () => {
     expect(plan.categories).toEqual([]);
   });
 
+  it("keeps a debt on a person or lender, never on the book's own money", () => {
+    const debt = (line: number, account: string) =>
+      record(line, {
+        date: "1405/07/10",
+        amount: "5000000",
+        type: "طلب",
+        account,
+      });
+    const person = book.accounts.find(
+      (account) => account.name === "علی رضایی",
+    )!;
+
+    const onBank = planImport([debt(2, "بانک ملی")], format, context, {});
+    expect(onBank.rows).toEqual([]);
+    expect(onBank.errors.map((error) => error.code)).toEqual([
+      "debtAccountNotCounterparty",
+    ]);
+
+    const onPerson = planImport([debt(2, person.name)], format, context, {});
+    expect(onPerson.rows[0]).toMatchObject({
+      type: "receivable",
+      amount: 5_000_000,
+      account: { kind: "existing", id: person.id },
+      category: null,
+    });
+
+    // A new name for a debt is created as a person, not as a bank account.
+    const key = accountKey("مینا");
+    const onNew = planImport([debt(2, "مینا")], format, context, {
+      [key]: "new",
+    });
+    expect(onNew.accounts).toEqual([
+      expect.objectContaining({ key, type: "counterparty" }),
+    ]);
+  });
+
   it("creates only what the ready rows use", () => {
     const key = accountKey("حساب تازه");
     const plan = planImport(

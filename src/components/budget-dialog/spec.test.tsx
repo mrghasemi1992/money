@@ -81,6 +81,11 @@ describe("BudgetDialog", () => {
     });
     expect(amountField()).toHaveValue("۶۰٬۰۰۰٬۰۰۰");
     expect(
+      within(dialog).getByRole("combobox", {
+        name: t("budgets.form.category"),
+      }),
+    ).toBeDisabled();
+    expect(
       within(dialog).getByText(
         t("budgets.form.subcategories", {
           names: category.subcategories.join(t("common.listSeparator")),
@@ -107,11 +112,38 @@ describe("BudgetDialog", () => {
     await user.type(amountField(), "1000");
     await user.click(submit());
 
+    await screen.findByText(t("budgets.form.errors.categoryUnavailable"));
     expect(
-      await screen.findByText(t("budgets.form.errors.categoryUnavailable")),
-    ).toBeInTheDocument();
+      screen.getByRole("combobox", { name: t("budgets.form.category") }),
+    ).toHaveAccessibleDescription(t("budgets.form.errors.categoryUnavailable"));
     expect(onSaved).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalledWith(false);
+  });
+
+  it("stores a limit typed in tomans as rials", async () => {
+    const category = UNBUDGETED[0]!;
+    const onSubmit = vi.fn().mockResolvedValue({ ok: true, created: true });
+    const user = userEvent.setup();
+    renderWithApp(
+      <BudgetDialog
+        open
+        category={category}
+        options={UNBUDGETED}
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+        onSaved={vi.fn()}
+        onRemove={vi.fn()}
+      />,
+      { rialUnit: "toman" },
+    );
+
+    await user.type(amountField(), "۱۵۰۰۰۰۰");
+    await user.click(submit());
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      categoryId: category.id,
+      amount: 15_000_000,
+    });
   });
 
   it("says the save failed when the action throws", async () => {

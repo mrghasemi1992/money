@@ -165,9 +165,14 @@ describe("UserManagement", () => {
       within(dialog).getByRole("button", { name: t("users.form.submit") }),
     );
 
+    await within(dialog).findByText(t("users.form.errors.usernameTaken"));
     expect(
-      await within(dialog).findByText(t("users.form.errors.usernameTaken")),
-    ).toBeInTheDocument();
+      within(dialog).getByRole("textbox", {
+        name: startsWith(t("users.form.username")),
+      }),
+    ).toHaveAccessibleDescription(
+      expect.stringContaining(t("users.form.errors.usernameTaken")),
+    );
   });
 
   it("changes an editor's role straight away", async () => {
