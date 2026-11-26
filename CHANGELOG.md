@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.8.0](https://github.com/mrghasemi1992/money/compare/v0.7.0...v0.8.0) (2026-11-26)
+
+
+### Features
+
+* open settings only from the user menu ([#157](https://github.com/mrghasemi1992/money/issues/157)) ([471fda5](https://github.com/mrghasemi1992/money/commit/471fda56711ccc294867d02e0a88acca36bd3714))
+
+
+### Bug fixes
+
+* allow a bank account to carry account number, card number and Sheba at once ([22fe376](https://github.com/mrghasemi1992/money/commit/22fe376115c04222b469daaa74eb40fc90ea3881))
+* call a budget or transaction amount beyond the safe limit too large ([69b01fb](https://github.com/mrghasemi1992/money/commit/69b01fb884e84aa28393a525e449a2e5b62ee865))
+* name each option of the export range, the new user's role and language, and the import's amount mode and unit ([090e383](https://github.com/mrghasemi1992/money/commit/090e383644ac231bf887c3a872191daec827cd8b))
+* save a non-bank account even when a hidden identifier field is invalid ([41ab630](https://github.com/mrghasemi1992/money/commit/41ab630739751404f1735bd19bb762a06c2a15d3))
+* show the «no rows» error of a CSV file with only a header row ([763203c](https://github.com/mrghasemi1992/money/commit/763203cd1c7c484f62763d0c065db2d1ff279b0b))
+
 ## [0.7.0](https://github.com/mrghasemi1992/money/compare/v0.6.0...v0.7.0) (2026-11-19)
 
 
