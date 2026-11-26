@@ -1,13 +1,14 @@
 import { fileURLToPath } from "node:url";
 
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 const empty = fileURLToPath(new URL("./src/test/empty.ts", import.meta.url));
 
 /*
  * Unit and component tests (docs/development/testing.md). Two projects: `node` for helpers,
  * utils, auth and MCP logic (`*.test.ts`), `dom` for components in jsdom (`*.test.tsx`). Both
- * run src/test/setup.ts, which mocks the database so no test reaches Postgres.
+ * run src/test/setup.ts, which mocks the database so no test reaches Postgres. The integration
+ * tests of the SQL (`*.db.test.ts`) have their own config, vitest.db.config.mts.
  */
 export default defineConfig({
   resolve: {
@@ -32,6 +33,8 @@ export default defineConfig({
           environment: "node",
           // Root config files have their tests next to them (next.config.test.ts).
           include: ["src/**/*.test.ts", "*.test.ts"],
+          // Integration tests of the SQL run apart, with `pnpm test:db` (vitest.db.config.mts).
+          exclude: [...configDefaults.exclude, "src/**/*.db.test.ts"],
           setupFiles: ["src/test/setup.ts"],
         },
       },

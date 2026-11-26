@@ -121,6 +121,33 @@ describe("createTransaction", () => {
     expect(insertTransaction).not.toHaveBeenCalled();
   });
 
+  it("refuses a negative or fractional amount: amounts are positive whole units", async () => {
+    signInAs("editor");
+    for (const amount of [-2_500_000, 2500.5]) {
+      expect(await createTransaction({ ...expense, amount })).toEqual({
+        ok: false,
+        field: "amount",
+        error: t("transactions.form.errors.amountMissing"),
+      });
+    }
+    expect(insertTransaction).not.toHaveBeenCalled();
+  });
+
+  it("takes today in the viewer's time zone, not the server's", async () => {
+    signInAs("editor");
+    vi.mocked(insertTransaction).mockResolvedValue("tx-1");
+    // 21:00 UTC on 19 November is 00:30 on the 20th in Tehran.
+    vi.setSystemTime(new Date("2026-11-19T21:00:00Z"));
+
+    expect(await createTransaction({ ...expense, date: "2026-11-20" })).toEqual(
+      { ok: true, id: "tx-1" },
+    );
+    expect(
+      await createTransaction({ ...expense, date: "2026-11-21" }),
+    ).toMatchObject({ ok: false, field: "date" });
+    expect(insertTransaction).toHaveBeenCalledTimes(1);
+  });
+
   it("refuses input that isn't a transaction", async () => {
     signInAs("editor");
     expect(await createTransaction("drop table")).toMatchObject({ ok: false });
@@ -139,13 +166,22 @@ describe("updateTransaction", () => {
     vi.mocked(saveTransaction).mockResolvedValue(true);
 
     expect(
-      await updateTransaction({ ...expense, id: TRANSACTION_ID, amount: 3000 }),
+      await updateTransaction({
+        ...expense,
+        id: TRANSACTION_ID,
+        amount: 3000,
+        updatedBy: "someone-else",
+        createdBy: "someone-else",
+      }),
     ).toEqual({ ok: true });
     expect(saveTransaction).toHaveBeenCalledWith(
       TRANSACTION_ID,
       expect.objectContaining({ amount: 3000 }),
       TEST_USER_ID,
     );
+    const [, saved] = vi.mocked(saveTransaction).mock.calls[0]!;
+    expect(saved).not.toHaveProperty("updatedBy");
+    expect(saved).not.toHaveProperty("createdBy");
     // The stored transaction may keep an archived account or category.
     expect(checkTransactionReferences).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 3000 }),
@@ -163,13 +199,15 @@ describe("updateTransaction", () => {
     expect(saveTransaction).not.toHaveBeenCalled();
   });
 
-  it("refuses viewers", async () => {
+  it("refuses viewers before reading the transaction", async () => {
     signInAs("viewer");
     expect(
       await outcome(() =>
         updateTransaction({ ...expense, id: TRANSACTION_ID }),
       ),
     ).toBe("notFound");
+    expect(getTransactionInput).not.toHaveBeenCalled();
+    expect(saveTransaction).not.toHaveBeenCalled();
   });
 });
 
@@ -202,5 +240,12 @@ describe("deleteTransaction and restoreTransaction", () => {
     expect(await outcome(() => deleteTransaction({ id: TRANSACTION_ID }))).toBe(
       "notFound",
     );
+    expect(removeTransaction).not.toHaveBeenCalled();
+  });
+
+  it("refuses to restore for a viewer", async () => {
+    signInAs("viewer");
+    expect(await outcome(() => restoreTransaction(expense))).toBe("notFound");
+    expect(insertTransaction).not.toHaveBeenCalled();
   });
 });

@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { BUDGET_NEAR_RATIO, budgetErrors, getBudgetStatus } from "./budget";
+import { budgetErrors, getBudgetStatus } from "./budget";
 
 describe("getBudgetStatus", () => {
-  it("is ok below the near ratio", () => {
+  it("is ok below 80% of the budget", () => {
     expect(getBudgetStatus(0, 1000)).toBe("ok");
     expect(getBudgetStatus(799, 1000)).toBe("ok");
   });
 
-  it("is near from the near ratio up to the budget itself", () => {
-    expect(getBudgetStatus(1000 * BUDGET_NEAR_RATIO, 1000)).toBe("near");
+  it("is near from 80% up to the budget itself", () => {
+    expect(getBudgetStatus(800, 1000)).toBe("near");
     expect(getBudgetStatus(1000, 1000)).toBe("near");
   });
 
@@ -42,10 +42,12 @@ describe("budgetErrors", () => {
     });
   });
 
-  it("refuses fractions", () => {
-    expect(budgetErrors({ categoryId, amount: 1.5 })).toEqual({
-      amount: "amountMissing",
-    });
+  it("refuses negative and fractional amounts", () => {
+    for (const amount of [-5_000_000, 1.5]) {
+      expect(budgetErrors({ categoryId, amount })).toEqual({
+        amount: "amountMissing",
+      });
+    }
   });
 
   it("calls an amount beyond a safe integer too large, not missing", () => {

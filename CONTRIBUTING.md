@@ -45,26 +45,27 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
 
 ## Scripts
 
-| Script                  | What it does                                                                   |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| `pnpm dev`              | Start the dev server on `money.localhost:3000`                                 |
-| `pnpm build`            | Production build                                                               |
-| `pnpm start`            | Serve the production build                                                     |
-| `pnpm lint`             | ESLint                                                                         |
-| `pnpm typecheck`        | Generate route types (`next typegen`), then type check                         |
-| `pnpm format`           | Format every file with Prettier                                                |
-| `pnpm format:check`     | Check formatting                                                               |
-| `pnpm test`             | Run the unit and component tests once ([testing](docs/development/testing.md)) |
-| `pnpm test:watch`       | Run the tests of changed files while you work                                  |
-| `pnpm test:coverage`    | Run the tests with a coverage report in `coverage/`                            |
-| `pnpm storybook`        | Start Storybook on `money.localhost:6006`                                      |
-| `pnpm build-storybook`  | Build the static Storybook                                                     |
-| `pnpm db:generate`      | Generate a SQL migration from the schema in `src/db/schema/`                   |
-| `pnpm db:migrate`       | Apply migrations to the database in `.env.local` (your `dev` branch)           |
-| `pnpm db:studio`        | Browse the database in Drizzle Studio                                          |
-| `pnpm docs:screenshots` | Retake the user guide's screenshots from Storybook (Storybook must be running) |
-| `pnpm user:create`      | Create a user from the terminal (asks for the details)                         |
-| `vercel-build`          | Vercel only: `next build`, then migrate that deployment's database             |
+| Script                  | What it does                                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`              | Start the dev server on `money.localhost:3000`                                                             |
+| `pnpm build`            | Production build                                                                                           |
+| `pnpm start`            | Serve the production build                                                                                 |
+| `pnpm lint`             | ESLint                                                                                                     |
+| `pnpm typecheck`        | Generate route types (`next typegen`), then type check                                                     |
+| `pnpm format`           | Format every file with Prettier                                                                            |
+| `pnpm format:check`     | Check formatting                                                                                           |
+| `pnpm test`             | Run the unit and component tests once ([testing](docs/development/testing.md))                             |
+| `pnpm test:watch`       | Run the tests of changed files while you work                                                              |
+| `pnpm test:coverage`    | Run the tests with a coverage report in `coverage/`                                                        |
+| `pnpm test:db`          | Run the database tests against `TEST_DATABASE_URL` ([testing](docs/development/testing.md#database-tests)) |
+| `pnpm storybook`        | Start Storybook on `money.localhost:6006`                                                                  |
+| `pnpm build-storybook`  | Build the static Storybook                                                                                 |
+| `pnpm db:generate`      | Generate a SQL migration from the schema in `src/db/schema/`                                               |
+| `pnpm db:migrate`       | Apply migrations to the database in `.env.local` (your `dev` branch)                                       |
+| `pnpm db:studio`        | Browse the database in Drizzle Studio                                                                      |
+| `pnpm docs:screenshots` | Retake the user guide's screenshots from Storybook (Storybook must be running)                             |
+| `pnpm user:create`      | Create a user from the terminal (asks for the details)                                                     |
+| `vercel-build`          | Vercel only: `next build`, then migrate that deployment's database                                         |
 
 ## Workflow
 
@@ -76,6 +77,8 @@ You need Node.js 24, pnpm 10 (`corepack enable` picks the version in `package.js
    ```bash
    pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm build
    ```
+
+   A change to the SQL in `src/db` or to a migration also runs `pnpm test:db` against your `money_test` database ([database tests](docs/development/testing.md#database-tests)); CI runs it too, where the repository has the `TEST_DATABASE_URL` secret.
 
    Check UI changes in the browser and in Storybook, in Persian and English, light and dark, at phone and desktop widths. On phones that means down to 320px with amounts in the billions of rials and long names ([phone layout](docs/development/features/design-system.md)).
 
@@ -90,7 +93,7 @@ Screens are designed in [Claude Design](https://claude.ai/design) before they ar
 Not every feature needs every step, but go through the list:
 
 - [ ] **Data:** tables and constraints in `src/db/schema/`, then `pnpm db:generate`. Follow the migration rules in [releases](docs/development/releases.md#migration-rules): the previous version must still run on the migrated database.
-- [ ] **Queries** in `src/db/<area>.ts` (`server-only`, sums in SQL, `db.batch` for writes that belong together).
+- [ ] **Queries** in `src/db/<area>.ts` (`server-only`, sums in SQL, `db.batch` for writes that belong together), with a database test in `src/db/<area>.db.test.ts` for a query that sums money or enforces a rule.
 - [ ] **Rules** as pure functions and Zod schemas in `src/helpers/`, shared by the form, the action and the MCP tools.
 - [ ] **Server Actions** in `actions.ts` next to the page: `requireWrite()` or `requireAdmin()` first, Zod, translated errors, `refresh()`.
 - [ ] **The page** in `src/app/(app)/…`: `requireUser()`, its own `loading.tsx` skeleton and `error.tsx`, and an entry in `NAV_ITEMS` if it is a section.

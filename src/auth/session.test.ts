@@ -20,7 +20,7 @@ describe("requireUser", () => {
   it("sends a visitor without a session to /login, back to the page they asked for", async () => {
     setRequestHeaders({ [PATHNAME_HEADER]: "/budgets?month=1405-08" });
     expect(await outcome(requireUser)).toBe(
-      `redirect /login?${new URLSearchParams({ next: "/budgets?month=1405-08" })}`,
+      "redirect /login?next=%2Fbudgets%3Fmonth%3D1405-08",
     );
   });
 
