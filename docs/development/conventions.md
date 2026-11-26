@@ -30,4 +30,4 @@ The rules every change follows, for people and agents alike. The reasons behind 
 
 ## Tooling
 
-pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`. Prettier with default options formats everything; ESLint (with `eslint-config-prettier`) and `tsc` in strict mode must pass. Vitest runs the unit and component tests (`pnpm test`), never against a database: see [testing](testing.md). Write code that is easy to test (small pure functions, data logic apart from the UI), and add tests next to the code they cover.
+pnpm, Turbopack, React Compiler off. The dev server and Storybook run on `money.localhost`. Prettier with default options formats everything; ESLint (with `eslint-config-prettier`) and `tsc` in strict mode must pass. Vitest runs the unit and component tests (`pnpm test`), never against a database, and apart from them the database tests of the SQL in `src/db` (`pnpm test:db`) against a throwaway `money_test` database: see [testing](testing.md). Write code that is easy to test (small pure functions, data logic apart from the UI), and add tests next to the code they cover.

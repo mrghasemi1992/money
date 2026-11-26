@@ -93,7 +93,7 @@ An account is anywhere your money sits: a bank account or card, cash, a savings 
 
 ![The accounts page](assets/user-guide/en/accounts.png)
 
-1. **Add account:** a name, a type (bank account, cash or other), the starting balance (it may be negative), and for a bank account optionally its card, account or Sheba number. Lists show only its last four digits.
+1. **Add account:** a name, a type (bank account, cash or other), the starting balance (it may be negative), and for a bank account optionally its card number, account number and Sheba, any or all of them. Lists show only the last four digits of each.
 2. **Total balance** of all active accounts. Each account's balance is its starting balance plus its income and incoming transfers, minus its expenses and outgoing transfers.
 3. **Your accounts**, with their balance and number of transactions. Drag a row by its handle to change the order; forms list accounts in the same order.
 4. **The menu** of an account: **Edit**, **Move up**, **Move down**, **Archive** and **Delete**.
