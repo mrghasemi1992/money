@@ -115,41 +115,52 @@ describe("saveImport", () => {
       { name: "نقد", type: "cash", sortOrder: 1 },
       { name: "علی", type: "counterparty", sortOrder: 2 },
     ]);
-    const saved = await db
-      .select({
-        type: transactions.type,
-        amount: transactions.amount,
-        description: transactions.description,
-        source: transactions.source,
-        createdBy: transactions.createdBy,
-        updatedBy: transactions.updatedBy,
-      })
-      .from(transactions)
-      .orderBy(asc(transactions.createdAt));
-    expect(saved).toEqual([
+    // Each new key resolved to its own new row: by name, so swapping two would fail.
+    const saved = await db.execute(sql`
+      select
+        t.type, t.amount::int as amount, a.name as account, ta.name as to_account,
+        c.name as category, p.name as parent, t.description, t.source,
+        t.created_by = ${actor} and t.updated_by = ${actor} as by_actor
+      from ${transactions} t
+      join ${accounts} a on a.id = t.account_id
+      left join ${accounts} ta on ta.id = t.to_account_id
+      left join ${categories} c on c.id = t.category_id
+      left join ${categories} p on p.id = c.parent_id
+      order by t.created_at
+    `);
+    expect(saved.rows).toEqual([
       {
         type: "expense",
         amount: 1_000,
+        account: "ملت",
+        to_account: null,
+        category: "رستوران",
+        parent: "خوراک",
         description: "ناهار",
         source: "csv",
-        createdBy: actor,
-        updatedBy: actor,
+        by_actor: true,
       },
       {
         type: "transfer",
         amount: 5_000,
+        account: "ملت",
+        to_account: "نقد",
+        category: null,
+        parent: null,
         description: "",
         source: "csv",
-        createdBy: actor,
-        updatedBy: actor,
+        by_actor: true,
       },
       {
         type: "receivable",
         amount: 7_000,
+        account: "علی",
+        to_account: null,
+        category: null,
+        parent: null,
         description: "",
         source: "csv",
-        createdBy: actor,
-        updatedBy: actor,
+        by_actor: true,
       },
     ]);
   });

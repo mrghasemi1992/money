@@ -42,18 +42,28 @@ beforeEach(async () => {
     accountId: bank,
     createdBy: userId,
   });
+  // Ali paid for dinner: an expense from a counterparty's account still counts.
+  const ali = await seedAccount({ name: "علی", type: "counterparty" });
+  await seedTransaction({
+    type: "expense",
+    amount: 80_000,
+    date: "2026-10-04",
+    accountId: ali,
+    categoryId: food,
+    createdBy: userId,
+  });
   await seedNeverIncomeOrExpense("2026-10-02", userId);
 });
 
 describe("transactionTotals", () => {
-  it("counts only income and expense in the totals, every transaction in the count", async () => {
+  it("counts only income and expense in the totals, a counterparty's expense included, every transaction in the count", async () => {
     expect(
       await transactionTotals({
         ...NO_TRANSACTION_FILTERS,
         from: "2026-10-01",
         to: "2026-10-31",
       }),
-    ).toEqual({ income: 5_000_000, expense: 1_500_000, count: 8 });
+    ).toEqual({ income: 5_000_000, expense: 1_580_000, count: 9 });
   });
 
   it("includes both ends of the range and nothing outside it", async () => {
@@ -76,6 +86,7 @@ describe("transactionDayTotals", () => {
         to: "2026-10-31",
       }),
     ).toEqual([
+      { date: "2026-10-04", income: 0, expense: 80_000, count: 1 },
       { date: "2026-10-03", income: 0, expense: 300_000, count: 1 },
       { date: "2026-10-02", income: 0, expense: 0, count: 5 },
       { date: "2026-10-01", income: 5_000_000, expense: 1_200_000, count: 2 },

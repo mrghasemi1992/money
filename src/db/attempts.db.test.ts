@@ -47,13 +47,17 @@ describe("takeAttempt", () => {
     expect((await takeAttempt("money:password:1", LIMIT)).allowed).toBe(true);
   });
 
-  it("lets only the limit through when attempts arrive at the same moment", async () => {
-    const results = await Promise.all(
-      Array.from({ length: 6 }, () => takeAttempt("money:password:1", LIMIT)),
-    );
+  it(
+    "lets only the limit through when attempts arrive at the same moment",
+    { retry: 0 },
+    async () => {
+      const results = await Promise.all(
+        Array.from({ length: 6 }, () => takeAttempt("money:password:1", LIMIT)),
+      );
 
-    expect(results.filter((result) => result.allowed)).toHaveLength(3);
-  });
+      expect(results.filter((result) => result.allowed)).toHaveLength(3);
+    },
+  );
 
   it("counts each key apart", async () => {
     for (let attempt = 0; attempt < 3; attempt++) {

@@ -66,18 +66,22 @@ describe("setUserRole", () => {
     expect((await getUserStatus(viewer))?.role).toBe("viewer");
   });
 
-  it("leaves one admin when two demote each other at the same moment", async () => {
-    const first = await seedUser();
-    const second = await seedUser();
+  it(
+    "leaves one admin when two demote each other at the same moment",
+    { retry: 0 },
+    async () => {
+      const first = await seedUser();
+      const second = await seedUser();
 
-    const results = await Promise.all([
-      setUserRole(first, second, "viewer"),
-      setUserRole(second, first, "viewer"),
-    ]);
+      const results = await Promise.all([
+        setUserRole(first, second, "viewer"),
+        setUserRole(second, first, "viewer"),
+      ]);
 
-    expect(results.filter(Boolean)).toHaveLength(1);
-    expect(await enabledAdmins()).toBe(1);
-  });
+      expect(results.filter(Boolean)).toHaveLength(1);
+      expect(await enabledAdmins()).toBe(1);
+    },
+  );
 });
 
 describe("disableUser", () => {
@@ -120,16 +124,20 @@ describe("disableUser", () => {
     expect(await count(session, admin)).toBe(1);
   });
 
-  it("leaves one enabled admin when two disable each other at the same moment", async () => {
-    const first = await seedUser();
-    const second = await seedUser();
+  it(
+    "leaves one enabled admin when two disable each other at the same moment",
+    { retry: 0 },
+    async () => {
+      const first = await seedUser();
+      const second = await seedUser();
 
-    const results = await Promise.all([
-      disableUser(first, second),
-      disableUser(second, first),
-    ]);
+      const results = await Promise.all([
+        disableUser(first, second),
+        disableUser(second, first),
+      ]);
 
-    expect(results.filter(Boolean)).toHaveLength(1);
-    expect(await enabledAdmins()).toBe(1);
-  });
+      expect(results.filter(Boolean)).toHaveLength(1);
+      expect(await enabledAdmins()).toBe(1);
+    },
+  );
 });

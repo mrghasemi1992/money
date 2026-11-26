@@ -37,8 +37,10 @@ jobs:
       - run: pnpm test
 
   # The SQL in src/db against the TEST_DATABASE_URL secret: a Neon database whose name ends in
-  # _test, wiped and migrated on every run. Without the secret (forks, Dependabot unless it has
-  # its own copy) `pnpm test:db` skips the tests and passes.
+  # _test, wiped and migrated on every run. In mrghasemi1992/money the secret is required (in
+  # Actions and in Dependabot's secrets), so a missing or deleted copy fails the job instead of
+  # passing without tests. Pull requests from forks, which can't read secrets, and self-hosted
+  # copies (forks running CI without it) skip the tests and pass: `pnpm test:db` does that.
   database:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -58,4 +60,12 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # github.repository and the pull request's fork flag are set in Dependabot's runs too.
+      - name: Require the secret in the upstream repository
+        if: github.repository == 'mrghasemi1992/money' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+        run: |
+          if [ -z "$TEST_DATABASE_URL" ]; then
+            echo "::error::The TEST_DATABASE_URL secret is missing (Actions secrets, or Dependabot secrets for Dependabot's pull requests). See docs/development/testing.md#database-tests."
+            exit 1
+          fi
       - run: pnpm test:db

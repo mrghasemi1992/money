@@ -40,6 +40,8 @@ export default defineConfig({
     testTimeout: 30_000,
     hookTimeout: 120_000,
     // A request to Neon can time out on the network; a retry starts from emptied tables again.
+    // The tests of writes at the same moment set `retry: 0`, so a race that fails only sometimes
+    // still fails the run.
     retry: 1,
     mockReset: true,
     restoreMocks: true,

@@ -28,21 +28,30 @@ const MORDAD = jalaliMonth(5);
 const SHAHRIVAR = jalaliMonth(6);
 const MEHR = jalaliMonth(7);
 
-let ids: Record<"bank" | "cash" | "food" | "restaurant" | "transport", string>;
+let ids: Record<
+  "bank" | "cash" | "ali" | "food" | "restaurant" | "transport",
+  string
+>;
 
 /*
  * Shahrivar and Mehr 1405 of a Jalali viewer, with transactions on the first and last day of
- * each month, one the day after Mehr, and transfers and debts in Mehr.
+ * each month, one the day after Mehr, transfers and debts in Mehr, and a dinner Ali paid for:
+ * an expense from a counterparty's account, which still counts (loans-and-debts.md).
  */
 beforeEach(async () => {
   const createdBy = await seedUser();
   const bank = await seedAccount({ name: "ملت", sortOrder: 0 });
   const cash = await seedAccount({ name: "نقد", type: "cash", sortOrder: 1 });
+  const ali = await seedAccount({
+    name: "علی",
+    type: "counterparty",
+    sortOrder: 2,
+  });
   const salary = await seedCategory({ name: "حقوق", type: "income" });
   const food = await seedCategory({ name: "خوراک" });
   const restaurant = await seedCategory({ name: "رستوران", parentId: food });
   const transport = await seedCategory({ name: "رفت‌وآمد" });
-  ids = { bank, cash, food, restaurant, transport };
+  ids = { bank, cash, ali, food, restaurant, transport };
 
   const add = (
     type: "income" | "expense",
@@ -60,6 +69,7 @@ beforeEach(async () => {
   await add("income", 5_000_000, "2026-09-23", salary);
   await add("expense", 250_000, "2026-10-05", transport, cash);
   await add("expense", 50_000, "2026-10-06", null);
+  await add("expense", 60_000, "2026-10-08", restaurant, ali);
   await add("expense", 400_000, "2026-10-10", restaurant);
   await add("expense", 1_000_000, "2026-10-22", food);
   await seedNeverIncomeOrExpense("2026-10-01", createdBy);
@@ -77,8 +87,9 @@ it("uses the Gregorian dates of the Jalali months", () => {
 
 describe("compareTotals", () => {
   it("sums only income and expense of each month, first and last day included", async () => {
+    // Mehr's expenses: 250,000 + 50,000 + 60,000 (Ali paid) + 400,000 + 1,000,000.
     expect(await compareTotals(MEHR, SHAHRIVAR)).toEqual({
-      current: { income: 5_000_000, expense: 1_700_000 },
+      current: { income: 5_000_000, expense: 1_760_000 },
       previous: { income: 4_000_000, expense: 100_000 },
     });
   });
@@ -89,7 +100,7 @@ describe("rangeTotals", () => {
     expect(await rangeTotals([MORDAD, SHAHRIVAR, MEHR])).toEqual([
       { income: 0, expense: 0 },
       { income: 4_000_000, expense: 100_000 },
-      { income: 5_000_000, expense: 1_700_000 },
+      { income: 5_000_000, expense: 1_760_000 },
     ]);
   });
 });
@@ -114,10 +125,10 @@ describe("categoryTotals", () => {
           name: "خوراک",
           color: "teal",
           icon: "shapes",
-          amount: 1_400_000,
+          amount: 1_460_000,
           direct: 1_000_000,
           subcategories: [
-            { id: ids.restaurant, name: "رستوران", amount: 400_000 },
+            { id: ids.restaurant, name: "رستوران", amount: 460_000 },
           ],
         },
         {
@@ -144,10 +155,11 @@ describe("categoryTotals", () => {
 });
 
 describe("accountExpenseTotals", () => {
-  it("sums each account's expenses, leaving out accounts with only transfers and debts", async () => {
+  it("sums each account's expenses, a counterparty's included, leaving out accounts with only transfers and debts", async () => {
     expect(await accountExpenseTotals(MEHR)).toEqual([
       { id: ids.bank, name: "ملت", type: "bank", amount: 1_450_000 },
       { id: ids.cash, name: "نقد", type: "cash", amount: 250_000 },
+      { id: ids.ali, name: "علی", type: "counterparty", amount: 60_000 },
     ]);
   });
 });
@@ -164,7 +176,7 @@ describe("budgetRecord", () => {
         icon: "shapes",
         archived: false,
         budget: 2_000_000,
-        spent: [100_000, 1_400_000],
+        spent: [100_000, 1_460_000],
       },
     ]);
   });

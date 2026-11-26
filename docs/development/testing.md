@@ -129,13 +129,13 @@ They need a Neon database made for them, because every run wipes it: `pnpm test:
 
 5. For CI, add the same string as the repository secret `TEST_DATABASE_URL` (GitHub, **Settings → Secrets and variables → Actions**). Dependabot's pull requests read only Dependabot secrets, so add it under **Dependabot** too for its upgrades of Drizzle or the Neon driver to be tested.
 
-`pnpm test:db` reads `TEST_DATABASE_URL` from the shell or `.env.test.local`, never from `.env.local`. Without it, it says so and passes without running anything, so a fork without the secret still passes CI.
+`pnpm test:db` reads `TEST_DATABASE_URL` from the shell or `.env.test.local`, never from `.env.local`. Without it, it says so and passes without running anything, so a local run, a pull request from a fork and a self-hosted copy's CI still pass. In this repository's CI a missing secret fails the job instead ([CI](#ci)).
 
 ### A run
 
 1. **Once per run** (`src/test/integration/global-setup.ts`): drops the `public` and `drizzle` schemas and applies every migration in `drizzle/` from the start, with Drizzle's migrator for the HTTP driver. So each run starts from the schema a new self-hosted copy gets, and a migration that no longer applies from zero fails the run.
 2. **Before each test** (`src/test/integration/setup.ts`): `@/db` connects to the test database (`DATABASE_URL` is set from `TEST_DATABASE_URL`), and every table is emptied.
-3. **Files run one at a time** (`fileParallelism: false`): they share the database. Each query is a request to Neon, so a run takes about as long as the requests (about two minutes); the first one may wait a few seconds for the branch's compute to wake. A failed test is retried once (`retry: 1`), since a request can time out on the network, and the retry starts from emptied tables again.
+3. **Files run one at a time** (`fileParallelism: false`): they share the database. Each query is a request to Neon, so a run takes about as long as the requests (about two minutes); the first one may wait a few seconds for the branch's compute to wake. A failed test is retried once (`retry: 1`), since a request can time out on the network, and the retry starts from emptied tables again. The tests of writes at the same moment (two admins acting on each other, attempts arriving together) set `{ retry: 0 }`: a race that fails only sometimes must fail the run, not pass on its second try.
 
 ### Writing one
 
@@ -165,7 +165,7 @@ it("move a transfer from one account to the other without changing their total",
 `.github/workflows/ci.yml` has two jobs, on every pull request and every push to `main`, with `contents: read` only:
 
 - **check** runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test`, with no secrets.
-- **database** runs `pnpm test:db` with the `TEST_DATABASE_URL` secret, one run at a time across the repository (every run wipes the same database) and never cancelled halfway. Without the secret it passes without running the tests.
+- **database** runs `pnpm test:db` with the `TEST_DATABASE_URL` secret, one run at a time across the repository (every run wipes the same database) and never cancelled halfway. In `mrghasemi1992/money` the secret is required: if the Actions copy, or the Dependabot copy on Dependabot's pull requests, is missing, a step before the tests fails the job with an error that names it, instead of passing without running anything. Pull requests from forks, which can never read secrets, and self-hosted copies, whose CI runs without it, skip the tests and pass.
 
 Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.
 
