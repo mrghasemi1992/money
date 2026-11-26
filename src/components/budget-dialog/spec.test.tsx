@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -170,5 +170,28 @@ describe("BudgetDialog", () => {
       categoryId: UNBUDGETED[0]!.id,
       amount: 2000,
     });
+  });
+
+  it("labels every control, opens with focus inside and closes with Escape", async () => {
+    const { user, onOpenChange } = setup();
+    const dialog = screen.getByRole("dialog", {
+      name: t("budgets.form.newTitle"),
+    });
+
+    for (const control of [
+      ...within(dialog).getAllByRole("textbox"),
+      ...within(dialog).getAllByRole("combobox"),
+    ]) {
+      expect(control).toHaveAccessibleName();
+    }
+    // Focus moves into the dialog when it opens, and Tab keeps it there.
+    await waitFor(() =>
+      expect(dialog).toContainElement(document.activeElement as HTMLElement),
+    );
+    await user.tab();
+    expect(dialog).toContainElement(document.activeElement as HTMLElement);
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 });

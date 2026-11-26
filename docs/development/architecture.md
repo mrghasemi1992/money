@@ -57,7 +57,7 @@ There is no separate backend. One Next.js project holds the pages, the Server Ac
 - **Design system docs:** Storybook
 - **Formatting:** Prettier (default options) with `eslint-config-prettier`
 - **Hosting:** Vercel. Two projects from this one repo: `money` (the app) and `money-storybook` (the design system docs, https://money-storybook.vercel.app: Storybook preset, `pnpm build-storybook`, output `storybook-static`), same as `orange` / `orange-storybook`.
-- **Tests:** Vitest, unit tests in Node and component tests in jsdom with Testing Library and MSW; they never reach a database. The SQL in `src/db` has database tests apart (`pnpm test:db`) against a throwaway `money_test` database on a schema-only `test` Neon branch. CI (`.github/workflows/ci.yml`) runs them with lint, type check and format check, the database tests with the `TEST_DATABASE_URL` secret. See [testing](testing.md).
+- **Tests:** Vitest, unit tests in Node and component tests in jsdom with Testing Library and MSW; they never reach a database, and the coverage report holds a loose floor. The SQL in `src/db` has database tests apart (`pnpm test:db`) against a throwaway `money_test` database on a schema-only `test` Neon branch. CI (`.github/workflows/ci.yml`) runs them with lint, type check and format check, the database tests with the `TEST_DATABASE_URL` secret. See [testing](testing.md).
 
 Feature-specific libraries are described with their feature: Better Auth in [users and auth](features/users-and-auth.md), `mcp-handler` in [connector](features/connector.md), next-intl in [languages](features/languages-and-currency.md), Papa Parse in [CSV](features/csv.md), and why the charts are hand-written in [reports](features/reports.md).
 

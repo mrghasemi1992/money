@@ -95,4 +95,20 @@ describe("Login", () => {
     expect(screen.getByLabelText(fa.login.username)).toHaveFocus();
     expect(requests).not.toHaveBeenCalled();
   });
+
+  it("reaches every control with Tab, in reading order", async () => {
+    const user = userEvent.setup();
+    renderWithApp(<Login returnTo="/" />);
+
+    const order = [
+      screen.getByLabelText(fa.login.username),
+      screen.getByLabelText(fa.login.password),
+      screen.getByRole("button", { name: fa.login.showPassword }),
+      screen.getByRole("button", { name: fa.login.submit }),
+    ];
+    for (const control of order) {
+      await user.tab();
+      expect(control).toHaveFocus();
+    }
+  });
 });

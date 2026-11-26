@@ -24,7 +24,15 @@ One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "get
 | `db`    | `*.db.test.ts` | Node        | The SQL in `src/db`, against a real Postgres (`pnpm test:db`)                                    |
 
 - **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`, and a query module's database test `src/db/budgets.ts` → `src/db/budgets.db.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
-- **What to test:** behavior someone relies on: the rules in `src/helpers`, what a role may do, what the connector accepts and returns, what a user sees and can do in a component. No snapshot dumps, and no tests that only check that a mock was set up.
+- **What to test:** behavior someone relies on, where a mistake wouldn't show on screen. In order:
+  1. **Always:** the rules in `src/helpers` and `src/utils` (money, calendars, months, budgets, reports, CSV values, import planning), what a role may do (every write action and connector tool refuses a viewer), what the connector accepts and returns, every security fix, and a query that adds up money or decides access (a [database test](#database-tests)).
+  2. **For flows with real logic:** a component test for what a user can do in a complex screen, such as the transaction dialog, the CSV import or user management.
+  3. **Not needed:** a test for every small component or for how a screen looks; Storybook and the browser check those.
+- **What not to write:** snapshot dumps, tests that only check that a mock was set up, tests that copy the code's logic to work out what to expect (write the expected value), and checks that can't fail (finding an element by its name, then asserting it has one). Never add a test only to raise the coverage figure.
+
+## Coverage
+
+`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`), to see what the tests leave out. CI runs it with a loose floor (the thresholds in `vitest.config.mts`, about five points under the figures measured when #71 was finished): it fails when a large part of the tests is deleted or skipped, not when new code comes without a test. The number is a report, not a target: decide what to test by the list above, never to move the figure. Don't raise the floor with every pull request; lower it only when code that needs no test grows the app enough to reach it, and say so in the pull request.
 
 ## No database in tests
 
@@ -164,7 +172,7 @@ it("move a transfer from one account to the other without changing their total",
 
 `.github/workflows/ci.yml` has two jobs, on every pull request and every push to `main`, with `contents: read` only:
 
-- **check** runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test`, with no secrets.
+- **check** runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test:coverage` (with the loose floor in [Coverage](#coverage)), with no secrets.
 - **database** runs `pnpm test:db` with the `TEST_DATABASE_URL` secret, one run at a time across the repository (every run wipes the same database) and never cancelled halfway. In `mrghasemi1992/money` the secret is required: if the Actions copy, or the Dependabot copy on Dependabot's pull requests, is missing, a step before the tests fails the job with an error that names it, instead of passing without running anything. Pull requests from forks, which can never read secrets, and self-hosted copies, whose CI runs without it, skip the tests and pass.
 
 Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -61,6 +61,32 @@ async function pickCategory(
 }
 
 describe("TransactionDialog", () => {
+  it("labels every control and closes with Escape", async () => {
+    const { user, onOpenChange } = setup();
+    const dialog = screen.getByRole("dialog", {
+      name: t("transactions.form.newTitle"),
+    });
+
+    // The four kinds and every field read with a name, without color or icon.
+    for (const kind of ["expense", "income", "transfer", "debt"] as const) {
+      expect(
+        within(dialog).getByRole("radio", {
+          name: t(`transactions.form.kinds.${kind}`),
+        }),
+      ).toBeInTheDocument();
+    }
+    for (const control of [
+      ...within(dialog).getAllByRole("textbox"),
+      ...within(dialog).getAllByRole("combobox"),
+      ...within(dialog).getAllByRole("button"),
+    ]) {
+      expect(control).toHaveAccessibleName();
+    }
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it("asks for the amount before saving", async () => {
     const { user, onSubmit } = setup();
 

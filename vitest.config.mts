@@ -60,6 +60,15 @@ export default defineConfig({
         "src/db/schema/**",
       ],
       reporter: ["text-summary", "html"],
+      // A loose floor, about five points under the measured figures: it catches
+      // tests being deleted or skipped, not code added without a test. Don't
+      // write tests to move it (docs/development/testing.md#coverage).
+      thresholds: {
+        statements: 40,
+        branches: 38,
+        functions: 32,
+        lines: 40,
+      },
     },
   },
 });
