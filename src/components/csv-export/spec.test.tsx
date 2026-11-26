@@ -51,6 +51,24 @@ describe("CsvExport", () => {
     ).toBeInTheDocument();
   });
 
+  it("takes this month from the Gregorian calendar for a viewer who uses it", () => {
+    const onCount = vi.fn().mockResolvedValue(42);
+    renderWithApp(
+      <CsvExport
+        accounts={SAMPLE_ACCOUNT_OPTIONS}
+        onCount={onCount}
+        onDownload={vi.fn()}
+      />,
+      { calendar: "gregorian" },
+    );
+
+    expect(onCount).toHaveBeenCalledWith({
+      from: "2026-11-01",
+      to: "2026-11-19",
+      accountId: null,
+    });
+  });
+
   it("switches to last month and this year", async () => {
     const { user, onCount } = setup();
 

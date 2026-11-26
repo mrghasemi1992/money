@@ -7,7 +7,7 @@ import {
   SAMPLE_TRANSACTION_OPTIONS,
   SAMPLE_TRANSACTIONS,
 } from "@/components/transaction-list/sample-transactions";
-import { t } from "@/test/messages";
+import { t, tEn } from "@/test/messages";
 import { startsWith } from "@/test/queries";
 import { renderWithApp } from "@/test/render";
 
@@ -61,16 +61,16 @@ async function pickCategory(
 }
 
 describe("TransactionDialog", () => {
-  it("starts a new expense on today and the first account, and asks for the amount", async () => {
+  it("asks for the amount before saving", async () => {
     const { user, onSubmit } = setup();
 
     await user.click(
       button(t("transactions.form.submit", { type: "expense" })),
     );
 
-    expect(
-      screen.getByText(t("transactions.form.errors.amountMissing")),
-    ).toBeInTheDocument();
+    expect(amount()).toHaveAccessibleDescription(
+      t("transactions.form.errors.amountMissing"),
+    );
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
@@ -109,9 +109,68 @@ describe("TransactionDialog", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it("stores what is typed in tomans as rials, and dollars as cents", async () => {
+    const onSubmit = vi.fn().mockResolvedValue({ ok: true });
+    const user = userEvent.setup();
+    const { unmount } = renderWithApp(
+      <TransactionDialog
+        open
+        transaction={null}
+        options={SAMPLE_TRANSACTION_OPTIONS}
+        today={SAMPLE_TODAY}
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+        onDelete={vi.fn()}
+      />,
+      { rialUnit: "toman" },
+    );
+    await user.type(amount(), "۲۵۰۰۰");
+    await pickCategory(user, restaurant.name);
+    await user.click(
+      button(t("transactions.form.submit", { type: "expense" })),
+    );
+    expect(onSubmit).toHaveBeenLastCalledWith(
+      expect.objectContaining({ amount: 250_000 }),
+    );
+    unmount();
+
+    renderWithApp(
+      <TransactionDialog
+        open
+        transaction={null}
+        options={SAMPLE_TRANSACTION_OPTIONS}
+        today={SAMPLE_TODAY}
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+        onDelete={vi.fn()}
+      />,
+      { locale: "en", calendar: "gregorian", currency: "USD" },
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: tEn("transactions.form.amount") }),
+      "12.5",
+    );
+    await user.click(
+      screen.getByRole("combobox", { name: tEn("transactions.form.category") }),
+    );
+    await user.click(
+      await screen.findByRole("option", { name: restaurant.name }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: tEn("transactions.form.submit", { type: "expense" }),
+      }),
+    );
+    expect(onSubmit).toHaveBeenLastCalledWith(
+      expect.objectContaining({ amount: 1250 }),
+    );
+  });
+
   it("records a transfer between two of the book's accounts, without a category", async () => {
     const { user, onSubmit } = setup();
 
+    // A category picked while it was an expense doesn't go with the transfer.
+    await pickCategory(user, restaurant.name);
     await user.click(kind(t("transactions.form.kinds.transfer")));
     await user.type(amount(), "1000000");
     await user.click(
@@ -177,6 +236,10 @@ describe("TransactionDialog", () => {
     const { user, onSubmit, onOpenChange } = setup();
 
     await user.click(kind(t("transactions.form.kinds.income")));
+    await user.click(
+      screen.getByRole("combobox", { name: t("transactions.form.account") }),
+    );
+    await user.click(await screen.findByRole("option", { name: saman!.name }));
     await user.type(amount(), "900");
     await pickCategory(user, salary.name);
     await user.click(button(t("transactions.form.submitAnother")));
@@ -188,7 +251,20 @@ describe("TransactionDialog", () => {
     expect(amount()).toHaveValue("");
     expect(amount()).toHaveFocus();
     expect(kind(t("transactions.form.kinds.income"))).toBeChecked();
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    // The next one starts from the same account and date, with a new amount and category.
+    await user.type(amount(), "700");
+    await pickCategory(user, salary.name);
+    await user.click(button(t("transactions.form.submitAnother")));
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(onSubmit).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: "income",
+        amount: 700,
+        accountId: saman!.id,
+        date: SAMPLE_TODAY,
+      }),
+    );
   });
 
   it("edits a transaction and offers to delete it", async () => {
@@ -228,7 +304,10 @@ describe("TransactionDialog", () => {
       button(t("transactions.form.submit", { type: "expense" })),
     );
 
-    expect(await screen.findByText(message)).toBeInTheDocument();
+    await screen.findByText(message);
+    expect(
+      screen.getByRole("combobox", { name: t("transactions.form.account") }),
+    ).toHaveAccessibleDescription(message);
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 });

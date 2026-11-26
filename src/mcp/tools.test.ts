@@ -17,6 +17,7 @@ import {
 import { getUserStatus } from "@/db/users";
 import type { Account } from "@/types/account";
 import type { McpUser } from "@/types/connector";
+import type { Currency } from "@/types/currency";
 import type { UserRole } from "@/types/user";
 
 import { type McpContext, registerTools } from "./tools";
@@ -42,14 +43,17 @@ type Handler = (input: unknown) => Promise<{
 }>;
 
 /** Registers the tools on a stand-in server and returns them by name. */
-function toolsFor(role: UserRole): Map<string, Handler> {
+function toolsFor(
+  role: UserRole,
+  currency: Currency = "IRR",
+): Map<string, Handler> {
   const tools = new Map<string, Handler>();
   const server = {
     registerTool: (name: string, _config: unknown, handler: Handler) => {
       tools.set(name, handler);
     },
   } as unknown as McpServer;
-  registerTools(server, context(role));
+  registerTools(server, context(role, currency));
   return tools;
 }
 
@@ -57,7 +61,7 @@ const USER_ID = "user-1";
 const ACCOUNT_ID = "6f1c1f9e-1b2a-4c3d-8e4f-5a6b7c8d9e0f";
 const CATEGORY_ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
 
-function context(role: UserRole): McpContext {
+function context(role: UserRole, currency: Currency): McpContext {
   const user: McpUser = {
     id: USER_ID,
     name: "سارا",
@@ -68,7 +72,7 @@ function context(role: UserRole): McpContext {
     rialUnit: "rial",
     timeZone: "Asia/Tehran",
   };
-  return { user, currency: "IRR", timeZone: "Asia/Tehran", source: "mcp" };
+  return { user, currency, timeZone: "Asia/Tehran", source: "mcp" };
 }
 
 function body(result: Awaited<ReturnType<Handler>>): unknown {
@@ -119,6 +123,15 @@ describe("registerTools", () => {
       currency: "IRR",
       user: { role: "viewer", can_write: false },
     });
+  });
+});
+
+describe("today", () => {
+  it("turns over at the user's midnight, not the server's", async () => {
+    // 21:00 UTC on 19 November is 00:30 on 29 Aban in Tehran.
+    vi.setSystemTime(new Date("2026-11-19T21:00:00Z"));
+    const today = toolsFor("viewer").get("today")!;
+    expect(body(await today({}))).toMatchObject({ date: "1405/08/29" });
   });
 });
 
@@ -196,6 +209,90 @@ describe("add_transactions", () => {
       saved: [{ id: "tx-1", date: "1405/08/27", account: "ملت" }],
       possible_duplicates: [],
     });
+  });
+
+  /** An editor whose stored references all check out. */
+  function writer() {
+    vi.mocked(getUserStatus).mockResolvedValue({
+      role: "editor",
+      disabled: false,
+    });
+    vi.mocked(checkTransactionReferences).mockResolvedValue(null);
+    vi.mocked(findSimilarTransactions).mockResolvedValue([]);
+    vi.mocked(createTransactions).mockImplementation(async (rows) =>
+      rows.map((_, index) => `tx-${index + 1}`),
+    );
+    vi.mocked(listAccountOptions).mockResolvedValue([]);
+    vi.mocked(listCategories).mockResolvedValue({ expense: [], income: [] });
+  }
+
+  it("records the token's user, whatever user the input names", async () => {
+    writer();
+    const add = toolsFor("editor").get("add_transactions")!;
+
+    await add({
+      transactions: [
+        { ...expense, created_by: "someone-else", user_id: "someone-else" },
+      ],
+    });
+
+    const [rows, actor] = vi.mocked(createTransactions).mock.calls[0]!;
+    expect(actor).toBe(USER_ID);
+    expect(rows[0]).not.toHaveProperty("createdBy");
+    expect(rows[0]).not.toHaveProperty("created_by");
+  });
+
+  it("stores dollars as cents, and refuses what a cent can't hold", async () => {
+    writer();
+    const add = toolsFor("editor", "USD").get("add_transactions")!;
+
+    await add({ transactions: [{ ...expense, amount: 12.34 }] });
+    expect(createTransactions).toHaveBeenCalledWith(
+      [expect.objectContaining({ amount: 1234 })],
+      USER_ID,
+      "mcp",
+    );
+
+    vi.mocked(createTransactions).mockClear();
+    for (const amount of [12.345, -12, 0]) {
+      const result = await add({ transactions: [{ ...expense, amount }] });
+      expect(result.isError).toBe(true);
+      expect(body(result)).toMatchObject({
+        invalid: [{ index: 0, errors: [expect.stringContaining("positive")] }],
+      });
+    }
+    expect(createTransactions).not.toHaveBeenCalled();
+  });
+
+  it("refuses part of a rial", async () => {
+    writer();
+    const add = toolsFor("editor").get("add_transactions")!;
+
+    const result = await add({ transactions: [{ ...expense, amount: 1.5 }] });
+    expect(result.isError).toBe(true);
+    expect(createTransactions).not.toHaveBeenCalled();
+  });
+
+  it("saves a transfer without the category Claude sent, so it is never an expense", async () => {
+    writer();
+    const add = toolsFor("editor").get("add_transactions")!;
+    const TO = "7a2d3e4f-5b6c-4d7e-8f90-a1b2c3d4e5f6";
+
+    await add({
+      transactions: [{ ...expense, type: "transfer", to_account_id: TO }],
+    });
+
+    expect(createTransactions).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          type: "transfer",
+          toAccountId: TO,
+          categoryId: null,
+        }),
+      ],
+      USER_ID,
+      "mcp",
+    );
   });
 
   it("saves nothing when a transaction breaks the rules", async () => {

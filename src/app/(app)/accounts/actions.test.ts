@@ -6,6 +6,7 @@ import {
   deleteAccount as removeAccount,
   reorderAccounts as saveAccountOrder,
 } from "@/db/accounts";
+import * as db from "@/db/accounts";
 import { t } from "@/test/messages";
 import { outcome, resetServer, signInAs } from "@/test/server";
 
@@ -37,7 +38,10 @@ describe("every write", () => {
     ) => Promise<unknown>)[]) {
       expect(await outcome(() => write({ id: ID }))).toBe("notFound");
     }
-    expect(insertAccount).not.toHaveBeenCalled();
+    // Not one query ran: the role check comes before reading the input.
+    for (const query of Object.values(db)) {
+      expect(query).not.toHaveBeenCalled();
+    }
   });
 });
 
