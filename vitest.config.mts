@@ -57,13 +57,14 @@ export default defineConfig({
         "src/db/schema/**",
       ],
       reporter: ["text-summary", "html"],
-      // A floor: CI fails below it. It started at the baseline of #71; raise it
-      // with new tests, never lower it (docs/development/testing.md#coverage).
+      // A loose floor, about five points under the measured figures: it catches
+      // tests being deleted or skipped, not code added without a test. Don't
+      // write tests to move it (docs/development/testing.md#coverage).
       thresholds: {
-        statements: 44,
-        branches: 43,
-        functions: 36,
-        lines: 45,
+        statements: 40,
+        branches: 38,
+        functions: 32,
+        lines: 40,
       },
     },
   },

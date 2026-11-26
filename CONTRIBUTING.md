@@ -97,7 +97,7 @@ Not every feature needs every step, but go through the list:
 - [ ] **Components**, one folder each with `index.tsx`, `styles.module.css` and `index.stories.tsx`, tokens only, logical CSS properties only.
 - [ ] **Copy** in `src/messages/fa.ts` and `src/messages/en.ts`; Persian sample text in stories, with its English in `src/constants/sample-text.ts`.
 - [ ] **Roles:** viewers see no write controls, and the server refuses them anyway.
-- [ ] **Tests** next to the code: the rules, the role checks of actions and tools, and what a component lets the user do ([testing](docs/development/testing.md)).
+- [ ] **Tests** next to the code: the rules, the role checks of actions and tools, and what a complex component lets the user do; not a test for every small component ([testing](docs/development/testing.md#layers)).
 - [ ] **The connector:** if Claude should be able to use it, a tool in `src/mcp/tools.ts` and a line in its instructions.
 - [ ] **Docs** (next section).
 

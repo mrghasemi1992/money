@@ -22,11 +22,15 @@ One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "get
 | `dom`   | `*.test.tsx` | jsdom       | Components, with Testing Library, `@testing-library/user-event` and jest-dom matchers            |
 
 - **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
-- **What to test:** behavior someone relies on: the rules in `src/helpers`, what a role may do, what the connector accepts and returns, what a user sees and can do in a component. No snapshot dumps, and no tests that only check that a mock was set up.
+- **What to test:** behavior someone relies on, where a mistake wouldn't show on screen. In order:
+  1. **Always:** the rules in `src/helpers` and `src/utils` (money, calendars, months, budgets, reports, CSV values, import planning), what a role may do (every write action and connector tool refuses a viewer), what the connector accepts and returns, and every security fix.
+  2. **For flows with real logic:** a component test for what a user can do in a complex screen, such as the transaction dialog, the CSV import or user management.
+  3. **Not needed:** a test for every small component or for how a screen looks; Storybook and the browser check those.
+- **What not to write:** snapshot dumps, tests that only check that a mock was set up, tests that copy the code's logic to work out what to expect (write the expected value), and checks that can't fail (finding an element by its name, then asserting it has one). Never add a test only to raise the coverage figure.
 
 ## Coverage
 
-`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`) and holds a floor: it fails when a metric falls below the threshold set in `vitest.config.mts`. The thresholds started at the baseline measured when the tests of #71 were finished (recorded in the issue), and CI runs the coverage report, so a pull request fails when it takes a metric below them. When a pull request adds code or tests, raise the thresholds with it, so the numbers only go up; never lower them to make a run pass. The thresholds sit just under the measured figures, so new code without tests can fail the run: add the tests.
+`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`), to see what the tests leave out. CI runs it with a loose floor (the thresholds in `vitest.config.mts`, about five points under the figures measured when #71 was finished): it fails when a large part of the tests is deleted or skipped, not when new code comes without a test. The number is a report, not a target: decide what to test by the list above, never to move the figure. Don't raise the floor with every pull request; lower it only when code that needs no test grows the app enough to reach it, and say so in the pull request.
 
 ## No database in tests
 

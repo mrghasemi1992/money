@@ -147,3 +147,13 @@ Each entry: **Decision**, **Why**, **Trade-off**, **Where**. A new entry also re
 - **Alternatives considered:** Jest (needs its own TypeScript and ESM transforms; Vitest reads the same Vite setup as Storybook), happy-dom (faster, but jsdom is closer to a browser for Base UI's focus and dialog behavior), and tests against the `dev` branch or a throwaway Neon branch (slower, need secrets in CI, and the `dev` branch holds a copy of real data).
 - **Trade-off:** the SQL in `src/db` isn't tested, only mocked: a wrong query passes the tests. Integration tests against a Neon branch can come later. Screens are still checked by hand in the browser and Storybook.
 - **Where:** [testing](testing.md), `vitest.config.mts`, `src/test/`, `.github/workflows/ci.yml`.
+
+## 19. Tests where a mistake wouldn't show, and a loose coverage floor
+
+- **Decision:** tests cover the rules, the role checks, the connector and the security fixes, plus component tests for the few complex flows. The coverage report runs in CI with a floor about five points under the measured figures, which catches tests being deleted or skipped; it isn't a target to raise.
+- **Status:** Accepted.
+- **Date:** 2026-11, #71 (#163).
+- **Why:** Money is built mostly by AI agents, and the tests are what checks their work where nobody reads every line: a wrong total or a role check that lets a viewer write shows no error on screen. A floor just under the measured figures pushed agents to write tests that only moved the number (checks that couldn't fail, tests that copied the component's logic), which cost upkeep and caught nothing.
+- **Alternatives considered:** no tests (cheapest, but nothing catches an agent's mistake in the rules or the role checks), a tight floor raised with every pull request (the filler tests above), and no floor (a deleted or skipped test file would go unnoticed).
+- **Trade-off:** new code can come without tests and CI won't notice; reviews and the "What to test" list in [testing](testing.md) have to catch that.
+- **Where:** [testing](testing.md#coverage), `vitest.config.mts`, `.github/workflows/ci.yml`.
