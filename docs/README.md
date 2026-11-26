@@ -24,7 +24,7 @@ For anyone who changes the code: the maintainer, a contributor or an AI agent. R
 2. [Architecture](development/architecture.md): the parts, how a request moves through them, the data rules and model, routes, the folder map and a glossary.
 3. [Decisions](development/decisions.md): the key decisions, why they were made and what they cost.
 4. [Conventions](development/conventions.md): the rules for code, copy, styling, components and stories.
-5. [Testing](development/testing.md): the unit and component tests, and CI.
+5. [Testing](development/testing.md): the unit and component tests, the database tests, and CI.
 6. The doc of the area you work on:
    - [Users, roles and sign-in](development/features/users-and-auth.md)
    - [Accounts and categories](development/features/accounts-and-categories.md)
