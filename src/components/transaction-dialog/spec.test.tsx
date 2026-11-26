@@ -86,6 +86,7 @@ describe("TransactionDialog", () => {
     await user.keyboard("{Escape}");
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
   it("starts a new expense on today and the first account, and asks for the amount", async () => {
     const { user, onSubmit } = setup();
 

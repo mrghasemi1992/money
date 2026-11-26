@@ -96,13 +96,19 @@ describe("Login", () => {
     expect(requests).not.toHaveBeenCalled();
   });
 
-  it("labels every field and the submit for keyboard and screen readers", () => {
+  it("reaches every control with Tab, in reading order", async () => {
+    const user = userEvent.setup();
     renderWithApp(<Login returnTo="/" />);
 
-    expect(screen.getByLabelText(fa.login.username)).toHaveAccessibleName();
-    expect(screen.getByLabelText(fa.login.password)).toHaveAccessibleName();
-    expect(
+    const order = [
+      screen.getByLabelText(fa.login.username),
+      screen.getByLabelText(fa.login.password),
+      screen.getByRole("button", { name: fa.login.showPassword }),
       screen.getByRole("button", { name: fa.login.submit }),
-    ).toHaveAccessibleName();
+    ];
+    for (const control of order) {
+      await user.tab();
+      expect(control).toHaveFocus();
+    }
   });
 });

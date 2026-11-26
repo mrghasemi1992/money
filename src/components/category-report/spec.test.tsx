@@ -30,11 +30,9 @@ describe("CategoryReport", () => {
     const card = screen.getByRole("region", {
       name: t("reports.categories.expenseTitle"),
     });
-    expect(
-      card
-        .textContent!.replace(/\s+/g, " ")
-        .includes(t("reports.total", { amount: money(total) })),
-    ).toBe(true);
+    expect(card).toHaveTextContent(
+      t("reports.total", { amount: money(total) }).replace(/\s+/g, " "),
+    );
     // The hint says the rows open: their chevron alone doesn't say it.
     expect(
       within(card).getByText(t("reports.categories.hint")),

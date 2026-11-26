@@ -26,7 +26,7 @@ One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "get
 
 ## Coverage
 
-`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`) and holds a floor: it fails when a metric falls below the threshold set in `vitest.config.mts`. The thresholds are the baseline of the tests written for issue #71 — 44% statements, 43% branches, 36% functions, 45% lines — and CI runs the coverage report, so it fails only below that baseline. When a pull request adds code or tests, raise the thresholds with it, so the number only goes up; never lower them to make a run pass.
+`pnpm test:coverage` reports lines, branches, functions and statements (`coverage/index.html`) and holds a floor: it fails when a metric falls below the threshold set in `vitest.config.mts`. The thresholds started at the baseline measured when the tests of #71 were finished (recorded in the issue), and CI runs the coverage report, so a pull request fails when it takes a metric below them. When a pull request adds code or tests, raise the thresholds with it, so the numbers only go up; never lower them to make a run pass. The thresholds sit just under the measured figures, so new code without tests can fail the run: add the tests.
 
 ## No database in tests
 

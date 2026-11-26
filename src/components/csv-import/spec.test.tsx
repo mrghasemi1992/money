@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -59,7 +59,7 @@ async function upload(
 }
 
 describe("CsvImport", () => {
-  it("marks the current step and names the first step's controls", () => {
+  it("marks the current step for screen readers, and only that one", () => {
     setup();
 
     const uploadStep = screen
@@ -67,11 +67,10 @@ describe("CsvImport", () => {
       .find((element) => element.closest("ol"))!
       .closest("li")!;
     expect(uploadStep).toHaveAttribute("aria-current", "step");
-    expect(
-      screen.getByRole("button", {
-        name: t("importExport.import.upload.choose"),
-      }),
-    ).toHaveAccessibleName();
+    const steps = within(uploadStep.closest("ol")!).getAllByRole("listitem");
+    expect(steps.filter((step) => step.hasAttribute("aria-current"))).toEqual([
+      uploadStep,
+    ]);
   });
 
   it("reads a file, maps it, checks it and adds the good rows", async () => {

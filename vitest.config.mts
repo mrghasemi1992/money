@@ -57,8 +57,8 @@ export default defineConfig({
         "src/db/schema/**",
       ],
       reporter: ["text-summary", "html"],
-      // The baseline of the tests written for #71, as CI floors below. Raise the
-      // numbers as the app grows, never below them.
+      // A floor: CI fails below it. It started at the baseline of #71; raise it
+      // with new tests, never lower it (docs/development/testing.md#coverage).
       thresholds: {
         statements: 44,
         branches: 43,

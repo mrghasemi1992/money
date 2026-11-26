@@ -38,12 +38,11 @@ describe("DataTable", () => {
     expect(screen.getAllByRole("row")).toHaveLength(rows.length + 1);
   });
 
-  it("marks sub-rows as subcategories of the row above", () => {
+  it("heads every row with its first cell, sub-rows included", () => {
     renderWithApp(
       <DataTable caption="هزینه به تفکیک دسته" columns={COLUMNS} rows={rows} />,
     );
 
-    // Every row's first cell names its row: the category, or its subcategory.
     expect(screen.getByRole("rowheader", { name: "خانه" })).toBeInTheDocument();
     expect(
       screen.getByRole("rowheader", { name: "اجاره" }),

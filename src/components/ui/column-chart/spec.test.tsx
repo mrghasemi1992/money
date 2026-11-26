@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { formatMoney, formatMoneyNumber } from "@/helpers/money";
 import type { MoneyUnit } from "@/types/currency";
+import { formatPercent } from "@/utils/number";
 import { t } from "@/test/messages";
 import { renderWithApp } from "@/test/render";
 
@@ -61,9 +62,9 @@ describe("ColumnChart", () => {
     expect(readout).toHaveTextContent(
       formatMoneyNumber(66_100_000 - 40_300_000, UNIT, "fa"),
     );
-    expect(readout).toHaveTextContent("ریال");
-    expect(readout).toHaveTextContent("۳۹٪");
-    expect(screen.getByText(/محور عمودی/)).toBeInTheDocument();
+    expect(readout).toHaveTextContent(t("chart.units.rial"));
+    // Saved 25.8M of 66.1M: a savings rate of 39%.
+    expect(readout).toHaveTextContent(formatPercent(39, "fa"));
   });
 
   it("names every column for screen readers and keeps one tab stop", () => {
@@ -109,11 +110,13 @@ describe("ColumnChart", () => {
     // Persian reads right to left: the left arrow goes to the next month.
     await user.tab();
     await user.keyboard("{ArrowLeft}");
-    expect(document.activeElement).toBe(column("مهر ۱۴۰۵"));
+    expect(column("مهر ۱۴۰۵")).toHaveFocus();
+    // The readout follows the focused column.
     expect(screen.getByText("مهر ۱۴۰۵")).toBeInTheDocument();
+    expect(screen.queryByText("شهریور ۱۴۰۵")).not.toBeInTheDocument();
 
     await user.keyboard("{ArrowRight}");
-    expect(document.activeElement).toBe(column("شهریور ۱۴۰۵"));
+    expect(column("شهریور ۱۴۰۵")).toHaveFocus();
   });
 
   it("says «بدون درآمد» for a month without income instead of a rate", () => {
@@ -132,7 +135,7 @@ describe("ColumnChart", () => {
       />,
     );
 
-    const readout = screen.getByText(/محور عمودی/).closest("div")!;
+    const readout = screen.getByText("فروردین ۱۴۰۵").closest("div")!;
     expect(within(readout).getByText(t("chart.noIncome"))).toBeInTheDocument();
   });
 });

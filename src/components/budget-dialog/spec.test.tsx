@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -152,9 +152,12 @@ describe("BudgetDialog", () => {
     ]) {
       expect(control).toHaveAccessibleName();
     }
-    // Focus starts in the dialog, so Tab moves through it first.
+    // Focus moves into the dialog when it opens, and Tab keeps it there.
+    await waitFor(() =>
+      expect(dialog).toContainElement(document.activeElement as HTMLElement),
+    );
     await user.tab();
-    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(dialog).toContainElement(document.activeElement as HTMLElement);
 
     await user.keyboard("{Escape}");
     expect(onOpenChange).toHaveBeenCalledWith(false);
