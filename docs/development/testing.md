@@ -1,6 +1,6 @@
 # Testing
 
-Money's automated tests are unit and component tests with [Vitest](https://vitest.dev), [Testing Library](https://testing-library.com) in jsdom and [MSW](https://mswjs.io) for network calls. They never reach a database. CI runs them on every pull request with the other checks.
+Money's automated tests are unit and component tests with [Vitest](https://vitest.dev), [Testing Library](https://testing-library.com) in jsdom and [MSW](https://mswjs.io) for network calls, which never reach a database, and integration tests of the SQL in `src/db` against a throwaway Neon database ([database tests](#database-tests)). CI runs both on every pull request with the other checks.
 
 ## Running them
 
@@ -9,24 +9,26 @@ Money's automated tests are unit and component tests with [Vitest](https://vites
 | `pnpm test`          | Run every test once                                           |
 | `pnpm test:watch`    | Run the tests of changed files while you work                 |
 | `pnpm test:coverage` | Run every test with a coverage report (`coverage/index.html`) |
+| `pnpm test:db`       | Run the database tests against `TEST_DATABASE_URL`            |
 
 One file or one name: `pnpm test src/helpers/budget.test.ts`, `pnpm test -t "getBudgetStatus"`.
 
 ## Layers
 
-`vitest.config.mts` has two projects, chosen by the file name:
+`vitest.config.mts` has two projects, chosen by the file name, and the database tests have a config of their own, `vitest.db.config.mts`, so `pnpm test` never loads them:
 
-| Project | Files        | Environment | For                                                                                              |
-| ------- | ------------ | ----------- | ------------------------------------------------------------------------------------------------ |
-| `node`  | `*.test.ts`  | Node        | Helpers, utils, constants, i18n, auth and role checks, MCP tools, Server Actions, Route Handlers |
-| `dom`   | `*.test.tsx` | jsdom       | Components, with Testing Library, `@testing-library/user-event` and jest-dom matchers            |
+| Project | Files          | Environment | For                                                                                              |
+| ------- | -------------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `node`  | `*.test.ts`    | Node        | Helpers, utils, constants, i18n, auth and role checks, MCP tools, Server Actions, Route Handlers |
+| `dom`   | `*.test.tsx`   | jsdom       | Components, with Testing Library, `@testing-library/user-event` and jest-dom matchers            |
+| `db`    | `*.db.test.ts` | Node        | The SQL in `src/db`, against a real Postgres (`pnpm test:db`)                                    |
 
-- **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
+- **Where tests go:** next to the file they test, `budget.ts` → `budget.test.ts`, `actions.ts` → `actions.test.ts`, `route.ts` → `route.test.ts`, and a query module's database test `src/db/budgets.ts` → `src/db/budgets.db.test.ts`. A component's test is `spec.test.tsx` in its folder ([conventions](conventions.md)). A config file at the root has its test beside it (`next.config.test.ts`, in the `node` project).
 - **What to test:** behavior someone relies on: the rules in `src/helpers`, what a role may do, what the connector accepts and returns, what a user sees and can do in a component. No snapshot dumps, and no tests that only check that a mock was set up.
 
 ## No database in tests
 
-Local development runs on a `dev` Neon branch ([local development](local-development.md)), which is still a real database with a copy of the book, so unit tests never touch one. `src/test/setup.ts`, which runs before every test file:
+Local development runs on a `dev` Neon branch ([local development](local-development.md)), which is still a real database with a copy of the book, so unit and component tests never touch one; only the [database tests](#database-tests) do, on a database of their own. `src/test/setup.ts`, which runs before every test file:
 
 - deletes `DATABASE_URL*` and `BETTER_AUTH_SECRET` from the environment, and the config sets `envDir: false`, so `.env.local` is never read;
 - replaces `@/db` with a client whose every call throws (`src/test/db.ts`). The call is recorded too, so the test fails after it ends even when the code under test caught the error;
@@ -108,13 +110,68 @@ Next.js hooks that need the App Router, such as `useRouter`, are mocked in the t
 
 When a query can't find something, the error lists every role and accessible name on the page; reading it is the quickest way to see what a screen reader gets.
 
+## Database tests
+
+The unit tests mock the query modules, so a wrong query, such as one that counts a transfer as an expense, would pass them. The database tests run the real SQL of `src/db` against Postgres: balances (`accountBalance`), the totals of the transactions list, reports and budgets over a viewer's month (`monthRange`, both ends included), the dashboard's first-run check, the attempt limit's window (`takeAttempt`, attempts at the same moment included), keeping the last admin (`setUserRole`, `disableUser`, two admins acting on each other at once included), the book currency lock and the import's single batch. They use the app's driver (Neon's HTTP driver through Drizzle), so `db.batch` and the results' types are the ones production gets.
+
+### The database
+
+They need a Neon database made for them, because every run wipes it: `pnpm test:db` refuses a `TEST_DATABASE_URL` whose database name doesn't end in `_test`, and checks the name again on the connection before it changes anything. The book's own database is `neondb` on every branch, so a connection string copied from the wrong place is refused instead of wiped. Set it up once:
+
+1. In Neon (Vercel → **Storage**, the database, **Open in Neon**), open **Branches** and create a branch named `test` from `main` with **Schema only**, so it holds none of the book's data (auto-delete **Never**). It counts towards the free plan's 10 branches.
+2. Switch the branch menu at the top left to `test`, open **Roles** and reset the role's password, as for the `dev` branch ([local development](local-development.md)): a child branch starts with its parent's passwords, and this connection string will live in `.env.test.local` and in GitHub. Check that the menu says `test` first.
+3. Still on `test`, open **Databases** and create a database named `money_test`, owned by that role.
+4. Choose **Connect**, pick the `test` branch and the `money_test` database, and copy the connection string. Put it in `.env.test.local` (ignored by git, like every `.env*` file):
+
+   ```bash
+   TEST_DATABASE_URL="postgresql://…/money_test?sslmode=require"
+   ```
+
+5. For CI, add the same string as the repository secret `TEST_DATABASE_URL` (GitHub, **Settings → Secrets and variables → Actions**). Dependabot's pull requests read only Dependabot secrets, so add it under **Dependabot** too for its upgrades of Drizzle or the Neon driver to be tested.
+
+`pnpm test:db` reads `TEST_DATABASE_URL` from the shell or `.env.test.local`, never from `.env.local`. Without it, it says so and passes without running anything, so a local run, a pull request from a fork and a self-hosted copy's CI still pass. In this repository's CI a missing secret fails the job instead ([CI](#ci)).
+
+### A run
+
+1. **Once per run** (`src/test/integration/global-setup.ts`): drops the `public` and `drizzle` schemas and applies every migration in `drizzle/` from the start, with Drizzle's migrator for the HTTP driver. So each run starts from the schema a new self-hosted copy gets, and a migration that no longer applies from zero fails the run.
+2. **Before each test** (`src/test/integration/setup.ts`): `@/db` connects to the test database (`DATABASE_URL` is set from `TEST_DATABASE_URL`), and every table is emptied.
+3. **Files run one at a time** (`fileParallelism: false`): they share the database. Each query is a request to Neon, so a run takes about as long as the requests (about two minutes); the first one may wait a few seconds for the branch's compute to wake. A failed test is retried once (`retry: 1`), since a request can time out on the network, and the retry starts from emptied tables again. The tests of writes at the same moment (two admins acting on each other, attempts arriving together) set `{ retry: 0 }`: a race that fails only sometimes must fail the run, not pass on its second try.
+
+### Writing one
+
+A test seeds only what it is about, with the helpers in `src/test/integration/seed.ts` (`seedUser`, `seedAccount`, `seedCategory`, `seedTransaction`, `seedBudget`, `seedSession`, `seedConnection`), calls the query and checks what it returns, with literal expected values:
+
+```ts
+it("move a transfer from one account to the other without changing their total", async () => {
+  const bank = await seedAccount({ name: "ملت", openingBalance: 1_000_000 });
+  const cash = await seedAccount({ name: "نقد", type: "cash" });
+  await seedTransaction({
+    type: "transfer",
+    amount: 300_000,
+    date: "2026-10-01",
+    accountId: bank,
+    toAccountId: cash,
+    createdBy: userId,
+  });
+
+  expect(await balances()).toEqual({ ملت: 700_000, نقد: 300_000 });
+});
+```
+
+`seedNeverIncomeOrExpense(date, userId)` adds one of each movement that is never income or expense (a transfer, a loan to a counterparty and its repayment, a receivable, a payable) with large amounts, so a total that counts any of them is far off. Add it to the data of every test of a total.
+
 ## CI
 
-`.github/workflows/ci.yml` runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test` on every pull request and every push to `main`, with `contents: read` only and no secrets. Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.
+`.github/workflows/ci.yml` has two jobs, on every pull request and every push to `main`, with `contents: read` only:
+
+- **check** runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test`, with no secrets.
+- **database** runs `pnpm test:db` with the `TEST_DATABASE_URL` secret, one run at a time across the repository (every run wipes the same database) and never cancelled halfway. In `mrghasemi1992/money` the secret is required: if the Actions copy, or the Dependabot copy on Dependabot's pull requests, is missing, a step before the tests fails the job with an error that names it, instead of passing without running anything. Pull requests from forks, which can never read secrets, and self-hosted copies, whose CI runs without it, skip the tests and pass.
+
+Its actions are pinned to a commit SHA, which Dependabot updates monthly. The build is checked by the Vercel preview of the pull request.
 
 ## Not covered yet
 
-- **Database queries** (`src/db/*.ts`): they are only mocked. That includes the rules the database enforces in one statement: the attempt limit's window (`takeAttempt`), keeping the last admin (`setUserRole`, `disableUser`), balances (`accountBalance`), the book currency lock and the import's single batch. Integration tests against a Neon branch, behind a `TEST_DATABASE_URL` and skipped when it isn't set, are a later step.
+- **The other queries** of `src/db`: the transactions list (keyset pagination, search, filters), categories and their trees, accounts' writes, the connector's queries, the remaining report insights (`recurringExpenses`, `largestTransactions`) and `findImportDuplicates` have no database test yet; they are only mocked in the unit tests.
 - **Pages** (`page.tsx`, `layout.tsx`): async Server Components aren't rendered in tests; what they hand to components is tested through the components and the queries' callers.
 - **The MCP route** (`src/app/mcp/route.ts`, `src/mcp/handler.ts`) end to end: the token check and the tools are tested apart.
 - **End-to-end tests** in a browser: none yet; screens are checked by hand in the browser and Storybook.

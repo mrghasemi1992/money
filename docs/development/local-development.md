@@ -52,7 +52,7 @@ Every preview deployment gets a Neon branch named `preview/<git branch>`, and th
 - the variable `NEON_PROJECT_ID`: the Neon project's id (Neon, **Settings → General**)
 - the secret `NEON_API_KEY`: a Neon API key (Neon, your account's **API keys**)
 
-Without them the workflow does nothing. To delete old branches by hand, open **Branches** in Neon; keep `main` and `dev`.
+Without them the workflow does nothing. To delete old branches by hand, open **Branches** in Neon; keep `main`, `dev` and `test` (the database tests' branch, see [testing](testing.md#database-tests)).
 
 ## Migrations
 
