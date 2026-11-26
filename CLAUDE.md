@@ -39,7 +39,7 @@ If the code and a doc disagree, say so to the user instead of picking one silent
 - **Transfers are never income or expense** in totals, budgets or reports. Neither are loans and debts: a person or lender is an account of type `counterparty` (#47), loans are transfers with it, and a debt no money moved for is a `receivable` or `payable` on it. Count only `income` and `expense` (`INCOME_EXPENSE_TYPES`), never "everything but transfers", and leave counterparties out wherever the book's own money is meant (`isCounterparty`). Balances come from `accountBalance()` in SQL; sum in Postgres, never in JavaScript.
 - **The database enforces the rules too** (constraints in `src/db/schema/`); validate on the server first anyway, to show a clear error. Neon's HTTP driver has no interactive transactions: use `db.batch([...])` for writes that belong together.
 - **Migrations stay backward compatible** with the previous version (expand, then contract) and are never edited once applied ([releases](docs/development/releases.md#migration-rules)).
-- **Tests never reach a database:** `@/db` fails any test that calls it; mock the query module (`vi.mock("@/db/transactions")`). Tests go next to the code ([testing](docs/development/testing.md)).
+- **Unit and component tests never reach a database:** `@/db` fails any test that calls it; mock the query module (`vi.mock("@/db/transactions")`). Only the database tests (`src/db/*.db.test.ts`, `pnpm test:db`) run real SQL, against a throwaway `money_test` database, never the `dev` branch; a query that sums money or enforces a rule gets one. Tests go next to the code ([testing](docs/development/testing.md)).
 - **Server-only code** (`src/db/`, `src/auth/`, `src/mcp/`) imports `server-only`. A Better Auth endpoint Money doesn't use goes on `DISABLED_PATHS`.
 - **No user-facing text in components**, and every string in both `src/messages/fa.ts` and `src/messages/en.ts`. Every layout works right to left and left to right (logical CSS properties only). Tokens only, no hard-coded values.
 - **Library versions:** Next.js and Better Auth here may be newer than your training data. Check `node_modules/next/dist/docs/` (see `AGENTS.md`) and the current Better Auth docs (its MCP plugin is being replaced by the OAuth Provider plugin) before using an API.
@@ -64,6 +64,8 @@ The repo carries only the Claude Code setup that installs itself, so cloud sessi
 
 - **Plugins** in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`): `vercel` (claude-plugins-official), `ui-ux-pro-max`, and Anthropic's `engineering` and `design` (knowledge-work-plugins: the same plugins as the claude.ai Anthropic Directory, so a desktop that has them on the account shows their skills twice), installed from GitHub when a session starts.
 - **MCP servers** in `.mcp.json`: `chrome-devtools` (approved in `enabledMcpjsonServers`). claude.ai connectors (Money, Vercel, Figma, …) come with the account, not the repo.
+- **Preview servers** in `.claude/launch.json`: `dev` (`pnpm dev`, `money.localhost:3000`) and `storybook` (`pnpm storybook`, `money.localhost:6006`), for the desktop app's browser pane. Start them from there, not from a shell.
+- **Other agents** (Codex, Cursor, Copilot, Gemini, …) read `AGENTS.md`, which sends them here. `next dev` rewrites the Next.js block at its top: keep it. When a rule here changes in a way other agents read differently (the `@` import, the Claude-only setup), update `AGENTS.md` too.
 
 ## Reference repositories (siblings of this folder)
 

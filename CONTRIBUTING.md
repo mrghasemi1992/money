@@ -157,7 +157,7 @@ Every change updates the docs it affects, in the same pull request. A PR whose c
 | The test setup or CI                                | `docs/development/testing.md`                                                                                                                            |
 | A screen or a flow users see                        | `docs/user-guide.md` and `docs/user-guide.fa.md`; retake its screenshots with `pnpm docs:screenshots` (callouts are defined in `scripts/screenshots.ts`) |
 | What Money can do                                   | `README.md`                                                                                                                                              |
-| A rule for AI agents                                | `CLAUDE.md`                                                                                                                                              |
+| A rule for AI agents                                | `CLAUDE.md` (and `AGENTS.md`, which points other agents to it, when they need a note of their own)                                                       |
 
 The docs are in English, except where they quote the interface in Persian.
 
